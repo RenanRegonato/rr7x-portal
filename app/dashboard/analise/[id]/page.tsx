@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
-const STEPS = [
+const AGENT_STEPS = [
   { key: 'orchestration', label: '🎛️ Diagnóstico (Otto Orquestra)' },
   { key: 'pesquisa', label: '🔍 Pesquisa Mercadológica (Pedro Panorama)' },
   { key: 'diagnostico', label: '💊 Diagnóstico Financeiro (Davi Diagnóstico)' },
@@ -16,6 +16,11 @@ const STEPS = [
   { key: 'revisao', label: '✅ Revisão Final (Rodrigo Relatório)' },
   { key: 'blind_teaser', label: '📄 Blind Teaser' },
   { key: 'sell_side_pitchbook', label: '📊 Sell-Side Pitchbook' },
+]
+
+const STEPS = [
+  { key: 'relatorio_consolidado', label: '📑 Relatório Consolidado' },
+  ...AGENT_STEPS,
 ]
 
 export default function AnalisePage() {
@@ -34,10 +39,23 @@ export default function AnalisePage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ step }),
     })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.error ?? 'Erro no step ' + step)
-    const result = data.result as string
-    setOutputs(prev => ({ ...prev, [step]: result }))
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      throw new Error(data.error ?? 'Erro no step ' + step)
+    }
+
+    const reader = res.body!.getReader()
+    const decoder = new TextDecoder()
+    let result = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      result += decoder.decode(value, { stream: true })
+      setOutputs(prev => ({ ...prev, [step]: result }))
+    }
+
     setActiveTab(step)
     return result
   }
@@ -72,6 +90,9 @@ export default function AnalisePage() {
         runStep('sell_side_pitchbook'),
       ])
 
+      // Step 12: Relatório Consolidado
+      await runStep('relatorio_consolidado')
+
       // Marca como concluído
       await fetch(`/api/analise-status?id=${id}&concluir=1`)
       setStatus('concluido')
@@ -94,7 +115,11 @@ export default function AnalisePage() {
       setOutputs(existingOutputs)
 
       const completedKeys = Object.keys(existingOutputs)
-      if (completedKeys.length > 0) setActiveTab(completedKeys[completedKeys.length - 1])
+      if (existingOutputs.relatorio_consolidado) {
+        setActiveTab('relatorio_consolidado')
+      } else if (completedKeys.length > 0) {
+        setActiveTab(completedKeys[completedKeys.length - 1])
+      }
 
       if (data.status === 'processando') {
         runPipeline()
@@ -109,21 +134,42 @@ export default function AnalisePage() {
     </div>
   )
 
-  const completedSteps = STEPS.filter(s => outputs[s.key])
+  const completedAgentSteps = AGENT_STEPS.filter(s => outputs[s.key])
   const isDone = status === 'concluido'
   const isProcessing = status === 'processando'
 
   function downloadAll() {
-    const content = STEPS
+    const slug = analise.nome_ativo?.replace(/\s+/g, '-') ?? 'analise'
+    const parts: string[] = []
+
+    if (outputs.relatorio_consolidado) {
+      parts.push(`# 📑 RELATÓRIO CONSOLIDADO — ${analise.nome_ativo}\n*RR7x Deal Intelligence · ${new Date().toLocaleDateString('pt-BR')}*\n\n${outputs.relatorio_consolidado}`)
+      parts.push('---')
+    }
+
+    const agentParts = AGENT_STEPS
       .filter(s => outputs[s.key])
-      .map(s => `# ${s.label}\n\n${outputs[s.key]}`)
-      .join('\n\n---\n\n')
-    const blob = new Blob([content], { type: 'text/markdown' })
+      .map(s => `## ${s.label}\n\n${outputs[s.key]}`)
+    if (agentParts.length > 0) {
+      parts.push(`# 📂 ANÁLISES INDIVIDUAIS\n\n${agentParts.join('\n\n---\n\n')}`)
+    }
+
+    const blob = new Blob([parts.join('\n\n---\n\n')], { type: 'text/markdown' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${analise.nome_ativo?.replace(/\s+/g, '-') ?? 'analise'}-rr7x.md`
+    a.download = `${slug}-rr7x.md`
     a.click()
+  }
+
+  async function handleGenerateConsolidado() {
+    try {
+      await runStep('relatorio_consolidado')
+    } catch (err) {
+      console.error('Erro ao gerar relatório consolidado:', err)
+    } finally {
+      setRunningStep(null)
+    }
   }
 
   return (
@@ -135,7 +181,26 @@ export default function AnalisePage() {
           <span className="text-white font-semibold text-sm truncate max-w-xs">{analise.nome_ativo}</span>
         </div>
         <div className="flex items-center gap-3">
-          {isDone && (
+          {!isProcessing && Object.keys(outputs).filter(k => k !== 'relatorio_consolidado').length > 0 && (
+            <button
+              onClick={handleGenerateConsolidado}
+              disabled={runningStep === 'relatorio_consolidado'}
+              className={`text-sm px-4 py-2 rounded-lg transition font-medium ${
+                runningStep === 'relatorio_consolidado'
+                  ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                  : outputs.relatorio_consolidado
+                  ? 'bg-gray-800 hover:bg-gray-700 text-cyan-400 border border-cyan-500/20'
+                  : 'bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+              }`}
+            >
+              {runningStep === 'relatorio_consolidado'
+                ? '⟳ Gerando consolidado...'
+                : outputs.relatorio_consolidado
+                ? '📑 Regenerar Consolidado'
+                : '📑 Gerar Relatório Consolidado'}
+            </button>
+          )}
+          {Object.keys(outputs).length > 0 && (
             <button onClick={downloadAll} className="text-sm bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition font-medium">
               Baixar tudo (.md)
             </button>
@@ -151,13 +216,41 @@ export default function AnalisePage() {
           <div className="mb-4">
             <div className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Progresso</div>
             <div className="w-full bg-gray-800 rounded-full h-1.5 mb-1">
-              <div className="bg-cyan-500 h-1.5 rounded-full transition-all" style={{ width: `${(completedSteps.length / STEPS.length) * 100}%` }} />
+              <div className="bg-cyan-500 h-1.5 rounded-full transition-all" style={{ width: `${(completedAgentSteps.length / AGENT_STEPS.length) * 100}%` }} />
             </div>
-            <div className="text-xs text-gray-500">{completedSteps.length} / {STEPS.length} etapas</div>
+            <div className="text-xs text-gray-500">{completedAgentSteps.length} / {AGENT_STEPS.length} agentes</div>
           </div>
 
           <nav className="space-y-1">
-            {STEPS.map(s => {
+            {/* Relatório Consolidado — destaque no topo */}
+            {(() => {
+              const s = { key: 'relatorio_consolidado', label: '📑 Relatório Consolidado' }
+              const done = !!outputs[s.key]
+              const running = runningStep === s.key
+              return (
+                <button
+                  key={s.key}
+                  onClick={() => done && setActiveTab(s.key)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center gap-2 border ${
+                    activeTab === s.key
+                      ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
+                      : done
+                      ? 'text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/10'
+                      : running
+                      ? 'text-yellow-400 border-yellow-400/20'
+                      : 'text-gray-600 border-transparent cursor-not-allowed'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${done ? 'bg-cyan-400' : running ? 'bg-yellow-400 animate-pulse' : 'bg-gray-700'}`} />
+                  <span className="leading-tight font-medium">{s.label}{running ? ' ⟳' : ''}</span>
+                </button>
+              )
+            })()}
+
+            <div className="mx-1 my-2 border-t border-gray-800" />
+            <div className="px-2 pb-1 text-xs text-gray-600 uppercase tracking-wider">Agentes</div>
+
+            {AGENT_STEPS.map(s => {
               const done = !!outputs[s.key]
               const running = runningStep === s.key
               return (

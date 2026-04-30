@@ -6,6 +6,33 @@ export const maxDuration = 60
 
 const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
 
+const HUMANIZER_DIRECTIVE = `
+
+---
+DIRETRIZES DE ESCRITA — aplique em todo o output:
+
+Escreva como um analista sênior de mercado financeiro que domina o assunto — direto, preciso, sem floreios de IA. O leitor é um assessor, investidor ou gestor de fundos; ele reconhece padrão de IA e perde confiança no relatório se soar genérico.
+
+PROIBIDO:
+- Palavras-gatilho de IA: crucial, fundamental, vital, pivotal, robusto, abrangente, ressaltar, destacar, evidenciar, impulsionar, catalisar, alavancar (no sentido figurado), ecossistema (figurado), jornada (figurado), landscape, showcasing, alinhado, sinergias (sem dado concreto)
+- Construções artificiais: "serve como", "representa um marco", "é um testemunho de", "está no cerne de", "no coração de", "destaca-se como", "posiciona-se como"
+- Frases de abertura vazias: "Vamos explorar", "A seguir, abordaremos", "Neste relatório, apresentamos", "Com base nos dados disponíveis"
+- Conclusões genéricas: "O futuro é promissor", "O caminho está claro", "Com as ações corretas...", "Há grande potencial"
+- Tríades forçadas (X, Y e Z) quando só dois pontos existem de fato
+- Negrito mecânico — use apenas para números críticos ou termos técnicos específicos
+- Emojis em headings ou bullets
+- Hedging excessivo: "poderia potencialmente", "é possível que talvez", "em certa medida"
+- Seções de "Desafios e Perspectivas" formulaicas
+
+OBRIGATÓRIO:
+- Use "é", "tem", "pode", "faz" em vez de "serve como", "representa", "demonstra ser"
+- Varie o ritmo: frases curtas quando o ponto é simples; frases mais longas quando a cadeia de raciocínio exige
+- Se um problema é grave, diga que é grave — sem suavizar com "pontos de atenção" ou "desafios a endereçar"
+- Quando houver incerteza real sobre os dados, declare com precisão o que é incerto e por quê
+- Headings em letras minúsculas (exceto primeira letra e nomes próprios)
+- Terminologia técnica financeira É preservada e encorajada: EBITDA, DRS, M&A, CRI, LCI, CRA, SPE, covenant, due diligence, cap rate, LTV, DSCR, TIR, VPL — estas são o vocabulário correto do mercado, não padrões de IA
+- Tenha posição quando os dados sustentam uma; não neutralize artificialmente análises que apontam para uma conclusão clara`
+
 async function loadPrompts(): Promise<Record<string, string>> {
   try {
     const admin = createAdminClient()
@@ -13,16 +40,6 @@ async function loadPrompts(): Promise<Record<string, string>> {
     if (data) return Object.fromEntries(data.map(r => [r.id, r.system_prompt]))
   } catch {}
   return {}
-}
-
-async function callAgent(systemPrompt: string, userMessage: string): Promise<string> {
-  const response = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 4096,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userMessage }],
-  })
-  return response.content[0].type === 'text' ? response.content[0].text : ''
 }
 
 function formatIntake(intake: Record<string, string>): string {
@@ -52,111 +69,216 @@ function buildAllOutputs(outputs: Record<string, string>): string {
   return order.filter(k => outputs[k]).map(k => `${labels[k]}:\n${outputs[k]}`).join('\n\n')
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+function buildAllOutputsForReport(outputs: Record<string, string>): string {
+  const all = [
+    { key: 'orchestration',      label: 'ORQUESTRAÇÃO — Otto Orquestra (Deal Orchestrator)' },
+    { key: 'pesquisa',           label: 'PESQUISA MERCADOLÓGICA — Pedro Panorama (Market Intelligence)' },
+    { key: 'diagnostico',        label: 'DIAGNÓSTICO FINANCEIRO — Davi Diagnóstico (Financial Diagnostician)' },
+    { key: 'analise_ma',         label: 'ANÁLISE DE M&A — Arthur Aquisição (M&A Architect)' },
+    { key: 'contratos',          label: 'ANÁLISE CONTRATUAL — Clara Cláusula (Contracts Specialist)' },
+    { key: 'originacao',         label: 'VENDA & ORIGINAÇÃO — Victor Valor (Deal Originator)' },
+    { key: 'estruturacao',       label: 'ESTRUTURAÇÃO OPERACIONAL — Estela Estrutura (Operations Advisor)' },
+    { key: 'maturidade',         label: 'VEREDICTO DE MATURIDADE — Paulo Preparo (Deal Readiness Coach)' },
+    { key: 'revisao',            label: 'REVISÃO FINAL — Rodrigo Relatório (Quality Reviewer)' },
+    { key: 'blind_teaser',       label: 'BLIND TEASER' },
+    { key: 'sell_side_pitchbook', label: 'SELL-SIDE PITCHBOOK' },
+  ]
+  const available = all.filter(({ key }) => outputs[key])
+  const missing   = all.filter(({ key }) => !outputs[key])
 
-  const { id } = await params
-  const { step } = await req.json()
+  let result = available
+    .map(({ key, label }) => `### ${label}:\n${outputs[key]}`)
+    .join('\n\n---\n\n')
 
-  const admin = createAdminClient()
-
-  // Verifica posse da análise (admin pode rodar qualquer uma)
-  const { data: analise } = await admin.from('analises').select('*').eq('id', id).single()
-  if (!analise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
-  if (analise.user_id !== user.id && user.email !== ADMIN_EMAIL) {
-    return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+  if (missing.length > 0) {
+    result += `\n\n---\n\n⚠️ ANÁLISES NÃO DISPONÍVEIS (não executadas ou com erro):\n${missing.map(({ label }) => `- ${label}`).join('\n')}`
   }
 
-  const intake = analise.deal_intake as Record<string, string>
-  const outputs = (analise.outputs ?? {}) as Record<string, string>
-  const prompts = await loadPrompts()
-  const msg = (key: string, fallback: string) => prompts[key] || fallback
-  const intakeStr = formatIntake(intake)
-  const allOutputs = buildAllOutputs(outputs)
+  return result
+}
 
-  let result = ''
-
+function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}): { system: string; user: string } | null {
+  const msg = (key: string, fallback: string) => (prompts[key] || fallback) + HUMANIZER_DIRECTIVE
   switch (step) {
     case 'orchestration':
-      result = await callAgent(
-        msg('orquestrador', 'Você é Otto Orquestra, Deal Orchestrator da RR7x Capital Hub. Calcule o DRS, mapeie riscos e defina o próximo passo estratégico.'),
-        `Analise este deal intake e produza o diagnóstico completo:\n\n${intakeStr}`
-      )
-      break
+      return {
+        system: msg('orquestrador', 'Você é Otto Orquestra, Deal Orchestrator da RR7x Capital Hub. Calcule o DRS, mapeie riscos e defina o próximo passo estratégico.'),
+        user: `Analise este deal intake e produza o diagnóstico completo:\n\n${intakeStr}`,
+      }
     case 'pesquisa':
-      result = await callAgent(
-        msg('pesquisador', 'Você é Pedro Panorama, Market Intelligence Analyst da RR7x Capital Hub. Produza um Estudo de Viabilidade Econômica com veredicto Go/No-Go.'),
-        `Produza a pesquisa mercadológica completa para este ativo:\n\n${intakeStr}`
-      )
-      break
+      return {
+        system: msg('pesquisador', 'Você é Pedro Panorama, Market Intelligence Analyst da RR7x Capital Hub. Produza um Estudo de Viabilidade Econômica com veredicto Go/No-Go.'),
+        user: `Produza a pesquisa mercadológica completa para este ativo:\n\n${intakeStr}`,
+      }
     case 'diagnostico':
-      result = await callAgent(
-        msg('diagnosticador', 'Você é Davi Diagnóstico, Financial Diagnostician da RR7x Capital Hub. Diagnostique a saúde financeira e recomende a estrutura de operação.'),
-        `Produza o diagnóstico financeiro completo para este ativo:\n\n${intakeStr}`
-      )
-      break
+      return {
+        system: msg('diagnosticador', 'Você é Davi Diagnóstico, Financial Diagnostician da RR7x Capital Hub. Diagnostique a saúde financeira e recomende a estrutura de operação.'),
+        user: `Produza o diagnóstico financeiro completo para este ativo:\n\n${intakeStr}`,
+      }
     case 'analise_ma':
-      result = await callAgent(
-        msg('arquiteto_ma', 'Você é Arthur Aquisição, M&A Architect da RR7x Capital Hub. Construa o valuation, articule a tese e defina a estratégia de negociação.'),
-        `Produza a análise de M&A completa para este ativo:\n\n${intakeStr}`
-      )
-      break
+      return {
+        system: msg('arquiteto_ma', 'Você é Arthur Aquisição, M&A Architect da RR7x Capital Hub. Construa o valuation, articule a tese e defina a estratégia de negociação.'),
+        user: `Produza a análise de M&A completa para este ativo:\n\n${intakeStr}`,
+      }
     case 'contratos':
-      result = await callAgent(
-        msg('contratualista', 'Você é Clara Cláusula, Contracts Specialist da RR7x Capital Hub. Mapeie riscos jurídicos e recomende a documentação necessária.'),
-        `Produza a análise contratual completa para este ativo:\n\n${intakeStr}`
-      )
-      break
+      return {
+        system: msg('contratualista', 'Você é Clara Cláusula, Contracts Specialist da RR7x Capital Hub. Mapeie riscos jurídicos e recomende a documentação necessária.'),
+        user: `Produza a análise contratual completa para este ativo:\n\n${intakeStr}`,
+      }
     case 'originacao':
-      result = await callAgent(
-        msg('originador', 'Você é Victor Valor, Deal Originator da RR7x Capital Hub. Estruture o posicionamento comercial e o pipeline de compradores.'),
-        `Produza a estratégia de venda e originação para este ativo:\n\n${intakeStr}`
-      )
-      break
+      return {
+        system: msg('originador', 'Você é Victor Valor, Deal Originator da RR7x Capital Hub. Estruture o posicionamento comercial e o pipeline de compradores.'),
+        user: `Produza a estratégia de venda e originação para este ativo:\n\n${intakeStr}`,
+      }
     case 'estruturacao':
-      result = await callAgent(
-        msg('estruturador', 'Você é Estela Estrutura, Operation Structure Advisor da RR7x Capital Hub. Mapeie as operações financeiras e prescreva as melhores.'),
-        `Produza a estruturação operacional completa para este ativo:\n\n${intakeStr}`
-      )
-      break
+      return {
+        system: msg('estruturador', 'Você é Estela Estrutura, Operation Structure Advisor da RR7x Capital Hub. Mapeie as operações financeiras e prescreva as melhores.'),
+        user: `Produza a estruturação operacional completa para este ativo:\n\n${intakeStr}`,
+      }
     case 'maturidade':
-      result = await callAgent(
-        msg('preparador', 'Você é Paulo Preparo, Deal Readiness Coach da RR7x Capital Hub. Emita o Veredicto de Maturidade definitivo e o plano de preparação.'),
-        `Com base em todos os outputs dos especialistas abaixo, emita o Veredicto de Maturidade:\n\n${allOutputs}`
-      )
-      break
+      return {
+        system: msg('preparador', 'Você é Paulo Preparo, Deal Readiness Coach da RR7x Capital Hub. Emita o Veredicto de Maturidade definitivo e o plano de preparação.'),
+        user: `Com base em todos os outputs dos especialistas abaixo, emita o Veredicto de Maturidade:\n\n${allOutputs}`,
+      }
     case 'revisao':
-      result = await callAgent(
-        msg('revisor', 'Você é Rodrigo Relatório, Quality Reviewer da RR7x Capital Hub. Verifique coerência, completude e consistência entre todos os outputs.'),
-        `Revise a coerência e qualidade de todos os outputs:\n\n${allOutputs}`
-      )
-      break
+      return {
+        system: msg('revisor', 'Você é Rodrigo Relatório, Quality Reviewer da RR7x Capital Hub. Verifique coerência, completude e consistência entre todos os outputs.'),
+        user: `Revise a coerência e qualidade de todos os outputs:\n\n${allOutputs}`,
+      }
     case 'blind_teaser':
-      result = await callAgent(
-        msg('blind_teaser', 'Você é um especialista em comunicação de M&A da RR7x Capital Hub. Gere um Blind Teaser profissional sem revelar o nome do ativo.'),
-        `Gere o Blind Teaser:\n\nDEAL INTAKE:\n${intakeStr}\n\nOUTPUTS:\n${allOutputs}`
-      )
-      break
+      return {
+        system: msg('blind_teaser', 'Você é um especialista em comunicação de M&A da RR7x Capital Hub. Gere um Blind Teaser profissional sem revelar o nome do ativo.'),
+        user: `Gere o Blind Teaser:\n\nDEAL INTAKE:\n${intakeStr}\n\nOUTPUTS:\n${allOutputs}`,
+      }
     case 'sell_side_pitchbook':
-      result = await callAgent(
-        msg('sell_side_pitchbook', 'Você é um especialista em documentos de captação da RR7x Capital Hub. Gere um Sell-Side Pitchbook completo.'),
-        `Gere o Sell-Side Pitchbook:\n\nDEAL INTAKE:\n${intakeStr}\n\nOUTPUTS:\n${allOutputs}`
-      )
-      break
+      return {
+        system: msg('sell_side_pitchbook', 'Você é um especialista em documentos de captação da RR7x Capital Hub. Gere um Sell-Side Pitchbook completo.'),
+        user: `Gere o Sell-Side Pitchbook:\n\nDEAL INTAKE:\n${intakeStr}\n\nOUTPUTS:\n${allOutputs}`,
+      }
+    case 'relatorio_consolidado': {
+      const allForReport = buildAllOutputsForReport(outputs)
+      return {
+        system: `Você é o Chief Intelligence Analyst da RR7x Capital Hub. Sua função é consolidar e sintetizar as análises dos especialistas em um único relatório estratégico executivo.
+
+IMPORTANTE: Esta análise pode estar incompleta. Trabalhe com os dados disponíveis e indique claramente as lacunas quando relevante. Seu objetivo é sempre gerar inteligência acionável, mesmo com dados parciais. Nunca recuse gerar o relatório por falta de dados — adapte o nível de confiança da avaliação.` + HUMANIZER_DIRECTIVE,
+        user: `Com base no deal intake e nas análises disponíveis abaixo, gere o Relatório Consolidado completo com EXATAMENTE estas 5 seções:
+
+## 1. RESUMO EXECUTIVO GERAL
+- Diagnóstico geral do ativo (2-3 parágrafos objetivos)
+- Nível de maturidade da operação
+- Principais pontos fortes identificados
+- Principais riscos identificados
+- **VEREDITO**: Apto para captação / Não apto / Precisa de ajustes (com justificativa clara e objetiva)
+
+## 2. RESUMO POR AGENTE
+Para cada agente com dados disponíveis, apresente em formato estruturado:
+- O que foi analisado
+- Principais insights
+- Problemas identificados
+- Recomendações práticas
+
+(Se um agente não possui dados, indique brevemente e prossiga.)
+
+## 3. ANÁLISE CRÍTICA CONSOLIDADA
+- Cruzamento das análises dos agentes disponíveis
+- Inconsistências ou contradições detectadas entre os relatórios
+- Lacunas de informação que impedem avaliação completa
+- Pontos críticos que travam uma captação ou M&A
+
+## 4. PLANO DE AÇÃO SUGERIDO
+### Itens Críticos (bloqueantes — resolver antes de qualquer coisa)
+### Quick Wins (resolução em até 30 dias)
+### Ajustes Estruturais (resolução em 60-180 dias)
+
+## 5. SCORE GERAL DO ATIVO
+- **Nota geral: X/10**
+- Score por dimensão (X/10 cada):
+  - Viabilidade de Mercado
+  - Saúde Financeira
+  - Risco Jurídico-Contratual
+  - Maturidade para M&A/Captação
+  - Posicionamento Comercial
+- Critérios e premissas utilizados
+- Recomendação final para o assessor/investidor
+
+---
+DEAL INTAKE:
+${intakeStr}
+
+---
+ANÁLISES DISPONÍVEIS:
+${allForReport}`,
+      }
+    }
     default:
-      return NextResponse.json({ error: 'Step inválido' }, { status: 400 })
+      return null
   }
+}
 
-  const newOutputs = { ...outputs, [step]: result }
-  await admin.from('analises').update({
-    outputs: newOutputs,
-    atualizado_em: new Date().toISOString(),
-  }).eq('id', id)
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const supabase = await createServerSupabaseClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-  return NextResponse.json({ ok: true, result })
+    const { id } = await params
+    const { step } = await req.json()
+
+    const admin = createAdminClient()
+
+    const { data: analise } = await admin.from('analises').select('*').eq('id', id).single()
+    if (!analise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
+    if (analise.user_id !== user.id && user.email !== ADMIN_EMAIL) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+    }
+
+    const intake = analise.deal_intake as Record<string, string>
+    const outputs = (analise.outputs ?? {}) as Record<string, string>
+    const prompts = await loadPrompts()
+    const intakeStr = formatIntake(intake)
+    const allOutputs = buildAllOutputs(outputs)
+
+    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs)
+    if (!args) return NextResponse.json({ error: 'Step inválido' }, { status: 400 })
+
+    let fullText = ''
+
+    const readable = new ReadableStream({
+      start(controller) {
+        const messageStream = anthropic.messages.stream({
+          model: MODEL,
+          max_tokens: 10000,
+          system: args.system,
+          messages: [{ role: 'user', content: args.user }],
+        })
+
+        messageStream.on('text', (text) => {
+          fullText += text
+          controller.enqueue(new TextEncoder().encode(text))
+        })
+
+        messageStream.on('finalMessage', async () => {
+          const newOutputs = { ...outputs, [step]: fullText }
+          await admin.from('analises').update({
+            outputs: newOutputs,
+            atualizado_em: new Date().toISOString(),
+          }).eq('id', id)
+          controller.close()
+        })
+
+        messageStream.on('error', (err: Error) => {
+          controller.error(err)
+        })
+      },
+    })
+
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
+        'X-Accel-Buffering': 'no',
+      },
+    })
   } catch (err: any) {
     console.error('[step error]', err)
     return NextResponse.json({ error: err?.message ?? 'Erro interno no agente' }, { status: 500 })
