@@ -33,6 +33,60 @@ OBRIGATÓRIO:
 - Terminologia técnica financeira É preservada e encorajada: EBITDA, DRS, M&A, CRI, LCI, CRA, SPE, covenant, due diligence, cap rate, LTV, DSCR, TIR, VPL — estas são o vocabulário correto do mercado, não padrões de IA
 - Tenha posição quando os dados sustentam uma; não neutralize artificialmente análises que apontam para uma conclusão clara`
 
+interface DriveResult {
+  url: string
+  content: string
+  status: 'ok' | 'partial' | 'blocked' | 'error'
+  detail: string
+}
+
+async function fetchDriveContent(url: string): Promise<DriveResult> {
+  const base = { url }
+
+  // Google Docs / Sheets: use public export endpoint (no auth needed for public files)
+  const gdocMatch = url.match(/docs\.google\.com\/(document|spreadsheets)\/d\/([^/?]+)/)
+  if (gdocMatch) {
+    const [, docType, docId] = gdocMatch
+    const fmt = docType === 'spreadsheets' ? 'csv' : 'txt'
+    try {
+      const exportUrl = `https://docs.google.com/${docType}/d/${docId}/export?format=${fmt}`
+      const res = await fetch(exportUrl, { signal: AbortSignal.timeout(12000) })
+      if (res.ok) {
+        const text = await res.text()
+        return { ...base, content: text.slice(0, 60000), status: 'ok', detail: `${docType === 'spreadsheets' ? 'Planilha' : 'Documento'} Google exportado com sucesso (${Math.round(text.length / 1000)}KB).` }
+      }
+      return { ...base, content: '', status: 'blocked', detail: `Export retornou HTTP ${res.status} — arquivo provavelmente privado.` }
+    } catch (e: any) {
+      return { ...base, content: '', status: 'error', detail: `Falha ao exportar: ${e?.message}` }
+    }
+  }
+
+  // All other Drive URLs (folders, PDFs, etc.): try Jina AI reader
+  try {
+    const jinaUrl = `https://r.jina.ai/${url}`
+    const res = await fetch(jinaUrl, {
+      headers: { 'Accept': 'text/plain', 'X-Return-Format': 'text' },
+      signal: AbortSignal.timeout(14000),
+    })
+    if (res.ok) {
+      const text = await res.text()
+      const meaningful = text.replace(/\s+/g, ' ').trim()
+      if (meaningful.length > 400) {
+        return { ...base, content: text.slice(0, 60000), status: 'ok', detail: `Conteúdo extraído via leitura web (${Math.round(meaningful.length / 1000)}KB de texto).` }
+      }
+      return { ...base, content: text.slice(0, 1000), status: 'blocked', detail: 'Link acessível mas retornou conteúdo insuficiente. A pasta pode estar vazia, ser privada ou exigir login do Google.' }
+    }
+    return { ...base, content: '', status: 'blocked', detail: `HTTP ${res.status} — verifique se o link está configurado como "qualquer pessoa com o link pode visualizar".` }
+  } catch (e: any) {
+    const isTimeout = e?.name === 'TimeoutError' || e?.name === 'AbortError'
+    return {
+      ...base, content: '',
+      status: isTimeout ? 'partial' : 'error',
+      detail: isTimeout ? 'Timeout (>14s). O Drive demorou para responder — tente novamente.' : `Erro de rede: ${e?.message ?? 'desconhecido'}`,
+    }
+  }
+}
+
 async function loadPrompts(): Promise<Record<string, string>> {
   try {
     const admin = createAdminClient()
@@ -60,17 +114,18 @@ ${intake.informacoesAdicionais ? `Informações Adicionais: ${intake.informacoes
 }
 
 function buildAllOutputs(outputs: Record<string, string>): string {
-  const order = ['orchestration', 'pesquisa', 'diagnostico', 'analise_ma', 'contratos', 'originacao', 'estruturacao', 'maturidade', 'revisao']
+  const order = ['drive_intake', 'orchestration', 'pesquisa', 'diagnostico', 'analise_ma', 'contratos', 'originacao', 'estruturacao', 'maturidade', 'revisao']
   const labels: Record<string, string> = {
-    orchestration: 'ORQUESTRAÇÃO', pesquisa: 'PESQUISA', diagnostico: 'DIAGNÓSTICO',
-    analise_ma: 'ANÁLISE M&A', contratos: 'CONTRATOS', originacao: 'ORIGINAÇÃO',
-    estruturacao: 'ESTRUTURAÇÃO', maturidade: 'MATURIDADE', revisao: 'REVISÃO',
+    drive_intake: 'INGESTÃO DE DADOS (DRIVE)', orchestration: 'ORQUESTRAÇÃO', pesquisa: 'PESQUISA',
+    diagnostico: 'DIAGNÓSTICO', analise_ma: 'ANÁLISE M&A', contratos: 'CONTRATOS',
+    originacao: 'ORIGINAÇÃO', estruturacao: 'ESTRUTURAÇÃO', maturidade: 'MATURIDADE', revisao: 'REVISÃO',
   }
   return order.filter(k => outputs[k]).map(k => `${labels[k]}:\n${outputs[k]}`).join('\n\n')
 }
 
 function buildAllOutputsForReport(outputs: Record<string, string>): string {
   const all = [
+    { key: 'drive_intake',       label: 'INGESTÃO DE DADOS — Diagnóstico Documental (Drive)' },
     { key: 'orchestration',      label: 'ORQUESTRAÇÃO — Otto Orquestra (Deal Orchestrator)' },
     { key: 'pesquisa',           label: 'PESQUISA MERCADOLÓGICA — Pedro Panorama (Market Intelligence)' },
     { key: 'diagnostico',        label: 'DIAGNÓSTICO FINANCEIRO — Davi Diagnóstico (Financial Diagnostician)' },
@@ -97,9 +152,53 @@ function buildAllOutputsForReport(outputs: Record<string, string>): string {
   return result
 }
 
-function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}): { system: string; user: string } | null {
+function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, driveResult?: DriveResult): { system: string; user: string } | null {
   const msg = (key: string, fallback: string) => (prompts[key] || fallback) + HUMANIZER_DIRECTIVE
   switch (step) {
+    case 'drive_intake': {
+      const hasContent = driveResult && driveResult.content.length > 200
+      const driveSection = driveResult
+        ? `URL informada: ${driveResult.url}\nStatus: ${driveResult.status.toUpperCase()}\nDetalhe: ${driveResult.detail}\n\n${hasContent ? `Conteúdo extraído:\n${driveResult.content}` : 'Nenhum conteúdo pôde ser extraído dos arquivos.'}`
+        : 'Link não informado ou não processado.'
+      return {
+        system: `Você é o Agente de Ingestão de Dados da RR7x Capital Hub. Sua função é verificar, ler e diagnosticar os documentos enviados pelo assessor antes do início do pipeline de análise.
+
+Seja completamente honesto: se os arquivos não foram lidos, diga claramente. Se foram lidos parcialmente, especifique o que foi capturado e o que não foi. O assessor precisa saber exatamente o que o sistema ingeriu para calibrar o nível de confiança da análise.` + HUMANIZER_DIRECTIVE,
+        user: `Produza o Diagnóstico de Ingestão de Dados com estas seções obrigatórias:
+
+## status do link
+- URL analisada e resultado do acesso
+- Permissão detectada (público / privado / indeterminado)
+- Causa de qualquer falha de leitura
+
+## arquivos e conteúdo lido
+[Se houve conteúdo: descreva os tipos de arquivos e o que cada um contribui ao entendimento do ativo]
+[Se não houve: declare explicitamente que nenhum arquivo foi lido e o motivo técnico]
+
+## resumo do conteúdo ingerido
+[Se houve conteúdo: síntese das principais informações extraídas]
+[Se não houve: "Sem dados documentais disponíveis — a análise será baseada exclusivamente nas informações textuais do formulário."]
+
+## diagnóstico de completude documental
+Classificação: Completo / Parcial / Insuficiente / Sem dados
+
+Liste os documentos identificados, os documentos essenciais ausentes para o tipo de ativo e objetivo informado, e o impacto concreto dessa lacuna na análise.
+
+## nível de confiança para a análise
+Alto / Médio / Baixo — com justificativa direta baseada no que foi e no que não foi lido.
+
+## recomendação ao assessor
+O que o assessor deve corrigir ou complementar para melhorar a qualidade do diagnóstico.
+
+---
+DEAL INTAKE:
+${intakeStr}
+
+---
+RESULTADO DA LEITURA DO DRIVE:
+${driveSection}`,
+      }
+    }
     case 'orchestration':
       return {
         system: msg('orquestrador', 'Você é Otto Orquestra, Deal Orchestrator da RR7x Capital Hub. Calcule o DRS, mapeie riscos e defina o próximo passo estratégico.'),
@@ -238,7 +337,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const intakeStr = formatIntake(intake)
     const allOutputs = buildAllOutputs(outputs)
 
-    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs)
+    // For drive_intake: fetch real content from the Drive link before calling Claude
+    let driveResult: DriveResult | undefined
+    if (step === 'drive_intake' && intake.linkDocumentos) {
+      driveResult = await fetchDriveContent(intake.linkDocumentos)
+    }
+
+    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, driveResult)
     if (!args) return NextResponse.json({ error: 'Step inválido' }, { status: 400 })
 
     let fullText = ''

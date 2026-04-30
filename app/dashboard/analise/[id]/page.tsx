@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, Fragment } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
 const AGENT_STEPS = [
+  { key: 'drive_intake', label: '📂 Ingestão de Dados (Drive)' },
   { key: 'orchestration', label: '🎛️ Diagnóstico (Otto Orquestra)' },
   { key: 'pesquisa', label: '🔍 Pesquisa Mercadológica (Pedro Panorama)' },
   { key: 'diagnostico', label: '💊 Diagnóstico Financeiro (Davi Diagnóstico)' },
@@ -65,6 +66,9 @@ export default function AnalisePage() {
     pipelineStarted.current = true
 
     try {
+      // Step 0: Ingestão de dados — leitura real do Drive
+      await runStep('drive_intake')
+
       // Step 1: Otto Orquestra
       await runStep('orchestration')
 
@@ -117,6 +121,8 @@ export default function AnalisePage() {
       const completedKeys = Object.keys(existingOutputs)
       if (existingOutputs.relatorio_consolidado) {
         setActiveTab('relatorio_consolidado')
+      } else if (existingOutputs.drive_intake) {
+        setActiveTab('drive_intake')
       } else if (completedKeys.length > 0) {
         setActiveTab(completedKeys[completedKeys.length - 1])
       }
@@ -218,7 +224,7 @@ export default function AnalisePage() {
             <div className="w-full bg-gray-800 rounded-full h-1.5 mb-1">
               <div className="bg-cyan-500 h-1.5 rounded-full transition-all" style={{ width: `${(completedAgentSteps.length / AGENT_STEPS.length) * 100}%` }} />
             </div>
-            <div className="text-xs text-gray-500">{completedAgentSteps.length} / {AGENT_STEPS.length} agentes</div>
+            <div className="text-xs text-gray-500">{completedAgentSteps.length} / {AGENT_STEPS.length} etapas</div>
           </div>
 
           <nav className="space-y-1">
@@ -250,18 +256,35 @@ export default function AnalisePage() {
             <div className="mx-1 my-2 border-t border-gray-800" />
             <div className="px-2 pb-1 text-xs text-gray-600 uppercase tracking-wider">Agentes</div>
 
-            {AGENT_STEPS.map(s => {
+            {AGENT_STEPS.map((s) => {
               const done = !!outputs[s.key]
               const running = runningStep === s.key
+              const isDriveIntake = s.key === 'drive_intake'
               return (
-                <button
-                  key={s.key}
-                  onClick={() => done && setActiveTab(s.key)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center gap-2 ${activeTab === s.key ? 'bg-gray-800 text-white' : done ? 'text-gray-300 hover:bg-gray-900' : 'text-gray-600 cursor-not-allowed'}`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${done ? 'bg-cyan-400' : running ? 'bg-yellow-400 animate-pulse' : 'bg-gray-700'}`} />
-                  <span className="leading-tight">{s.label}{running ? ' ⟳' : ''}</span>
-                </button>
+                <Fragment key={s.key}>
+                  <button
+                    onClick={() => done && setActiveTab(s.key)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center gap-2 ${
+                      isDriveIntake
+                        ? activeTab === s.key
+                          ? 'bg-amber-500/10 border border-amber-500/30 text-amber-300'
+                          : done
+                          ? 'text-amber-400 border border-amber-500/20 hover:bg-amber-500/10'
+                          : running
+                          ? 'text-yellow-400 border border-yellow-400/20'
+                          : 'text-gray-600 border border-transparent cursor-not-allowed'
+                        : activeTab === s.key
+                        ? 'bg-gray-800 text-white'
+                        : done
+                        ? 'text-gray-300 hover:bg-gray-900'
+                        : 'text-gray-600 cursor-not-allowed'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${done ? (isDriveIntake ? 'bg-amber-400' : 'bg-cyan-400') : running ? 'bg-yellow-400 animate-pulse' : 'bg-gray-700'}`} />
+                    <span className="leading-tight font-medium">{s.label}{running ? ' ⟳' : ''}</span>
+                  </button>
+                  {isDriveIntake && <div className="mx-1 my-1.5 border-t border-gray-800" />}
+                </Fragment>
               )
             })}
           </nav>
