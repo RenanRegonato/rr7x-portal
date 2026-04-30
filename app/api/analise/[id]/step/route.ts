@@ -295,7 +295,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // drive_intake: lê arquivos reais do Supabase Storage e passa para Claude com content blocks
     if (step === 'drive_intake') {
-      const summary = await readAnalyseDocs(id)
+      const summary = await readAnalyseDocs(analise.user_id, id)
       const userContent = buildDocIntakeContent(summary, intakeStr)
       const systemPrompt = (prompts['doc_intake'] || `Você é o Agente de Ingestão de Dados da RR7x Capital Hub. Leia os documentos enviados e produza um diagnóstico documental detalhado: o que foi lido, o que cada documento revela sobre o ativo, lacunas identificadas e nível de confiança para a análise.
 

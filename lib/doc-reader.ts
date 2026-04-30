@@ -44,15 +44,16 @@ function imageMediaType(name: string): 'image/jpeg' | 'image/png' | 'image/gif' 
   return 'image/jpeg'
 }
 
-export async function readAnalyseDocs(analiseId: string): Promise<DocReadSummary> {
+export async function readAnalyseDocs(userId: string, analiseId: string): Promise<DocReadSummary> {
   const admin = createAdminClient()
   const errors: string[] = []
   const processed: ProcessedDoc[] = []
   let totalKbRead = 0
+  const prefix = `${userId}/${analiseId}`
 
   const { data: fileList, error: listError } = await admin.storage
     .from(BUCKET)
-    .list(analiseId, { limit: MAX_FILES + 5, sortBy: { column: 'name', order: 'asc' } })
+    .list(prefix, { limit: MAX_FILES + 5, sortBy: { column: 'name', order: 'asc' } })
 
   if (listError || !fileList) {
     return {
@@ -86,7 +87,7 @@ export async function readAnalyseDocs(analiseId: string): Promise<DocReadSummary
 
       const { data: blob, error: dlErr } = await admin.storage
         .from(BUCKET)
-        .download(`${analiseId}/${file.name}`)
+        .download(`${prefix}/${file.name}`)
 
       if (dlErr || !blob) {
         const reason = `Download falhou: ${dlErr?.message ?? 'desconhecido'}`

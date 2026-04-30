@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   const urls = await Promise.all(
     files.map(async ({ name }) => {
       const safeName = name.replace(/[^a-zA-Z0-9._\-À-ɏ]/g, '_')
-      const path = `${analiseId}/${safeName}`
+      const path = `${user.id}/${analiseId}/${safeName}`
       const { data, error } = await admin.storage
         .from('analises')
         .createSignedUploadUrl(path)
