@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 
+
 const TIPOS_ATIVO = ['Empresa (M&A)', 'Imóvel / Real Estate', 'Startup / Scale-up', 'Portfólio de Crédito', 'Franquia', 'Agronegócio', 'Outro']
 const ESTAGIOS = ['Cru / Não validado', 'Estruturando', 'Estruturado', 'Em comercialização', 'Em negociação / Closing']
 const OBJETIVOS = ['Vender 100%', 'Vender participação', 'Captar investimento', 'Estruturar crédito', 'Preparar para o mercado', 'Diagnóstico / Due Diligence']
@@ -122,14 +123,28 @@ export default function NovaAnalisePage() {
     }
 
     const { analiseId } = data
-    const supabase = createClient()
 
+    // Gera URLs assinadas para upload direto ao Supabase (sem passar pelo Vercel)
+    setLoadingLabel('Preparando envio dos documentos...')
+    const urlRes = await fetch('/api/upload-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ analiseId, files: files.map(f => ({ name: f.name })) }),
+    })
+    const { urls } = await urlRes.json()
+
+    const supabase = createClient()
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
+      const urlInfo = urls?.find((u: any) => u.originalName === file.name)
+      if (!urlInfo?.token) {
+        console.warn(`URL assinada não gerada para ${file.name}`)
+        continue
+      }
       setLoadingLabel(`Enviando documentos... (${i + 1}/${files.length}) ${file.name}`)
       const { error: uploadErr } = await supabase.storage
         .from('analises')
-        .upload(`${analiseId}/${file.name}`, file, { upsert: true })
+        .uploadToSignedUrl(urlInfo.path, urlInfo.token, file)
       if (uploadErr) {
         console.warn(`Upload falhou para ${file.name}:`, uploadErr.message)
       }
