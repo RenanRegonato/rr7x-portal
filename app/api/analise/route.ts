@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
 import { DealIntake } from '@/lib/agents/pipeline'
+import { checkDriveAccess } from '@/lib/drive'
 
 export const maxDuration = 300
 
@@ -28,6 +29,19 @@ export async function POST(req: NextRequest) {
   }
 
   const intake: DealIntake = await req.json()
+
+  // Gate: valida acesso ao Drive antes de criar o registro e consumir crédito
+  if (!intake.linkDocumentos) {
+    return NextResponse.json({ error: 'Link de documentos obrigatório para iniciar a análise.' }, { status: 400 })
+  }
+
+  const driveCheck = await checkDriveAccess(intake.linkDocumentos)
+  if (driveCheck.status === 'blocked' || driveCheck.status === 'error') {
+    return NextResponse.json({
+      error: `Não foi possível acessar o Drive: ${driveCheck.message}`,
+      driveStatus: driveCheck.status,
+    }, { status: 422 })
+  }
 
   // Cria o registro da análise
   const { data: analise, error: createError } = await admin

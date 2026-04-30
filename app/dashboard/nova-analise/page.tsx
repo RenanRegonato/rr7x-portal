@@ -17,11 +17,16 @@ const MICRO_ORIENTACOES = [
   'Já houve contato com investidores ou compradores?',
 ]
 
+type DriveStatus = 'idle' | 'checking' | 'ok' | 'blocked' | 'error' | 'timeout'
+
 export default function NovaAnalisePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [loadingLabel, setLoadingLabel] = useState('')
   const [error, setError] = useState('')
   const [objetivos, setObjetivos] = useState<string[]>([])
+  const [driveStatus, setDriveStatus] = useState<DriveStatus>('idle')
+  const [driveMessage, setDriveMessage] = useState('')
   const [form, setForm] = useState({
     nomeAtivo: '',
     tipoAtivo: '',
@@ -43,17 +48,48 @@ export default function NovaAnalisePage() {
     setObjetivos(prev => prev.includes(o) ? prev.filter(x => x !== o) : [...prev, o])
   }
 
+  async function validateDrive(url: string): Promise<boolean> {
+    setDriveStatus('checking')
+    setDriveMessage('')
+    try {
+      const res = await fetch('/api/validar-drive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      })
+      const data = await res.json()
+      setDriveStatus(data.status)
+      setDriveMessage(data.message)
+      return data.status === 'ok' || data.status === 'timeout'
+    } catch {
+      setDriveStatus('error')
+      setDriveMessage('Falha de conexão ao verificar o Drive.')
+      return false
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true)
     setError('')
 
     if (objetivos.length === 0) {
       setError('Selecione ao menos um objetivo da operação.')
-      setLoading(false)
       return
     }
 
+    setLoading(true)
+
+    // 1. Valida acesso ao Drive antes de tudo
+    setLoadingLabel('Verificando acesso ao Drive...')
+    const driveOk = await validateDrive(form.linkDocumentos)
+    if (!driveOk) {
+      setLoading(false)
+      setLoadingLabel('')
+      return
+    }
+
+    // 2. Cria a análise
+    setLoadingLabel('Iniciando pipeline de análise...')
     const payload = {
       ...form,
       objetivo: objetivos.join(', '),
@@ -72,6 +108,7 @@ export default function NovaAnalisePage() {
     if (!res.ok) {
       setError(data.error ?? 'Erro ao iniciar análise.')
       setLoading(false)
+      setLoadingLabel('')
       return
     }
 
@@ -214,16 +251,42 @@ export default function NovaAnalisePage() {
             <h2 className="text-xs font-semibold text-cyan-400 uppercase tracking-widest mb-4">4 · Base de Dados</h2>
             <Field
               label="Link dos Documentos *"
-              help="Insira um link (Google Drive, Dropbox, etc.) com todos os documentos disponíveis: financeiros, contratos, apresentações, cap table, entre outros. O squad realizará a análise completa com base nesses dados."
+              help="Insira um link do Google Drive com todos os documentos disponíveis do ativo: financeiros, contratos, apresentações, cap table, etc. A pasta deve estar configurada como pública ('qualquer pessoa com o link pode visualizar'). A análise só inicia após confirmação de acesso."
             >
               <input
                 type="url"
                 value={form.linkDocumentos}
-                onChange={e => set('linkDocumentos', e.target.value)}
+                onChange={e => { set('linkDocumentos', e.target.value); setDriveStatus('idle'); setDriveMessage('') }}
                 required
                 className="input"
                 placeholder="https://drive.google.com/drive/folders/..."
               />
+              {/* Status do Drive */}
+              {driveStatus !== 'idle' && (
+                <div className={`mt-2 flex items-start gap-2 text-xs rounded-lg px-3 py-2 border ${
+                  driveStatus === 'checking' ? 'bg-gray-900 border-gray-700 text-gray-400' :
+                  driveStatus === 'ok'       ? 'bg-green-500/10 border-green-500/30 text-green-400' :
+                  driveStatus === 'timeout'  ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400' :
+                                              'bg-red-500/10 border-red-500/30 text-red-400'
+                }`}>
+                  <span className="mt-0.5 shrink-0">
+                    {driveStatus === 'checking' ? '⟳' :
+                     driveStatus === 'ok'       ? '✓' :
+                     driveStatus === 'timeout'  ? '⚠' : '✕'}
+                  </span>
+                  <div>
+                    {driveStatus === 'checking' && 'Verificando acesso ao Drive...'}
+                    {driveStatus === 'ok'       && driveMessage}
+                    {driveStatus === 'timeout'  && `${driveMessage} A análise prosseguirá mesmo assim.`}
+                    {(driveStatus === 'blocked' || driveStatus === 'error') && (
+                      <>
+                        <p className="font-medium mb-1">{driveMessage}</p>
+                        <p className="text-red-500/80">Para liberar: abra o Google Drive → clique com o botão direito na pasta → Compartilhar → altere para <strong>"Qualquer pessoa com o link"</strong> → Visualizador.</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </Field>
           </section>
 
@@ -235,11 +298,17 @@ export default function NovaAnalisePage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || driveStatus === 'blocked' || driveStatus === 'error'}
             className="w-full bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold py-3 rounded-lg transition disabled:opacity-50 text-sm"
           >
-            {loading ? 'Iniciando pipeline de análise...' : 'Iniciar Análise Completa'}
+            {loading ? loadingLabel || 'Processando...' : 'Iniciar Análise Completa'}
           </button>
+
+          {(driveStatus === 'blocked' || driveStatus === 'error') && (
+            <p className="text-center text-red-400 text-xs">
+              Corrija o acesso ao Drive para continuar.
+            </p>
+          )}
 
           <p className="text-center text-gray-500 text-xs">
             O pipeline com 9 agentes será ativado automaticamente. Entrega em 45–90 minutos.
