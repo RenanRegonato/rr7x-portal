@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
 import { anthropic, MODEL } from '@/lib/anthropic'
+import { readAnalyseDocs, DocReadSummary } from '@/lib/doc-reader'
 
-export const maxDuration = 60
+export const maxDuration = 300
 
 const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
 
@@ -33,60 +34,6 @@ OBRIGATÓRIO:
 - Terminologia técnica financeira É preservada e encorajada: EBITDA, DRS, M&A, CRI, LCI, CRA, SPE, covenant, due diligence, cap rate, LTV, DSCR, TIR, VPL — estas são o vocabulário correto do mercado, não padrões de IA
 - Tenha posição quando os dados sustentam uma; não neutralize artificialmente análises que apontam para uma conclusão clara`
 
-interface DriveResult {
-  url: string
-  content: string
-  status: 'ok' | 'partial' | 'blocked' | 'error'
-  detail: string
-}
-
-async function fetchDriveContent(url: string): Promise<DriveResult> {
-  const base = { url }
-
-  // Google Docs / Sheets: use public export endpoint (no auth needed for public files)
-  const gdocMatch = url.match(/docs\.google\.com\/(document|spreadsheets)\/d\/([^/?]+)/)
-  if (gdocMatch) {
-    const [, docType, docId] = gdocMatch
-    const fmt = docType === 'spreadsheets' ? 'csv' : 'txt'
-    try {
-      const exportUrl = `https://docs.google.com/${docType}/d/${docId}/export?format=${fmt}`
-      const res = await fetch(exportUrl, { signal: AbortSignal.timeout(12000) })
-      if (res.ok) {
-        const text = await res.text()
-        return { ...base, content: text.slice(0, 60000), status: 'ok', detail: `${docType === 'spreadsheets' ? 'Planilha' : 'Documento'} Google exportado com sucesso (${Math.round(text.length / 1000)}KB).` }
-      }
-      return { ...base, content: '', status: 'blocked', detail: `Export retornou HTTP ${res.status} — arquivo provavelmente privado.` }
-    } catch (e: any) {
-      return { ...base, content: '', status: 'error', detail: `Falha ao exportar: ${e?.message}` }
-    }
-  }
-
-  // All other Drive URLs (folders, PDFs, etc.): try Jina AI reader
-  try {
-    const jinaUrl = `https://r.jina.ai/${url}`
-    const res = await fetch(jinaUrl, {
-      headers: { 'Accept': 'text/plain', 'X-Return-Format': 'text' },
-      signal: AbortSignal.timeout(14000),
-    })
-    if (res.ok) {
-      const text = await res.text()
-      const meaningful = text.replace(/\s+/g, ' ').trim()
-      if (meaningful.length > 400) {
-        return { ...base, content: text.slice(0, 60000), status: 'ok', detail: `Conteúdo extraído via leitura web (${Math.round(meaningful.length / 1000)}KB de texto).` }
-      }
-      return { ...base, content: text.slice(0, 1000), status: 'blocked', detail: 'Link acessível mas retornou conteúdo insuficiente. A pasta pode estar vazia, ser privada ou exigir login do Google.' }
-    }
-    return { ...base, content: '', status: 'blocked', detail: `HTTP ${res.status} — verifique se o link está configurado como "qualquer pessoa com o link pode visualizar".` }
-  } catch (e: any) {
-    const isTimeout = e?.name === 'TimeoutError' || e?.name === 'AbortError'
-    return {
-      ...base, content: '',
-      status: isTimeout ? 'partial' : 'error',
-      detail: isTimeout ? 'Timeout (>14s). O Drive demorou para responder — tente novamente.' : `Erro de rede: ${e?.message ?? 'desconhecido'}`,
-    }
-  }
-}
-
 async function loadPrompts(): Promise<Record<string, string>> {
   try {
     const admin = createAdminClient()
@@ -108,7 +55,6 @@ Nível de Informação Disponível: ${intake.nivelInformacao}
 Localização: ${intake.localizacao}
 Ticket Estimado: ${intake.ticketEstimado}
 ${intake.resumoAtivo ? `Resumo e Tese do Ativo: ${intake.resumoAtivo}` : ''}
-${intake.linkDocumentos ? `Link dos Documentos: ${intake.linkDocumentos}` : ''}
 ${intake.informacoesAdicionais ? `Informações Adicionais: ${intake.informacoesAdicionais}` : ''}
 `.trim()
 }
@@ -116,7 +62,7 @@ ${intake.informacoesAdicionais ? `Informações Adicionais: ${intake.informacoes
 function buildAllOutputs(outputs: Record<string, string>): string {
   const order = ['drive_intake', 'orchestration', 'pesquisa', 'diagnostico', 'analise_ma', 'contratos', 'originacao', 'estruturacao', 'maturidade', 'revisao']
   const labels: Record<string, string> = {
-    drive_intake: 'INGESTÃO DE DADOS (DRIVE)', orchestration: 'ORQUESTRAÇÃO', pesquisa: 'PESQUISA',
+    drive_intake: 'INGESTÃO DE DADOS', orchestration: 'ORQUESTRAÇÃO', pesquisa: 'PESQUISA',
     diagnostico: 'DIAGNÓSTICO', analise_ma: 'ANÁLISE M&A', contratos: 'CONTRATOS',
     originacao: 'ORIGINAÇÃO', estruturacao: 'ESTRUTURAÇÃO', maturidade: 'MATURIDADE', revisao: 'REVISÃO',
   }
@@ -125,17 +71,17 @@ function buildAllOutputs(outputs: Record<string, string>): string {
 
 function buildAllOutputsForReport(outputs: Record<string, string>): string {
   const all = [
-    { key: 'drive_intake',       label: 'INGESTÃO DE DADOS — Diagnóstico Documental (Drive)' },
-    { key: 'orchestration',      label: 'ORQUESTRAÇÃO — Otto Orquestra (Deal Orchestrator)' },
-    { key: 'pesquisa',           label: 'PESQUISA MERCADOLÓGICA — Pedro Panorama (Market Intelligence)' },
-    { key: 'diagnostico',        label: 'DIAGNÓSTICO FINANCEIRO — Davi Diagnóstico (Financial Diagnostician)' },
-    { key: 'analise_ma',         label: 'ANÁLISE DE M&A — Arthur Aquisição (M&A Architect)' },
-    { key: 'contratos',          label: 'ANÁLISE CONTRATUAL — Clara Cláusula (Contracts Specialist)' },
-    { key: 'originacao',         label: 'VENDA & ORIGINAÇÃO — Victor Valor (Deal Originator)' },
-    { key: 'estruturacao',       label: 'ESTRUTURAÇÃO OPERACIONAL — Estela Estrutura (Operations Advisor)' },
-    { key: 'maturidade',         label: 'VEREDICTO DE MATURIDADE — Paulo Preparo (Deal Readiness Coach)' },
-    { key: 'revisao',            label: 'REVISÃO FINAL — Rodrigo Relatório (Quality Reviewer)' },
-    { key: 'blind_teaser',       label: 'BLIND TEASER' },
+    { key: 'drive_intake',        label: 'INGESTÃO DE DADOS — Diagnóstico Documental' },
+    { key: 'orchestration',       label: 'ORQUESTRAÇÃO — Otto Orquestra (Deal Orchestrator)' },
+    { key: 'pesquisa',            label: 'PESQUISA MERCADOLÓGICA — Pedro Panorama (Market Intelligence)' },
+    { key: 'diagnostico',         label: 'DIAGNÓSTICO FINANCEIRO — Davi Diagnóstico (Financial Diagnostician)' },
+    { key: 'analise_ma',          label: 'ANÁLISE DE M&A — Arthur Aquisição (M&A Architect)' },
+    { key: 'contratos',           label: 'ANÁLISE CONTRATUAL — Clara Cláusula (Contracts Specialist)' },
+    { key: 'originacao',          label: 'VENDA & ORIGINAÇÃO — Victor Valor (Deal Originator)' },
+    { key: 'estruturacao',        label: 'ESTRUTURAÇÃO OPERACIONAL — Estela Estrutura (Operations Advisor)' },
+    { key: 'maturidade',          label: 'VEREDICTO DE MATURIDADE — Paulo Preparo (Deal Readiness Coach)' },
+    { key: 'revisao',             label: 'REVISÃO FINAL — Rodrigo Relatório (Quality Reviewer)' },
+    { key: 'blind_teaser',        label: 'BLIND TEASER' },
     { key: 'sell_side_pitchbook', label: 'SELL-SIDE PITCHBOOK' },
   ]
   const available = all.filter(({ key }) => outputs[key])
@@ -146,59 +92,67 @@ function buildAllOutputsForReport(outputs: Record<string, string>): string {
     .join('\n\n---\n\n')
 
   if (missing.length > 0) {
-    result += `\n\n---\n\n⚠️ ANÁLISES NÃO DISPONÍVEIS (não executadas ou com erro):\n${missing.map(({ label }) => `- ${label}`).join('\n')}`
+    result += `\n\n---\n\n⚠️ ANÁLISES NÃO DISPONÍVEIS:\n${missing.map(({ label }) => `- ${label}`).join('\n')}`
   }
-
   return result
 }
 
-function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, driveResult?: DriveResult): { system: string; user: string } | null {
-  const msg = (key: string, fallback: string) => (prompts[key] || fallback) + HUMANIZER_DIRECTIVE
-  switch (step) {
-    case 'drive_intake': {
-      const hasContent = driveResult && driveResult.content.length > 200
-      const driveSection = driveResult
-        ? `URL informada: ${driveResult.url}\nStatus: ${driveResult.status.toUpperCase()}\nDetalhe: ${driveResult.detail}\n\n${hasContent ? `Conteúdo extraído:\n${driveResult.content}` : 'Nenhum conteúdo pôde ser extraído dos arquivos.'}`
-        : 'Link não informado ou não processado.'
-      return {
-        system: `Você é o Agente de Ingestão de Dados da RR7x Capital Hub. Sua função é verificar, ler e diagnosticar os documentos enviados pelo assessor antes do início do pipeline de análise.
+type ContentBlock =
+  | { type: 'text'; text: string }
+  | { type: 'image'; source: { type: 'base64'; media_type: string; data: string } }
+  | { type: 'document'; source: { type: 'base64'; media_type: string; data: string } }
 
-Seja completamente honesto: se os arquivos não foram lidos, diga claramente. Se foram lidos parcialmente, especifique o que foi capturado e o que não foi. O assessor precisa saber exatamente o que o sistema ingeriu para calibrar o nível de confiança da análise.` + HUMANIZER_DIRECTIVE,
-        user: `Produza o Diagnóstico de Ingestão de Dados com estas seções obrigatórias:
+function buildDocIntakeContent(summary: DocReadSummary, intakeStr: string): ContentBlock[] {
+  const blocks: ContentBlock[] = []
 
-## status do link
-- URL analisada e resultado do acesso
-- Permissão detectada (público / privado / indeterminado)
-- Causa de qualquer falha de leitura
+  const filesSummary = summary.totalFiles === 0
+    ? 'Nenhum arquivo encontrado no bucket desta análise.'
+    : summary.processed.map(d => {
+        const status = d.status === 'ok' ? '✓' : d.status === 'error' ? '✗' : '—'
+        const detail = d.status !== 'ok' ? ` (${d.reason})` : ` (${d.sizeKb}KB, ${d.type})`
+        return `${status} ${d.name}${detail}`
+      }).join('\n')
 
-## arquivos e conteúdo lido
-[Se houve conteúdo: descreva os tipos de arquivos e o que cada um contribui ao entendimento do ativo]
-[Se não houve: declare explicitamente que nenhum arquivo foi lido e o motivo técnico]
+  blocks.push({
+    type: 'text',
+    text: `Produza o Diagnóstico de Ingestão de Dados com base nos arquivos abaixo.
 
-## resumo do conteúdo ingerido
-[Se houve conteúdo: síntese das principais informações extraídas]
-[Se não houve: "Sem dados documentais disponíveis — a análise será baseada exclusivamente nas informações textuais do formulário."]
-
-## diagnóstico de completude documental
-Classificação: Completo / Parcial / Insuficiente / Sem dados
-
-Liste os documentos identificados, os documentos essenciais ausentes para o tipo de ativo e objetivo informado, e o impacto concreto dessa lacuna na análise.
-
-## nível de confiança para a análise
-Alto / Médio / Baixo — com justificativa direta baseada no que foi e no que não foi lido.
-
-## recomendação ao assessor
-O que o assessor deve corrigir ou complementar para melhorar a qualidade do diagnóstico.
-
----
 DEAL INTAKE:
 ${intakeStr}
 
 ---
-RESULTADO DA LEITURA DO DRIVE:
-${driveSection}`,
-      }
-    }
+ARQUIVOS PROCESSADOS: ${summary.totalFiles} arquivo(s)
+${filesSummary}
+${summary.errors.length > 0 ? `\nERROS: ${summary.errors.join('; ')}` : ''}
+---
+
+Os documentos seguem abaixo (PDFs, imagens e textos). Analise o conteúdo real de cada um.`,
+  })
+
+  for (const doc of summary.processed.filter(d => d.type === 'pdf' && d.status === 'ok' && d.base64)) {
+    blocks.push({ type: 'text', text: `\n--- Documento PDF: ${doc.name} (${doc.sizeKb}KB) ---` })
+    blocks.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: doc.base64! } })
+  }
+
+  for (const doc of summary.processed.filter(d => d.type === 'image' && d.status === 'ok' && d.base64)) {
+    blocks.push({ type: 'text', text: `\n--- Imagem: ${doc.name} (${doc.sizeKb}KB) ---` })
+    blocks.push({ type: 'image', source: { type: 'base64', media_type: doc.mediaType!, data: doc.base64! } })
+  }
+
+  const textDocs = summary.processed.filter(d => d.type === 'text' && d.status === 'ok' && d.content)
+  if (textDocs.length > 0) {
+    const combined = textDocs
+      .map(d => `--- ${d.name} (${d.sizeKb}KB) ---\n${d.content}`)
+      .join('\n\n')
+    blocks.push({ type: 'text', text: `\n\nCONTEÚDO DOS DOCUMENTOS DE TEXTO:\n${combined}` })
+  }
+
+  return blocks
+}
+
+function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}): { system: string; user: string } | null {
+  const msg = (key: string, fallback: string) => (prompts[key] || fallback) + HUMANIZER_DIRECTIVE
+  switch (step) {
     case 'orchestration':
       return {
         system: msg('orquestrador', 'Você é Otto Orquestra, Deal Orchestrator da RR7x Capital Hub. Calcule o DRS, mapeie riscos e defina o próximo passo estratégico.'),
@@ -337,16 +291,57 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const intakeStr = formatIntake(intake)
     const allOutputs = buildAllOutputs(outputs)
 
-    // For drive_intake: fetch real content from the Drive link before calling Claude
-    let driveResult: DriveResult | undefined
-    if (step === 'drive_intake' && intake.linkDocumentos) {
-      driveResult = await fetchDriveContent(intake.linkDocumentos)
+    let fullText = ''
+
+    // drive_intake: lê arquivos reais do Supabase Storage e passa para Claude com content blocks
+    if (step === 'drive_intake') {
+      const summary = await readAnalyseDocs(id)
+      const userContent = buildDocIntakeContent(summary, intakeStr)
+      const systemPrompt = (prompts['doc_intake'] || `Você é o Agente de Ingestão de Dados da RR7x Capital Hub. Leia os documentos enviados e produza um diagnóstico documental detalhado: o que foi lido, o que cada documento revela sobre o ativo, lacunas identificadas e nível de confiança para a análise.
+
+Seja completamente honesto: se um documento não pôde ser lido, diga claramente. Se foi lido, extraia e destaque as informações mais relevantes — números, datas, estrutura societária, indicadores financeiros, cláusulas contratuais relevantes, qualquer dado concreto disponível. O assessor precisa saber exatamente o que o sistema ingeriu para calibrar a análise.`) + HUMANIZER_DIRECTIVE
+
+      const readable = new ReadableStream({
+        start(controller) {
+          const messageStream = anthropic.messages.stream({
+            model: MODEL,
+            max_tokens: 10000,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: userContent as any }],
+          })
+
+          messageStream.on('text', (text) => {
+            fullText += text
+            controller.enqueue(new TextEncoder().encode(text))
+          })
+
+          messageStream.on('finalMessage', async () => {
+            const newOutputs = { ...outputs, [step]: fullText }
+            await admin.from('analises').update({
+              outputs: newOutputs,
+              atualizado_em: new Date().toISOString(),
+            }).eq('id', id)
+            controller.close()
+          })
+
+          messageStream.on('error', (err: Error) => {
+            controller.error(err)
+          })
+        },
+      })
+
+      return new Response(readable, {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Cache-Control': 'no-cache',
+          'X-Accel-Buffering': 'no',
+        },
+      })
     }
 
-    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, driveResult)
+    // Todos os outros steps
+    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs)
     if (!args) return NextResponse.json({ error: 'Step inválido' }, { status: 400 })
-
-    let fullText = ''
 
     const readable = new ReadableStream({
       start(controller) {

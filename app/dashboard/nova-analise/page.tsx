@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase'
 
 const TIPOS_ATIVO = ['Empresa (M&A)', 'Imóvel / Real Estate', 'Startup / Scale-up', 'Portfólio de Crédito', 'Franquia', 'Agronegócio', 'Outro']
 const ESTAGIOS = ['Cru / Não validado', 'Estruturando', 'Estruturado', 'Em comercialização', 'Em negociação / Closing']
@@ -17,16 +18,18 @@ const MICRO_ORIENTACOES = [
   'Já houve contato com investidores ou compradores?',
 ]
 
-type DriveStatus = 'idle' | 'checking' | 'ok' | 'blocked' | 'error' | 'timeout'
+const ACCEPTED = '.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg'
+const MAX_FILE_MB = 20
 
 export default function NovaAnalisePage() {
   const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
   const [loadingLabel, setLoadingLabel] = useState('')
   const [error, setError] = useState('')
   const [objetivos, setObjetivos] = useState<string[]>([])
-  const [driveStatus, setDriveStatus] = useState<DriveStatus>('idle')
-  const [driveMessage, setDriveMessage] = useState('')
+  const [files, setFiles] = useState<File[]>([])
+  const [dragging, setDragging] = useState(false)
   const [form, setForm] = useState({
     nomeAtivo: '',
     tipoAtivo: '',
@@ -37,7 +40,6 @@ export default function NovaAnalisePage() {
     nivelInformacao: '',
     ticketEstimado: '',
     resumoAtivo: '',
-    linkDocumentos: '',
   })
 
   function set(field: string, value: string) {
@@ -48,24 +50,37 @@ export default function NovaAnalisePage() {
     setObjetivos(prev => prev.includes(o) ? prev.filter(x => x !== o) : [...prev, o])
   }
 
-  async function validateDrive(url: string): Promise<boolean> {
-    setDriveStatus('checking')
-    setDriveMessage('')
-    try {
-      const res = await fetch('/api/validar-drive', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      })
-      const data = await res.json()
-      setDriveStatus(data.status)
-      setDriveMessage(data.message)
-      return data.status === 'ok' || data.status === 'timeout'
-    } catch {
-      setDriveStatus('error')
-      setDriveMessage('Falha de conexão ao verificar o Drive.')
-      return false
-    }
+  function addFiles(incoming: FileList | File[]) {
+    const arr = Array.from(incoming)
+    const valid = arr.filter(f => {
+      if (f.size > MAX_FILE_MB * 1024 * 1024) {
+        setError(`"${f.name}" excede ${MAX_FILE_MB}MB e foi ignorado.`)
+        return false
+      }
+      return true
+    })
+    setFiles(prev => {
+      const names = new Set(prev.map(f => f.name))
+      return [...prev, ...valid.filter(f => !names.has(f.name))]
+    })
+  }
+
+  function removeFile(index: number) {
+    setFiles(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function formatBytes(bytes: number) {
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)}KB`
+    return `${(bytes / 1024 / 1024).toFixed(1)}MB`
+  }
+
+  function fileIcon(name: string) {
+    const ext = name.split('.').pop()?.toLowerCase()
+    if (ext === 'pdf') return '📄'
+    if (['doc', 'docx'].includes(ext ?? '')) return '📝'
+    if (['xls', 'xlsx', 'csv'].includes(ext ?? '')) return '📊'
+    if (['png', 'jpg', 'jpeg'].includes(ext ?? '')) return '🖼️'
+    return '📎'
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -76,20 +91,14 @@ export default function NovaAnalisePage() {
       setError('Selecione ao menos um objetivo da operação.')
       return
     }
-
-    setLoading(true)
-
-    // 1. Valida acesso ao Drive antes de tudo
-    setLoadingLabel('Verificando acesso ao Drive...')
-    const driveOk = await validateDrive(form.linkDocumentos)
-    if (!driveOk) {
-      setLoading(false)
-      setLoadingLabel('')
+    if (files.length === 0) {
+      setError('Adicione ao menos um documento para iniciar a análise.')
       return
     }
 
-    // 2. Cria a análise
-    setLoadingLabel('Iniciando pipeline de análise...')
+    setLoading(true)
+
+    setLoadingLabel('Criando análise...')
     const payload = {
       ...form,
       objetivo: objetivos.join(', '),
@@ -106,13 +115,27 @@ export default function NovaAnalisePage() {
     const data = await res.json()
 
     if (!res.ok) {
-      setError(data.error ?? 'Erro ao iniciar análise.')
+      setError(data.error ?? 'Erro ao criar análise.')
       setLoading(false)
       setLoadingLabel('')
       return
     }
 
-    router.push(`/dashboard/analise/${data.analiseId}`)
+    const { analiseId } = data
+    const supabase = createClient()
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      setLoadingLabel(`Enviando documentos... (${i + 1}/${files.length}) ${file.name}`)
+      const { error: uploadErr } = await supabase.storage
+        .from('analises')
+        .upload(`${analiseId}/${file.name}`, file, { upsert: true })
+      if (uploadErr) {
+        console.warn(`Upload falhou para ${file.name}:`, uploadErr.message)
+      }
+    }
+
+    router.push(`/dashboard/analise/${analiseId}`)
   }
 
   return (
@@ -228,7 +251,7 @@ export default function NovaAnalisePage() {
             <h2 className="text-xs font-semibold text-cyan-400 uppercase tracking-widest mb-4">3 · Tese do Ativo</h2>
             <Field
               label="Resumo do Ativo e Objetivo *"
-              help="Descreva o ativo, o momento atual e o que está buscando (venda, captação, crédito, etc.). Inclua diferenciais, histórico, tentativas anteriores, urgência, estrutura societária e qualquer informação relevante. Quanto mais detalhe, mais precisa será a análise."
+              help="Descreva o ativo, o momento atual e o que está buscando. Inclua diferenciais, histórico, tentativas anteriores, urgência, estrutura societária e qualquer informação relevante."
             >
               <div className="mb-2 flex flex-wrap gap-1.5">
                 {MICRO_ORIENTACOES.map(o => (
@@ -241,50 +264,60 @@ export default function NovaAnalisePage() {
                 required
                 rows={7}
                 className="input resize-none"
-                placeholder="Ex: Empresa familiar, 2ª geração, sócios alinhados. Nunca foi ao mercado. Urgência moderada — sócio majoritário quer liquidez nos próximos 18 meses. Tese clara de consolidação no setor. Sem conflitos societários. Primeiro contato formal com compradores estratégicos..."
+                placeholder="Ex: Empresa familiar, 2ª geração, sócios alinhados. Nunca foi ao mercado. Urgência moderada — sócio majoritário quer liquidez nos próximos 18 meses..."
               />
             </Field>
           </section>
 
-          {/* BLOCO 4 — Base de Dados */}
+          {/* BLOCO 4 — Documentos */}
           <section>
-            <h2 className="text-xs font-semibold text-cyan-400 uppercase tracking-widest mb-4">4 · Base de Dados</h2>
+            <h2 className="text-xs font-semibold text-cyan-400 uppercase tracking-widest mb-4">4 · Documentos</h2>
             <Field
-              label="Link dos Documentos *"
-              help="Insira um link do Google Drive com todos os documentos disponíveis do ativo: financeiros, contratos, apresentações, cap table, etc. A pasta deve estar configurada como pública ('qualquer pessoa com o link pode visualizar'). A análise só inicia após confirmação de acesso."
+              label="Documentos do Ativo *"
+              help="Suba todos os documentos disponíveis: balanços, DRE, contratos, laudos, apresentações, cap table. Aceita PDF, Word, Excel, CSV, PNG, JPG. Quanto mais completa a documentação, mais precisa a análise."
             >
-              <input
-                type="url"
-                value={form.linkDocumentos}
-                onChange={e => { set('linkDocumentos', e.target.value); setDriveStatus('idle'); setDriveMessage('') }}
-                required
-                className="input"
-                placeholder="https://drive.google.com/drive/folders/..."
-              />
-              {/* Status do Drive */}
-              {driveStatus !== 'idle' && (
-                <div className={`mt-2 flex items-start gap-2 text-xs rounded-lg px-3 py-2 border ${
-                  driveStatus === 'checking' ? 'bg-gray-900 border-gray-700 text-gray-400' :
-                  driveStatus === 'ok'       ? 'bg-green-500/10 border-green-500/30 text-green-400' :
-                  driveStatus === 'timeout'  ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400' :
-                                              'bg-red-500/10 border-red-500/30 text-red-400'
-                }`}>
-                  <span className="mt-0.5 shrink-0">
-                    {driveStatus === 'checking' ? '⟳' :
-                     driveStatus === 'ok'       ? '✓' :
-                     driveStatus === 'timeout'  ? '⚠' : '✕'}
-                  </span>
-                  <div>
-                    {driveStatus === 'checking' && 'Verificando acesso ao Drive...'}
-                    {driveStatus === 'ok'       && driveMessage}
-                    {driveStatus === 'timeout'  && `${driveMessage} A análise prosseguirá mesmo assim.`}
-                    {(driveStatus === 'blocked' || driveStatus === 'error') && (
-                      <>
-                        <p className="font-medium mb-1">{driveMessage}</p>
-                        <p className="text-red-500/80">Para liberar: abra o Google Drive → clique com o botão direito na pasta → Compartilhar → altere para <strong>"Qualquer pessoa com o link"</strong> → Visualizador.</p>
-                      </>
-                    )}
-                  </div>
+              <div
+                onDragOver={e => { e.preventDefault(); setDragging(true) }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={e => {
+                  e.preventDefault()
+                  setDragging(false)
+                  addFiles(e.dataTransfer.files)
+                }}
+                onClick={() => fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition ${dragging ? 'border-cyan-500 bg-cyan-500/5' : 'border-gray-700 hover:border-gray-500 hover:bg-gray-900/50'}`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept={ACCEPTED}
+                  className="hidden"
+                  onChange={e => {
+                    if (e.target.files) addFiles(e.target.files)
+                    e.target.value = ''
+                  }}
+                />
+                <div className="text-3xl mb-2">📂</div>
+                <p className="text-gray-300 text-sm font-medium">Clique para selecionar ou arraste os arquivos</p>
+                <p className="text-gray-600 text-xs mt-1">PDF · Word · Excel · CSV · PNG · JPG — máx. {MAX_FILE_MB}MB por arquivo</p>
+              </div>
+
+              {files.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  {files.map((file, i) => (
+                    <div key={i} className="flex items-center gap-3 bg-gray-900 border border-gray-800 rounded-lg px-3 py-2">
+                      <span className="text-base shrink-0">{fileIcon(file.name)}</span>
+                      <span className="text-sm text-gray-300 truncate flex-1">{file.name}</span>
+                      <span className="text-xs text-gray-500 shrink-0">{formatBytes(file.size)}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); removeFile(i) }}
+                        className="text-gray-600 hover:text-red-400 transition text-sm shrink-0"
+                      >✕</button>
+                    </div>
+                  ))}
+                  <p className="text-xs text-cyan-600 pt-1">{files.length} arquivo(s) selecionado(s)</p>
                 </div>
               )}
             </Field>
@@ -298,17 +331,11 @@ export default function NovaAnalisePage() {
 
           <button
             type="submit"
-            disabled={loading || driveStatus === 'blocked' || driveStatus === 'error'}
+            disabled={loading}
             className="w-full bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold py-3 rounded-lg transition disabled:opacity-50 text-sm"
           >
             {loading ? loadingLabel || 'Processando...' : 'Iniciar Análise Completa'}
           </button>
-
-          {(driveStatus === 'blocked' || driveStatus === 'error') && (
-            <p className="text-center text-red-400 text-xs">
-              Corrija o acesso ao Drive para continuar.
-            </p>
-          )}
 
           <p className="text-center text-gray-500 text-xs">
             O pipeline com 9 agentes será ativado automaticamente. Entrega em 45–90 minutos.

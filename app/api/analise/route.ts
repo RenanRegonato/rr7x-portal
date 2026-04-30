@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
 import { DealIntake } from '@/lib/agents/pipeline'
-import { checkDriveAccess } from '@/lib/drive'
 
 export const maxDuration = 300
 
@@ -12,7 +11,6 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient()
 
-  // Verifica assinatura ativa
   const { data: sub } = await admin
     .from('subscriptions')
     .select('*')
@@ -30,20 +28,6 @@ export async function POST(req: NextRequest) {
 
   const intake: DealIntake = await req.json()
 
-  // Gate: valida acesso ao Drive antes de criar o registro e consumir crédito
-  if (!intake.linkDocumentos) {
-    return NextResponse.json({ error: 'Link de documentos obrigatório para iniciar a análise.' }, { status: 400 })
-  }
-
-  const driveCheck = await checkDriveAccess(intake.linkDocumentos)
-  if (driveCheck.status === 'blocked' || driveCheck.status === 'error') {
-    return NextResponse.json({
-      error: `Não foi possível acessar o Drive: ${driveCheck.message}`,
-      driveStatus: driveCheck.status,
-    }, { status: 422 })
-  }
-
-  // Cria o registro da análise
   const { data: analise, error: createError } = await admin
     .from('analises')
     .insert({
@@ -59,7 +43,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erro ao criar análise' }, { status: 500 })
   }
 
-  // Decrementa análises restantes (plano avulso)
   if (sub.analises_restantes !== null) {
     await admin
       .from('subscriptions')
@@ -67,6 +50,5 @@ export async function POST(req: NextRequest) {
       .eq('id', sub.id)
   }
 
-  // Pipeline é orquestrado pelo frontend via /api/analise/[id]/step
   return NextResponse.json({ analiseId: analise.id })
 }
