@@ -1,20 +1,42 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Topbar from '@/components/Topbar'
 import PasswordStrength, { isPasswordStrong } from '@/components/PasswordStrength'
 
+function maskTelefone(v: string) {
+  const d = v.replace(/\D/g, '').slice(0, 11)
+  if (d.length <= 2)  return `(${d}`
+  if (d.length <= 6)  return `(${d.slice(0, 2)}) ${d.slice(2)}`
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
+}
+
+function isTelefoneValido(v: string) {
+  const d = v.replace(/\D/g, '')
+  return d.length === 10 || d.length === 11
+}
+
+const INPUT_CLS = 'w-full border border-border rounded-[10px] px-3 py-2.5 text-[13px] bg-surface outline-none transition-shadow focus:border-accent-strong focus:shadow-[0_0_0_3px_oklch(0.93_0.04_40)] placeholder:text-ink-3'
+
 export default function ContaPage() {
-  const [email,         setEmail]        = useState('')
-  const [nome,          setNome]          = useState('')
-  const [senhaAtual,    setSenhaAtual]    = useState('')
-  const [novaSenha,     setNovaSenha]     = useState('')
-  const [confirmaSenha, setConfirmaSenha] = useState('')
-  const [loading,       setLoading]       = useState(false)
-  const [success,       setSuccess]       = useState(false)
-  const [error,         setError]         = useState('')
+  // Dados pessoais
+  const [email,         setEmail]         = useState('')
+  const [nome,          setNome]           = useState('')
+  const [telefone,      setTelefone]       = useState('')
+  const [dadosLoading,  setDadosLoading]   = useState(false)
+  const [dadosSuccess,  setDadosSuccess]   = useState(false)
+  const [dadosError,    setDadosError]     = useState('')
+
+  // Senha
+  const [senhaAtual,    setSenhaAtual]     = useState('')
+  const [novaSenha,     setNovaSenha]      = useState('')
+  const [confirmaSenha, setConfirmaSenha]  = useState('')
+  const [senhaLoading,  setSenhaLoading]   = useState(false)
+  const [senhaSuccess,  setSenhaSuccess]   = useState(false)
+  const [senhaError,    setSenhaError]     = useState('')
 
   const supabase = createClient()
   const router   = useRouter()
@@ -24,47 +46,62 @@ export default function ContaPage() {
       if (!user) { router.push('/auth/login'); return }
       setEmail(user.email ?? '')
       setNome((user.user_metadata?.nome as string | undefined) ?? '')
+      setTelefone((user.user_metadata?.telefone as string | undefined) ?? '')
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleDados(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
-    setSuccess(false)
+    setDadosError('')
+    setDadosSuccess(false)
+
+    if (!nome.trim() || nome.trim().split(' ').length < 2) {
+      setDadosError('Informe nome e sobrenome.')
+      return
+    }
+    if (telefone && !isTelefoneValido(telefone)) {
+      setDadosError('Telefone inválido — inclua o DDD.')
+      return
+    }
+
+    setDadosLoading(true)
+    const { error } = await supabase.auth.updateUser({
+      data: { nome: nome.trim(), telefone },
+    })
+    setDadosLoading(false)
+
+    if (error) { setDadosError('Erro ao salvar. Tente novamente.'); return }
+    setDadosSuccess(true)
+    router.refresh()
+  }
+
+  async function handleSenha(e: React.FormEvent) {
+    e.preventDefault()
+    setSenhaError('')
+    setSenhaSuccess(false)
 
     if (novaSenha !== confirmaSenha) {
-      setError('A nova senha e a confirmação não coincidem.')
+      setSenhaError('A nova senha e a confirmação não coincidem.')
       return
     }
     if (!isPasswordStrong(novaSenha)) {
-      setError('A nova senha não atende aos requisitos mínimos de segurança.')
+      setSenhaError('A nova senha não atende aos requisitos mínimos de segurança.')
       return
     }
 
-    setLoading(true)
-
-    // Verify current password by re-authenticating
-    const { error: signInErr } = await supabase.auth.signInWithPassword({
-      email,
-      password: senhaAtual,
-    })
-
+    setSenhaLoading(true)
+    const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password: senhaAtual })
     if (signInErr) {
-      setError('Senha atual incorreta.')
-      setLoading(false)
+      setSenhaError('Senha atual incorreta.')
+      setSenhaLoading(false)
       return
     }
 
-    // Update to new password
     const { error: updateErr } = await supabase.auth.updateUser({ password: novaSenha })
-    setLoading(false)
+    setSenhaLoading(false)
 
-    if (updateErr) {
-      setError('Não foi possível alterar a senha. Tente novamente.')
-      return
-    }
-
-    setSuccess(true)
+    if (updateErr) { setSenhaError('Não foi possível alterar a senha. Tente novamente.'); return }
+    setSenhaSuccess(true)
     setSenhaAtual('')
     setNovaSenha('')
     setConfirmaSenha('')
@@ -74,30 +111,84 @@ export default function ContaPage() {
     <div className="flex flex-col min-h-screen">
       <Topbar title="Minha Conta" />
 
-      <div className="flex-1 p-6 max-w-lg">
-        {/* User info */}
-        <div className="bg-surface border border-border rounded-[14px] p-6 mb-6">
-          <h2 className="font-display text-[15px] font-medium mb-4">Informações da conta</h2>
-          <div className="space-y-3">
+      <div className="flex-1 p-6 max-w-lg space-y-6">
+
+        {/* ── Dados pessoais ── */}
+        <div className="bg-surface border border-border rounded-[14px] p-6">
+          <h2 className="font-display text-[15px] font-medium mb-1">Dados pessoais</h2>
+          <p className="text-ink-3 text-[13px] mb-5">Nome e telefone exibidos internamente no sistema.</p>
+
+          <form onSubmit={handleDados} className="space-y-4">
             <div>
-              <p className="text-[11px] font-medium text-ink-3 uppercase tracking-wider mb-0.5">Nome</p>
-              <p className="text-[14px] text-ink">{nome || '—'}</p>
+              <label className="block text-[12px] font-medium text-ink-2 mb-1.5">Email</label>
+              <input
+                type="email"
+                value={email}
+                disabled
+                className="w-full border border-border rounded-[10px] px-3 py-2.5 text-[13px] bg-surface-2 text-ink-3 outline-none cursor-not-allowed"
+              />
+              <p className="text-[11px] text-ink-3 mt-1">O email não pode ser alterado.</p>
             </div>
+
             <div>
-              <p className="text-[11px] font-medium text-ink-3 uppercase tracking-wider mb-0.5">Email</p>
-              <p className="text-[14px] text-ink">{email || '—'}</p>
+              <label className="block text-[12px] font-medium text-ink-2 mb-1.5">
+                Nome completo <span className="text-[oklch(0.55_0.18_25)]">*</span>
+              </label>
+              <input
+                type="text"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                required
+                autoComplete="name"
+                className={INPUT_CLS}
+                placeholder="João Silva"
+              />
             </div>
-          </div>
+
+            <div>
+              <label className="block text-[12px] font-medium text-ink-2 mb-1.5">Telefone / WhatsApp</label>
+              <input
+                type="tel"
+                value={telefone}
+                onChange={(e) => setTelefone(maskTelefone(e.target.value))}
+                autoComplete="tel"
+                className={INPUT_CLS}
+                placeholder="(11) 99999-9999"
+              />
+              {telefone && !isTelefoneValido(telefone) && (
+                <p className="text-[11px] text-[oklch(0.50_0.20_25)] mt-1">Número incompleto — inclua o DDD.</p>
+              )}
+            </div>
+
+            {dadosError && (
+              <div className="bg-warn-soft border border-[oklch(0.85_0.06_75)] text-[oklch(0.45_0.1_65)] text-[13px] px-4 py-3 rounded-[10px]">
+                {dadosError}
+              </div>
+            )}
+            {dadosSuccess && (
+              <div className="bg-ok/10 border border-ok/30 text-[oklch(0.40_0.20_155)] text-[13px] px-4 py-3 rounded-[10px]">
+                Dados atualizados com sucesso.
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={dadosLoading || !nome.trim()}
+              className="bg-accent-strong hover:opacity-90 text-white font-semibold py-2.5 px-5 rounded-[10px] transition disabled:opacity-50 text-[13px]"
+            >
+              {dadosLoading ? 'Salvando...' : 'Salvar dados'}
+            </button>
+          </form>
         </div>
 
-        {/* Password change */}
+        {/* ── Alterar senha ── */}
         <div className="bg-surface border border-border rounded-[14px] p-6">
           <h2 className="font-display text-[15px] font-medium mb-1">Alterar senha</h2>
           <p className="text-ink-3 text-[13px] mb-5">
             Confirme sua senha atual antes de definir uma nova.
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSenha} className="space-y-4">
             <div>
               <label className="block text-[12px] font-medium text-ink-2 mb-1.5">Senha atual</label>
               <input
@@ -106,7 +197,7 @@ export default function ContaPage() {
                 onChange={(e) => setSenhaAtual(e.target.value)}
                 required
                 autoComplete="current-password"
-                className="w-full border border-border rounded-[10px] px-3 py-2.5 text-[13px] bg-surface outline-none transition-shadow focus:border-accent-strong focus:shadow-[0_0_0_3px_oklch(0.93_0.04_40)] placeholder:text-ink-3"
+                className={INPUT_CLS}
                 placeholder="Sua senha atual"
               />
             </div>
@@ -120,7 +211,7 @@ export default function ContaPage() {
                   onChange={(e) => setNovaSenha(e.target.value)}
                   required
                   autoComplete="new-password"
-                  className="w-full border border-border rounded-[10px] px-3 py-2.5 text-[13px] bg-surface outline-none transition-shadow focus:border-accent-strong focus:shadow-[0_0_0_3px_oklch(0.93_0.04_40)] placeholder:text-ink-3"
+                  className={INPUT_CLS}
                   placeholder="Mínimo 8 caracteres"
                 />
                 <PasswordStrength password={novaSenha} />
@@ -134,7 +225,7 @@ export default function ContaPage() {
                   onChange={(e) => setConfirmaSenha(e.target.value)}
                   required
                   autoComplete="new-password"
-                  className="w-full border border-border rounded-[10px] px-3 py-2.5 text-[13px] bg-surface outline-none transition-shadow focus:border-accent-strong focus:shadow-[0_0_0_3px_oklch(0.93_0.04_40)] placeholder:text-ink-3"
+                  className={INPUT_CLS}
                   placeholder="Repita a nova senha"
                 />
                 {confirmaSenha && novaSenha !== confirmaSenha && (
@@ -143,13 +234,12 @@ export default function ContaPage() {
               </div>
             </div>
 
-            {error && (
+            {senhaError && (
               <div className="bg-warn-soft border border-[oklch(0.85_0.06_75)] text-[oklch(0.45_0.1_65)] text-[13px] px-4 py-3 rounded-[10px]">
-                {error}
+                {senhaError}
               </div>
             )}
-
-            {success && (
+            {senhaSuccess && (
               <div className="bg-ok/10 border border-ok/30 text-[oklch(0.40_0.20_155)] text-[13px] px-4 py-3 rounded-[10px]">
                 Senha alterada com sucesso.
               </div>
@@ -157,13 +247,14 @@ export default function ContaPage() {
 
             <button
               type="submit"
-              disabled={loading || !senhaAtual || !isPasswordStrong(novaSenha) || novaSenha !== confirmaSenha}
+              disabled={senhaLoading || !senhaAtual || !isPasswordStrong(novaSenha) || novaSenha !== confirmaSenha}
               className="bg-accent-strong hover:opacity-90 text-white font-semibold py-2.5 px-5 rounded-[10px] transition disabled:opacity-50 text-[13px]"
             >
-              {loading ? 'Alterando...' : 'Alterar senha'}
+              {senhaLoading ? 'Alterando...' : 'Alterar senha'}
             </button>
           </form>
         </div>
+
       </div>
     </div>
   )

@@ -22,15 +22,24 @@ export async function middleware(request: NextRequest) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
+  const pathname = request.nextUrl.pathname
 
   // Protege rotas do dashboard
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
+  if (!user && pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
 
   // Redireciona usuário logado da landing para dashboard
-  if (user && request.nextUrl.pathname === '/') {
+  if (user && pathname === '/') {
     return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  // Gate de onboarding: usuário logado sem nome deve completar o cadastro
+  if (user && pathname.startsWith('/dashboard')) {
+    const nome = user.user_metadata?.nome as string | undefined
+    if (!nome?.trim()) {
+      return NextResponse.redirect(new URL('/auth/completar-cadastro', request.url))
+    }
   }
 
   return supabaseResponse
