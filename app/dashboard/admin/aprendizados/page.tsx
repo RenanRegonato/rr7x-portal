@@ -63,51 +63,46 @@ export default function AprendizadosPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto flex flex-col gap-6">
-
-      {/* Header */}
       <div>
-        <h1 className="text-lg font-bold">Aprendizados</h1>
-        <p className="text-sm text-gray-400 mt-0.5">
+        <h1 className="font-display text-[22px] font-medium tracking-tight">Aprendizados</h1>
+        <p className="text-[13px] text-ink-2 mt-1 leading-relaxed">
           Feedbacks registrados aqui são injetados automaticamente no contexto de todos os agentes em cada análise.
           As regras individuais de cada agente nunca são substituídas — os aprendizados ampliam o contexto.
         </p>
       </div>
 
-      {/* New feedback */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col gap-3">
-        <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Novo aprendizado</p>
+      <div className="bg-surface border border-border rounded-[14px] p-5 flex flex-col gap-3 shadow-soft-sm">
+        <p className="text-[10px] text-ink-3 uppercase tracking-wider font-semibold">Novo aprendizado</p>
         <textarea
           value={texto}
           onChange={e => setTexto(e.target.value)}
           placeholder='Ex: "No deal Resort Campo Alegre, o Davi subestimou passivo trabalhista rural. Sempre questionar sazonalidade de mão de obra em ativos rurais antes de fechar diagnóstico."'
-          className="bg-gray-950 border border-gray-700 rounded-lg p-3.5 text-sm text-gray-200 resize-none focus:outline-none focus:border-cyan-500 leading-relaxed min-h-[100px]"
+          className="border border-border rounded-[10px] p-3.5 text-[13px] text-ink resize-none outline-none focus:border-accent-strong focus:shadow-[0_0_0_3px_oklch(0.93_0.04_40)] leading-relaxed min-h-[100px] bg-bg transition-shadow placeholder:text-ink-3"
         />
         <div className="flex items-center justify-between">
-          <span className="text-xs text-green-400">{msg}</span>
+          <span className="text-[12px] text-ok">{msg}</span>
           <button
             onClick={salvar}
             disabled={saving || !texto.trim()}
-            className="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-semibold px-5 py-2 rounded-lg text-sm transition disabled:opacity-40"
+            className="bg-accent-strong hover:opacity-90 text-white font-semibold px-5 py-2 rounded-[10px] text-[13px] transition disabled:opacity-40"
           >
             {saving ? 'Salvando...' : 'Salvar Aprendizado'}
           </button>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="flex items-center gap-3 text-sm text-gray-500">
+      <div className="flex items-center gap-3 text-[13px] text-ink-3">
         <span>{feedbacks.length} aprendizado{feedbacks.length !== 1 ? 's' : ''} registrado{feedbacks.length !== 1 ? 's' : ''}</span>
         <span>·</span>
-        <span className="text-green-400">{ativos} ativo{ativos !== 1 ? 's' : ''}</span>
+        <span className="text-ok">{ativos} ativo{ativos !== 1 ? 's' : ''}</span>
         <span>·</span>
         <span>{feedbacks.length - ativos} pausado{feedbacks.length - ativos !== 1 ? 's' : ''}</span>
       </div>
 
-      {/* List */}
       {loading ? (
-        <p className="text-sm text-gray-600">Carregando...</p>
+        <p className="text-[13px] text-ink-3">Carregando...</p>
       ) : feedbacks.length === 0 ? (
-        <div className="text-center py-12 text-gray-600 text-sm border border-dashed border-gray-800 rounded-xl">
+        <div className="text-center py-12 text-ink-3 text-[13px] border border-dashed border-border rounded-[14px]">
           Nenhum aprendizado registrado ainda.
         </div>
       ) : (
@@ -115,44 +110,46 @@ export default function AprendizadosPage() {
           {feedbacks.map(fb => (
             <div
               key={fb.id}
-              className={`bg-gray-900 border rounded-xl p-4 transition ${fb.ativo ? 'border-gray-800' : 'border-gray-800/50 opacity-50'}`}
+              className={`bg-surface border border-border rounded-[14px] p-4 transition-opacity shadow-soft-sm ${!fb.ativo ? 'opacity-50' : ''}`}
             >
               <div className="flex items-start justify-between gap-3 mb-2">
-                <span className="text-xs text-gray-600 font-mono">
+                <span className="text-[11px] text-ink-3 font-mono">
                   {new Date(fb.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </span>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => toggleAtivo(fb)}
-                    className={`text-xs px-2.5 py-1 rounded-md font-semibold transition ${fb.ativo ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}`}
+                    className={`text-[11px] px-2.5 py-1 rounded-md font-semibold transition ${
+                      fb.ativo
+                        ? 'bg-ok/10 text-ok hover:bg-ok/20 border border-ok/20'
+                        : 'bg-surface-2 text-ink-3 hover:bg-surface-hover border border-border'
+                    }`}
                   >
                     {fb.ativo ? 'Ativo' : 'Pausado'}
                   </button>
                   <button
                     onClick={() => deletar(fb.id)}
-                    className="text-gray-700 hover:text-red-400 text-sm transition px-1"
+                    className="text-ink-3 hover:text-warn text-[13px] transition px-1"
                     title="Remover"
                   >
                     ✕
                   </button>
                 </div>
               </div>
-              <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{fb.texto}</p>
+              <p className="text-[13px] text-ink leading-relaxed whitespace-pre-wrap">{fb.texto}</p>
             </div>
           ))}
         </div>
       )}
 
-      {/* Info box */}
       {feedbacks.length > 0 && (
-        <div className="bg-indigo-950/30 border border-indigo-900/50 rounded-xl p-4 text-sm text-indigo-300 leading-relaxed">
-          <strong className="text-indigo-200 block mb-1">Como os aprendizados chegam aos agentes</strong>
-          Cada análise carrega todos os aprendizados <span className="text-green-400 font-semibold">ativos</span> e os injeta no contexto de cada agente antes da execução.
-          Aprendizados <span className="text-gray-400 font-semibold">pausados</span> são ignorados sem precisar deletar.
+        <div className="bg-accent-soft border border-accent rounded-[14px] p-4 text-[13px] text-ink-2 leading-relaxed">
+          <strong className="text-ink block mb-1">Como os aprendizados chegam aos agentes</strong>
+          Cada análise carrega todos os aprendizados <span className="text-ok font-semibold">ativos</span> e os injeta no contexto de cada agente antes da execução.
+          Aprendizados <span className="text-ink-3 font-semibold">pausados</span> são ignorados sem precisar deletar.
           As regras individuais de cada agente prevalecem sempre — os aprendizados informam, não sobrescrevem.
         </div>
       )}
-
     </div>
   )
 }

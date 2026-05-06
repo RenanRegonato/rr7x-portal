@@ -43,20 +43,43 @@ async function loadPrompts(): Promise<Record<string, string>> {
   return {}
 }
 
+async function loadEscritorio(userId: string): Promise<string> {
+  try {
+    const admin = createAdminClient()
+    const { data } = await admin.from('escritorios').select('*').eq('user_id', userId).single()
+    if (!data || !data.nome) return ''
+    const lines = [
+      `Nome: ${data.nome}`,
+      data.cnpj          ? `CNPJ: ${data.cnpj}` : '',
+      data.endereco      ? `Endereço: ${data.endereco}` : '',
+      data.cidade_uf     ? `Cidade/UF: ${data.cidade_uf}` : '',
+      data.telefone      ? `Telefone: ${data.telefone}` : '',
+      data.email_contato ? `Email: ${data.email_contato}` : '',
+      data.site          ? `Site: ${data.site}` : '',
+      data.tagline       ? `Tagline: ${data.tagline}` : '',
+      data.logo_url      ? `Logo URL: ${data.logo_url}` : '',
+    ].filter(Boolean)
+    return `\n\n---\nDADOS DO ESCRITÓRIO / ASSESSORIA:\n${lines.join('\n')}\n\nINSTRUÇÃO: Este documento é emitido em nome do escritório acima — use o nome "${data.nome}" como assessoria responsável, não "RR7x Capital Hub". Se uma Logo URL estiver disponível, inclua no cabeçalho como ![Logo](${data.logo_url ?? ''}). Use o email, site e telefone do escritório no rodapé.\n---`
+  } catch {}
+  return ''
+}
+
 function formatIntake(intake: Record<string, string>): string {
-  return `
-DEAL INTAKE — RR7x Capital Hub
-================================
-Ativo: ${intake.nomeAtivo}
-Tipo de Ativo: ${intake.tipoAtivo}
-Estágio: ${intake.estagio}
-Objetivo: ${intake.objetivo}
-Nível de Informação Disponível: ${intake.nivelInformacao}
-Localização: ${intake.localizacao}
-Ticket Estimado: ${intake.ticketEstimado}
-${intake.resumoAtivo ? `Resumo e Tese do Ativo: ${intake.resumoAtivo}` : ''}
-${intake.informacoesAdicionais ? `Informações Adicionais: ${intake.informacoesAdicionais}` : ''}
-`.trim()
+  const parts: string[] = [
+    'DEAL INTAKE',
+    '================================',
+    `Ativo: ${intake.nomeAtivo}`,
+    `Tipo de Ativo: ${intake.tipoAtivo}`,
+    `Estágio: ${intake.estagio}`,
+    `Objetivo: ${intake.objetivo}`,
+    `Nível de Informação Disponível: ${intake.nivelInformacao}`,
+    `Localização: ${intake.localizacao}`,
+    `Ticket Estimado: ${intake.ticketEstimado}`,
+  ]
+  if (intake.resumoAtivo)          parts.push(`Resumo e Tese do Ativo: ${intake.resumoAtivo}`)
+  if (intake.informacoesAdicionais) parts.push(`Informações Adicionais: ${intake.informacoesAdicionais}`)
+
+  return parts.join('\n')
 }
 
 function buildAllOutputs(outputs: Record<string, string>): string {
@@ -150,7 +173,7 @@ Os documentos seguem abaixo (PDFs, imagens e textos). Analise o conteúdo real d
   return blocks
 }
 
-function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}): { system: string; user: string } | null {
+function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, escritorioBlock = ''): { system: string; user: string } | null {
   const msg = (key: string, fallback: string) => (prompts[key] || fallback) + HUMANIZER_DIRECTIVE
   switch (step) {
     case 'orchestration':
@@ -200,13 +223,27 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
       }
     case 'blind_teaser':
       return {
-        system: msg('blind_teaser', 'Você é um especialista em comunicação de M&A da RR7x Capital Hub. Gere um Blind Teaser profissional sem revelar o nome do ativo.'),
-        user: `Gere o Blind Teaser:\n\nDEAL INTAKE:\n${intakeStr}\n\nOUTPUTS:\n${allOutputs}`,
+        system: msg('blind_teaser', `Você é um especialista em comunicação de M&A. Gere um Blind Teaser profissional sem revelar o nome do ativo.
+
+IDENTIDADE DO DOCUMENTO:
+- Os dados do escritório / assessoria estão no campo "DADOS DO ESCRITÓRIO" da mensagem do usuário
+- Use o nome do escritório como emissor do documento em todos os cabeçalhos, rodapés e assinaturas — nunca use "RR7x Capital Hub"
+- Se uma Logo URL estiver disponível, inclua no topo: ![Logo](url)
+- Use o email, telefone e site do escritório no rodapé de cada página
+- Se não houver dados de escritório, use apenas "Assessoria Confidencial" como emissor`),
+        user: `Gere o Blind Teaser:\n\nDEAL INTAKE:\n${intakeStr}\n\nOUTPUTS:\n${allOutputs}${escritorioBlock}`,
       }
     case 'sell_side_pitchbook':
       return {
-        system: msg('sell_side_pitchbook', 'Você é um especialista em documentos de captação da RR7x Capital Hub. Gere um Sell-Side Pitchbook completo.'),
-        user: `Gere o Sell-Side Pitchbook:\n\nDEAL INTAKE:\n${intakeStr}\n\nOUTPUTS:\n${allOutputs}`,
+        system: msg('sell_side_pitchbook', `Você é um especialista em documentos de captação. Gere um Sell-Side Pitchbook completo e profissional.
+
+IDENTIDADE DO DOCUMENTO:
+- Os dados do escritório / assessoria estão no campo "DADOS DO ESCRITÓRIO" da mensagem do usuário
+- Use o nome do escritório como emissor do documento em todos os cabeçalhos, rodapés e assinaturas — nunca use "RR7x Capital Hub"
+- Se uma Logo URL estiver disponível, inclua no topo: ![Logo](url)
+- Use o email, telefone e site do escritório no rodapé de cada página
+- Se não houver dados de escritório, use apenas "Assessoria Confidencial" como emissor`),
+        user: `Gere o Sell-Side Pitchbook:\n\nDEAL INTAKE:\n${intakeStr}\n\nOUTPUTS:\n${allOutputs}${escritorioBlock}`,
       }
     case 'relatorio_consolidado': {
       const allForReport = buildAllOutputsForReport(outputs)
@@ -260,7 +297,7 @@ ${intakeStr}
 
 ---
 ANÁLISES DISPONÍVEIS:
-${allForReport}`,
+${allForReport}${escritorioBlock}`,
       }
     }
     default:
@@ -287,7 +324,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const intake = analise.deal_intake as Record<string, string>
     const outputs = (analise.outputs ?? {}) as Record<string, string>
-    const prompts = await loadPrompts()
+    const [prompts, escritorioBlock] = await Promise.all([loadPrompts(), loadEscritorio(analise.user_id)])
     const intakeStr = formatIntake(intake)
     const allOutputs = buildAllOutputs(outputs)
 
@@ -306,7 +343,7 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
           const messageStream = anthropic.messages.stream({
             model: MODEL,
             max_tokens: 10000,
-            system: systemPrompt,
+            system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
             messages: [{ role: 'user', content: userContent as any }],
           })
 
@@ -340,7 +377,7 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
     }
 
     // Todos os outros steps
-    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs)
+    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock)
     if (!args) return NextResponse.json({ error: 'Step inválido' }, { status: 400 })
 
     const readable = new ReadableStream({
@@ -348,7 +385,7 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
         const messageStream = anthropic.messages.stream({
           model: MODEL,
           max_tokens: 10000,
-          system: args.system,
+          system: [{ type: 'text', text: args.system, cache_control: { type: 'ephemeral' } }],
           messages: [{ role: 'user', content: args.user }],
         })
 

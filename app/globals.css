@@ -1,26 +1,85 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* next/font injects these CSS variables at runtime — keep as references */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--fraunces);
+  --font-sans: var(--inter);
+  --font-mono: var(--jetbrains-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Otto Design Tokens */
+@theme {
+  /* Backgrounds & surfaces */
+  --color-bg:             oklch(0.985 0.005 60);
+  --color-bg-tint:        oklch(0.97 0.012 50);
+  --color-surface:        oklch(1 0 0);
+  --color-surface-2:      oklch(0.975 0.006 60);
+  --color-surface-hover:  oklch(0.96 0.01 50);
+
+  /* Borders */
+  --color-border:         oklch(0.92 0.008 60);
+  --color-border-strong:  oklch(0.86 0.01 55);
+
+  /* Text hierarchy */
+  --color-ink:    oklch(0.22 0.01 50);
+  --color-ink-2:  oklch(0.45 0.01 50);
+  --color-ink-3:  oklch(0.62 0.01 50);
+
+  /* Accent — coral/peach */
+  --color-accent:         oklch(0.78 0.09 35);
+  --color-accent-soft:    oklch(0.93 0.04 40);
+  --color-accent-strong:  oklch(0.66 0.14 32);
+  --color-accent-ink:     oklch(0.32 0.08 35);
+
+  /* Semantic */
+  --color-ok:        oklch(0.6 0.1 155);
+  --color-ok-soft:   oklch(0.94 0.04 155);
+  --color-warn:      oklch(0.7 0.13 75);
+  --color-warn-soft: oklch(0.95 0.05 80);
+  --color-info:      oklch(0.6 0.08 240);
+  --color-info-soft: oklch(0.95 0.025 240);
+
+  /* Agent palette */
+  --color-peach: oklch(0.93 0.04 40);
+  --color-sage:  oklch(0.93 0.03 155);
+  --color-sand:  oklch(0.94 0.03 75);
+  --color-sky:   oklch(0.93 0.03 230);
+  --color-lilac: oklch(0.93 0.03 300);
+  --color-cream: oklch(0.95 0.025 90);
+
+  /* Shadows */
+  --shadow-soft-sm: 0 1px 2px oklch(0.2 0.01 50 / 0.04);
+  --shadow-soft-md: 0 2px 6px oklch(0.2 0.01 50 / 0.05), 0 1px 2px oklch(0.2 0.01 50 / 0.04);
+  --shadow-soft-lg: 0 12px 32px oklch(0.2 0.01 50 / 0.07), 0 2px 6px oklch(0.2 0.01 50 / 0.05);
+
+  /* Animations */
+  --animate-pulse-ring: pulse-ring 1.4s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1.15); opacity: 0; }
+}
+
+html, body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans, Inter, system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.5;
 }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+  border: 2px solid var(--color-bg);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-ink-3); }

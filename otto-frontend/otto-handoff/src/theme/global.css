@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Otto — global styles
+ * Tokens importados via tailwind.config.js (src/theme/tokens.js).
+ * Aqui ficam apenas resets globais e overrides de body.
+ */
+
+html,
+body {
+  background: theme('colors.bg');
+  color: theme('colors.ink');
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: theme('fontFamily.sans');
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Scrollbar discreta no tom Otto */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: theme('colors.border-strong');
+  border-radius: 999px;
+  border: 2px solid theme('colors.bg');
+}
+::-webkit-scrollbar-thumb:hover { background: theme('colors.ink-3'); }

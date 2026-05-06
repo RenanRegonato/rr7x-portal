@@ -10,10 +10,22 @@ async function verificarAdmin() {
   return user
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   if (!await verificarAdmin()) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
-  const admin = createAdminClient()
+  const userId = req.nextUrl.searchParams.get('user_id')
+  const admin  = createAdminClient()
+
+  // Return analyses for a specific user
+  if (userId) {
+    const { data } = await admin
+      .from('analises')
+      .select('id, nome_ativo, status, criado_em, deal_intake')
+      .eq('user_id', userId)
+      .order('criado_em', { ascending: false })
+    return NextResponse.json({ analises: data ?? [] })
+  }
+
   const { data: usersData } = await admin.auth.admin.listUsers()
   const users = usersData?.users ?? []
 

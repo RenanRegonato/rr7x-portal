@@ -66,3 +66,34 @@ ALTER TABLE public.admin_feedbacks ENABLE ROW LEVEL SECURITY;
 -- Apenas service_role acessa (somente admin via API)
 CREATE POLICY "service_role_feedbacks" ON public.admin_feedbacks
   FOR ALL TO service_role USING (true);
+
+-- Tabela de perfil do escritório (por usuário)
+CREATE TABLE IF NOT EXISTS public.escritorios (
+  id                UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id           UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  nome              TEXT,
+  cnpj              TEXT,
+  endereco          TEXT,
+  cidade_uf         TEXT,
+  telefone          TEXT,
+  email_contato     TEXT,
+  site              TEXT,
+  tagline           TEXT,
+  logo_url          TEXT,
+  criado_em         TIMESTAMPTZ DEFAULT NOW(),
+  atualizado_em     TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.escritorios ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "users_own_escritorio" ON public.escritorios
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "service_role_escritorios" ON public.escritorios
+  FOR ALL TO service_role USING (true);
+
+-- Bucket público para logos dos escritórios
+-- Execute no Supabase Dashboard > Storage > New bucket:
+--   Nome: logos | Public: true
+-- Ou via SQL:
+-- INSERT INTO storage.buckets (id, name, public) VALUES ('logos', 'logos', true) ON CONFLICT DO NOTHING;

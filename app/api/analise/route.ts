@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
-import { DealIntake } from '@/lib/agents/pipeline'
+import { DealIntake } from '@/lib/types'
 
 export const maxDuration = 300
 

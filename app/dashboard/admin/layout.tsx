@@ -1,15 +1,9 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import AdminNav from '@/components/AdminNav'
 
 const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
-
-const NAV = [
-  { href: '/dashboard/admin', label: 'Overview', icon: '◈' },
-  { href: '/dashboard/admin/clientes', label: 'Clientes', icon: '◎' },
-  { href: '/dashboard/admin/agentes', label: 'Agentes', icon: '◆' },
-  { href: '/dashboard/admin/aprendizados', label: 'Aprendizados', icon: '◉' },
-]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient()
@@ -17,38 +11,29 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!user || user.email !== ADMIN_EMAIL) redirect('/dashboard')
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
+    <div className="min-h-screen bg-bg text-ink flex flex-col">
       {/* Top bar */}
-      <header className="border-b border-gray-800 px-6 py-3 flex items-center justify-between shrink-0">
+      <header className="border-b border-border px-6 py-3 flex items-center justify-between shrink-0 bg-bg sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <span className="font-bold text-cyan-400">RR7x</span>
-          <span className="text-gray-600 text-sm">/</span>
-          <span className="text-gray-300 text-sm font-medium">Admin</span>
+          <div className="w-6 h-6 rounded-md bg-accent grid place-items-center font-display italic font-semibold text-[13px] text-accent-ink">
+            o
+          </div>
+          <span className="font-display font-medium text-[18px] tracking-tight">Otto</span>
+          <span className="text-ink-3 text-[11px] mx-1">/</span>
+          <span className="text-ink-2 text-[13px] font-medium">Admin</span>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="text-gray-400 hover:text-white text-sm transition">
+          <Link href="/dashboard" className="text-ink-2 hover:text-ink text-[13px] transition flex items-center gap-1.5">
             ← Dashboard
           </Link>
           <form action="/api/auth/signout" method="post">
-            <button className="text-gray-500 hover:text-white text-sm transition">Sair</button>
+            <button className="text-ink-3 hover:text-ink text-[13px] transition">Sair</button>
           </form>
         </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <aside className="w-52 border-r border-gray-800 p-4 flex flex-col gap-1 shrink-0">
-          {NAV.map(n => (
-            <Link
-              key={n.href}
-              href={n.href}
-              className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-gray-300 hover:bg-gray-900 hover:text-white transition"
-            >
-              <span className="text-cyan-500 text-xs">{n.icon}</span>
-              {n.label}
-            </Link>
-          ))}
-        </aside>
+        <AdminNav/>
 
         {/* Content */}
         <main className="flex-1 overflow-y-auto">

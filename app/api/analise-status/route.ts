@@ -9,8 +9,9 @@ export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'ID obrigatório' }, { status: 400 })
 
-  const concluir = req.nextUrl.searchParams.get('concluir')
-  const erro = req.nextUrl.searchParams.get('erro')
+  const concluir     = req.nextUrl.searchParams.get('concluir')
+  const erro         = req.nextUrl.searchParams.get('erro')
+  const reprocessar  = req.nextUrl.searchParams.get('reprocessar')
 
   const admin = createAdminClient()
 
@@ -19,6 +20,9 @@ export async function GET(req: NextRequest) {
   }
   if (erro === '1') {
     await admin.from('analises').update({ status: 'erro', atualizado_em: new Date().toISOString() }).eq('id', id)
+  }
+  if (reprocessar === '1') {
+    await admin.from('analises').update({ status: 'processando', outputs: {}, atualizado_em: new Date().toISOString() }).eq('id', id)
   }
 
   const { data } = await admin
