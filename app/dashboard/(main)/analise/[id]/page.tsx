@@ -171,6 +171,16 @@ export default function AnalisePage() {
     runPipeline()
   }
 
+  async function reprocessStep(step: string) {
+    try {
+      await runStep(step)
+    } catch (err) {
+      console.error('[reprocess step]', err)
+    } finally {
+      setRunningStep(null)
+    }
+  }
+
   useEffect(() => {
     async function init() {
       const res  = await fetch(`/api/analise-status?id=${id}`)
@@ -304,6 +314,8 @@ export default function AnalisePage() {
       finally { setRunningStep(null) }
     }}
     runningConsolidado={runningStep === 'relatorio_consolidado'}
+    onReprocessStep={reprocessStep}
+    reprocessingStep={runningStep}
   />
 }
 
@@ -426,6 +438,7 @@ function SquadView({
 function DealDetail({
   analise, outputs, status, activeTab, setActiveTab,
   onBack, onRegenerate, runningConsolidado,
+  onReprocessStep, reprocessingStep,
 }: {
   analise:             any
   outputs:             Record<string, string>
@@ -435,11 +448,14 @@ function DealDetail({
   onBack:              () => void
   onRegenerate:        () => void
   runningConsolidado:  boolean
+  onReprocessStep:     (step: string) => void
+  reprocessingStep:    string | null
 }) {
+  const [pdfAllLoading, setPdfAllLoading] = useState(false)
   const visibleTabs = DETAIL_TABS.filter((t) => outputs[t.key])
+  const slug = analise.nome_ativo?.replace(/\s+/g, '-') ?? 'analise'
 
   function downloadAll() {
-    const slug  = analise.nome_ativo?.replace(/\s+/g, '-') ?? 'analise'
     const parts = DETAIL_TABS.filter((t) => outputs[t.key])
       .map((t) => `## ${t.label}\n\n${outputs[t.key]}`)
     const blob  = new Blob([parts.join('\n\n---\n\n')], { type: 'text/markdown' })
@@ -448,6 +464,26 @@ function DealDetail({
     a.href      = url
     a.download  = `${slug}-rr7x.md`
     a.click()
+  }
+
+  async function exportAllPdf() {
+    setPdfAllLoading(true)
+    try {
+      const { downloadAllPdf } = await import('@/lib/pdf-document')
+      const sections = DETAIL_TABS
+        .filter((t) => outputs[t.key])
+        .map((t) => ({ label: t.label, content: outputs[t.key] }))
+      await downloadAllPdf({
+        title:    analise.nome_ativo ?? 'Análise',
+        tipo:     analise.deal_intake?.tipoAtivo,
+        sections,
+        filename: `${slug}-rr7x`,
+      })
+    } catch (err) {
+      console.error('[export pdf]', err)
+    } finally {
+      setPdfAllLoading(false)
+    }
   }
 
   const statusBadge = status === 'concluido'
@@ -476,12 +512,21 @@ function DealDetail({
               <span className="text-[12px] text-ink-3 animate-pulse">Gerando resumo...</span>
             )}
             {Object.keys(outputs).length > 0 && (
-              <button
-                onClick={downloadAll}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-[10px] bg-accent-strong text-white text-[13px] font-semibold hover:opacity-90"
-              >
-                <IconDownload size={13}/> Exportar tudo
-              </button>
+              <>
+                <button
+                  onClick={exportAllPdf}
+                  disabled={pdfAllLoading}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-[10px] border border-border-strong bg-surface text-[13px] font-medium hover:bg-surface-2 disabled:opacity-50"
+                >
+                  {pdfAllLoading ? 'Gerando PDF...' : <><IconDownload size={13}/> PDF completo</>}
+                </button>
+                <button
+                  onClick={downloadAll}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-[10px] bg-accent-strong text-white text-[13px] font-semibold hover:opacity-90"
+                >
+                  <IconDownload size={13}/> Exportar .md
+                </button>
+              </>
             )}
           </div>
         }
@@ -507,6 +552,10 @@ function DealDetail({
             label={DETAIL_TABS.find((t) => t.key === activeTab)?.label ?? activeTab}
             content={outputs[activeTab]}
             stepKey={activeTab}
+            analiseTitle={analise.nome_ativo ?? 'Análise'}
+            analiseTipo={analise.deal_intake?.tipoAtivo}
+            onReprocess={() => onReprocessStep(activeTab)}
+            isReprocessing={reprocessingStep === activeTab}
           />
         ) : (
           <div className="bg-surface border border-border rounded-[14px] p-16 text-center shadow-soft-sm">
@@ -518,8 +567,22 @@ function DealDetail({
   )
 }
 
-function OutputPanel({ label, content, stepKey }: { label: string; content: string; stepKey: string }) {
-  function download() {
+function OutputPanel({
+  label, content, stepKey,
+  analiseTitle, analiseTipo,
+  onReprocess, isReprocessing,
+}: {
+  label:          string
+  content:        string
+  stepKey:        string
+  analiseTitle?:  string
+  analiseTipo?:   string
+  onReprocess?:   () => void
+  isReprocessing?: boolean
+}) {
+  const [pdfLoading, setPdfLoading] = useState(false)
+
+  function downloadMd() {
     const blob = new Blob([content], { type: 'text/markdown' })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
@@ -528,16 +591,54 @@ function OutputPanel({ label, content, stepKey }: { label: string; content: stri
     a.click()
   }
 
+  async function downloadPdf() {
+    setPdfLoading(true)
+    try {
+      const { downloadStepPdf } = await import('@/lib/pdf-document')
+      await downloadStepPdf({
+        label,
+        content,
+        title:    analiseTitle ?? label,
+        tipo:     analiseTipo,
+        filename: `${stepKey}-rr7x`,
+      })
+    } catch (err) {
+      console.error('[pdf step]', err)
+    } finally {
+      setPdfLoading(false)
+    }
+  }
+
   return (
     <div className="bg-surface border border-border rounded-[14px] shadow-soft-sm overflow-hidden">
       <div className="flex items-center justify-between px-7 py-4 border-b border-border">
         <h2 className="font-display text-[18px] font-medium">{label}</h2>
-        <button
-          onClick={download}
-          className="text-[12px] text-ink-3 hover:text-ink flex items-center gap-1.5 transition-colors"
-        >
-          <IconDownload size={13}/> Baixar
-        </button>
+        <div className="flex items-center gap-3">
+          {onReprocess && (
+            <button
+              onClick={onReprocess}
+              disabled={isReprocessing}
+              className="text-[12px] text-ink-3 hover:text-ink flex items-center gap-1.5 transition-colors disabled:opacity-40"
+            >
+              {isReprocessing
+                ? <span className="animate-pulse">Reprocessando...</span>
+                : '↺ Reprocessar'}
+            </button>
+          )}
+          <button
+            onClick={downloadPdf}
+            disabled={pdfLoading}
+            className="text-[12px] text-ink-3 hover:text-ink flex items-center gap-1.5 transition-colors disabled:opacity-40"
+          >
+            <IconDownload size={13}/> {pdfLoading ? 'PDF...' : 'PDF'}
+          </button>
+          <button
+            onClick={downloadMd}
+            className="text-[12px] text-ink-3 hover:text-ink flex items-center gap-1.5 transition-colors"
+          >
+            <IconDownload size={13}/> .md
+          </button>
+        </div>
       </div>
       <div className="px-7 py-6 prose-otto max-w-none">
         <ReactMarkdown

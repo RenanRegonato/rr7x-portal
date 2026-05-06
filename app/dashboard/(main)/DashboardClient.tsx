@@ -82,17 +82,32 @@ function EmptyPipeline({ onStart }: { onStart: () => void }) {
 
 // ─── Filter bar ───────────────────────────────────────────────────────────────
 
+const STATUS_OPTIONS = [
+  { value: 'concluido',   label: 'Concluído'   },
+  { value: 'processando', label: 'Processando' },
+  { value: 'erro',        label: 'Com erro'    },
+]
+
 function FilterBar({
   busca, setBusca,
   filtroTipo, setFiltroTipo,
   filtroOp, setFiltroOp,
+  filtroStatus, setFiltroStatus,
   activeCount, onClear,
 }: {
   busca: string; setBusca: (v: string) => void
-  filtroTipo: string; setFiltroTipo: (v: string) => void
-  filtroOp:   string; setFiltroOp:   (v: string) => void
+  filtroTipo:   string; setFiltroTipo:   (v: string) => void
+  filtroOp:     string; setFiltroOp:     (v: string) => void
+  filtroStatus: string; setFiltroStatus: (v: string) => void
   activeCount: number; onClear: () => void
 }) {
+  const selectCls = (active: boolean) =>
+    `border rounded-[10px] px-3 py-[7px] text-[13px] outline-none transition-colors cursor-pointer ${
+      active
+        ? 'border-accent bg-accent-soft text-accent-strong'
+        : 'border-border bg-surface text-ink-2 hover:border-border-strong'
+    }`
+
   return (
     <div className="flex items-center gap-2 flex-wrap">
       {/* Search */}
@@ -114,31 +129,21 @@ function FilterBar({
       </div>
 
       {/* Tipo de Ativo */}
-      <select
-        value={filtroTipo}
-        onChange={e => setFiltroTipo(e.target.value)}
-        className={`border rounded-[10px] px-3 py-[7px] text-[13px] outline-none transition-colors cursor-pointer
-          ${filtroTipo
-            ? 'border-accent bg-accent-soft text-accent-strong'
-            : 'border-border bg-surface text-ink-2 hover:border-border-strong'
-          }`}
-      >
+      <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)} className={selectCls(!!filtroTipo)}>
         <option value="">Tipo de ativo</option>
         {TIPOS_ATIVO.map(t => <option key={t} value={t}>{t}</option>)}
       </select>
 
       {/* Tipo de Operação */}
-      <select
-        value={filtroOp}
-        onChange={e => setFiltroOp(e.target.value)}
-        className={`border rounded-[10px] px-3 py-[7px] text-[13px] outline-none transition-colors cursor-pointer
-          ${filtroOp
-            ? 'border-accent bg-accent-soft text-accent-strong'
-            : 'border-border bg-surface text-ink-2 hover:border-border-strong'
-          }`}
-      >
+      <select value={filtroOp} onChange={e => setFiltroOp(e.target.value)} className={selectCls(!!filtroOp)}>
         <option value="">Tipo de operação</option>
         {TIPOS_OPERACAO.map(o => <option key={o} value={o}>{o}</option>)}
+      </select>
+
+      {/* Status */}
+      <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)} className={selectCls(!!filtroStatus)}>
+        <option value="">Status</option>
+        {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
       </select>
 
       {/* Clear */}
@@ -223,23 +228,24 @@ export default function DashboardClient({
 }) {
   const router = useRouter()
 
-  const [analises,    setAnalises]    = useState(initialAnalises)
-  const [busca,       setBusca]       = useState('')
-  const [filtroTipo,  setFiltroTipo]  = useState('')
-  const [filtroOp,    setFiltroOp]    = useState('')
-  const [viewMode,    setViewMode]    = useState<'lista' | 'tipo'>('lista')
-  const [page,        setPage]        = useState(0)
-  const [topTab,      setTopTab]      = useState('Deals')
-  const [mode,        setMode]        = useState('Ativo')
-  const [nomeAtivo,   setNomeAtivo]   = useState('')
-  const [tipoAtivo,   setTipoAtivo]   = useState('')
-  const [extra,       setExtra]       = useState('')  // proprietário / assessor field
+  const [analises,     setAnalises]     = useState(initialAnalises)
+  const [busca,        setBusca]        = useState('')
+  const [filtroTipo,   setFiltroTipo]   = useState('')
+  const [filtroOp,     setFiltroOp]     = useState('')
+  const [filtroStatus, setFiltroStatus] = useState('')
+  const [viewMode,     setViewMode]     = useState<'lista' | 'tipo'>('lista')
+  const [page,         setPage]         = useState(0)
+  const [topTab,       setTopTab]       = useState('Deals')
+  const [mode,         setMode]         = useState('Ativo')
+  const [nomeAtivo,    setNomeAtivo]    = useState('')
+  const [tipoAtivo,    setTipoAtivo]    = useState('')
+  const [extra,        setExtra]        = useState('')  // proprietário / assessor field
 
   // Reset extra field when mode changes
   useEffect(() => { setExtra('') }, [mode])
 
   // Reset page on any filter change
-  useEffect(() => { setPage(0) }, [busca, filtroTipo, filtroOp])
+  useEffect(() => { setPage(0) }, [busca, filtroTipo, filtroOp, filtroStatus])
 
   async function deleteAnalise(id: string) {
     setAnalises(prev => prev.filter(a => a.id !== id))
@@ -247,7 +253,7 @@ export default function DashboardClient({
   }
 
   function clearFilters() {
-    setBusca(''); setFiltroTipo(''); setFiltroOp('')
+    setBusca(''); setFiltroTipo(''); setFiltroOp(''); setFiltroStatus('')
   }
 
   // ─── Filter + sort ────────────────────────────────────────────────────────
@@ -259,9 +265,10 @@ export default function DashboardClient({
         if (busca && !a.nome_ativo.toLowerCase().includes(busca.toLowerCase())) return false
         if (filtroTipo && a.deal_intake?.tipoAtivo !== filtroTipo) return false
         if (filtroOp && !a.deal_intake?.objetivo?.includes(filtroOp)) return false
+        if (filtroStatus && a.status !== filtroStatus) return false
         return true
       })
-  }, [analises, busca, filtroTipo, filtroOp])
+  }, [analises, busca, filtroTipo, filtroOp, filtroStatus])
 
   const paginated = filtradas.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
@@ -278,7 +285,7 @@ export default function DashboardClient({
     return groups
   }, [filtradas])
 
-  const activeFilterCount = [busca, filtroTipo, filtroOp].filter(Boolean).length
+  const activeFilterCount = [busca, filtroTipo, filtroOp, filtroStatus].filter(Boolean).length
 
   const tabs = [
     { id: 'Deals',     label: 'Deals'     },
@@ -418,6 +425,7 @@ export default function DashboardClient({
                   busca={busca} setBusca={setBusca}
                   filtroTipo={filtroTipo} setFiltroTipo={setFiltroTipo}
                   filtroOp={filtroOp} setFiltroOp={setFiltroOp}
+                  filtroStatus={filtroStatus} setFiltroStatus={setFiltroStatus}
                   activeCount={activeFilterCount} onClear={clearFilters}
                 />
               </div>
