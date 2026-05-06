@@ -30,7 +30,8 @@ function maskCNPJ(v: string) {
   return `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12)}`
 }
 
-function isCNPJValid(cnpj: string) {
+function isCNPJValid(cnpj: string | null | undefined) {
+  if (!cnpj) return true
   const d = cnpj.replace(/\D/g, '')
   return d.length === 0 || d.length === 14
 }
@@ -64,6 +65,7 @@ export default function EscritorioPage() {
   const [loading, setLoading]     = useState(true)
   const [saving, setSaving]       = useState(false)
   const [msg, setMsg]             = useState('')
+  const [msgIsError, setMsgIsError] = useState(false)
   const [uploading,     setUploading]     = useState(false)
   const [logoSuccess,   setLogoSuccess]   = useState(false)
   const [cnpjError,     setCnpjError]     = useState('')
@@ -73,7 +75,20 @@ export default function EscritorioPage() {
     fetch('/api/escritorio')
       .then(r => r.json())
       .then(d => {
-        if (d.escritorio) setForm({ ...EMPTY, ...d.escritorio })
+        if (d.escritorio) {
+          const e = d.escritorio
+          setForm({
+            nome:          e.nome          ?? '',
+            cnpj:          e.cnpj          ?? '',
+            endereco:      e.endereco      ?? '',
+            cidade_uf:     e.cidade_uf     ?? '',
+            telefone:      e.telefone      ?? '',
+            email_contato: e.email_contato ?? '',
+            site:          e.site          ?? '',
+            tagline:       e.tagline       ?? '',
+            logo_url:      e.logo_url      ?? '',
+          })
+        }
       })
       .finally(() => setLoading(false))
   }, [])
@@ -91,10 +106,25 @@ export default function EscritorioPage() {
       body: JSON.stringify({ ext }),
     })
     const { signedUrl, publicUrl, error } = await res.json()
-    if (error || !signedUrl) { setUploading(false); return }
+    if (error || !signedUrl) {
+      setUploading(false)
+      setMsgIsError(true)
+      setMsg(`Erro no upload: ${error ?? 'Não foi possível gerar URL de envio'}`)
+      return
+    }
 
     await fetch(signedUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
-    setForm(prev => ({ ...prev, logo_url: `${publicUrl}?v=${Date.now()}` }))
+
+    const logoUrl = `${publicUrl}?v=${Date.now()}`
+    setForm(prev => ({ ...prev, logo_url: logoUrl }))
+
+    // Persist logo_url immediately — don't require clicking "Salvar dados"
+    await fetch('/api/escritorio', {
+      method:  'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ logo_url: logoUrl }),
+    })
+
     setLogoSuccess(true)
     setTimeout(() => setLogoSuccess(false), 3000)
     setUploading(false)
@@ -113,8 +143,13 @@ export default function EscritorioPage() {
     })
     setSaving(false)
     if (res.ok) {
+      setMsgIsError(false)
       setMsg('Dados salvos! Os próximos relatórios já usarão estas informações.')
       setTimeout(() => setMsg(''), 4000)
+    } else {
+      const err = await res.json().catch(() => ({}))
+      setMsgIsError(true)
+      setMsg(`Erro ao salvar: ${err.error ?? res.statusText}`)
     }
   }
 
@@ -229,7 +264,7 @@ export default function EscritorioPage() {
 
           <div className="pt-2 flex items-center justify-between">
             {msg
-              ? <p className="text-ok text-[13px]">{msg}</p>
+              ? <p className={`text-[13px] ${msgIsError ? 'text-warn' : 'text-ok'}`}>{msg}</p>
               : <p className="text-[12px] text-ink-3">Blind Teaser, Pitchbook e Relatório Consolidado usarão estes dados.</p>
             }
             <button
