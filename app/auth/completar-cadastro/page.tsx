@@ -43,15 +43,15 @@ export default function CompletarCadastroPage() {
     const { error: updateErr } = await supabase.auth.updateUser({
       data: { nome: nome.trim(), telefone },
     })
-    setLoading(false)
 
     if (updateErr) {
       setError('Erro ao salvar. Tente novamente.')
+      setLoading(false)
       return
     }
 
-    router.push('/dashboard')
-    router.refresh()
+    // Hard navigation garante que o middleware leia a sessão atualizada
+    window.location.href = '/dashboard'
   }
 
   return (
