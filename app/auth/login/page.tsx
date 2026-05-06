@@ -1,9 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+
+const ERRO_MSGS: Record<string, string> = {
+  link_expirado: 'Este link expirou. Solicite um novo convite ou use "Esqueci minha senha".',
+  link_invalido: 'Link inválido. Solicite um novo convite ou use "Esqueci minha senha".',
+}
+
+function ErroParam({ onErro }: { onErro: (msg: string) => void }) {
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    const erro = searchParams.get('erro')
+    if (erro && ERRO_MSGS[erro]) onErro(ERRO_MSGS[erro])
+  }, [searchParams, onErro])
+  return null
+}
 
 export default function LoginPage() {
   const [email,    setEmail]    = useState('')
@@ -44,6 +58,9 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-surface border border-border rounded-[14px] shadow-soft-md p-8">
+          <Suspense>
+            <ErroParam onErro={setError} />
+          </Suspense>
           <h2 className="font-display text-[22px] font-medium tracking-tight mb-1">Acesse sua conta</h2>
           <p className="text-ink-3 text-[13px] mb-6">Bem-vindo de volta.</p>
 

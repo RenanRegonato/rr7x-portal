@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import AuthErrorHandler from '@/components/AuthErrorHandler'
 
 const agentes = [
   { initial: 'O', color: 'bg-peach',  nome: 'Otto Orquestra',   titulo: 'Deal Orchestrator',           desc: 'Deal Readiness Score + ativação dos agentes certos' },
@@ -45,6 +46,7 @@ const planos = [
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-bg text-ink">
+      <AuthErrorHandler />
       {/* Header */}
       <header className="border-b border-border px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
         <div className="flex items-center gap-2.5">
