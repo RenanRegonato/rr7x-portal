@@ -9,16 +9,13 @@ export interface UserContext {
   escritorioId: string | null
 }
 
+// Backward-compat: admin email used as fallback until SQL migration runs perfis.role='admin'
 const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
 
 export async function getUserContext(): Promise<UserContext | null> {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
-
-  if (user.email === ADMIN_EMAIL) {
-    return { userId: user.id, email: user.email, role: 'admin', escritorioId: null }
-  }
 
   const admin = createAdminClient()
   const { data: perfil } = await admin
@@ -27,10 +24,13 @@ export async function getUserContext(): Promise<UserContext | null> {
     .eq('user_id', user.id)
     .maybeSingle()
 
+  const role: UserRole = (perfil?.role as UserRole)
+    ?? (user.email === ADMIN_EMAIL ? 'admin' : 'assessor')
+
   return {
     userId:       user.id,
     email:        user.email!,
-    role:         (perfil?.role as UserRole) ?? 'assessor',
+    role,
     escritorioId: perfil?.escritorio_id ?? null,
   }
 }
@@ -41,19 +41,13 @@ export async function getTeamUserIds(ctx: UserContext): Promise<string[] | null>
   if (ctx.role === 'admin') return null
 
   if (ctx.role === 'gerente') {
+    if (!ctx.escritorioId) return [ctx.userId]
+
     const admin = createAdminClient()
-    const { data: escritorio } = await admin
-      .from('escritorios')
-      .select('id')
-      .eq('user_id', ctx.userId)
-      .maybeSingle()
-
-    if (!escritorio) return [ctx.userId]
-
     const { data: membros } = await admin
       .from('perfis')
       .select('user_id')
-      .eq('escritorio_id', escritorio.id)
+      .eq('escritorio_id', ctx.escritorioId)
 
     const memberIds = (membros ?? []).map((m: { user_id: string }) => m.user_id)
     return [...new Set([ctx.userId, ...memberIds])]

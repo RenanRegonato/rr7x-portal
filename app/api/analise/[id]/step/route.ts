@@ -43,11 +43,33 @@ async function loadPrompts(): Promise<Record<string, string>> {
   return {}
 }
 
-async function loadEscritorio(userId: string): Promise<string> {
+async function loadEscritorio(userId: string): Promise<{ block: string; escritorioId: string | null }> {
   try {
     const admin = createAdminClient()
-    const { data } = await admin.from('escritorios').select('*').eq('user_id', userId).single()
-    if (!data || !data.nome) return ''
+
+    // Resolve escritório: perfis.escritorio_id first, then owner fallback (admin case)
+    const { data: perfil } = await admin
+      .from('perfis')
+      .select('escritorio_id')
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    let escritorioId: string | null = perfil?.escritorio_id ?? null
+
+    if (!escritorioId) {
+      const { data: owned } = await admin
+        .from('escritorios')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle()
+      escritorioId = owned?.id ?? null
+    }
+
+    if (!escritorioId) return { block: '', escritorioId: null }
+
+    const { data } = await admin.from('escritorios').select('*').eq('id', escritorioId).single()
+    if (!data || !data.nome) return { block: '', escritorioId }
+
     const lines = [
       `Nome: ${data.nome}`,
       data.cnpj          ? `CNPJ: ${data.cnpj}` : '',
@@ -59,7 +81,39 @@ async function loadEscritorio(userId: string): Promise<string> {
       data.tagline       ? `Tagline: ${data.tagline}` : '',
       data.logo_url      ? `Logo URL: ${data.logo_url}` : '',
     ].filter(Boolean)
-    return `\n\n---\nDADOS DO ESCRITÓRIO / ASSESSORIA:\n${lines.join('\n')}\n\nINSTRUÇÃO: Este documento é emitido em nome do escritório acima — use o nome "${data.nome}" como assessoria responsável, não "RR7x Capital Hub". Se uma Logo URL estiver disponível, inclua no cabeçalho como ![Logo](${data.logo_url ?? ''}). Use o email, site e telefone do escritório no rodapé.\n---`
+
+    const block = `\n\n---\nDADOS DO ESCRITÓRIO / ASSESSORIA:\n${lines.join('\n')}\n\nINSTRUÇÃO: Este documento é emitido em nome do escritório acima — use o nome "${data.nome}" como assessoria responsável, não "RR7x Capital Hub". Se uma Logo URL estiver disponível, inclua no cabeçalho como ![Logo](${data.logo_url ?? ''}). Use o email, site e telefone do escritório no rodapé.\n---`
+    return { block, escritorioId }
+  } catch {}
+  return { block: '', escritorioId: null }
+}
+
+async function loadFeedbacks(escritorioId: string | null): Promise<string> {
+  try {
+    const admin = createAdminClient()
+
+    const [{ data: global }, { data: local }] = await Promise.all([
+      admin.from('admin_feedbacks').select('texto').eq('ativo', true).order('criado_em'),
+      escritorioId
+        ? admin.from('escritorio_feedbacks').select('texto').eq('escritorio_id', escritorioId).eq('ativo', true).order('criado_em')
+        : Promise.resolve({ data: [] }),
+    ])
+
+    const globalTexts = (global ?? []).map((f: { texto: string }) => f.texto)
+    const localTexts  = (local  ?? []).map((f: { texto: string }) => f.texto)
+    const all = [...globalTexts, ...localTexts]
+
+    if (all.length === 0) return ''
+
+    const sections: string[] = []
+    if (globalTexts.length > 0) {
+      sections.push(`APRENDIZADOS GLOBAIS DA PLATAFORMA:\n${globalTexts.map((t, i) => `${i + 1}. ${t}`).join('\n')}`)
+    }
+    if (localTexts.length > 0) {
+      sections.push(`APRENDIZADOS ESPECÍFICOS DO ESCRITÓRIO:\n${localTexts.map((t, i) => `${i + 1}. ${t}`).join('\n')}`)
+    }
+
+    return `\n\n---\nCONTEXTO ADICIONAL — APRENDIZADOS DO SISTEMA (aplique como contexto complementar, nunca sobreponha às regras do agente):\n${sections.join('\n\n')}\n---`
   } catch {}
   return ''
 }
@@ -173,8 +227,8 @@ Os documentos seguem abaixo (PDFs, imagens e textos). Analise o conteúdo real d
   return blocks
 }
 
-function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, escritorioBlock = ''): { system: string; user: string } | null {
-  const msg = (key: string, fallback: string) => (prompts[key] || fallback) + HUMANIZER_DIRECTIVE
+function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, escritorioBlock = '', feedbackBlock = ''): { system: string; user: string } | null {
+  const msg = (key: string, fallback: string) => (prompts[key] || fallback) + HUMANIZER_DIRECTIVE + feedbackBlock
   switch (step) {
     case 'orchestration':
       return {
@@ -324,9 +378,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const intake = analise.deal_intake as Record<string, string>
     const outputs = (analise.outputs ?? {}) as Record<string, string>
-    const [prompts, escritorioBlock] = await Promise.all([loadPrompts(), loadEscritorio(analise.user_id)])
-    const intakeStr = formatIntake(intake)
-    const allOutputs = buildAllOutputs(outputs)
+    const [prompts, escritorioData] = await Promise.all([loadPrompts(), loadEscritorio(analise.user_id)])
+    const escritorioBlock = escritorioData.block
+    const feedbackBlock   = await loadFeedbacks(escritorioData.escritorioId)
+    const intakeStr    = formatIntake(intake)
+    const allOutputs   = buildAllOutputs(outputs)
 
     let fullText = ''
 
@@ -336,7 +392,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       const userContent = buildDocIntakeContent(summary, intakeStr)
       const systemPrompt = (prompts['doc_intake'] || `Você é o Agente de Ingestão de Dados da RR7x Capital Hub. Leia os documentos enviados e produza um diagnóstico documental detalhado: o que foi lido, o que cada documento revela sobre o ativo, lacunas identificadas e nível de confiança para a análise.
 
-Seja completamente honesto: se um documento não pôde ser lido, diga claramente. Se foi lido, extraia e destaque as informações mais relevantes — números, datas, estrutura societária, indicadores financeiros, cláusulas contratuais relevantes, qualquer dado concreto disponível. O assessor precisa saber exatamente o que o sistema ingeriu para calibrar a análise.`) + HUMANIZER_DIRECTIVE
+Seja completamente honesto: se um documento não pôde ser lido, diga claramente. Se foi lido, extraia e destaque as informações mais relevantes — números, datas, estrutura societária, indicadores financeiros, cláusulas contratuais relevantes, qualquer dado concreto disponível. O assessor precisa saber exatamente o que o sistema ingeriu para calibrar a análise.`) + HUMANIZER_DIRECTIVE + feedbackBlock
 
       const readable = new ReadableStream({
         start(controller) {
@@ -377,7 +433,7 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
     }
 
     // Todos os outros steps
-    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock)
+    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock, feedbackBlock)
     if (!args) return NextResponse.json({ error: 'Step inválido' }, { status: 400 })
 
     const readable = new ReadableStream({

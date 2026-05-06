@@ -2,7 +2,7 @@ import { createAdminClient } from '@/lib/supabase-server'
 import { getUserContext } from '@/lib/get-role'
 import { redirect } from 'next/navigation'
 import Topbar from '@/components/Topbar'
-import Link from 'next/link'
+import ConvidarAssessor from './ConvidarAssessor'
 
 export default async function EquipePage() {
   const ctx = await getUserContext()
@@ -11,19 +11,19 @@ export default async function EquipePage() {
 
   const admin = createAdminClient()
 
-  // Find gerente's escritório
-  const { data: escritorio } = await admin
-    .from('escritorios')
-    .select('id, nome')
-    .eq('user_id', ctx.userId)
-    .maybeSingle()
+  // Load escritório name from the gerente's escritorioId
+  const { data: escritorio } = ctx.escritorioId
+    ? await admin.from('escritorios').select('id, nome').eq('id', ctx.escritorioId).maybeSingle()
+    : { data: null }
 
-  // Find all assessors linked to this escritório
-  const { data: perfis } = escritorio
-    ? await admin.from('perfis').select('user_id, role').eq('escritorio_id', escritorio.id)
+  // Find all perfis linked to this escritório
+  const { data: perfis } = ctx.escritorioId
+    ? await admin.from('perfis').select('user_id, role').eq('escritorio_id', ctx.escritorioId)
     : { data: [] }
 
-  const memberIds = (perfis ?? []).map((p: { user_id: string }) => p.user_id)
+  const memberIds = (perfis ?? [])
+    .filter((p: { user_id: string; role: string }) => p.user_id !== ctx.userId)
+    .map((p: { user_id: string }) => p.user_id)
 
   // Load auth user data for each member
   const { data: usersData } = await admin.auth.admin.listUsers()
@@ -46,18 +46,23 @@ export default async function EquipePage() {
         subtitle={escritorio?.nome ?? 'Assessores vinculados ao escritório'}
       />
 
-      <div className="p-8 max-w-3xl">
+      <div className="p-8 max-w-3xl space-y-6">
+        {/* Invite button */}
+        {ctx.escritorioId && (
+          <ConvidarAssessor />
+        )}
+
         {membros.length === 0 ? (
           <div className="bg-surface border border-border rounded-[14px] p-10 text-center shadow-soft-sm">
             <p className="font-display text-[18px] text-ink-3 mb-2">Nenhum assessor vinculado</p>
             <p className="text-[13px] text-ink-3 max-w-xs mx-auto leading-relaxed">
-              Um administrador precisa criar contas de assessor e vinculá-las ao seu escritório em{' '}
-              <span className="text-accent-strong">Admin → Usuários</span>.
+              Convide um assessor usando o botão acima, ou peça ao administrador da plataforma
+              em <span className="text-accent-strong">Admin → Usuários</span>.
             </p>
           </div>
         ) : (
           <div className="space-y-3">
-            <p className="text-[13px] text-ink-3 mb-4">{membros.length} assessor(es) neste escritório</p>
+            <p className="text-[13px] text-ink-3">{membros.length} assessor(es) neste escritório</p>
             {membros.map(u => {
               const userAnalises = (analises ?? []).filter((a: { user_id: string }) => a.user_id === u.id)
               const concluidoCount = userAnalises.filter((a: { status: string }) => a.status === 'concluido').length

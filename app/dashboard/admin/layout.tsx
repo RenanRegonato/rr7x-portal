@@ -1,14 +1,11 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { getUserContext } from '@/lib/get-role'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import AdminNav from '@/components/AdminNav'
 
-const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
-
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.email !== ADMIN_EMAIL) redirect('/dashboard')
+  const ctx = await getUserContext()
+  if (!ctx || ctx.role !== 'admin') redirect('/dashboard')
 
   return (
     <div className="min-h-screen bg-bg text-ink flex flex-col">

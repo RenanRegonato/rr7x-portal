@@ -64,10 +64,11 @@ export default function AprendizadosPage() {
   return (
     <div className="p-6 max-w-3xl mx-auto flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-[22px] font-medium tracking-tight">Aprendizados</h1>
+        <h1 className="font-display text-[22px] font-medium tracking-tight">Aprendizados Globais</h1>
         <p className="text-[13px] text-ink-2 mt-1 leading-relaxed">
-          Feedbacks registrados aqui são injetados automaticamente no contexto de todos os agentes em cada análise.
-          As regras individuais de cada agente nunca são substituídas — os aprendizados ampliam o contexto.
+          Aprendizados registrados aqui são injetados em <strong>todos os escritórios</strong> e afetam o comportamento
+          dos agentes em toda a plataforma. Use para melhorias sistêmicas, padrões de análise e ajustes de qualidade global.
+          Cada escritório pode registrar seus próprios aprendizados complementares (restritos ao seu ambiente).
         </p>
       </div>
 
@@ -145,7 +146,8 @@ export default function AprendizadosPage() {
       {feedbacks.length > 0 && (
         <div className="bg-accent-soft border border-accent rounded-[14px] p-4 text-[13px] text-ink-2 leading-relaxed">
           <strong className="text-ink block mb-1">Como os aprendizados chegam aos agentes</strong>
-          Cada análise carrega todos os aprendizados <span className="text-ok font-semibold">ativos</span> e os injeta no contexto de cada agente antes da execução.
+          Cada análise carrega os aprendizados globais <span className="text-ok font-semibold">ativos</span> + os aprendizados específicos do escritório responsável pelo deal,
+          injetando ambos no contexto de cada agente antes da execução.
           Aprendizados <span className="text-ink-3 font-semibold">pausados</span> são ignorados sem precisar deletar.
           As regras individuais de cada agente prevalecem sempre — os aprendizados informam, não sobrescrevem.
         </div>
