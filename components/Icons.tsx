@@ -42,6 +42,8 @@ export const IconFileText   = (p: IconProps) => <Svg {...p}><path d="M14 2H6a2 2
 export const IconTrash      = (p: IconProps) => <Svg {...p}><path d="M3 6h18 M8 6V4h8v2 M19 6l-1 14H6L5 6"/></Svg>
 export const IconBuilding   = (p: IconProps) => <Svg {...p}><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4 M8 6h.01 M16 6h.01 M8 10h.01 M16 10h.01 M8 14h.01 M16 14h.01"/></Svg>
 export const IconUsers      = (p: IconProps) => <Svg {...p}><circle cx="9" cy="7" r="3"/><circle cx="17" cy="7" r="2"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5 M16 19c0-2 2-3 4-3"/></Svg>
+export const IconLock       = (p: IconProps) => <Svg {...p}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></Svg>
+export const IconUser       = (p: IconProps) => <Svg {...p}><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></Svg>
 
 export const ICONS_BY_NAME: Record<string, (p: IconProps) => React.ReactElement> = {
   home:       IconHome,
@@ -64,4 +66,6 @@ export const ICONS_BY_NAME: Record<string, (p: IconProps) => React.ReactElement>
   fileText:   IconFileText,
   building:   IconBuilding,
   users:      IconUsers,
+  lock:       IconLock,
+  user:       IconUser,
 }

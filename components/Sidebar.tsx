@@ -36,10 +36,12 @@ export default function Sidebar({
     { id: 'pipeline',   label: 'Pipeline',   icon: 'pipeline', href: '/dashboard', count: analiseCount || undefined },
     { id: 'escritorio', label: 'Escritório', icon: 'building', href: '/dashboard/escritorio' },
     { id: 'planos',     label: 'Planos',     icon: 'sparkle',  href: '/dashboard/planos' },
+    { id: 'conta',      label: 'Minha Conta', icon: 'user',    href: '/dashboard/conta' },
   ]
 
   const equipeItems: NavItem[] = [
-    { id: 'equipe', label: 'Minha Equipe', icon: 'users', href: '/dashboard/equipe' },
+    { id: 'equipe',       label: 'Minha Equipe',  icon: 'users', href: '/dashboard/equipe' },
+    { id: 'aprendizados', label: 'Aprendizados',  icon: 'doc',   href: '/dashboard/aprendizados' },
   ]
 
   const adminItems: NavItem[] = [
