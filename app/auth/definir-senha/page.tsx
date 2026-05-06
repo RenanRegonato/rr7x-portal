@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import PasswordStrength, { isPasswordStrong } from '@/components/PasswordStrength'
@@ -11,9 +11,31 @@ export default function DefinirSenhaPage() {
   const [error,    setError]    = useState('')
   const [loading,  setLoading]  = useState(false)
   const [success,  setSuccess]  = useState(false)
+  const [pronto,   setPronto]   = useState(false)
 
   const supabase = createClient()
   const router   = useRouter()
+
+  // Convites usam fluxo de token direto (hash) — precisamos trocar explicitamente
+  useEffect(() => {
+    const hash = window.location.hash
+    if (!hash) { setPronto(true); return }
+
+    const params = new URLSearchParams(hash.replace('#', ''))
+    const accessToken  = params.get('access_token')
+    const refreshToken = params.get('refresh_token')
+
+    if (accessToken && refreshToken) {
+      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+        .then(() => {
+          // Limpa o hash da URL sem recarregar a página
+          window.history.replaceState(null, '', window.location.pathname)
+          setPronto(true)
+        })
+    } else {
+      setPronto(true)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -117,7 +139,7 @@ export default function DefinirSenhaPage() {
 
             <button
               type="submit"
-              disabled={loading || !isPasswordStrong(senha) || senha !== confirma}
+              disabled={!pronto || loading || !isPasswordStrong(senha) || senha !== confirma}
               className="w-full bg-accent-strong hover:opacity-90 text-white font-semibold py-2.5 rounded-[10px] transition disabled:opacity-50 text-[13px]"
             >
               {loading ? 'Criando conta...' : 'Criar senha e acessar'}
