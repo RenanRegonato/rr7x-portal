@@ -9,9 +9,6 @@ export interface UserContext {
   escritorioId: string | null
 }
 
-// Backward-compat: admin email used as fallback until SQL migration runs perfis.role='admin'
-const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
-
 export async function getUserContext(): Promise<UserContext | null> {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -24,8 +21,7 @@ export async function getUserContext(): Promise<UserContext | null> {
     .eq('user_id', user.id)
     .maybeSingle()
 
-  const role: UserRole = (perfil?.role as UserRole)
-    ?? (user.email === ADMIN_EMAIL ? 'admin' : 'assessor')
+  const role: UserRole = (perfil?.role as UserRole) ?? 'assessor'
 
   return {
     userId:       user.id,

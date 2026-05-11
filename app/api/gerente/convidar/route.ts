@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase-server'
 import { getUserContext } from '@/lib/get-role'
+import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { ConvidarSchema } from '@/lib/schemas'
+import { audit, extractIp } from '@/lib/audit'
 
 export async function POST(req: NextRequest) {
   const ctx = await getUserContext()
@@ -11,8 +14,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Escritório não configurado' }, { status: 400 })
   }
 
-  const { email } = await req.json()
-  if (!email?.trim()) return NextResponse.json({ error: 'Email obrigatório' }, { status: 400 })
+  // 5 convites por hora por gerente
+  const rl = await checkRateLimit(`convidar:${ctx.userId}`, 5, 3600)
+  if (!rl.allowed) return rateLimitResponse(rl.resetIn)
+
+  const body = await req.json()
+  const parsed = ConvidarSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Email inválido' }, { status: 400 })
+  }
+  const { email } = parsed.data
 
   const admin = createAdminClient()
 
@@ -38,6 +49,14 @@ export async function POST(req: NextRequest) {
       atualizado_em: new Date().toISOString(),
     }, { onConflict: 'user_id' })
   }
+
+  void audit({
+    event:    'invite.sent',
+    userId:   ctx.userId,
+    metadata: { invitee_email: email, escritorio_id: ctx.escritorioId },
+    ip:       extractIp(req.headers),
+    userAgent: req.headers.get('user-agent'),
+  })
 
   return NextResponse.json({ ok: true })
 }

@@ -42,6 +42,14 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // 2FA obrigatório para rotas admin: redireciona se nível de segurança < aal2
+  if (user && pathname.startsWith('/dashboard/admin')) {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+    if (aal && aal.currentLevel !== 'aal2') {
+      return NextResponse.redirect(new URL('/auth/mfa-required', request.url))
+    }
+  }
+
   return supabaseResponse
 }
 

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
+import { audit, extractIp } from '@/lib/audit'
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
@@ -18,8 +19,10 @@ export async function DELETE(
     .eq('id', id)
     .single()
 
-  if (!analise) return NextResponse.json({ error: 'Não encontrada' }, { status: 404 })
-  if (analise.user_id !== user.id) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+  // Retorna 404 para ambos os casos: não existe ou pertence a outro usuário
+  if (!analise || analise.user_id !== user.id) {
+    return NextResponse.json({ error: 'Não encontrada' }, { status: 404 })
+  }
 
   // Delete uploaded files from storage
   const { data: files } = await admin.storage
@@ -32,6 +35,14 @@ export async function DELETE(
   }
 
   await admin.from('analises').delete().eq('id', id)
+
+  void audit({
+    event:    'analise.deleted',
+    userId:   user.id,
+    targetId: id,
+    ip:       extractIp(req.headers),
+    userAgent: req.headers.get('user-agent'),
+  })
 
   return NextResponse.json({ ok: true })
 }

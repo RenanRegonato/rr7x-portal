@@ -1,18 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
+import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { UploadUrlSchema } from '@/lib/schemas'
 
 export async function POST(req: NextRequest) {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-  const { analiseId, files } = await req.json() as { analiseId: string; files: { name: string }[] }
+  // 200 requisições de upload por hora por usuário
+  const rl = await checkRateLimit(`upload:${user.id}`, 200, 3600)
+  if (!rl.allowed) return rateLimitResponse(rl.resetIn)
 
-  if (!analiseId || !Array.isArray(files) || files.length === 0) {
-    return NextResponse.json({ error: 'Parâmetros inválidos.' }, { status: 400 })
+  const body = await req.json()
+  const parsed = UploadUrlSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Parâmetros inválidos.', details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    )
   }
+  const { analiseId, files } = parsed.data
 
-  // Valida que a análise pertence ao usuário
   const admin = createAdminClient()
   const { data: analise } = await admin
     .from('analises')
@@ -26,7 +35,7 @@ export async function POST(req: NextRequest) {
 
   const urls = await Promise.all(
     files.map(async ({ name }) => {
-      const safeName = name.replace(/[^a-zA-Z0-9._\-À-ɏ]/g, '_')
+      const safeName = name.replace(/[^a-zA-Z0-9._-]/g, '_')
       const path = `${user.id}/${analiseId}/${safeName}`
       const { data, error } = await admin.storage
         .from('analises')

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase-server'
 import { getUserContext } from '@/lib/get-role'
+import { EscritorioUpdateSchema } from '@/lib/schemas'
 
 // Resolve the escritório for the current user.
 // Priority: perfis.escritorio_id → escritorios.user_id (owner fallback for admin)
@@ -39,10 +40,16 @@ export async function PATCH(req: NextRequest) {
   const escritorioId = await resolveEscritorioId(ctx.userId, ctx.escritorioId)
   if (!escritorioId) return NextResponse.json({ error: 'Sem escritório vinculado' }, { status: 400 })
 
-  const body = await req.json()
-  const fields = ['nome', 'cnpj', 'endereco', 'cidade_uf', 'telefone', 'email_contato', 'site', 'tagline', 'logo_url']
+  const raw = await req.json()
+  const parsed = EscritorioUpdateSchema.safeParse(raw)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Dados inválidos', details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    )
+  }
   const update = Object.fromEntries(
-    fields.filter(f => f in body).map(f => [f, body[f]])
+    Object.entries(parsed.data).filter(([, v]) => v !== undefined)
   )
 
   const admin = createAdminClient()

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase-server'
 import { getUserContext } from '@/lib/get-role'
+import { AdminSubscriptionSchema, AdminCancelSchema } from '@/lib/schemas'
+import { audit, extractIp } from '@/lib/audit'
 
 async function verificarAdmin() {
   const ctx = await getUserContext()
@@ -10,7 +12,8 @@ async function verificarAdmin() {
 
 // Buscar usuário por email
 export async function GET(req: NextRequest) {
-  if (!await verificarAdmin()) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+  const ctx = await verificarAdmin()
+  if (!ctx) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
   const email = req.nextUrl.searchParams.get('email')
   if (!email) return NextResponse.json({ error: 'Email obrigatório' }, { status: 400 })
@@ -29,15 +32,31 @@ export async function GET(req: NextRequest) {
     .eq('user_id', usuario.id)
     .maybeSingle()
 
+  void audit({
+    event:    'admin.user_searched',
+    userId:   ctx.userId,
+    metadata: { searched_email: email },
+    ip:       extractIp(req.headers),
+    userAgent: req.headers.get('user-agent'),
+  })
+
   return NextResponse.json({ usuario: { id: usuario.id, email: usuario.email, criado_em: usuario.created_at }, assinatura: sub })
 }
 
 // Ativar ou atualizar plano
 export async function POST(req: NextRequest) {
-  if (!await verificarAdmin()) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+  const ctx = await verificarAdmin()
+  if (!ctx) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
-  const { user_id, plano } = await req.json()
-  if (!user_id || !plano) return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 })
+  const body = await req.json()
+  const parsed = AdminSubscriptionSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Dados inválidos', details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    )
+  }
+  const { user_id, plano } = parsed.data
 
   const admin = createAdminClient()
 
@@ -61,17 +80,42 @@ export async function POST(req: NextRequest) {
     await admin.from('subscriptions').insert(payload)
   }
 
+  void audit({
+    event:    'admin.plan_activated',
+    userId:   ctx.userId,
+    targetId: user_id,
+    metadata: { plano },
+    ip:       extractIp(req.headers),
+    userAgent: req.headers.get('user-agent'),
+  })
+
   return NextResponse.json({ ok: true })
 }
 
 // Cancelar plano
 export async function DELETE(req: NextRequest) {
-  if (!await verificarAdmin()) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+  const ctx = await verificarAdmin()
+  if (!ctx) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
-  const { user_id } = await req.json()
+  const body = await req.json()
+  const parsed = AdminCancelSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'user_id inválido' }, { status: 400 })
+  }
+  const { user_id } = parsed.data
+
   const admin = createAdminClient()
+  await admin.from('subscriptions')
+    .update({ status: 'cancelado', atualizado_em: new Date().toISOString() })
+    .eq('user_id', user_id)
 
-  await admin.from('subscriptions').update({ status: 'cancelado', atualizado_em: new Date().toISOString() }).eq('user_id', user_id)
+  void audit({
+    event:    'admin.plan_cancelled',
+    userId:   ctx.userId,
+    targetId: user_id,
+    ip:       extractIp(req.headers),
+    userAgent: req.headers.get('user-agent'),
+  })
 
   return NextResponse.json({ ok: true })
 }
