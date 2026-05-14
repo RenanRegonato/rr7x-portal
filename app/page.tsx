@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import AuthErrorHandler from "@/components/AuthErrorHandler";
+import HeroVideo from "@/components/HeroVideo";
 
 export const metadata: Metadata = {
   title: "Otto by RR7x — A nova geração operacional para escritórios de M&A e estruturação",
@@ -230,27 +231,59 @@ export default function LandingPage() {
       </header>
 
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden lp-hero-bg">
-        <div className="max-w-[1280px] mx-auto px-6 pt-24 pb-20 lg:pt-32 lg:pb-28">
+      <section
+        className="relative overflow-hidden"
+        style={{ background: "linear-gradient(160deg, #060C1A 0%, #0A1322 50%, #0D1829 100%)" }}
+      >
+        {/* Neural network video — black removed via screen blend */}
+        <HeroVideo />
+
+        {/* Blue radial accent glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse 80% 55% at 50% -10%, rgba(22,85,232,0.20) 0%, transparent 70%)",
+          }}
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 max-w-[1280px] mx-auto px-6 pt-24 pb-20 lg:pt-32 lg:pb-28">
           <div className="max-w-[760px] mx-auto text-center">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 border border-lp-border-strong bg-lp-canvas text-lp-ink-2 text-[11px] font-medium px-3.5 py-1.5 rounded-full mb-8 tracking-widest uppercase">
-              <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#1655E8" }} />
+            <div
+              className="inline-flex items-center gap-2 text-[11px] font-medium px-3.5 py-1.5 rounded-full mb-8 tracking-widest uppercase"
+              style={{
+                border: "1px solid rgba(255,255,255,0.10)",
+                background: "rgba(255,255,255,0.05)",
+                color: "rgba(200,212,236,0.65)",
+              }}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                style={{ background: "#93B4F8" }}
+              />
               rede neural operacional · rr7x capital hub
             </div>
 
             {/* Headline */}
-            <h1 className="font-display text-[52px] sm:text-[64px] lg:text-[76px] leading-[1.04] tracking-tight text-lp-ink mb-6">
+            <h1
+              className="font-display text-[52px] sm:text-[64px] lg:text-[76px] leading-[1.04] tracking-tight mb-6"
+              style={{ color: "#EEF3FF" }}
+            >
               A nova geração operacional
               <br />
               para escritórios de{" "}
-              <em style={{ fontStyle: "italic" }}>M&amp;A.</em>
+              <em style={{ fontStyle: "italic", color: "#93B4F8" }}>M&amp;A.</em>
             </h1>
 
             {/* Subline */}
-            <p className="text-[16px] sm:text-[17px] text-lp-ink-2 leading-relaxed max-w-[600px] mx-auto mb-10">
+            <p
+              className="text-[16px] sm:text-[17px] leading-relaxed max-w-[600px] mx-auto mb-10"
+              style={{ color: "#7A92BE" }}
+            >
               Otto processa, analisa e estrutura operações de M&amp;A em{" "}
-              <strong className="text-lp-ink font-semibold">até 40 minutos</strong> — com
+              <strong style={{ color: "#C8D4EC", fontWeight: 600 }}>até 40 minutos</strong> — com
               compliance documentado, valuation sustentado e material pronto
               para o mercado.
             </p>
@@ -267,17 +300,17 @@ export default function LandingPage() {
               </Link>
               <a
                 href="#comparativo"
-                className="inline-flex items-center justify-center text-[14px] font-medium text-lp-ink border border-lp-border-strong px-7 py-3.5 rounded-[11px] hover:bg-lp-fog transition-colors"
+                className="lp-dark-btn inline-flex items-center justify-center text-[14px] font-medium px-7 py-3.5 rounded-[11px]"
               >
                 Ver comparativo
               </a>
             </div>
-            <p className="text-[12px] text-lp-ink-3">
+            <p className="text-[12px]" style={{ color: "#3A5080" }}>
               Reservamos uma conversa inicial para entender o contexto do escritório
             </p>
           </div>
 
-          {/* Floating cards */}
+          {/* Floating cards — white cards float beautifully on dark background */}
           <div className="hidden lg:block relative mt-16 h-32">
             {/* Left — DRS */}
             <div
