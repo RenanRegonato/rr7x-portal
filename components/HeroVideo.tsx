@@ -39,7 +39,7 @@ export default function HeroVideo() {
           mixBlendMode: 'screen',
           opacity: 0.45,
         }}
-        src="/baseneural.mp4"
+        src="/baseneuralotto.mp4"
         autoPlay
         loop
         muted
