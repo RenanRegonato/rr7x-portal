@@ -3,7 +3,7 @@ import Link from "next/link";
 import AuthErrorHandler from "@/components/AuthErrorHandler";
 
 export const metadata: Metadata = {
-  title: "Otto by RR7x — Inteligência operacional para M&A, crédito estruturado e preparação de deals",
+  title: "Otto by RR7x | Inteligência operacional para M&A, crédito estruturado e preparação de deals",
   description:
     "Analise operações de M&A, estruture crédito e prepare ativos para o mercado em até 40 minutos. 9 módulos especializados em paralelo. Material institucional pronto para o mercado.",
   alternates: { canonical: "/" },
@@ -18,7 +18,7 @@ const inteligencias = [
     dominio: "orquestração",
     funcao: "Estratégia e DRS",
     descricao:
-      "Calcula o Deal Readiness Score do ativo, mapeia riscos materiais e define a sequência do pipeline antes de qualquer análise.",
+      "Calcula o Deal Readiness Score, mapeia riscos materiais e define a sequência do pipeline antes que qualquer outro módulo execute.",
     beneficio: "A equipe entra no deal sabendo exatamente onde ele está.",
   },
   {
@@ -27,8 +27,8 @@ const inteligencias = [
     dominio: "mercado",
     funcao: "Viabilidade de Mercado",
     descricao:
-      "Lê o cenário setorial, projeta demanda e emite parecer Go/No-Go com base em dados macro e microeconômicos.",
-    beneficio: "Deals inviáveis saem da fila antes de consumir horas do time.",
+      "Lê o cenário setorial, projeta demanda e emite um parecer Go/No-Go com base em dados macro e microeconômicos.",
+    beneficio: "Deals sem viabilidade ficam de fora antes de consumir tempo do time.",
   },
   {
     num: "03",
@@ -37,7 +37,7 @@ const inteligencias = [
     funcao: "Tese de M&A e Valuation",
     descricao:
       "Constrói a tese de aquisição, calcula valuation por múltiplos e DCF e estrutura a estratégia de negociação.",
-    beneficio: "O suporte técnico para a mesa de negociação já sai do pipeline.",
+    beneficio: "O suporte técnico para qualquer negociação sai junto com o diagnóstico.",
   },
   {
     num: "04",
@@ -46,7 +46,7 @@ const inteligencias = [
     funcao: "Diagnóstico Financeiro",
     descricao:
       "Analisa EBITDA ajustado, endividamento, fluxo de caixa e tendências operacionais do ativo.",
-    beneficio: "Números chegam organizados e interpretados, não em formato bruto.",
+    beneficio: "Os números chegam prontos para análise, não para triagem.",
   },
   {
     num: "05",
@@ -54,8 +54,8 @@ const inteligencias = [
     dominio: "jurídico",
     funcao: "Análise Jurídica",
     descricao:
-      "Identifica riscos legais, gaps de documentação e indica necessidade de NDA, SHA ou LOI.",
-    beneficio: "O escritório sabe o que pedir antes de envolver o jurídico externo.",
+      "Identifica riscos legais, lacunas de documentação e indica quando NDA, SHA ou LOI se aplicam.",
+    beneficio: "O escritório sabe exatamente o que pedir ao jurídico externo.",
   },
   {
     num: "06",
@@ -63,8 +63,8 @@ const inteligencias = [
     dominio: "crédito estruturado",
     funcao: "Crédito e Estruturação",
     descricao:
-      "Ranqueia operações estruturadas aplicáveis — CRI, CRA, debêntures, securitização — por viabilidade.",
-    beneficio: "Alternativas surgem automaticamente, sem consulta avulsa.",
+      "Ranqueia por viabilidade as operações estruturadas aplicáveis ao ativo: CRI, CRA, debêntures e securitização.",
+    beneficio: "As alternativas de estruturação aparecem no relatório sem depender de consulta avulsa.",
   },
   {
     num: "07",
@@ -81,8 +81,8 @@ const inteligencias = [
     dominio: "maturidade",
     funcao: "Maturidade do Deal",
     descricao:
-      "Avalia a prontidão do ativo para o mercado e gera roadmap de pré-venda quando necessário.",
-    beneficio: "Deals não prontos recebem diagnóstico específico, não rejeição genérica.",
+      "Avalia a prontidão do ativo para o mercado e gera um roadmap de preparação quando necessário.",
+    beneficio: "Ativos que não estão prontos recebem um diagnóstico de onde estão, não uma recusa.",
   },
   {
     num: "09",
@@ -91,7 +91,7 @@ const inteligencias = [
     funcao: "Controle de Qualidade",
     descricao:
       "Faz revisão cruzada entre todas as leituras e garante consistência técnica no relatório final.",
-    beneficio: "O material que chega ao cliente passou por checagem interna sem custo adicional.",
+    beneficio: "O material entregue ao cliente passou por uma checagem interna completa.",
   },
 ];
 
@@ -165,7 +165,7 @@ const planos = [
 const depoimentos = [
   {
     texto:
-      "Testamos o Otto em dois deals que eram candidatos ao No-Go de início. Em menos de uma hora tinha análise financeira e mapa jurídico de ambos. Um descartamos mesmo. O outro revelou uma estrutura de crédito que ninguém tinha visto — hoje é um mandato ativo.",
+      "Testamos o Otto em dois deals que eram candidatos ao No-Go de início. Em menos de uma hora tinha análise financeira e mapa jurídico de ambos. Um descartamos mesmo. O outro revelou uma estrutura de crédito que ninguém tinha visto. Hoje é um mandato ativo.",
     nome: "Ricardo C.",
     cargo: "Sócio",
     empresa: "Boutique M&A · São Paulo",
@@ -174,7 +174,7 @@ const depoimentos = [
   },
   {
     texto:
-      "Minha função mudou de forma concreta. Antes eu passava dois dias organizando material para uma reunião. Agora esse trabalho já chega feito. Entro para fazer o que exige julgamento real — que é o que eu deveria estar fazendo desde o início.",
+      "Minha função mudou de forma concreta. Antes eu passava dois dias organizando material para uma reunião. Agora esse trabalho já chega feito. Entro para fazer o que exige julgamento real, que é o que eu deveria estar fazendo desde o início.",
     nome: "Camila D.",
     cargo: "Analista Sênior",
     empresa: "Escritório de Estruturação · Rio de Janeiro",
@@ -199,7 +199,7 @@ const faqs = [
   },
   {
     q: "A plataforma está em conformidade com a LGPD?",
-    a: "Sim. Otto não trata dados pessoais de terceiros — opera exclusivamente com documentos financeiros e societários dos ativos. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para planos Institucional e Corporativo.",
+    a: "Sim. Otto opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para planos Institucional e Corporativo.",
   },
   {
     q: "Quanto tempo leva para ter a plataforma funcionando?",
@@ -290,10 +290,10 @@ export default function LandingPage() {
 
             {/* Headline */}
             <h1 className="font-display text-[52px] sm:text-[64px] lg:text-[76px] leading-[1.04] tracking-tight text-lp-ink mb-6">
-              Seu escritório analisa
+              Seu escritório recebe mais deals
               <br />
-              40 deals por mês.{" "}
-              <em style={{ fontStyle: "italic" }}>Quantos recebem análise real?</em>
+              do que consegue analisar de verdade.{" "}
+              <em style={{ fontStyle: "italic" }}>Quantos você está deixando passar?</em>
             </h1>
 
             {/* Use case pills */}
@@ -315,7 +315,7 @@ export default function LandingPage() {
             {/* Subline */}
             <p className="text-[16px] sm:text-[17px] text-lp-ink-2 leading-relaxed max-w-[640px] mx-auto mb-10">
               Otto é a plataforma de inteligência operacional para operações de M&A,
-              estruturação de crédito e preparação de ativos para o mercado — tudo em{" "}
+              estruturação de crédito e preparação de ativos para o mercado, tudo em{" "}
               <strong className="text-lp-ink font-semibold">até 40 minutos</strong>, com
               compliance documentado e material pronto para o cliente.
             </p>
@@ -422,12 +422,13 @@ export default function LandingPage() {
               <em style={{ fontStyle: "italic" }}>10 e 15 dias úteis.</em>
             </h2>
             <p className="text-[15.5px] text-lp-ink-2 leading-relaxed mb-6">
-              Com 40 deals por mês e 10 a 15 dias de análise cada, sua equipe nunca
-              sai do modo operacional. O tempo vai para triagem — não para mandatos.
+              Com 40 deals por mês e ciclos de 10 a 15 dias cada, o time está
+              permanentemente em modo operacional. A triagem consome o tempo que
+              deveria ir para mandatos.
             </p>
             <p className="text-[15px] text-lp-ink-3 leading-relaxed border-l-2 border-lp-border-strong pl-4">
-              30 dos 40 deals que chegam por mês saem sem análise real. Sem resposta,
-              sem diagnóstico, sem chance de virar receita.
+              30 dos 40 deals que chegam por mês saem sem análise real. Cada um deles
+              foi uma oportunidade de receita que o escritório não conseguiu avaliar.
             </p>
           </div>
 
@@ -468,7 +469,7 @@ export default function LandingPage() {
               {
                 value: "R$ 15k–30k",
                 label: "custo mensal",
-                desc: "de um analista júnior em CLT — encargos e bônus incluídos.",
+                desc: "de um analista júnior em CLT, encargos e bônus incluídos.",
                 accent: false,
               },
               {
@@ -547,8 +548,8 @@ export default function LandingPage() {
               <em style={{ fontStyle: "italic" }}>potencializa assessores.</em>
             </h2>
             <p className="text-[15.5px] text-lp-ink-2 leading-relaxed mb-5">
-              Otto não substitui o profissional. Organiza informação, cruza dados e amplia a
-              capacidade de análise da equipe responsável pela decisão.
+              Otto potencializa o trabalho do profissional. A plataforma estrutura informação,
+              cruza dados e entrega mais capacidade analítica para a equipe que toma as decisões.
             </p>
             {/* 3 use cases */}
             <div className="flex flex-col gap-2 mb-5">
@@ -566,8 +567,7 @@ export default function LandingPage() {
               ))}
             </div>
             <p className="text-[14.5px] text-lp-ink-3 leading-relaxed border-l-2 border-lp-border-strong pl-4">
-              A decisão final é sempre humana, técnica e profissional. Otto sai de cena no
-              documento final.
+              A decisão final pertence ao profissional. Otto entrega o diagnóstico e sai de cena.
             </p>
           </div>
           <div className="grid sm:grid-cols-3 gap-5">
@@ -610,8 +610,8 @@ export default function LandingPage() {
             </h2>
             <p className="text-[15px] text-lp-ink-2 leading-relaxed mb-6">
               O assessor submete os documentos do ativo. Otto orquestra os 9 módulos
-              em paralelo e entrega o diagnóstico completo — com DRS, valuation, mapa
-              jurídico, estruturação e Blind Teaser — em até 40 minutos.
+              em paralelo e entrega o diagnóstico completo em até 40 minutos: DRS, valuation,
+              mapa jurídico, estruturação e Blind Teaser.
             </p>
             <ul className="space-y-3">
               {[
@@ -700,9 +700,9 @@ export default function LandingPage() {
                     { name: "Estratégia e DRS",        status: "completo",    time: "02:14", done: true  },
                     { name: "Viabilidade de Mercado",  status: "completo",    time: "06:47", done: true  },
                     { name: "Tese de M&A e Valuation", status: "completo",    time: "11:23", done: true  },
-                    { name: "Diagnóstico Financeiro",  status: "executando",  time: "—",     done: false },
-                    { name: "Análise Jurídica",        status: "na fila",     time: "—",     done: null  },
-                    { name: "Crédito e Estruturação",  status: "na fila",     time: "—",     done: null  },
+                    { name: "Diagnóstico Financeiro",  status: "executando",  time: "·",     done: false },
+                    { name: "Análise Jurídica",        status: "na fila",     time: "·",     done: null  },
+                    { name: "Crédito e Estruturação",  status: "na fila",     time: "·",     done: null  },
                   ].map((mod) => (
                     <div
                       key={mod.name}
@@ -811,7 +811,7 @@ export default function LandingPage() {
               num: "03",
               tag: "análise",
               title: "9 módulos em paralelo",
-              body: "Cada módulo processa o ativo no seu domínio. Financeiro, jurídico, mercado, valuation — simultâneos.",
+              body: "Cada módulo processa o ativo no seu domínio. Financeiro, jurídico, mercado e valuation, todos simultâneos.",
             },
             {
               num: "04",
@@ -846,8 +846,8 @@ export default function LandingPage() {
                 <em style={{ fontStyle: "italic" }}>Quatro vezes mais capacidade.</em>
               </h2>
               <p className="text-[15.5px] text-lp-ink-2 leading-relaxed mb-8">
-                Mesma entrada, 4× mais análise. Trinta análises profundas adicionais por mês.
-                Zero triagem manual. Sem contratação.
+                Com o mesmo time, o escritório passa de 10 análises mensais para mais de 40.
+                A triagem manual deixa de ser uma barreira e a capacidade cresce sem custo adicional.
               </p>
               <div className="bg-lp-ink rounded-[16px] p-6">
                 <p className="font-display text-[44px] leading-none text-white mb-1">R$ 6M–12M</p>
@@ -855,7 +855,7 @@ export default function LandingPage() {
                   receita incremental anual
                 </p>
                 <p className="text-[13.5px] leading-relaxed" style={{ color: "#C8D4EC" }}>
-                  Sem contratar. Sem aumentar custo fixo. Com a mesma equipe que você já tem.
+                  O crescimento acontece com a estrutura que o escritório já tem.
                 </p>
               </div>
             </div>
@@ -869,7 +869,7 @@ export default function LandingPage() {
                     "40 deals recebidos/mês",
                     "10 analisados com profundidade real",
                     "4 mandatos fechados/mês",
-                    "30 deals sem análise — sem retorno",
+                    "30 deals descartados por falta de análise",
                     "Receita mensal R$ 1M–2M",
                   ],
                 },
@@ -877,7 +877,7 @@ export default function LandingPage() {
                   header: "com Otto",
                   dark: true,
                   items: [
-                    "40 deals com profundidade — todos",
+                    "40 deals com diagnóstico completo",
                     "+4 mandatos qualificados identificados/mês",
                     "+2 fechamentos (conversão conservadora)",
                     "ROI positivo no 1º mês de operação",
@@ -919,8 +919,8 @@ export default function LandingPage() {
             <em style={{ fontStyle: "italic" }}>Um único pipeline.</em>
           </h2>
           <p className="text-[15px] text-lp-ink-2 leading-relaxed">
-            Cada módulo processa o ativo com a precisão do seu domínio. As leituras
-            se cruzam. O resultado é um relatório institucional consistente.
+            Cada módulo processa o ativo no seu domínio específico. Os resultados são
+            consolidados em um único relatório técnico, coeso e pronto para o mercado.
           </p>
         </div>
 
@@ -954,7 +954,7 @@ export default function LandingPage() {
               <em style={{ fontStyle: "italic" }}>Nunca substitui.</em>
             </h2>
             <p className="text-[15.5px] text-lp-ink-2">
-              A decisão final é sempre humana, técnica e profissional.
+              A decisão final pertence ao profissional. O julgamento especializado permanece intacto.
             </p>
           </div>
 
@@ -985,15 +985,15 @@ export default function LandingPage() {
                 ],
               },
               {
-                header: "Otto não faz",
+                header: "Fora do escopo",
                 accent: false,
                 items: [
-                  "Não assina documentos",
-                  "Não valida juridicamente",
-                  "Não emite parecer técnico",
-                  "Não toma decisões finais",
-                  "Não representa o cliente",
-                  "Não substitui nenhum profissional",
+                  "Assinaturas e formalização",
+                  "Validade e parecer jurídico",
+                  "Responsabilidade técnica",
+                  "Decisão final sobre o deal",
+                  "Representação do cliente",
+                  "Substituição do profissional",
                 ],
               },
             ].map((col) => (
@@ -1066,7 +1066,7 @@ export default function LandingPage() {
               <em style={{ fontStyle: "italic" }}>contratação.</em>
             </h2>
             <p className="text-[14px] text-lp-ink-3">
-              Sem taxa de adesão. Sem setup oculto. ROI positivo estimado no primeiro mês.
+              Contratação direta, sem taxa de adesão ou setup oculto. O retorno estimado aparece já no primeiro mês.
             </p>
           </div>
 
@@ -1156,7 +1156,7 @@ export default function LandingPage() {
             <em style={{ fontStyle: "italic", color: "#93B4F8" }}>Otto.</em>
           </h2>
           <p className="text-[16px] leading-relaxed max-w-[520px] mx-auto mb-10" style={{ color: "#7A92BE" }}>
-            M&A, crédito estruturado ou preparação para mercado — solicite acesso e
+            M&A, crédito estruturado ou preparação para mercado: solicite acesso e
             reservamos uma conversa inicial para entender o contexto do escritório.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
