@@ -239,12 +239,8 @@ export default function LandingPage() {
           className="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between"
           aria-label="Navegação principal"
         >
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-lp-accent grid place-items-center font-display italic font-normal text-[15px] text-white select-none">
-              o
-            </div>
-            <span className="font-display text-[19px] text-lp-ink tracking-tight">Otto</span>
-            <span className="text-[11px] text-lp-ink-3 font-sans tracking-wide uppercase">by RR7x</span>
+          <Link href="/" className="flex items-center">
+            <img src="/logo/otto-horizontal.svg" alt="Otto" height={32} width={104} className="h-8 w-auto" />
           </Link>
 
           <ul className="hidden md:flex items-center gap-1 text-[13.5px] text-lp-ink-2">
@@ -280,113 +276,182 @@ export default function LandingPage() {
 
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden lp-hero-bg">
-        <div className="max-w-[1280px] mx-auto px-6 pt-24 pb-20 lg:pt-32 lg:pb-28">
-          <div className="max-w-[760px] mx-auto text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 border border-lp-border-strong bg-lp-canvas text-lp-ink-2 text-[11px] font-medium px-3.5 py-1.5 rounded-full mb-8 tracking-widest uppercase">
-              <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#1655E8" }} />
-              9 inteligências em paralelo · 40 minutos
-            </div>
+        {/* Glow background */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          aria-hidden="true"
+          style={{
+            background:
+              "radial-gradient(ellipse 60% 50% at 70% 40%, rgba(22,85,232,0.07) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 20% 60%, rgba(55,138,221,0.05) 0%, transparent 70%)",
+          }}
+        />
 
-            {/* Headline */}
-            <h1 className="font-display text-[52px] sm:text-[64px] lg:text-[76px] leading-[1.04] tracking-tight text-lp-ink mb-6">
-              Seu escritório recebe mais deals
-              <br />
-              do que consegue analisar de verdade.{" "}
-              <em style={{ fontStyle: "italic" }}>Quantos você está deixando passar?</em>
-            </h1>
+        <div className="max-w-[1280px] mx-auto px-6 pt-20 pb-16 lg:pt-28 lg:pb-24">
+          <div className="grid lg:grid-cols-[1fr_1.05fr] gap-12 lg:gap-16 items-center">
 
-            {/* Use case pills */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mb-7">
-              {[
-                "M&A",
-                "Crédito Estruturado",
-                "Preparação para Mercado",
-              ].map((label) => (
-                <span
-                  key={label}
-                  className="text-[11.5px] font-medium px-3 py-1 rounded-full border border-lp-border bg-lp-fog text-lp-ink-2"
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
-
-            {/* Subline */}
-            <p className="text-[16px] sm:text-[17px] text-lp-ink-2 leading-relaxed max-w-[640px] mx-auto mb-10">
-              Otto é a plataforma de inteligência operacional para operações de M&A,
-              estruturação de crédito e preparação de ativos para o mercado, tudo em{" "}
-              <strong className="text-lp-ink font-semibold">até 40 minutos</strong>, com
-              compliance documentado e material pronto para o cliente.
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
-              <Link
-                href="/auth/signup"
-                className="inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-7 py-3.5 rounded-[11px] transition-opacity hover:opacity-90"
-                style={{ background: "#1655E8" }}
-              >
-                Solicitar acesso à plataforma
-                <span aria-hidden>→</span>
-              </Link>
-              <a
-                href="#comparativo"
-                className="inline-flex items-center justify-center text-[14px] font-medium text-lp-ink border border-lp-border-strong px-7 py-3.5 rounded-[11px] hover:bg-lp-fog transition-colors"
-              >
-                Ver comparativo
-              </a>
-            </div>
-            <p className="text-[12px] text-lp-ink-3">
-              Reservamos uma conversa inicial para entender o contexto do escritório
-            </p>
-          </div>
-
-          {/* Floating cards */}
-          <div className="hidden lg:block relative mt-16 h-32">
-            <div
-              className="absolute left-0 top-0 w-[220px] bg-lp-canvas rounded-[16px] p-4 lp-card-shadow"
-              style={{ transform: "translateY(-10px)" }}
-              aria-hidden="true"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-medium text-lp-ink-3 uppercase tracking-widest">Deal Readiness Score</span>
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "#EDFAF4", color: "#14753B" }}>
-                  Aprovado
-                </span>
+            {/* ── Left: copy ── */}
+            <div>
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 border border-lp-border-strong bg-lp-canvas text-lp-ink-2 text-[11px] font-medium px-3.5 py-1.5 rounded-full mb-7 tracking-widest uppercase">
+                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#1655E8" }} />
+                9 inteligências em paralelo · 40 minutos
               </div>
-              <div className="flex items-end gap-1 mb-1">
-                <span className="font-display text-[38px] leading-none text-lp-ink">8.2</span>
-                <span className="text-[16px] text-lp-ink-3 mb-1">/10</span>
-              </div>
-              <p className="text-[11px] text-lp-ink-3 mb-2">Grupo Meridian S.A.</p>
-              <div className="h-1.5 rounded-full bg-lp-fog overflow-hidden">
-                <div className="h-full rounded-full" style={{ width: "82%", background: "#1655E8" }} />
-              </div>
-            </div>
 
-            <div
-              className="absolute right-0 top-0 w-[252px] bg-lp-canvas rounded-[16px] p-4 lp-card-shadow"
-              style={{ transform: "translateY(10px)" }}
-              aria-hidden="true"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#1655E8" }} />
-                <span className="text-[10px] font-medium text-lp-ink-2">Análise em execução</span>
-              </div>
-              {[
-                { r: "Diagnóstico Financeiro", done: true  },
-                { r: "Tese de M&A",            done: true  },
-                { r: "Originação",             done: false },
-              ].map((a) => (
-                <div key={a.r} className="flex items-center gap-2 py-1.5 border-t border-lp-border-subtle">
-                  <span className="text-[10px] flex-shrink-0" style={{ color: a.done ? "#14753B" : "#1655E8" }}>
-                    {a.done ? "✓" : "↻"}
+              {/* Headline */}
+              <h1 className="font-display text-[42px] sm:text-[50px] lg:text-[56px] leading-[1.06] tracking-tight text-lp-ink mb-5">
+                Seu escritório recebe mais deals do que consegue analisar de verdade.{" "}
+                <em style={{ fontStyle: "italic" }}>Quantos você está deixando passar?</em>
+              </h1>
+
+              {/* Use case pills */}
+              <div className="flex flex-wrap items-center gap-2 mb-6">
+                {["M&A", "Crédito Estruturado", "Preparação para Mercado"].map((label) => (
+                  <span
+                    key={label}
+                    className="text-[11px] font-medium px-3 py-1 rounded-full border border-lp-border bg-lp-fog text-lp-ink-2"
+                  >
+                    {label}
                   </span>
-                  <span className="text-[11px] text-lp-ink">{a.r}</span>
-                </div>
-              ))}
+                ))}
+              </div>
+
+              {/* Subline */}
+              <p className="text-[15.5px] text-lp-ink-2 leading-relaxed max-w-[520px] mb-8">
+                Plataforma de inteligência operacional para M&A, crédito estruturado e
+                preparação de ativos — com{" "}
+                <strong className="text-lp-ink font-semibold">compliance documentado</strong>{" "}
+                e material pronto para o cliente.
+              </p>
+
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <Link
+                  href="/auth/signup"
+                  className="inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-6 py-3.5 rounded-[10px] transition-opacity hover:opacity-90"
+                  style={{ background: "#1655E8" }}
+                >
+                  Solicitar acesso
+                  <span aria-hidden>→</span>
+                </Link>
+                <a
+                  href="#comparativo"
+                  className="inline-flex items-center justify-center text-[14px] font-medium text-lp-ink border border-lp-border-strong px-6 py-3.5 rounded-[10px] hover:bg-lp-fog transition-colors"
+                >
+                  Ver comparativo
+                </a>
+              </div>
+              <p className="text-[12px] text-lp-ink-3">
+                Reservamos uma conversa inicial para entender o contexto do escritório
+              </p>
             </div>
+
+            {/* ── Right: product mockup ── */}
+            <div className="hidden lg:block relative" aria-hidden="true">
+              {/* Main panel */}
+              <div
+                className="relative rounded-[20px] overflow-hidden lp-card-shadow"
+                style={{
+                  background: "#F8F9FB",
+                  border: "1px solid rgba(0,0,0,0.07)",
+                }}
+              >
+                {/* Panel header */}
+                <div className="flex items-center justify-between px-5 py-3.5 border-b border-lp-border bg-lp-canvas">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#1655E8" }} />
+                    <span className="text-[11px] font-medium text-lp-ink-2 tracking-wide">Pipeline — Grupo Meridian S.A.</span>
+                  </div>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "#EDFAF4", color: "#14753B" }}>
+                    Concluído
+                  </span>
+                </div>
+
+                {/* DRS score row */}
+                <div className="px-5 py-4 border-b border-lp-border bg-lp-canvas">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-medium text-lp-ink-3 uppercase tracking-widest">Deal Readiness Score</span>
+                    <span className="text-[11px] font-semibold" style={{ color: "#1655E8" }}>8.2 / 10</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-lp-fog overflow-hidden">
+                    <div className="h-full rounded-full transition-all" style={{ width: "82%", background: "linear-gradient(90deg,#1655E8,#378ADD)" }} />
+                  </div>
+                </div>
+
+                {/* Modules grid */}
+                <div className="px-5 py-4 grid grid-cols-3 gap-2.5">
+                  {[
+                    { label: "Estratégia & DRS",      status: "done",    time: "4 min" },
+                    { label: "Viabilidade de Mercado", status: "done",    time: "6 min" },
+                    { label: "Tese de M&A",           status: "done",    time: "7 min" },
+                    { label: "Diagnóstico Financeiro", status: "done",    time: "5 min" },
+                    { label: "Compliance & Riscos",   status: "done",    time: "6 min" },
+                    { label: "Originação & Fontes",   status: "running", time: "..." },
+                    { label: "Estrutura Jurídica",    status: "queue",   time: "--" },
+                    { label: "Projeção & Cenários",   status: "queue",   time: "--" },
+                    { label: "Relatório Final",        status: "queue",   time: "--" },
+                  ].map((m) => (
+                    <div
+                      key={m.label}
+                      className="rounded-[10px] p-2.5"
+                      style={{
+                        background: m.status === "done" ? "#F0FDF6" : m.status === "running" ? "#EEF3FF" : "#F8F9FB",
+                        border: `1px solid ${m.status === "done" ? "#D1FAE5" : m.status === "running" ? "#C7D7FA" : "#E5E7EB"}`,
+                      }}
+                    >
+                      <div className="flex items-center gap-1 mb-1.5">
+                        <span
+                          className="text-[9px]"
+                          style={{
+                            color: m.status === "done" ? "#14753B" : m.status === "running" ? "#1655E8" : "#9CA3AF",
+                          }}
+                        >
+                          {m.status === "done" ? "✓" : m.status === "running" ? "↻" : "○"}
+                        </span>
+                        <span className="text-[9px] font-medium text-lp-ink-3 uppercase tracking-widest">
+                          {m.status === "done" ? "ok" : m.status === "running" ? "rodando" : "fila"}
+                        </span>
+                      </div>
+                      <p className="text-[10px] font-medium text-lp-ink leading-tight mb-1">{m.label}</p>
+                      <p className="text-[9px] text-lp-ink-3">{m.time}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Footer bar */}
+                <div className="px-5 py-3 border-t border-lp-border bg-lp-canvas flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#1655E8" }} />
+                    <span className="text-[10px] text-lp-ink-2">Originação em execução…</span>
+                  </div>
+                  <span className="text-[10px] text-lp-ink-3">6 de 9 módulos · ~14 min restantes</span>
+                </div>
+              </div>
+
+              {/* Floating card: resultado */}
+              <div
+                className="absolute -bottom-5 -left-8 w-[210px] bg-lp-canvas rounded-[14px] p-4 lp-card-shadow"
+                style={{ border: "1px solid rgba(0,0,0,0.07)" }}
+              >
+                <p className="text-[10px] font-medium text-lp-ink-3 uppercase tracking-widest mb-2">Valuation estimado</p>
+                <p className="font-display text-[28px] leading-none text-lp-ink mb-0.5">R$ 48M</p>
+                <p className="text-[10px] text-lp-ink-3">EV/EBITDA 7.2× · Múltiplo setorial</p>
+              </div>
+
+              {/* Floating card: material */}
+              <div
+                className="absolute -top-5 -right-4 w-[190px] bg-lp-canvas rounded-[14px] p-3.5 lp-card-shadow"
+                style={{ border: "1px solid rgba(0,0,0,0.07)" }}
+              >
+                <p className="text-[10px] font-medium text-lp-ink-3 uppercase tracking-widest mb-2">Outputs gerados</p>
+                {["Blind Teaser", "Pitchbook", "CIM"].map((doc) => (
+                  <div key={doc} className="flex items-center gap-1.5 py-1">
+                    <span className="text-[9px]" style={{ color: "#14753B" }}>✓</span>
+                    <span className="text-[11px] text-lp-ink">{doc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
       </section>

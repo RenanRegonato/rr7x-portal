@@ -56,19 +56,11 @@ export default function Sidebar({
   return (
     <aside className="border-r border-border bg-bg p-[18px_18px_24px] flex flex-col gap-6 sticky top-0 h-screen w-[240px] overflow-y-auto">
       {/* Logo */}
-      <div>
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-accent grid place-items-center font-display italic font-semibold text-[16px] text-accent-ink">
-            o
-          </div>
-          <div className="font-display font-medium text-[22px] tracking-tight">Otto</div>
-          <div className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-2 text-ink-2 border border-border">
-            Beta
-          </div>
-        </div>
-        <div className="text-[11px] text-ink-3 ml-[38px] -mt-1 tracking-wide">
-          Deal intelligence · RR7x
-        </div>
+      <div className="flex items-center gap-2 pt-1 pb-0.5">
+        <img src="/logo/otto-horizontal.svg" alt="Otto" height={28} width={91} className="h-7 w-auto" />
+        <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-2 text-ink-2 border border-border">
+          Beta
+        </span>
       </div>
 
       {/* Workspace */}
