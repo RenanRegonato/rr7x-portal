@@ -6,12 +6,11 @@ import { IconSettings, IconSquad, IconDoc, IconHome, IconUsers, IconBuilding, Ic
 
 const NAV = [
   { href: '/dashboard/admin',              label: 'Overview',     Icon: IconHome     },
-  { href: '/dashboard/admin/clientes',     label: 'Clientes',     Icon: IconSquad    },
   { href: '/dashboard/admin/escritorios',  label: 'Escritórios',  Icon: IconBuilding },
-  { href: '/dashboard/admin/usuarios',     label: 'Usuários',     Icon: IconUsers    },
   { href: '/dashboard/admin/agentes',      label: 'Agentes',      Icon: IconSettings },
   { href: '/dashboard/admin/aprendizados', label: 'Aprendizados', Icon: IconDoc      },
   { href: '/dashboard/admin/preview',      label: 'Output Demo',  Icon: IconSparkle  },
+  { href: '/dashboard/admin/blog',         label: 'Blog',         Icon: IconDoc      },
 ]
 
 export default function AdminNav() {

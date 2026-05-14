@@ -2,7 +2,7 @@
 
 /* next/font injects these CSS variables at runtime — keep as references */
 @theme inline {
-  --font-display: var(--fraunces);
+  --font-display: var(--dm-serif-display);
   --font-sans: var(--inter);
   --font-mono: var(--jetbrains-mono);
 }
@@ -54,6 +54,40 @@
 
   /* Animations */
   --animate-pulse-ring: pulse-ring 1.4s ease-out infinite;
+
+  /* ─── Public site & blog design system ───────────────────────────────────── */
+  /* Institutional finance palette: white canvas + deep navy + electric blue   */
+
+  /* Surfaces */
+  --color-lp-canvas:         #FFFFFF;
+  --color-lp-fog:            #F5F8FC;
+  --color-lp-mist:           #EBF1FC;
+
+  /* Text hierarchy */
+  --color-lp-ink:            #0A0F20;
+  --color-lp-ink-2:          #374A6E;
+  --color-lp-ink-3:          #6E82A8;
+  --color-lp-ink-4:          #9AAAC5;
+
+  /* Borders */
+  --color-lp-border:         #D5E1F2;
+  --color-lp-border-strong:  #B5C8E4;
+  --color-lp-border-subtle:  #EAF0FA;
+
+  /* Accent — institutional electric blue */
+  --color-lp-accent:         #1655E8;
+  --color-lp-accent-soft:    #ECF1FE;
+  --color-lp-accent-hover:   #1348CF;
+  --color-lp-accent-strong:  #1040C2;
+  --color-lp-accent-ink:     #0B2460;
+
+  /* Dark sections (CTA, footer) */
+  --color-lp-dark:           #080E1D;
+  --color-lp-dark-2:         #0F1829;
+  --color-lp-dark-3:         #1A2640;
+  --color-lp-dark-text:      #C8D4EC;
+  --color-lp-dark-text-2:    #7A92BE;
+  --color-lp-dark-border:    #1E2E4A;
 }
 
 @keyframes pulse-ring {
@@ -83,3 +117,121 @@ body {
   border: 2px solid var(--color-bg);
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-ink-3); }
+
+/* ─── Landing page utilities ──────────────────────────────────────────────── */
+
+/* Hero radial gradient — faint blue glow from center top */
+.lp-hero-bg {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -5%, rgba(22, 85, 232, 0.07) 0%, transparent 70%),
+    #ffffff;
+}
+
+/* Card elevation — Steep-style subtle shadow + 1px ring */
+.lp-card-shadow {
+  box-shadow:
+    rgba(10, 15, 32, 0.05) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.07) 0px 16px 24px -4px,
+    rgba(0, 0, 0, 0.05) 0px 6px 8px -4px;
+}
+
+.lp-card-shadow-sm {
+  box-shadow:
+    rgba(10, 15, 32, 0.06) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.05) 0px 4px 8px -2px;
+}
+
+/* Dark section gradient for footer/CTA */
+.lp-dark-section {
+  background: linear-gradient(160deg, #080E1D 0%, #0D1829 100%);
+}
+
+/* ─── Blog article prose styles ───────────────────────────────────────────── */
+.lp-prose {
+  color: var(--color-lp-ink-2);
+  font-size: 16px;
+  line-height: 1.75;
+}
+.lp-prose h1,.lp-prose h2,.lp-prose h3,.lp-prose h4 {
+  font-family: var(--font-display);
+  color: var(--color-lp-ink);
+  line-height: 1.2;
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+  font-weight: 400;
+}
+.lp-prose h2 { font-size: 28px; }
+.lp-prose h3 { font-size: 22px; }
+.lp-prose h4 { font-size: 18px; }
+.lp-prose p  { margin-bottom: 1.4em; }
+.lp-prose strong { color: var(--color-lp-ink); font-weight: 600; }
+.lp-prose a  { color: #1655E8; text-decoration: underline; text-decoration-color: rgba(22,85,232,0.3); }
+.lp-prose a:hover { text-decoration-color: #1655E8; }
+.lp-prose ul,.lp-prose ol { padding-left: 1.5em; margin-bottom: 1.4em; }
+.lp-prose li { margin-bottom: 0.4em; }
+.lp-prose blockquote {
+  border-left: 3px solid #1655E8;
+  padding-left: 1.25em;
+  margin: 1.75em 0;
+  color: var(--color-lp-ink-3);
+  font-style: italic;
+}
+.lp-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--color-lp-fog);
+  border: 1px solid var(--color-lp-border);
+  padding: 0.15em 0.45em;
+  border-radius: 5px;
+  color: var(--color-lp-accent-ink);
+}
+.lp-prose pre {
+  background: var(--color-lp-ink);
+  border-radius: 12px;
+  padding: 1.25em 1.5em;
+  overflow-x: auto;
+  margin: 1.75em 0;
+}
+.lp-prose pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #E8EDFC;
+  font-size: 0.85em;
+}
+.lp-prose hr {
+  border: none;
+  border-top: 1px solid var(--color-lp-border);
+  margin: 2.5em 0;
+}
+.lp-prose img {
+  border-radius: 12px;
+  width: 100%;
+  height: auto;
+  margin: 1.5em 0;
+}
+.lp-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 1.5em 0;
+}
+.lp-prose th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-lp-ink);
+  border-bottom: 2px solid var(--color-lp-border-strong);
+  padding: 8px 12px;
+}
+.lp-prose td {
+  border-bottom: 1px solid var(--color-lp-border);
+  padding: 8px 12px;
+}
+
+/* Dark CTA button hover (used in Server Components — no JS event handlers) */
+.lp-dark-btn {
+  color: #C8D4EC;
+  border: 1px solid #1E2E4A;
+  transition: background-color 0.15s ease;
+}
+.lp-dark-btn:hover { background-color: #1A2640; }
