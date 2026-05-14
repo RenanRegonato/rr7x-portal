@@ -3,9 +3,9 @@ import Link from "next/link";
 import AuthErrorHandler from "@/components/AuthErrorHandler";
 
 export const metadata: Metadata = {
-  title: "Otto by RR7x — Plataforma de inteligência operacional para M&A",
+  title: "Otto by RR7x — Inteligência operacional para M&A, crédito estruturado e preparação de deals",
   description:
-    "Analise deals de M&A em até 40 minutos. 9 módulos especializados rodando em paralelo. Material institucional pronto para o mercado.",
+    "Analise operações de M&A, estruture crédito e prepare ativos para o mercado em até 40 minutos. 9 módulos especializados em paralelo. Material institucional pronto para o mercado.",
   alternates: { canonical: "/" },
 };
 
@@ -296,12 +296,28 @@ export default function LandingPage() {
               <em style={{ fontStyle: "italic" }}>Quantos recebem análise real?</em>
             </h1>
 
+            {/* Use case pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-7">
+              {[
+                "M&A",
+                "Crédito Estruturado",
+                "Preparação para Mercado",
+              ].map((label) => (
+                <span
+                  key={label}
+                  className="text-[11.5px] font-medium px-3 py-1 rounded-full border border-lp-border bg-lp-fog text-lp-ink-2"
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+
             {/* Subline */}
-            <p className="text-[16px] sm:text-[17px] text-lp-ink-2 leading-relaxed max-w-[620px] mx-auto mb-10">
-              Otto é a plataforma de inteligência operacional que processa, analisa e estrutura
-              operações de M&A em{" "}
-              <strong className="text-lp-ink font-semibold">até 40 minutos</strong> — com compliance
-              documentado, valuation sustentado e material pronto para o mercado.
+            <p className="text-[16px] sm:text-[17px] text-lp-ink-2 leading-relaxed max-w-[640px] mx-auto mb-10">
+              Otto é a plataforma de inteligência operacional para operações de M&A,
+              estruturação de crédito e preparação de ativos para o mercado — tudo em{" "}
+              <strong className="text-lp-ink font-semibold">até 40 minutos</strong>, com
+              compliance documentado e material pronto para o cliente.
             </p>
 
             {/* CTAs */}
@@ -443,8 +459,8 @@ export default function LandingPage() {
             <h2 className="font-display text-[36px] sm:text-[46px] leading-[1.08] tracking-tight text-lp-ink">
               O que ninguém contabiliza
               <br />
-              em uma operação de{" "}
-              <em style={{ fontStyle: "italic" }}>M&amp;A.</em>
+              em uma operação{" "}
+              <em style={{ fontStyle: "italic" }}>estruturada.</em>
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -530,10 +546,25 @@ export default function LandingPage() {
               que{" "}
               <em style={{ fontStyle: "italic" }}>potencializa assessores.</em>
             </h2>
-            <p className="text-[15.5px] text-lp-ink-2 leading-relaxed mb-4">
+            <p className="text-[15.5px] text-lp-ink-2 leading-relaxed mb-5">
               Otto não substitui o profissional. Organiza informação, cruza dados e amplia a
               capacidade de análise da equipe responsável pela decisão.
             </p>
+            {/* 3 use cases */}
+            <div className="flex flex-col gap-2 mb-5">
+              {[
+                { label: "M&A",                    desc: "Diagnóstico, valuation, tese de aquisição e material de originação." },
+                { label: "Crédito Estruturado",    desc: "Análise de viabilidade e ranking de estruturas aplicáveis ao ativo." },
+                { label: "Preparação para Mercado",desc: "Deal Readiness Score, Blind Teaser e Sell-Side Pitchbook white-label." },
+              ].map((u) => (
+                <div key={u.label} className="flex items-start gap-3">
+                  <span className="flex-shrink-0 mt-0.5 text-[11px] font-bold" style={{ color: "#1655E8" }}>→</span>
+                  <p className="text-[14px] text-lp-ink-2 leading-snug">
+                    <span className="font-semibold text-lp-ink">{u.label}:</span>{" "}{u.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
             <p className="text-[14.5px] text-lp-ink-3 leading-relaxed border-l-2 border-lp-border-strong pl-4">
               A decisão final é sempre humana, técnica e profissional. Otto sai de cena no
               documento final.
@@ -1124,9 +1155,9 @@ export default function LandingPage() {
             <br />
             <em style={{ fontStyle: "italic", color: "#93B4F8" }}>Otto.</em>
           </h2>
-          <p className="text-[16px] leading-relaxed max-w-[500px] mx-auto mb-10" style={{ color: "#7A92BE" }}>
-            Solicite acesso à plataforma. Reservamos uma conversa inicial para entender
-            o contexto do escritório antes de qualquer demonstração.
+          <p className="text-[16px] leading-relaxed max-w-[520px] mx-auto mb-10" style={{ color: "#7A92BE" }}>
+            M&A, crédito estruturado ou preparação para mercado — solicite acesso e
+            reservamos uma conversa inicial para entender o contexto do escritório.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
@@ -1162,7 +1193,7 @@ export default function LandingPage() {
                 <span className="text-[11px] tracking-wide uppercase" style={{ color: "#4A6090" }}>by RR7x</span>
               </div>
               <p className="text-[12px] leading-relaxed mb-3 max-w-[240px]" style={{ color: "#4A6090" }}>
-                Plataforma de inteligência operacional para escritórios de M&amp;A e estruturação.
+                Inteligência operacional para M&amp;A, crédito estruturado e preparação de deals.
               </p>
               <a href="mailto:gestor@renanregonato.com.br" className="text-[12px] hover:underline" style={{ color: "#7A92BE" }}>
                 gestor@renanregonato.com.br
