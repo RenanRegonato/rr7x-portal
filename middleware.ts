@@ -34,19 +34,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // Gate de onboarding: usuário logado sem nome deve completar o cadastro
   if (user && pathname.startsWith('/dashboard')) {
+    // Gate de onboarding: usuário sem nome deve completar o cadastro
     const nome = user.user_metadata?.nome as string | undefined
     if (!nome?.trim()) {
       return NextResponse.redirect(new URL('/auth/completar-cadastro', request.url))
     }
-  }
 
-  // 2FA obrigatório para rotas admin: redireciona se nível de segurança < aal2
-  if (user && pathname.startsWith('/dashboard/admin')) {
+    // 2FA obrigatório para todo o dashboard
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
     if (aal && aal.currentLevel !== 'aal2') {
-      return NextResponse.redirect(new URL('/auth/mfa-required', request.url))
+      const mfaUrl = new URL('/auth/mfa-required', request.url)
+      mfaUrl.searchParams.set('next', pathname)
+      return NextResponse.redirect(mfaUrl)
     }
   }
 

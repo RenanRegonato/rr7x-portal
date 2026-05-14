@@ -41,31 +41,32 @@ export default function OgImage() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 14,
+            gap: 10,
             marginBottom: 52,
           }}
         >
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 10,
-              background: "#1655E8",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 22,
-              fontStyle: "italic",
-              color: "white",
-              fontWeight: 400,
-            }}
-          >
-            o
+          {/* O symbol: open circle with blue dot */}
+          <div style={{ position: "relative", width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{
+              width: 38,
+              height: 38,
+              borderRadius: "50%",
+              border: "5px solid #FFFFFF",
+              borderRightColor: "transparent",
+              transform: "rotate(-30deg)",
+            }} />
+            <div style={{
+              position: "absolute",
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: "#5BA3E8",
+            }} />
           </div>
-          <span style={{ fontSize: 26, color: "#C8D4EC", fontWeight: 500, letterSpacing: -0.5 }}>
-            Otto
+          <span style={{ fontSize: 30, color: "#FFFFFF", fontWeight: 500, letterSpacing: -1 }}>
+            tto
           </span>
-          <span style={{ fontSize: 13, color: "#4A6090", textTransform: "uppercase", letterSpacing: 2 }}>
+          <span style={{ fontSize: 12, color: "#4A6090", textTransform: "uppercase", letterSpacing: 2.5, marginLeft: 6 }}>
             by RR7x
           </span>
         </div>

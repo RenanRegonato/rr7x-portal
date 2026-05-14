@@ -60,6 +60,7 @@ function NovaAnaliseInner() {
   const [dragging,      setDragging]      = useState(false)
   const [draftRestored,  setDraftRestored]  = useState(false)
   const [draftAvailable, setDraftAvailable] = useState(false)
+  const [lgpdConsent,    setLgpdConsent]    = useState(false)
 
   const [form, setForm] = useState({
     // ── Ativo ──────────────────────────────────────────────────────────────
@@ -189,6 +190,7 @@ function NovaAnaliseInner() {
     }
     if (step === 7) {
       if (files.length === 0) return 'Adicione ao menos um documento.'
+      if (!lgpdConsent)       return 'Confirme o consentimento para processamento de dados antes de continuar.'
     }
     return null
   }
@@ -217,6 +219,7 @@ function NovaAnaliseInner() {
       objetivo:              objetivos.join(', '),
       localizacao:           `${form.cidade} – ${form.estado}, ${form.pais}`,
       informacoesAdicionais: form.resumoAtivo,
+      lgpdConsentimento:     `Consentimento LGPD registrado em ${new Date().toISOString()} — dados processados por IA para análise de deal conforme LGPD art. 7º, inc. V (execução de contrato).`,
     }
 
     const res  = await fetch('/api/analise', {
@@ -334,6 +337,31 @@ function NovaAnaliseInner() {
             fileInputRef={fileInputRef}
             accepted={ACCEPTED}
           />
+
+          {/* Consentimento LGPD — exibe apenas no último step */}
+          {isLast && (
+            <div className={`mt-6 rounded-[10px] border p-4 transition-colors ${lgpdConsent ? 'bg-ok/5 border-ok/30' : 'bg-surface border-border'}`}>
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={lgpdConsent}
+                  onChange={e => setLgpdConsent(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded border-border accent-accent-strong cursor-pointer flex-shrink-0"
+                />
+                <div>
+                  <p className="text-[12.5px] font-semibold text-ink mb-1">
+                    Consentimento para processamento de dados — LGPD
+                  </p>
+                  <p className="text-[11.5px] text-ink-2 leading-relaxed">
+                    Autorizo o processamento dos dados deste intake e dos documentos enviados por sistemas de inteligência artificial
+                    para fins de análise e geração de relatórios de deal, conforme a Lei Geral de Proteção de Dados (Lei 13.709/2018),
+                    art. 7º, inc. V — execução de contrato ou procedimentos preliminares.
+                    Os dados serão armazenados com segurança e não serão utilizados para treinamento de modelos de IA.
+                  </p>
+                </div>
+              </label>
+            </div>
+          )}
 
           {error && (
             <div className="mt-5 bg-warn-soft border border-[oklch(0.85_0.06_75)] text-[oklch(0.45_0.1_65)] text-[13px] px-4 py-3 rounded-[10px]">

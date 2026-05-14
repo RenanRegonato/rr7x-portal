@@ -54,10 +54,10 @@ export default function Sidebar({
   }
 
   return (
-    <aside className="border-r border-border bg-bg p-[18px_18px_24px] flex flex-col gap-6 sticky top-0 h-screen w-[240px] overflow-y-auto">
+    <aside className="sidebar-dark border-r border-border bg-bg p-[18px_18px_24px] flex flex-col gap-6 sticky top-0 h-screen w-[240px] overflow-y-auto">
       {/* Logo */}
       <div className="flex items-center gap-2 pt-1 pb-0.5">
-        <img src="/logo/otto-horizontal.svg" alt="Otto" height={28} width={91} className="h-7 w-auto" />
+        <img src="/logo/otto-horizontal-dark.svg" alt="Otto" height={28} width={91} className="h-7 w-auto" />
         <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-2 text-ink-2 border border-border">
           Beta
         </span>

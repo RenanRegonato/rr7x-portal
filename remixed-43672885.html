@@ -1,0 +1,2674 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-slide-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Otto · Private Intelligence — apresentação institucional">
+<title>otto · private intelligence</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500&family=Inter:wght@400;500&family=Manrope:wght@400..500&family=Playfair+Display:ital,wght@0,300;0,400;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* =============================================================
+   OTTO · PRIVATE INTELLIGENCE
+   Apresentação institucional · 10 slides
+   Sistema visual: Quiet Intelligence
+   ============================================================= */
+
+/* ---------- Tokens ---------- */
+:root {
+  --obsidian: #0a0a0a;
+  --graphite: #2a2a2a;
+  --mist: #6b6b6b;
+  --whisper: #a8a8a3;
+  --bone: #fafaf7;
+  --pale-smoke: #f0efea;
+  --vellum: #e8e0cc;
+  --parchment: #d9cdb0;
+  --cyan-wash: #c4d4d6;
+  --steel: #7a8a8d;
+  --sage: #8a9a85;
+  --ember: #b87a6d;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-headline: 'Inter Tight', system-ui, sans-serif;
+  --font-body: 'Manrope', system-ui, sans-serif;
+  --font-utility: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --hairline-light: rgba(10, 10, 10, 0.10);
+  --hairline-strong: rgba(10, 10, 10, 0.18);
+  --hairline-dark-light: rgba(250, 249, 247, 0.10);
+  --hairline-dark-strong: rgba(250, 249, 247, 0.20);
+}
+
+/* ---------- Reset ---------- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  background: var(--bone);
+  color: var(--graphite);
+  transition: background 480ms cubic-bezier(0.2, 0, 0, 1), color 480ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ============================================================
+   FIXED CANVAS 1920×1080 — Apresentação institucional
+   ============================================================ */
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+body {
+  background: var(--bone);
+  color: var(--graphite);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 480ms cubic-bezier(0.2, 0, 0, 1), color 480ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+body[data-slide-mode="dark"] {
+  background: var(--obsidian);
+  color: #e8e8e3;
+}
+
+/* Deck stage — fixed canvas, scaled by JS to fit window */
+.deck-stage {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: center center;
+  flex-shrink: 0;
+  /* transform: scale() set via JS */
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  display: flex;
+  flex-direction: column;
+  padding: 56px 110px 64px;
+  background: var(--bone);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 600ms cubic-bezier(0.2, 0, 0, 1),
+              transform 600ms cubic-bezier(0.2, 0, 0, 1),
+              visibility 0s linear 600ms;
+  pointer-events: none;
+}
+
+.slide.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition-delay: 0s, 0s, 0s;
+  pointer-events: auto;
+}
+
+.slide[data-mode="dark"] {
+  background: var(--obsidian);
+  color: #e8e8e3;
+}
+
+/* ---------- Slide chrome (header + footer) ---------- */
+.slide-header,
+.slide-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-family: var(--font-mono);
+  font-size: 17px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--mist);
+  line-height: 1.7;
+  flex-shrink: 0;
+}
+
+.slide-header { padding-bottom: 22px; }
+.slide-footer { padding-top: 22px; margin-top: auto; }
+
+.slide-header .ink,
+.slide-footer .ink {
+  color: var(--obsidian);
+}
+
+.slide[data-mode="dark"] .slide-header,
+.slide[data-mode="dark"] .slide-footer {
+  color: var(--whisper);
+}
+.slide[data-mode="dark"] .slide-header .ink,
+.slide[data-mode="dark"] .slide-footer .ink {
+  color: var(--bone);
+}
+
+.hairline-rule {
+  height: 1px;
+  background: var(--hairline-strong);
+  width: 100%;
+  flex-shrink: 0;
+}
+.slide[data-mode="dark"] .hairline-rule {
+  background: var(--hairline-dark-strong);
+}
+
+.slide-header + .hairline-rule { margin-bottom: 0; }
+.hairline-rule + .slide-footer { margin-top: 0; padding-top: 22px; }
+
+/* ---------- Body region ---------- */
+.slide-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px 0;
+  min-height: 0;
+}
+
+/* ============================================================
+   SLIDE 1 — CAPA (DARK)
+   ============================================================ */
+.cover {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+.cover-wordmark {
+  font-family: var(--font-headline);
+  font-weight: 300;
+  font-size: 290.5px;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  color: var(--bone);
+  margin-bottom: 20px;
+}
+
+.cover-rule {
+  width: 56px;
+  height: 1px;
+  background: var(--whisper);
+  margin: 28px 0 24px;
+}
+
+.cover-descriptor {
+  font-family: var(--font-utility);
+  font-weight: 400;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.42em;
+  color: var(--whisper);
+  text-indent: 0.42em;
+  margin-bottom: 64px;
+}
+
+.cover-tagline {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: 47.5px;
+  line-height: 1.3;
+  color: var(--bone);
+  max-width: 1100px;
+  letter-spacing: -0.01em;
+}
+
+/* ============================================================
+   GENERIC HEADLINE / DISPLAY UTILITIES
+   ============================================================ */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--mist);
+  margin-bottom: 16px;
+}
+
+.display-headline {
+  font-family: var(--font-headline);
+  font-weight: 300;
+  font-size: 68.5px;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--obsidian);
+  max-width: 1100px;
+}
+
+.editorial-headline {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 84.5px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--obsidian);
+  max-width: 1100px;
+}
+
+.body-lead {
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 22.5px;
+  line-height: 1.55;
+  color: var(--graphite);
+  max-width: 720px;
+  margin-top: 24px;
+}
+
+/* ============================================================
+   SLIDE 2 — ESTADO ATUAL (4 BLOCOS)
+   ============================================================ */
+.observations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  margin-top: 36px;
+  border-top: 1px solid var(--hairline-light);
+  border-left: 1px solid var(--hairline-light);
+}
+
+.observation {
+  padding: 28px 32px;
+  border-right: 1px solid var(--hairline-light);
+  border-bottom: 1px solid var(--hairline-light);
+  min-height: 130px;
+}
+
+.observation-num {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.20em;
+  color: var(--mist);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.observation-text {
+  font-family: var(--font-headline);
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 1.4;
+  letter-spacing: -0.012em;
+  color: var(--graphite);
+}
+
+/* ============================================================
+   SLIDE 3 — CITAÇÃO EDITORIAL
+   ============================================================ */
+.editorial-quote-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px 0;
+  max-width: 1080px;
+}
+
+.editorial-quote {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 95px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--obsidian);
+}
+
+.editorial-quote-body {
+  margin-top: 40px;
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 21px;
+  line-height: 1.65;
+  color: var(--graphite);
+  max-width: 640px;
+  border-left: 1px solid var(--hairline-strong);
+  padding-left: 24px;
+}
+
+/* ============================================================
+   SLIDE 4 — A SOLUÇÃO (3 PILARES)
+   ============================================================ */
+.solution-intro {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--hairline-light);
+}
+
+.solution-strap {
+  margin-top: 18px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 25px;
+  line-height: 1.4;
+  color: var(--graphite);
+  max-width: 720px;
+}
+
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.pillar {
+  background: var(--pale-smoke);
+  border: 1px solid var(--hairline-light);
+  padding: 26px 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 175px;
+}
+
+.pillar-num {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.20em;
+  color: var(--mist);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.pillar-title {
+  font-family: var(--font-headline);
+  font-weight: 400;
+  font-size: 26.5px;
+  letter-spacing: -0.018em;
+  line-height: 1.2;
+  color: var(--obsidian);
+  margin-bottom: 12px;
+}
+
+.pillar-body {
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--graphite);
+  margin-top: auto;
+}
+
+/* ============================================================
+   SLIDE 5 — COMO FUNCIONA (PIPELINE)
+   ============================================================ */
+.pipeline-stage {
+  margin-top: 40px;
+}
+
+.pipeline-track {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  position: relative;
+  margin-bottom: 32px;
+}
+
+.pipeline-step {
+  padding-right: 24px;
+  position: relative;
+}
+
+.pipeline-step::after {
+  content: '';
+  position: absolute;
+  top: 22px;
+  right: 12px;
+  width: 12px;
+  height: 1px;
+  background: var(--steel);
+}
+
+.pipeline-step:last-child::after { display: none; }
+
+.pipeline-num {
+  font-family: var(--font-mono);
+  font-size: 14.5px;
+  letter-spacing: 0.20em;
+  color: var(--steel);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.pipeline-rule {
+  height: 1px;
+  background: var(--obsidian);
+  margin: 14px 0 22px;
+}
+
+.pipeline-title {
+  font-family: var(--font-headline);
+  font-weight: 400;
+  font-size: 29px;
+  letter-spacing: -0.018em;
+  color: var(--obsidian);
+  margin-bottom: 12px;
+  line-height: 1.15;
+}
+
+.pipeline-body {
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--graphite);
+  padding-right: 8px;
+}
+
+.pipeline-coda {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 26.5px;
+  color: var(--graphite);
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--hairline-light);
+}
+
+/* ============================================================
+   SLIDE 6 — OS NOVE AGENTES (GRID)
+   ============================================================ */
+.agents-intro {
+  margin-bottom: 24px;
+}
+
+.agents-strap {
+  margin-top: 14px;
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 18.5px;
+  line-height: 1.55;
+  color: var(--graphite);
+  max-width: 720px;
+}
+
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--hairline-light);
+  border-left: 1px solid var(--hairline-light);
+}
+
+.agent {
+  padding: 18px 22px;
+  border-right: 1px solid var(--hairline-light);
+  border-bottom: 1px solid var(--hairline-light);
+  background: var(--bone);
+  display: flex;
+  flex-direction: column;
+  min-height: 100px;
+}
+
+.agent-tag {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.20em;
+  color: var(--mist);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.agent-name {
+  font-family: var(--font-headline);
+  font-weight: 400;
+  font-size: 22.5px;
+  letter-spacing: -0.015em;
+  color: var(--obsidian);
+  margin-bottom: 4px;
+}
+
+.agent-role {
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--graphite);
+  margin-top: auto;
+}
+
+/* Three-block layout for agents (Estratégia / Diagnóstico / Execução) */
+.agents-blocks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.agent-block { display: flex; flex-direction: column; }
+
+.agent-block-header {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: var(--obsidian);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--obsidian);
+  margin-bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.agent-block-header .label { font-weight: 500; }
+.agent-block-header .num { color: var(--mist); }
+
+.agent-block-stack { display: flex; flex-direction: column; }
+
+.agent-block-stack .agent {
+  border-right: 1px solid var(--hairline-light);
+  border-bottom: 1px solid var(--hairline-light);
+  border-left: 1px solid var(--hairline-light);
+  border-top: none;
+  min-height: 88px;
+  padding: 14px 18px;
+}
+
+/* ============================================================
+   SLIDE — CUSTO / TEMPO (entre Diagnóstico e Definição)
+   ============================================================ */
+
+.cost-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 0;
+  max-width: 1180px;
+}
+
+.cost-headline-wrap { margin-bottom: 36px; }
+
+.cost-equations {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--obsidian);
+  border-left: 1px solid var(--hairline-light);
+}
+
+.cost-cell {
+  padding: 28px 28px 32px;
+  border-right: 1px solid var(--hairline-light);
+  border-bottom: 1px solid var(--hairline-light);
+  display: flex;
+  flex-direction: column;
+  min-height: 230px;
+}
+
+.cost-equation {
+  font-family: var(--font-mono);
+  font-size: 14.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mist);
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--hairline-light);
+}
+
+.cost-equation .arrow {
+  color: var(--obsidian);
+  font-weight: 500;
+  margin: 0 8px;
+}
+
+.cost-equation .ink {
+  color: var(--obsidian);
+  font-weight: 500;
+}
+
+.cost-translation {
+  font-family: var(--font-headline);
+  font-weight: 300;
+  font-size: 24px;
+  letter-spacing: -0.014em;
+  line-height: 1.35;
+  color: var(--obsidian);
+  margin-top: auto;
+}
+
+.cost-closer {
+  margin-top: 28px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 29px;
+  line-height: 1.4;
+  color: var(--graphite);
+  max-width: 920px;
+  padding-left: 24px;
+  border-left: 1px solid var(--obsidian);
+}
+
+/* ============================================================
+   SLIDE 7 — O QUE MUDA (LISTA NUMERADA)
+   ============================================================ */
+.changes-stage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  margin-top: 40px;
+  align-items: start;
+}
+
+.changes-list { display: flex; flex-direction: column; }
+
+.change {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--hairline-light);
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 20px;
+  align-items: baseline;
+}
+
+.change:first-child { padding-top: 0; }
+
+.change-num {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 0.10em;
+  color: var(--steel);
+}
+
+.change-text {
+  font-family: var(--font-headline);
+  font-weight: 300;
+  font-size: 25px;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--obsidian);
+}
+
+.drs-illustration {
+  background: var(--pale-smoke);
+  padding: 28px;
+  border: 1px solid var(--hairline-light);
+}
+
+.drs-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--mist);
+  margin-bottom: 20px;
+}
+
+.drs-display {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.drs-score {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 74px;
+  letter-spacing: -0.015em;
+  color: var(--obsidian);
+  line-height: 1;
+}
+
+.drs-status {
+  font-family: var(--font-utility);
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--sage);
+}
+
+.drs-bar {
+  height: 4px;
+  background: var(--bone);
+  border: 1px solid var(--hairline-light);
+  position: relative;
+  margin-top: 16px;
+}
+
+.drs-fill {
+  position: absolute;
+  inset: 0;
+  width: 87%;
+  background: var(--sage);
+}
+
+.drs-meta {
+  margin-top: 18px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--mist);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ============================================================
+   SLIDE 8 — PARA QUEM É (4 PERFIS)
+   ============================================================ */
+.audience-strap {
+  margin-top: 14px;
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 18.5px;
+  color: var(--mist);
+  margin-bottom: 32px;
+}
+
+.audience-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--hairline-strong);
+  border-left: 1px solid var(--hairline-light);
+}
+
+.profile {
+  padding: 28px 32px 32px;
+  border-right: 1px solid var(--hairline-light);
+  border-bottom: 1px solid var(--hairline-light);
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+}
+
+.profile-roman {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.20em;
+  color: var(--mist);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.profile-title {
+  font-family: var(--font-headline);
+  font-weight: 400;
+  font-size: 29px;
+  letter-spacing: -0.02em;
+  color: var(--obsidian);
+  margin-bottom: 12px;
+  line-height: 1.15;
+}
+
+.profile-desc {
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--graphite);
+  margin-top: auto;
+}
+
+/* ============================================================
+   SLIDE 9 — PLANOS
+   ============================================================ */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-top: 32px;
+  border-top: 1px solid var(--obsidian);
+  border-left: 1px solid var(--hairline-light);
+}
+
+.plan {
+  background: var(--bone);
+  border-right: 1px solid var(--hairline-light);
+  border-bottom: 1px solid var(--hairline-light);
+  padding: 32px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  min-height: 520px;
+  position: relative;
+}
+
+.plan--featured {
+  background: var(--vellum);
+}
+
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--hairline-strong);
+  margin-bottom: 22px;
+}
+
+.plan-num {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--obsidian);
+}
+
+.plan-billing {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--mist);
+}
+
+.plan--featured .plan-billing { color: var(--graphite); }
+
+.plan-title {
+  font-family: var(--font-headline);
+  font-weight: 400;
+  font-size: 32px;
+  letter-spacing: -0.018em;
+  color: var(--obsidian);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.plan-tagline {
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--graphite);
+  margin-bottom: 24px;
+  min-height: 66px;
+}
+
+.plan-includes-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--shadowstone);
+  margin-bottom: 8px;
+}
+
+.plan-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+}
+
+.plan-list li {
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--graphite);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hairline-light);
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.plan--featured .plan-list li {
+  color: var(--obsidian);
+  border-bottom-color: rgba(0,0,0,0.10);
+}
+
+.plan-list li:last-child { border-bottom: none; }
+
+.plan-list li::before {
+  content: '·';
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--obsidian);
+}
+
+.plan-cta {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--obsidian);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--obsidian);
+}
+
+.plan-cta-arrow {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--obsidian);
+}
+
+.plan--featured .plan-cta { border-top-color: var(--obsidian); }
+
+/* ============================================================
+   SLIDE 10 — FECHAMENTO (DARK)
+   ============================================================ */
+.close-stage {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  align-items: center;
+  gap: 64px;
+  padding: 24px 0;
+}
+
+.close-headline {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: 111px;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--bone);
+}
+
+.close-headline .em-period {
+  display: inline-block;
+  width: 0.16em;
+  height: 0.16em;
+  background: var(--steel);
+  margin-left: 0.02em;
+  vertical-align: baseline;
+  margin-bottom: 0.02em;
+}
+
+.close-side {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.close-strap {
+  font-family: var(--font-headline);
+  font-weight: 300;
+  font-size: 29px;
+  letter-spacing: -0.012em;
+  line-height: 1.4;
+  color: var(--bone);
+  border-top: 1px solid var(--hairline-dark-strong);
+  padding-top: 32px;
+}
+
+.close-contact {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--whisper);
+  line-height: 2.2;
+}
+
+.close-contact a {
+  color: var(--bone);
+  text-decoration: none;
+  border-bottom: 1px solid var(--whisper);
+  padding-bottom: 1px;
+}
+
+.close-attribution {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--whisper);
+  margin-top: 16px;
+}
+
+/* ============================================================
+   HUD — Counter, spine, navigation hints
+   ============================================================ */
+.hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.hud-counter {
+  position: fixed;
+  bottom: 16px;
+  right: 24px;
+  font-family: var(--font-mono);
+  font-size: 14.5px;
+  letter-spacing: 0.18em;
+  color: var(--mist);
+  text-transform: uppercase;
+  pointer-events: auto;
+  transition: color 480ms;
+  z-index: 100;
+}
+
+body[data-slide-mode="dark"] .hud-counter { color: var(--whisper); }
+
+.hud-spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.hud-spine span {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: var(--mist);
+  white-space: nowrap;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: color 480ms;
+}
+
+body[data-slide-mode="dark"] .hud-spine span { color: var(--whisper); }
+
+.hud-help {
+  position: fixed;
+  bottom: 16px;
+  left: 24px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.20em;
+  color: var(--whisper);
+  text-transform: uppercase;
+  opacity: 0.5;
+  transition: opacity 480ms;
+  z-index: 100;
+}
+
+.hud-help.fade { opacity: 0; }
+
+/* Progress dots */
+.hud-progress {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+  z-index: 100;
+}
+
+.hud-dot {
+  width: 4px;
+  height: 4px;
+  background: var(--mist);
+  opacity: 0.30;
+  transition: opacity 320ms, background 480ms;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+body[data-slide-mode="dark"] .hud-dot { background: var(--whisper); }
+
+.hud-dot.active { opacity: 1; }
+
+/* ============================================================
+   Responsive (graceful degradation under 1100px)
+   ============================================================ */
+@media (max-width: 1100px) {
+  .slide { padding: 40px 56px 56px; }
+  .observations-grid,
+  .agents-grid,
+  .audience-grid { grid-template-columns: 1fr; }
+  .pillars-grid,
+  .plans-grid,
+  .pipeline-track { grid-template-columns: repeat(2, 1fr); }
+  .changes-stage { grid-template-columns: 1fr; gap: 40px; }
+  .close-stage { grid-template-columns: 1fr; gap: 40px; }
+  .hud-spine { display: none; }
+}
+
+@media (max-width: 700px) {
+  .slide { padding: 32px 28px 48px; }
+  .pillars-grid, .plans-grid, .pipeline-track { grid-template-columns: 1fr; }
+  .display-headline, .editorial-headline { font-size: 47.5px; }
+  .cover-wordmark { font-size: 126.5px; }
+  .editorial-quote { font-size: 47.5px; }
+  .change-text { font-size: 24px; }
+  .close-headline { font-size: 58px; }
+}
+
+/* Print fallback */
+@media print {
+  .hud { display: none; }
+  .slide { position: static; opacity: 1; visibility: visible; transform: none; page-break-after: always; }
+}
+/* ============================================================
+   V3 — NEW COMPONENTS
+   ============================================================ */
+
+/* ── Cover with pillars + market data ─────────────────────── */
+.cover-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+  padding: 60px 0 40px;
+}
+
+.cover-pillars {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 220px));
+  gap: 60px;
+  margin-top: 64px;
+  padding-top: 36px;
+  border-top: 1px solid rgba(254, 254, 252, 0.18);
+}
+
+.cover-pillar { text-align: left; }
+
+.cover-pillar-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--vellum);
+  margin-bottom: 10px;
+  padding-left: 12px;
+  border-left: 1px solid var(--vellum);
+}
+
+.cover-pillar-body {
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 18px;
+  line-height: 1.45;
+  color: var(--whisper);
+  padding-left: 12px;
+}
+
+.cover-attribution {
+  position: absolute;
+  bottom: 32px;
+  left: 60px;
+  right: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(254, 254, 252, 0.42);
+}
+
+.cover-market-data {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: right;
+}
+
+.cover-market-data .sep { opacity: 0.4; }
+
+/* ── SLIDE 2: TEMPO COMPARE ─────────────────────────────── */
+.tempo-compare {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+.tempo-side {
+  padding: 32px 32px 36px;
+  border: 1px solid var(--hairline-light);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tempo-side.tempo-trad { background: var(--bone); }
+.tempo-side.tempo-otto { background: var(--pale-smoke); border-color: var(--hairline-strong); }
+
+.tempo-label {
+  font-family: var(--font-mono);
+  font-size: 14.5px;
+  font-weight: 500;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--shadowstone);
+  margin-bottom: 12px;
+}
+
+.tempo-label .ink { color: var(--obsidian); }
+
+.tempo-figure {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 111px;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--obsidian);
+}
+
+.tempo-unit {
+  font-family: var(--font-headline);
+  font-weight: 400;
+  font-size: 29px;
+  letter-spacing: -0.01em;
+  color: var(--obsidian);
+}
+
+.tempo-meta {
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--whisper);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline-light);
+}
+
+.tempo-versus {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 42px;
+  color: var(--shadowstone);
+}
+
+.tempo-aphorism {
+  margin-top: 40px;
+  max-width: 980px;
+  padding: 22px 28px;
+  border-left: 1px solid var(--obsidian);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.55;
+  color: var(--obsidian);
+}
+
+/* ── SLIDE 3: CUSTO GRID 2×2 ─────────────────────────────── */
+.custo-grid {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid var(--obsidian);
+  border-left: 1px solid var(--hairline-light);
+}
+
+.custo-cell {
+  padding: 32px 36px;
+  border-right: 1px solid var(--hairline-light);
+  border-bottom: 1px solid var(--hairline-light);
+  background: var(--bone);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.custo-cell--accent { background: var(--vellum); }
+
+.custo-figure {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 47.5px;
+  line-height: 1;
+  letter-spacing: -0.012em;
+  color: var(--obsidian);
+  margin-bottom: 8px;
+}
+
+.custo-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--shadowstone);
+  margin-bottom: 14px;
+}
+
+.custo-cell--accent .custo-label { color: var(--obsidian); }
+
+.custo-desc {
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--graphite);
+  margin-top: auto;
+}
+
+/* ── SLIDE 4: A PERGUNTA editorial italic ────────────────── */
+.editorial-quote-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 84px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--obsidian);
+  margin-top: 18px;
+  margin-bottom: 48px;
+  max-width: 1700px;
+}
+
+.editorial-quote-italic em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* ── SLIDE 5: STATS GRID ─────────────────────────────────── */
+.solucao-body {
+  max-width: 720px;
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 22.5px;
+  line-height: 1.55;
+  color: var(--graphite);
+  margin-top: 24px;
+  margin-bottom: 40px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--obsidian);
+  border-bottom: 1px solid var(--obsidian);
+  margin-bottom: 36px;
+}
+
+.stat {
+  padding: 36px 32px 32px;
+  border-right: 1px solid var(--hairline-light);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stat:last-child { border-right: none; }
+
+.stat-figure {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 95px;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: var(--obsidian);
+  margin-bottom: 14px;
+}
+
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 14.5px;
+  font-weight: 500;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--shadowstone);
+}
+
+.solucao-closing {
+  max-width: 920px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 22.5px;
+  line-height: 1.55;
+  color: var(--graphite);
+  padding-left: 22px;
+  border-left: 1px solid var(--obsidian);
+}
+
+/* ── SLIDE 6: COMPARE TABLE ──────────────────────────────── */
+.compare-table {
+  width: 100%;
+  margin-top: 32px;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+}
+
+.compare-table thead th {
+  text-align: left;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--obsidian);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--shadowstone);
+}
+
+.compare-table thead th.dim { width: 32%; }
+.compare-table thead th.trad { width: 34%; color: var(--shadowstone); }
+.compare-table thead th.otto {
+  width: 34%;
+  background: var(--vellum);
+  color: var(--obsidian);
+  padding-left: 22px;
+}
+
+.compare-table thead th.otto .otto-mark {
+  font-family: var(--font-headline);
+  font-weight: 400;
+  font-size: 18.5px;
+  letter-spacing: -0.015em;
+  text-transform: none;
+  color: var(--obsidian);
+}
+
+.compare-table tbody td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--hairline-light);
+  font-size: 18px;
+  line-height: 1.45;
+  color: var(--graphite);
+  vertical-align: top;
+}
+
+.compare-table tbody td.dim {
+  font-family: var(--font-headline);
+  font-weight: 400;
+  font-size: 18.5px;
+  letter-spacing: -0.01em;
+  color: var(--obsidian);
+}
+
+.compare-table tbody td.trad {
+  color: var(--whisper);
+}
+
+.compare-table tbody td.otto {
+  background: rgba(232, 224, 204, 0.30);
+  padding-left: 22px;
+  font-weight: 500;
+  color: var(--obsidian);
+}
+
+/* ── SLIDE 8: DELTA GRID (sem/com/delta) ──────────────────── */
+.delta-grid {
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid var(--obsidian);
+  border-left: 1px solid var(--hairline-light);
+}
+
+.delta-col {
+  padding: 24px 24px 28px;
+  border-right: 1px solid var(--hairline-light);
+  border-bottom: 1px solid var(--hairline-light);
+  background: var(--bone);
+  display: flex;
+  flex-direction: column;
+}
+
+.delta-col.delta-otto { background: var(--vellum); }
+.delta-col.delta-delta { background: var(--pale-smoke); }
+
+.delta-header {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--shadowstone);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--hairline-strong);
+  line-height: 1.5;
+}
+
+.delta-header .ink { color: var(--obsidian); }
+
+.delta-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.delta-list li {
+  padding: 9px 0;
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--graphite);
+  border-bottom: 1px solid var(--hairline-light);
+}
+
+.delta-col.delta-otto .delta-list li {
+  border-bottom-color: rgba(0, 0, 0, 0.10);
+  color: var(--obsidian);
+}
+
+.delta-list li:last-child { border-bottom: none; }
+
+.delta-closing {
+  margin-top: 24px;
+  padding: 18px 24px;
+  border-left: 1px solid var(--obsidian);
+  font-family: var(--font-headline);
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 1.5;
+  color: var(--obsidian);
+  letter-spacing: -0.014em;
+}
+
+.delta-closing strong {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 29px;
+  letter-spacing: -0.018em;
+}
+
+/* ── SLIDE 9: BIG NUMBER editorial ───────────────────────── */
+.big-number-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.big-number {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 200px;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  color: var(--obsidian);
+  margin: 18px 0 24px;
+  white-space: nowrap;
+}
+
+.big-number .dash {
+  color: var(--steel);
+  font-weight: 300;
+  margin: 0 0.02em;
+}
+
+.big-number-unit {
+  font-family: var(--font-mono);
+  font-size: 18.5px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--shadowstone);
+  margin-bottom: 36px;
+}
+
+.big-number-body {
+  max-width: 760px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 31.5px;
+  line-height: 1.5;
+  color: var(--graphite);
+  padding-left: 22px;
+  border-left: 1px solid var(--steel);
+}
+
+/* ── SLIDE 11: ROLE GRID (apoia/decide/não faz) ──────────── */
+.role-grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid var(--obsidian);
+  border-left: 1px solid var(--hairline-light);
+}
+
+.role-col {
+  padding: 28px 24px 28px;
+  border-right: 1px solid var(--hairline-light);
+  border-bottom: 1px solid var(--hairline-light);
+  background: var(--bone);
+  display: flex;
+  flex-direction: column;
+}
+
+.role-col--featured { background: var(--vellum); }
+
+.role-header {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--shadowstone);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--hairline-strong);
+}
+
+.role-header .ink { color: var(--obsidian); }
+
+.role-col--featured .role-header { color: var(--obsidian); }
+
+.role-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.role-list li {
+  padding: 8px 0;
+  font-family: var(--font-body);
+  font-weight: 450;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--graphite);
+  border-bottom: 1px solid var(--hairline-light);
+}
+
+.role-col--featured .role-list li {
+  border-bottom-color: rgba(0,0,0,0.10);
+  color: var(--obsidian);
+}
+
+.role-list li:last-child { border-bottom: none; }
+
+/* ============================================================
+   PRINT MEDIA — Export PDF page-by-page
+   ============================================================ */
+@page {
+  size: 1920px 1080px;
+  margin: 0;
+}
+
+@media print {
+  html, body {
+    width: 1920px;
+    height: auto;
+    overflow: visible;
+    background: white !important;
+  }
+
+  body {
+    display: block;
+    transition: none;
+  }
+
+  .deck-stage {
+    position: relative;
+    width: 1920px;
+    height: auto;
+    transform: none !important;
+  }
+
+  .slide {
+    position: relative !important;
+    inset: auto !important;
+    width: 1920px !important;
+    height: 1080px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    transition: none !important;
+    pointer-events: auto !important;
+    page-break-after: always;
+    page-break-inside: avoid;
+    break-after: page;
+    break-inside: avoid;
+    display: flex !important;
+  }
+
+  .slide:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  .hud-counter,
+  .hud-help,
+  .hud-progress {
+    display: none !important;
+  }
+}
+
+</style>
+</head>
+<body>
+<div class="deck-stage" id="deckStage">
+<!-- ============================================================
+     SLIDE 1 — CAPA · Otto Rede Neural Operacional
+     ============================================================ -->
+<section class="slide cover" data-mode="dark" data-slide-num="1" aria-label="Capa">
+  <div class="cover-stack">
+    <div class="cover-wordmark">Otto</div>
+    <div class="cover-rule"></div>
+    <div class="cover-descriptor">rede neural operacional</div>
+    <p class="cover-tagline">A nova geração operacional para escritórios<br>de M&amp;A e estruturação.</p>
+
+    <div class="cover-pillars">
+      <div class="cover-pillar">
+        <div class="cover-pillar-label">velocidade</div>
+        <p class="cover-pillar-body">Análise completa em até 40 minutos</p>
+      </div>
+      <div class="cover-pillar">
+        <div class="cover-pillar-label">escala</div>
+        <p class="cover-pillar-body">40+ deals analisáveis por mês</p>
+      </div>
+      <div class="cover-pillar">
+        <div class="cover-pillar-label">padrão</div>
+        <p class="cover-pillar-body">Institucional em cada operação</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-attribution">
+    <div>RR7X Capital Hub · uso confidencial · mmxxvi</div>
+    <div class="cover-market-data">
+      <span>1.426 transações de M&amp;A no Brasil em 2024</span>
+      <span class="sep">·</span>
+      <span>Fonte: TTR / Kroll Brazil M&amp;A Report</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 2 — TEMPO · Cada análise consome 10-15 dias úteis
+     ============================================================ -->
+<section class="slide" data-mode="light" data-slide-num="2" aria-label="Tempo">
+  <header class="slide-header">
+    <div>
+      <div class="ink">Otto · rede neural operacional</div>
+      <div>capítulo i — tempo</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="ink">mmxxvi</div>
+      <div>uma plataforma rr7x capital hub</div>
+    </div>
+  </header>
+  <div class="hairline-rule"></div>
+
+  <div class="slide-body">
+    <div class="eyebrow">capítulo i · tempo</div>
+    <h2 class="display-headline">Cada análise consome<br>entre 10 e 15 dias úteis.</h2>
+
+    <div class="tempo-compare">
+      <div class="tempo-side tempo-trad">
+        <div class="tempo-label">modelo tradicional</div>
+        <div class="tempo-figure">10–15</div>
+        <div class="tempo-unit">dias úteis</div>
+        <div class="tempo-meta">por análise jurídica completa</div>
+      </div>
+
+      <div class="tempo-versus">×</div>
+
+      <div class="tempo-side tempo-otto">
+        <div class="tempo-label"><span class="ink">Otto</span></div>
+        <div class="tempo-figure">até 40</div>
+        <div class="tempo-unit">min</div>
+        <div class="tempo-meta">rede neural operacional completa</div>
+      </div>
+    </div>
+
+    <p class="tempo-aphorism">
+      Com 10 deals por semana e 10 a 15 dias de análise cada, sua equipe nunca sai do modo operacional. O restante da semana é gestão de fila — deals sem resposta, clientes esperando, mandatos indo para o concorrente que chegou primeiro.
+    </p>
+  </div>
+
+  <div class="hairline-rule"></div>
+  <footer class="slide-footer">
+    <div>vol. i — fig. 02</div>
+    <div>ii / xiii</div>
+  </footer>
+</section>
+
+<!-- ============================================================
+     SLIDE 3 — CUSTO INVISÍVEL · 4 valores R$
+     ============================================================ -->
+<section class="slide" data-mode="light" data-slide-num="3" aria-label="Custo invisível">
+  <header class="slide-header">
+    <div>
+      <div class="ink">Otto · rede neural operacional</div>
+      <div>capítulo ii — custo invisível</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="ink">mmxxvi</div>
+      <div>uma plataforma rr7x capital hub</div>
+    </div>
+  </header>
+  <div class="hairline-rule"></div>
+
+  <div class="slide-body">
+    <div class="eyebrow">capítulo ii · custo invisível</div>
+    <h2 class="display-headline">O que ninguém contabiliza<br>em uma operação de M&amp;A.</h2>
+
+    <div class="custo-grid">
+      <div class="custo-cell">
+        <div class="custo-figure">R$ 15k–30k</div>
+        <div class="custo-label">custo mensal</div>
+        <p class="custo-desc">de um analista júnior em CLT — encargos + bônus de performance.</p>
+      </div>
+
+      <div class="custo-cell">
+        <div class="custo-figure">R$ 2k–8k</div>
+        <div class="custo-label">honorários jurídicos</div>
+        <p class="custo-desc">de advogados externos por análise contratual avulsa.</p>
+      </div>
+
+      <div class="custo-cell">
+        <div class="custo-figure">30 deals</div>
+        <div class="custo-label">descartados</div>
+        <p class="custo-desc">por mês em escritório com 10+ profissionais — sem análise real.</p>
+      </div>
+
+      <div class="custo-cell custo-cell--accent">
+        <div class="custo-figure">R$ 9M+/ano</div>
+        <div class="custo-label">receita não capturada</div>
+        <p class="custo-desc">por mandatos/mês que passam pelo escritório sem virar receita.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hairline-rule"></div>
+  <footer class="slide-footer">
+    <div>vol. i — fig. 03</div>
+    <div>iii / xiii</div>
+  </footer>
+</section>
+
+<!-- ============================================================
+     SLIDE 4 — A PERGUNTA (editorial)
+     ============================================================ -->
+<section class="slide" data-mode="light" data-slide-num="4" aria-label="A pergunta">
+  <header class="slide-header">
+    <div>
+      <div class="ink">Otto · rede neural operacional</div>
+      <div>capítulo iii — custo de oportunidade</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="ink">mmxxvi</div>
+      <div>uma plataforma rr7x capital hub</div>
+    </div>
+  </header>
+  <div class="hairline-rule"></div>
+
+  <div class="slide-body">
+    <div class="editorial-quote-stage">
+      <div class="eyebrow">capítulo iii · custo de oportunidade</div>
+      <h2 class="editorial-quote-italic">A pergunta não é se Otto vale.<br>É <em>quanto custa</em> esperar.</h2>
+      <p class="editorial-quote-body">
+        Cada semana sem Otto são 10 deals que entram e saem sem análise real.
+      </p>
+      <p class="editorial-quote-body" style="border-left-color: var(--obsidian); color: var(--obsidian);">
+        Cada mês sem Otto são mandatos fechados pelo concorrente que respondeu primeiro.
+      </p>
+    </div>
+  </div>
+
+  <div class="hairline-rule"></div>
+  <footer class="slide-footer">
+    <div>vol. i — fig. 04</div>
+    <div>iv / xiii</div>
+  </footer>
+</section>
+
+<!-- ============================================================
+     SLIDE 5 — A SOLUÇÃO · Rede Neural Operacional + 3 stats
+     ============================================================ -->
+<section class="slide" data-mode="light" data-slide-num="5" aria-label="A solução">
+  <header class="slide-header">
+    <div>
+      <div class="ink">Otto · rede neural operacional</div>
+      <div>capítulo iv — a solução</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="ink">mmxxvi</div>
+      <div>uma plataforma rr7x capital hub</div>
+    </div>
+  </header>
+  <div class="hairline-rule"></div>
+
+  <div class="slide-body">
+    <div class="eyebrow">capítulo iv · a solução</div>
+    <h2 class="display-headline">Uma rede neural operacional<br>que potencializa assessores.</h2>
+
+    <p class="solucao-body">
+      Otto processa, analisa e estrutura operações de M&amp;A em até 40 minutos — com compliance documentado, valuation sustentado e material pronto para o mercado.
+    </p>
+
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-figure">40 min</div>
+        <div class="stat-label">análise completa</div>
+      </div>
+      <div class="stat">
+        <div class="stat-figure">40+</div>
+        <div class="stat-label">deals analisáveis/mês</div>
+      </div>
+      <div class="stat">
+        <div class="stat-figure">4×</div>
+        <div class="stat-label">capacidade institucional</div>
+      </div>
+    </div>
+
+    <p class="solucao-closing">
+      Otto não substitui profissionais. É camada de apoio operacional — organiza informação, cruza dados e amplia a capacidade de análise dos profissionais responsáveis pela decisão.
+    </p>
+  </div>
+
+  <div class="hairline-rule"></div>
+  <footer class="slide-footer">
+    <div>vol. i — fig. 05</div>
+    <div>v / xiii</div>
+  </footer>
+</section>
+
+<!-- ============================================================
+     SLIDE 6 — TRADICIONAL × OTTO · tabela comparativa
+     ============================================================ -->
+<section class="slide" data-mode="light" data-slide-num="6" aria-label="Tradicional vs Otto">
+  <header class="slide-header">
+    <div>
+      <div class="ink">Otto · rede neural operacional</div>
+      <div>capítulo v — comparativo</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="ink">mmxxvi</div>
+      <div>uma plataforma rr7x capital hub</div>
+    </div>
+  </header>
+  <div class="hairline-rule"></div>
+
+  <div class="slide-body">
+    <div class="eyebrow">capítulo v · comparativo</div>
+    <h2 class="display-headline" style="font-size: 48px;">Modelo Tradicional × Otto.</h2>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th class="dim">dimensão</th>
+          <th class="trad">modelo tradicional</th>
+          <th class="otto"><span class="otto-mark">Otto</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="dim">Tempo por análise completa</td>
+          <td class="trad">10–15 dias úteis</td>
+          <td class="otto">até 40 min</td>
+        </tr>
+        <tr>
+          <td class="dim">Capacidade mensal de análise</td>
+          <td class="trad">Baixa escala</td>
+          <td class="otto">Alta capacidade operacional</td>
+        </tr>
+        <tr>
+          <td class="dim">Organização do material</td>
+          <td class="trad">Descentralizada por pessoa</td>
+          <td class="otto">Fluxo estruturado e centralizado</td>
+        </tr>
+        <tr>
+          <td class="dim">Visibilidade sobre riscos</td>
+          <td class="trad">Dependente da análise</td>
+          <td class="otto">Cruzamento e organização automática</td>
+        </tr>
+        <tr>
+          <td class="dim">Crescimento da capacidade</td>
+          <td class="trad">Mais contratações = mais custo</td>
+          <td class="otto">Escala sem custo proporcional</td>
+        </tr>
+        <tr>
+          <td class="dim">Padrão dos materiais</td>
+          <td class="trad">Variável por analista</td>
+          <td class="otto">Institucional em todos os deals</td>
+        </tr>
+        <tr>
+          <td class="dim">Tempo de resposta ao cliente</td>
+          <td class="trad">2 a 3 dias</td>
+          <td class="otto">No mesmo dia</td>
+        </tr>
+        <tr>
+          <td class="dim">Deals com análise profunda/mês</td>
+          <td class="trad">10 de 40</td>
+          <td class="otto">38 a 40 de 40</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="hairline-rule"></div>
+  <footer class="slide-footer">
+    <div>vol. i — fig. 06</div>
+    <div>vi / xiii</div>
+  </footer>
+</section>
+
+<!-- ============================================================
+     SLIDE 7 — PIPELINE (mantido)
+     ============================================================ -->
+<section class="slide" data-mode="light" data-slide-num="7" aria-label="Pipeline">
+  <header class="slide-header">
+    <div>
+      <div class="ink">Otto · rede neural operacional</div>
+      <div>capítulo vi — pipeline</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="ink">mmxxvi</div>
+      <div>uma plataforma rr7x capital hub</div>
+    </div>
+  </header>
+  <div class="hairline-rule"></div>
+
+  <div class="slide-body">
+    <div class="eyebrow">capítulo vi · pipeline</div>
+    <h2 class="display-headline">Do ativo cru<br>ao Pitchbook entregue.</h2>
+
+    <div class="pipeline-track">
+      <div class="pipeline-step">
+        <div class="pipeline-num">01 · intake</div>
+        <div class="pipeline-rule"></div>
+        <h3 class="pipeline-title">Cadastro do ativo</h3>
+        <p class="pipeline-body">O assessor cadastra o deal e anexa documentos. Drive Intake lê e resume cada documento para preparar o pipeline.</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">02 · orquestração</div>
+        <div class="pipeline-rule"></div>
+        <h3 class="pipeline-title">Orquestração</h3>
+        <p class="pipeline-body">Otto Orquestra calcula o DRS, mapeia riscos materiais e define a estratégia que guiará a próxima fase.</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">03 · análise</div>
+        <div class="pipeline-rule"></div>
+        <h3 class="pipeline-title">Análise especializada</h3>
+        <p class="pipeline-body">Os nós da rede executam em paralelo. Cada um produz a sua leitura no domínio próprio.</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">04 · saída</div>
+        <div class="pipeline-rule"></div>
+        <h3 class="pipeline-title">Saída padronizada</h3>
+        <p class="pipeline-body">Blind Teaser e Sell-Side Pitchbook são gerados com a identidade do escritório que contratou.</p>
+      </div>
+    </div>
+
+    <p class="pipeline-coda"><em>Otto sai de cena no documento final.</em></p>
+  </div>
+
+  <div class="hairline-rule"></div>
+  <footer class="slide-footer">
+    <div>vol. i — fig. 07</div>
+    <div>vii / xiii</div>
+  </footer>
+</section>
+
+<!-- ============================================================
+     SLIDE 8 — MESMA EQUIPE, 4× CAPACIDADE
+     ============================================================ -->
+<section class="slide" data-mode="light" data-slide-num="8" aria-label="Mesma equipe, 4x capacidade">
+  <header class="slide-header">
+    <div>
+      <div class="ink">Otto · rede neural operacional</div>
+      <div>capítulo vii — ganho operacional</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="ink">mmxxvi</div>
+      <div>uma plataforma rr7x capital hub</div>
+    </div>
+  </header>
+  <div class="hairline-rule"></div>
+
+  <div class="slide-body">
+    <div class="eyebrow">capítulo vii · ganho operacional</div>
+    <h2 class="display-headline" style="font-size: 48px;">A mesma equipe.<br>Quatro vezes mais capacidade.</h2>
+
+    <div class="delta-grid">
+      <div class="delta-col delta-trad">
+        <div class="delta-header">sem Otto</div>
+        <ul class="delta-list">
+          <li>40 deals recebidos/mês</li>
+          <li>10 analisados com profundidade real</li>
+          <li>4 mandatos fechados/mês</li>
+          <li>Fee médio R$ 250k–500k/mandato</li>
+          <li>Receita mensal R$ 1M–2M</li>
+          <li>30 deals sem análise — sem retorno</li>
+        </ul>
+      </div>
+
+      <div class="delta-col delta-otto">
+        <div class="delta-header"><span class="ink">com Otto</span> — ganho incremental conservador</div>
+        <ul class="delta-list">
+          <li>40 deals recebidos/mês com profundidade</li>
+          <li>+4 mandatos qualificados identificados/mês</li>
+          <li>Conversão conservadora +2 fechamentos</li>
+          <li>Fee incremental R$ 500k–1M/mês</li>
+          <li>Receita incremental anual R$ 6M–12M</li>
+          <li>ROI positivo no 1º mês de operação</li>
+        </ul>
+      </div>
+
+      <div class="delta-col delta-delta">
+        <div class="delta-header">o delta</div>
+        <ul class="delta-list">
+          <li>Mesma entrada, 4× mais análise</li>
+          <li>+30 análises profundas/mês</li>
+          <li>Zero triagem manual</li>
+          <li>8–12 mandatos qualificados/mês</li>
+          <li>Mesma equipe — 4× capacidade</li>
+          <li>Sem contratação adicional</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="delta-closing">
+      <strong>R$ 6M a R$ 12M</strong> de receita incremental anual. Sem contratar. Sem aumentar custo fixo. Com a mesma equipe que você já tem.
+    </p>
+  </div>
+
+  <div class="hairline-rule"></div>
+  <footer class="slide-footer">
+    <div>vol. i — fig. 08</div>
+    <div>viii / xiii</div>
+  </footer>
+</section>
+
+<!-- ============================================================
+     SLIDE 9 — R$ 6M–12M (editorial big number)
+     ============================================================ -->
+<section class="slide" data-mode="light" data-slide-num="9" aria-label="O número">
+  <header class="slide-header">
+    <div>
+      <div class="ink">Otto · rede neural operacional</div>
+      <div>capítulo viii — o número</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="ink">mmxxvi</div>
+      <div>uma plataforma rr7x capital hub</div>
+    </div>
+  </header>
+  <div class="hairline-rule"></div>
+
+  <div class="slide-body">
+    <div class="big-number-stage">
+      <div class="eyebrow">capítulo viii · o número</div>
+      <div class="big-number">R$ 6M<span class="dash">–</span>12M</div>
+      <div class="big-number-unit">receita incremental anual</div>
+      <p class="big-number-body">
+        <em>O número que fecha a decisão.</em>
+      </p>
+      <p class="big-number-body" style="border-left-color: var(--obsidian); color: var(--obsidian); margin-top: 16px;">
+        Cada mês sem Otto é receita que ficou parada na agenda do analista. Receita real, mensurável, perdida para o concorrente que respondeu primeiro.
+      </p>
+    </div>
+  </div>
+
+  <div class="hairline-rule"></div>
+  <footer class="slide-footer">
+    <div>vol. i — fig. 09</div>
+    <div>ix / xiii</div>
+  </footer>
+</section>
+
+<!-- ============================================================
+     SLIDE 10 — A REDE NEURAL · 9 inteligências (mantido)
+     ============================================================ -->
+<section class="slide" data-mode="light" data-slide-num="10" aria-label="A rede neural">
+  <header class="slide-header">
+    <div>
+      <div class="ink">Otto · rede neural operacional</div>
+      <div>capítulo ix — rede neural</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="ink">mmxxvi</div>
+      <div>uma plataforma rr7x capital hub</div>
+    </div>
+  </header>
+  <div class="hairline-rule"></div>
+
+  <div class="slide-body">
+    <div class="agents-intro">
+      <div class="eyebrow">capítulo ix · rede neural</div>
+      <h2 class="display-headline">Nove inteligências em rede.<br>Um único pipeline.</h2>
+      <p class="agents-strap">
+        Cada inteligência atravessa o ativo com a precisão do seu domínio. As leituras se cruzam. O resultado é um relatório institucional padronizado.
+      </p>
+    </div>
+
+    <div class="agents-blocks">
+
+      <div class="agent-block">
+        <div class="agent-block-header">
+          <span class="label">bloco i — estratégia</span>
+          <span class="num">i</span>
+        </div>
+        <div class="agent-block-stack">
+          <article class="agent">
+            <div class="agent-tag">orquestração · drs</div>
+            <h3 class="agent-name">Otto Orquestra</h3>
+            <p class="agent-role">Calcula o DRS, mapeia riscos materiais e define a estratégia do pipeline.</p>
+          </article>
+          <article class="agent">
+            <div class="agent-tag">mercado</div>
+            <h3 class="agent-name">Pedro Panorama</h3>
+            <p class="agent-role">Viabilidade econômica, cenário setorial e parecer Go / No-Go.</p>
+          </article>
+          <article class="agent">
+            <div class="agent-tag">m&amp;a · valuation</div>
+            <h3 class="agent-name">Arthur Aquisição</h3>
+            <p class="agent-role">Valuation, tese de M&amp;A e estratégia de negociação.</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="agent-block">
+        <div class="agent-block-header">
+          <span class="label">bloco ii — diagnóstico</span>
+          <span class="num">ii</span>
+        </div>
+        <div class="agent-block-stack">
+          <article class="agent">
+            <div class="agent-tag">finanças</div>
+            <h3 class="agent-name">Davi Diagnóstico</h3>
+            <p class="agent-role">Saúde financeira, EBITDA, fluxo de caixa e diagnóstico operacional.</p>
+          </article>
+          <article class="agent">
+            <div class="agent-tag">jurídico</div>
+            <h3 class="agent-name">Clara Cláusula</h3>
+            <p class="agent-role">Riscos legais e documentação necessária — NDA, SHA e LOI.</p>
+          </article>
+          <article class="agent">
+            <div class="agent-tag">crédito estruturado</div>
+            <h3 class="agent-name">Estela Estrutura</h3>
+            <p class="agent-role">Ranking de operações estruturadas aplicáveis ao ativo.</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="agent-block">
+        <div class="agent-block-header">
+          <span class="label">bloco iii — execução</span>
+          <span class="num">iii</span>
+        </div>
+        <div class="agent-block-stack">
+          <article class="agent">
+            <div class="agent-tag">originação</div>
+            <h3 class="agent-name">Victor Valor</h3>
+            <p class="agent-role">Posicionamento de venda e mapeamento do pipeline de compradores.</p>
+          </article>
+          <article class="agent">
+            <div class="agent-tag">maturidade</div>
+            <h3 class="agent-name">Paulo Preparo</h3>
+            <p class="agent-role">Veredicto de maturidade do deal e roadmap de preparação para mercado.</p>
+          </article>
+          <article class="agent">
+            <div class="agent-tag">consolidação</div>
+            <h3 class="agent-name">Rodrigo Relatório</h3>
+            <p class="agent-role">Revisão cruzada entre inteligências e consolidação final de qualidade.</p>
+          </article>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="hairline-rule"></div>
+  <footer class="slide-footer">
+    <div>vol. i — fig. 10</div>
+    <div>x / xiii</div>
+  </footer>
+</section>
+
+<!-- ============================================================
+     SLIDE 11 — OTTO POTENCIALIZA, NÃO SUBSTITUI
+     ============================================================ -->
+<section class="slide" data-mode="light" data-slide-num="11" aria-label="Otto potencializa">
+  <header class="slide-header">
+    <div>
+      <div class="ink">Otto · rede neural operacional</div>
+      <div>capítulo x — posicionamento</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="ink">mmxxvi</div>
+      <div>uma plataforma rr7x capital hub</div>
+    </div>
+  </header>
+  <div class="hairline-rule"></div>
+
+  <div class="slide-body">
+    <div class="eyebrow">capítulo x · posicionamento</div>
+    <h2 class="display-headline" style="font-size: 48px;">Otto potencializa. Nunca substitui.</h2>
+    <p class="solucao-body" style="margin-bottom: 36px;">
+      A decisão final é sempre humana, técnica e profissional.
+    </p>
+
+    <div class="role-grid">
+      <div class="role-col">
+        <div class="role-header"><span class="ink">Otto</span> apoia</div>
+        <ul class="role-list">
+          <li>Organiza informações e dados</li>
+          <li>Cruza dados e identifica padrões</li>
+          <li>Estrutura diagnósticos iniciais</li>
+          <li>Aponta riscos e direcionamentos</li>
+          <li>Gera material para revisão</li>
+          <li>Documenta e sustenta processos</li>
+          <li>Amplia visibilidade operacional</li>
+          <li>Reduz tempo de resposta</li>
+        </ul>
+      </div>
+
+      <div class="role-col role-col--featured">
+        <div class="role-header">o profissional decide</div>
+        <ul class="role-list">
+          <li>Validação técnica e especialista</li>
+          <li>Parecer jurídico e estratégico</li>
+          <li>Negociação de termos e estrutura</li>
+          <li>Julgamento estratégico do deal</li>
+          <li>Responsabilidade profissional</li>
+          <li>Assinatura e aprovação final</li>
+          <li>Relacionamento e captação</li>
+          <li>Construção de tese com o cliente</li>
+        </ul>
+      </div>
+
+      <div class="role-col">
+        <div class="role-header"><span class="ink">Otto</span> não faz</div>
+        <ul class="role-list">
+          <li>Não assina documentos</li>
+          <li>Não valida juridicamente</li>
+          <li>Não emite parecer técnico</li>
+          <li>Não substitui análise especializada</li>
+          <li>Não toma decisões finais</li>
+          <li>Não substitui o cliente</li>
+          <li>Não representa o cliente</li>
+          <li>Não substitui nenhum profissional</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="hairline-rule"></div>
+  <footer class="slide-footer">
+    <div>vol. i — fig. 11</div>
+    <div>xi / xiii</div>
+  </footer>
+</section>
+
+<!-- ============================================================
+     SLIDE 12 — PLANOS (mantido)
+     ============================================================ -->
+<section class="slide" data-mode="light" data-slide-num="12" aria-label="Planos">
+  <header class="slide-header">
+    <div>
+      <div class="ink">Otto · rede neural operacional</div>
+      <div>capítulo xi — contratação</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="ink">mmxxvi</div>
+      <div>uma plataforma rr7x capital hub</div>
+    </div>
+  </header>
+  <div class="hairline-rule"></div>
+
+  <div class="slide-body">
+    <div class="eyebrow">capítulo xi · contratação</div>
+    <h2 class="display-headline">Três modelos<br>de contratação.</h2>
+
+    <div class="plans-grid">
+
+      <article class="plan">
+        <div class="plan-header">
+          <span class="plan-num">i · avulso</span>
+          <span class="plan-billing">por análise</span>
+        </div>
+        <h3 class="plan-title">Pontual</h3>
+        <p class="plan-tagline">Para escritórios com demanda esporádica. Compra de créditos sob demanda, sem comprometimento mensal.</p>
+        <div class="plan-includes-label">o que inclui</div>
+        <ul class="plan-list">
+          <li>Pipeline completo por análise</li>
+          <li>Pitchbook e Teaser white-label</li>
+          <li>Saída institucional padronizada</li>
+          <li>Sem fidelidade contratual</li>
+        </ul>
+        <div class="plan-cta">
+          <span>solicitar proposta</span>
+          <span class="plan-cta-arrow">→</span>
+        </div>
+      </article>
+
+      <article class="plan plan--featured">
+        <div class="plan-header">
+          <span class="plan-num">ii · recorrente</span>
+          <span class="plan-billing">mensal</span>
+        </div>
+        <h3 class="plan-title">Institucional</h3>
+        <p class="plan-tagline">Para escritórios com pipeline contínuo. Análises ilimitadas, equipe completa e calibração com aprendizados do escritório.</p>
+        <div class="plan-includes-label">o que inclui</div>
+        <ul class="plan-list">
+          <li>Análises ilimitadas no período</li>
+          <li>Equipe completa do escritório</li>
+          <li>Calibração com aprendizados do escritório</li>
+          <li>Acesso a novos nós da rede na release</li>
+        </ul>
+        <div class="plan-cta">
+          <span>solicitar proposta</span>
+          <span class="plan-cta-arrow">→</span>
+        </div>
+      </article>
+
+      <article class="plan">
+        <div class="plan-header">
+          <span class="plan-num">iii · enterprise</span>
+          <span class="plan-billing">anual sob medida</span>
+        </div>
+        <h3 class="plan-title">Corporativo</h3>
+        <p class="plan-tagline">Para grupos, holdings e operações de grande porte. Plataforma calibrada e integração com fluxo interno do escritório.</p>
+        <div class="plan-includes-label">o que inclui</div>
+        <ul class="plan-list">
+          <li>Calibração de prompts customizada</li>
+          <li>Treinamento da equipe</li>
+          <li>Integração com fluxo interno</li>
+          <li>Suporte institucional dedicado</li>
+        </ul>
+        <div class="plan-cta">
+          <span>consultar valores</span>
+          <span class="plan-cta-arrow">→</span>
+        </div>
+      </article>
+
+    </div>
+  </div>
+
+  <div class="hairline-rule"></div>
+  <footer class="slide-footer">
+    <div>vol. i — fig. 12</div>
+    <div>xii / xiii</div>
+  </footer>
+</section>
+
+<!-- ============================================================
+     SLIDE 13 — CTA (dark)
+     ============================================================ -->
+<section class="slide" data-mode="dark" data-slide-num="13" aria-label="Fechamento">
+  <header class="slide-header">
+    <div>
+      <div class="ink">Otto · rede neural operacional</div>
+      <div>capítulo xii — próximo passo</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="ink">mmxxvi</div>
+      <div>uma plataforma rr7x capital hub</div>
+    </div>
+  </header>
+  <div class="hairline-rule"></div>
+
+  <div class="slide-body close-stage">
+    <div>
+      <h2 class="close-headline">Para conhecer Otto<span class="em-period"></span></h2>
+    </div>
+    <div class="close-side">
+      <p class="close-strap">
+        Solicite acesso à plataforma. Reservamos uma conversa inicial para entender o contexto do escritório antes de qualquer demonstração.
+      </p>
+      <div class="close-contact">
+        <a href="https://rr7x-portal.vercel.app" target="_blank" rel="noopener">RR7X Portal</a><br>
+        contato @ rr7x . capital
+      </div>
+      <div class="close-attribution">uma plataforma rr7x capital hub</div>
+    </div>
+  </div>
+
+  <div class="hairline-rule"></div>
+  <footer class="slide-footer">
+    <div>vol. i — fig. 13</div>
+    <div>xiii / xiii</div>
+  </footer>
+</section>
+</div><!-- /.deck-stage -->
+
+<div class="hud-counter" aria-live="polite">01 / 13</div>
+<div class="hud-help" id="navHelp">← → · navegar · ⌘P para PDF</div>
+<nav class="hud-progress" aria-label="Navegação por slide">
+  <!-- progress dots injected by JS -->
+</nav>
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const counter = document.querySelector('.hud-counter');
+  const body = document.body;
+  const progress = document.querySelector('.hud-progress');
+  const navHelp = document.getElementById('navHelp');
+  const total = slides.length;
+  let current = 0;
+  let helpFadeTimer = null;
+
+  // Build progress dots
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'hud-dot';
+    dot.setAttribute('aria-label', 'Ir para slide ' + (i + 1));
+    dot.dataset.idx = i;
+    dot.addEventListener('click', () => show(i));
+    progress.appendChild(dot);
+  }
+
+  function show(idx) {
+    if (idx < 0 || idx >= total) return;
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    progress.querySelectorAll('.hud-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+    counter.textContent = String(idx + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+    body.dataset.slideMode = slides[idx].dataset.mode || 'light';
+    current = idx;
+    fadeNavHelp();
+  }
+
+  function fadeNavHelp() {
+    navHelp.classList.remove('fade');
+    clearTimeout(helpFadeTimer);
+    helpFadeTimer = setTimeout(() => navHelp.classList.add('fade'), 4000);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'PageDown':
+      case ' ':
+        if (current < total - 1) show(current + 1);
+        e.preventDefault();
+        break;
+      case 'ArrowLeft':
+      case 'PageUp':
+        if (current > 0) show(current - 1);
+        e.preventDefault();
+        break;
+      case 'Home':
+        show(0);
+        e.preventDefault();
+        break;
+      case 'End':
+        show(total - 1);
+        e.preventDefault();
+        break;
+    }
+
+    // Number keys 1-9 jump to slide; 0 → slide 10
+    if (/^[0-9]$/.test(e.key)) {
+      const n = parseInt(e.key, 10);
+      const target = n === 0 ? 9 : n - 1;
+      if (target < total) show(target);
+    }
+  });
+
+  // Touch swipe (basic)
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) {
+      if (dx < 0 && current < total - 1) show(current + 1);
+      if (dx > 0 && current > 0) show(current - 1);
+    }
+  }, { passive: true });
+
+  // ========================================================
+  // FIT-TO-WINDOW — Canvas 1920×1080 scaled uniformly
+  // ========================================================
+  const SLIDE_W = 1920;
+  const SLIDE_H = 1080;
+  const stage = document.getElementById('deckStage');
+
+  function fitStageToWindow() {
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+    const scaleX = winW / SLIDE_W;
+    const scaleY = winH / SLIDE_H;
+    const scale = Math.min(scaleX, scaleY);
+    stage.style.transform = `scale(${scale})`;
+  }
+
+  window.addEventListener('resize', fitStageToWindow);
+  fitStageToWindow();
+
+  // Initial state
+  show(0);
+})();
+</script>
+
+</body>
+</html>

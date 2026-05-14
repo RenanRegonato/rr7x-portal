@@ -9,6 +9,60 @@ type Metricas = {
   totalAnalises: number
   analisesHoje: number
   porStatus: { concluido: number; processando: number; erro: number }
+  analisePorDia: { date: string; count: number }[]
+}
+
+function DailyChart({ data }: { data: { date: string; count: number }[] }) {
+  const max = Math.max(...data.map(d => d.count), 1)
+  const W   = 560
+  const H   = 80
+  const pad = 4
+  const bw  = Math.floor((W - pad * (data.length + 1)) / data.length)
+
+  return (
+    <div className="bg-surface border border-border rounded-[14px] p-5 shadow-soft-sm">
+      <h2 className="text-[13px] font-semibold mb-4 text-ink">Análises — últimos 14 dias</h2>
+      <svg viewBox={`0 0 ${W} ${H + 20}`} className="w-full" style={{ maxHeight: 110 }}>
+        {data.map((d, i) => {
+          const barH = Math.max(2, Math.round((d.count / max) * H))
+          const x    = pad + i * (bw + pad)
+          const y    = H - barH
+          const isToday = d.date === new Date().toISOString().slice(0, 10)
+          const label = d.date.slice(5) // MM-DD
+          return (
+            <g key={d.date}>
+              <rect
+                x={x} y={y} width={bw} height={barH}
+                rx={3}
+                fill={isToday ? '#c04a2a' : '#e8e2d8'}
+              />
+              {d.count > 0 && (
+                <text
+                  x={x + bw / 2} y={y - 3}
+                  textAnchor="middle"
+                  fontSize={8}
+                  fill="#8a7a68"
+                >
+                  {d.count}
+                </text>
+              )}
+              {(i === 0 || i === 6 || i === 13 || isToday) && (
+                <text
+                  x={x + bw / 2} y={H + 15}
+                  textAnchor="middle"
+                  fontSize={8}
+                  fill={isToday ? '#c04a2a' : '#8a7a68'}
+                  fontWeight={isToday ? 'bold' : 'normal'}
+                >
+                  {label}
+                </text>
+              )}
+            </g>
+          )
+        })}
+      </svg>
+    </div>
+  )
 }
 
 function Card({ label, valor, sub }: { label: string; valor: string | number; sub?: string }) {
@@ -61,7 +115,7 @@ export default function AdminOverview() {
         <Card label="Taxa de ativação" valor={`${m.totalClientes ? Math.round((m.subsAtivas / m.totalClientes) * 100) : 0}%`} sub="clientes com plano" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-surface border border-border rounded-[14px] p-5 shadow-soft-sm">
           <h2 className="text-[13px] font-semibold mb-4 text-ink">Distribuição por plano</h2>
           <div className="space-y-3">
@@ -102,6 +156,8 @@ export default function AdminOverview() {
           </div>
         </div>
       </div>
+
+      {m.analisePorDia && <DailyChart data={m.analisePorDia}/>}
     </div>
   )
 }

@@ -38,5 +38,15 @@ export async function GET() {
     erro: analises?.filter(a => a.status === 'erro').length ?? 0,
   }
 
-  return NextResponse.json({ totalClientes, subsAtivas: subsAtivas.length, porPlano, totalAnalises, analisesHoje, porStatus })
+  // Daily counts for the last 14 days
+  const analisePorDia: { date: string; count: number }[] = []
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    const dateStr = d.toISOString().slice(0, 10)
+    const count   = analises?.filter(a => a.criado_em.slice(0, 10) === dateStr).length ?? 0
+    analisePorDia.push({ date: dateStr, count })
+  }
+
+  return NextResponse.json({ totalClientes, subsAtivas: subsAtivas.length, porPlano, totalAnalises, analisesHoje, porStatus, analisePorDia })
 }

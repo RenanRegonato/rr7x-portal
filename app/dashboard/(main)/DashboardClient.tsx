@@ -53,7 +53,7 @@ function EmptyPipeline({ onStart }: { onStart: () => void }) {
   return (
     <div className="bg-surface border border-border rounded-[14px] shadow-soft-sm overflow-hidden">
       <div className="px-10 py-10 text-center border-b border-border">
-        <div className="w-12 h-12 rounded-[14px] bg-accent-soft border border-accent flex items-center justify-center mx-auto mb-4 font-display italic text-[22px] text-accent-strong">o</div>
+        <img src="/logo/otto-simbolo.svg" alt="Otto" className="w-10 h-10 mx-auto mb-4" />
         <h2 className="font-display text-[22px] font-medium tracking-tight mb-2">Bem-vindo ao Otto</h2>
         <p className="text-[13px] text-ink-2 max-w-sm mx-auto leading-relaxed">
           Análise completa de ativo em 90 minutos. Ative o squad no seu primeiro deal abaixo.

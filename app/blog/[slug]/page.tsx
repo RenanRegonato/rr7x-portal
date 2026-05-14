@@ -166,10 +166,8 @@ export default async function BlogPostPage({
         style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)" }}
       >
         <nav className="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-lp-accent grid place-items-center font-display italic font-normal text-[15px] text-white">o</div>
-            <span className="font-display text-[19px] text-lp-ink tracking-tight">Otto</span>
-            <span className="text-[11px] text-lp-ink-3 uppercase tracking-wide">by RR7x</span>
+          <Link href="/" className="flex items-center">
+            <img src="/logo/otto-horizontal.svg" alt="Otto" className="h-7 w-auto" />
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/blog" className="text-[13px] text-lp-ink-2 hover:text-lp-ink transition-colors">← Blog</Link>
@@ -329,9 +327,8 @@ export default async function BlogPostPage({
       {/* Footer */}
       <footer className="border-t border-lp-border">
         <div className="max-w-[1280px] mx-auto px-6 py-8 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-lp-accent grid place-items-center font-display italic text-[13px] text-white">o</div>
-            <span className="text-[13px] text-lp-ink-2">Otto by RR7x</span>
+          <Link href="/" className="flex items-center">
+            <img src="/logo/otto-horizontal.svg" alt="Otto" className="h-6 w-auto" />
           </Link>
           <p className="text-[12px] text-lp-ink-3">© {new Date().getFullYear()} RR7x Capital Hub</p>
         </div>

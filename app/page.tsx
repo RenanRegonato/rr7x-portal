@@ -713,7 +713,7 @@ export default function LandingPage() {
               <div className="border-b border-lp-border px-5 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-5">
                   <div className="flex items-center gap-1.5">
-                    <div className="w-5 h-5 rounded bg-lp-accent grid place-items-center font-display italic text-[11px] text-white">o</div>
+                    <img src="/logo/otto-simbolo.svg" alt="Otto" className="h-5 w-auto" />
                     <span className="text-[12px] font-medium text-lp-ink">Otto</span>
                   </div>
                   <div className="hidden sm:flex gap-4 text-[11px] text-lp-ink-3">
@@ -1252,10 +1252,8 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
             {/* Brand */}
             <div className="col-span-2">
-              <div className="flex items-center gap-2.5 mb-3">
-                <div className="w-7 h-7 rounded-lg bg-lp-accent grid place-items-center font-display italic font-normal text-[15px] text-white">o</div>
-                <span className="font-display text-[19px] tracking-tight" style={{ color: "#EEF3FF" }}>Otto</span>
-                <span className="text-[11px] tracking-wide uppercase" style={{ color: "#4A6090" }}>by RR7x</span>
+              <div className="mb-3">
+                <img src="/logo/otto-horizontal-dark.svg" alt="Otto" className="h-7 w-auto" />
               </div>
               <p className="text-[12px] leading-relaxed mb-3 max-w-[240px]" style={{ color: "#4A6090" }}>
                 Inteligência operacional para M&amp;A, crédito estruturado e preparação de deals.

@@ -58,12 +58,7 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2.5 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-accent grid place-items-center font-display italic font-semibold text-[18px] text-accent-ink">
-              o
-            </div>
-            <span className="font-display font-medium text-[24px] tracking-tight">Otto</span>
-          </div>
+          <img src="/logo/otto-horizontal.svg" alt="Otto" className="h-9 w-auto mx-auto mb-2" />
           <p className="text-ink-3 text-[13px]">Deal intelligence · RR7x Capital Hub</p>
         </div>
 

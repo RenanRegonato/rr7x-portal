@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
 import { anthropic, MODEL } from '@/lib/anthropic'
 import { readAnalyseDocs, DocReadSummary } from '@/lib/doc-reader'
+import { fetchBCBIndicators } from '@/lib/bcb-data'
+import { fetchCapitalMarketsData, fetchListedComparables, extractSectorKeywords } from '@/lib/cvm-data'
+import { checkCADE, formatCADEForPrompt } from '@/lib/cade-check'
+
+// Steps que recebem extended thinking para raciocínio financeiro mais profundo
+const THINKING_STEPS = new Set(['diagnostico', 'analise_ma', 'estruturacao'])
 
 export const maxDuration = 300
 
@@ -33,6 +39,59 @@ OBRIGATÓRIO:
 - Headings em letras minúsculas (exceto primeira letra e nomes próprios)
 - Terminologia técnica financeira É preservada e encorajada: EBITDA, DRS, M&A, CRI, LCI, CRA, SPE, covenant, due diligence, cap rate, LTV, DSCR, TIR, VPL — estas são o vocabulário correto do mercado, não padrões de IA
 - Tenha posição quando os dados sustentam uma; não neutralize artificialmente análises que apontam para uma conclusão clara`
+
+async function saveAuditLog(
+  admin: ReturnType<typeof createAdminClient>,
+  params: {
+    analiseId:     string
+    stepKey:       string
+    modelId:       string
+    inputTokens:   number
+    outputTokens:  number
+    intakeSnapshot: Record<string, string>
+    contextSteps:  string[]
+    externalData:  Record<string, boolean>
+    startedAt:     number
+  }
+): Promise<void> {
+  try {
+    await admin.from('deal_step_audit_logs').insert({
+      analise_id:      params.analiseId,
+      step_key:        params.stepKey,
+      model_id:        params.modelId,
+      input_tokens:    params.inputTokens,
+      output_tokens:   params.outputTokens,
+      intake_snapshot: params.intakeSnapshot,
+      context_steps:   params.contextSteps,
+      external_data:   params.externalData,
+      duration_ms:     Date.now() - params.startedAt,
+    })
+  } catch (e) {
+    console.error('[saveAuditLog]', e)
+  }
+}
+
+async function saveOutputVersion(admin: ReturnType<typeof createAdminClient>, analiseId: string, stepKey: string, content: string): Promise<void> {
+  try {
+    const { data: existing } = await admin
+      .from('deal_output_versions')
+      .select('version_num')
+      .eq('analise_id', analiseId)
+      .eq('step_key', stepKey)
+      .order('version_num', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    const nextVersion = (existing?.version_num ?? 0) + 1
+    await admin.from('deal_output_versions').insert({
+      analise_id:  analiseId,
+      step_key:    stepKey,
+      version_num: nextVersion,
+      content,
+    })
+  } catch (e) {
+    console.error('[saveOutputVersion]', e)
+  }
+}
 
 async function loadPrompts(): Promise<Record<string, string>> {
   try {
@@ -137,29 +196,28 @@ function formatIntake(intake: Record<string, string>): string {
 }
 
 function buildAllOutputs(outputs: Record<string, string>): string {
-  const order = ['drive_intake', 'orchestration', 'pesquisa', 'diagnostico', 'analise_ma', 'contratos', 'originacao', 'estruturacao', 'maturidade', 'revisao']
+  const order = ['drive_intake', 'orchestration', 'pesquisa', 'diagnostico', 'kyc', 'analise_ma', 'contratos', 'originacao', 'estruturacao', 'maturidade']
   const labels: Record<string, string> = {
     drive_intake: 'INGESTÃO DE DADOS', orchestration: 'ORQUESTRAÇÃO', pesquisa: 'PESQUISA',
-    diagnostico: 'DIAGNÓSTICO', analise_ma: 'ANÁLISE M&A', contratos: 'CONTRATOS',
-    originacao: 'ORIGINAÇÃO', estruturacao: 'ESTRUTURAÇÃO', maturidade: 'MATURIDADE', revisao: 'REVISÃO',
+    diagnostico: 'DIAGNÓSTICO', kyc: 'COMPLIANCE KYC', analise_ma: 'ANÁLISE M&A', contratos: 'CONTRATOS',
+    originacao: 'ORIGINAÇÃO', estruturacao: 'ESTRUTURAÇÃO', maturidade: 'MATURIDADE',
   }
   return order.filter(k => outputs[k]).map(k => `${labels[k]}:\n${outputs[k]}`).join('\n\n')
 }
 
 function buildAllOutputsForReport(outputs: Record<string, string>): string {
   const all = [
-    { key: 'drive_intake',        label: 'INGESTÃO DE DADOS — Diagnóstico Documental' },
-    { key: 'orchestration',       label: 'ORQUESTRAÇÃO — Otto Orquestra (Deal Orchestrator)' },
-    { key: 'pesquisa',            label: 'PESQUISA MERCADOLÓGICA — Pedro Panorama (Market Intelligence)' },
-    { key: 'diagnostico',         label: 'DIAGNÓSTICO FINANCEIRO — Davi Diagnóstico (Financial Diagnostician)' },
-    { key: 'analise_ma',          label: 'ANÁLISE DE M&A — Arthur Aquisição (M&A Architect)' },
-    { key: 'contratos',           label: 'ANÁLISE CONTRATUAL — Clara Cláusula (Contracts Specialist)' },
-    { key: 'originacao',          label: 'VENDA & ORIGINAÇÃO — Victor Valor (Deal Originator)' },
-    { key: 'estruturacao',        label: 'ESTRUTURAÇÃO OPERACIONAL — Estela Estrutura (Operations Advisor)' },
-    { key: 'maturidade',          label: 'VEREDICTO DE MATURIDADE — Paulo Preparo (Deal Readiness Coach)' },
-    { key: 'revisao',             label: 'REVISÃO FINAL — Rodrigo Relatório (Quality Reviewer)' },
-    { key: 'blind_teaser',        label: 'BLIND TEASER' },
-    { key: 'sell_side_pitchbook', label: 'SELL-SIDE PITCHBOOK' },
+    { key: 'drive_intake',   label: 'INGESTÃO DE DADOS — Diagnóstico Documental' },
+    { key: 'orchestration',  label: 'ORQUESTRAÇÃO — Otto Orquestra (Deal Orchestrator)' },
+    { key: 'pesquisa',       label: 'PESQUISA MERCADOLÓGICA — Pedro Panorama (Market Intelligence)' },
+    { key: 'diagnostico',    label: 'DIAGNÓSTICO FINANCEIRO — Davi Diagnóstico (Financial Diagnostician)' },
+    { key: 'kyc',            label: 'COMPLIANCE KYC — Carmen Compliance (KYC & Compliance Analyst)' },
+    { key: 'analise_ma',     label: 'ANÁLISE DE M&A — Arthur Aquisição (M&A Architect)' },
+    { key: 'contratos',      label: 'ANÁLISE CONTRATUAL — Clara Cláusula (Contracts Specialist)' },
+    { key: 'originacao',     label: 'VENDA & ORIGINAÇÃO — Victor Valor (Deal Originator)' },
+    { key: 'estruturacao',   label: 'ESTRUTURAÇÃO OPERACIONAL — Estela Estrutura (Operations Advisor)' },
+    { key: 'maturidade',     label: 'VEREDICTO DE MATURIDADE — Paulo Preparo (Deal Readiness Coach)' },
+    { key: 'revisao',        label: 'REVISÃO FINAL — Rodrigo Relatório (Quality Reviewer)' },
   ]
   const available = all.filter(({ key }) => outputs[key])
   const missing   = all.filter(({ key }) => !outputs[key])
@@ -175,9 +233,11 @@ function buildAllOutputsForReport(outputs: Record<string, string>): string {
 }
 
 type ContentBlock =
-  | { type: 'text'; text: string }
+  | { type: 'text'; text: string; cache_control?: { type: 'ephemeral' } }
   | { type: 'image'; source: { type: 'base64'; media_type: string; data: string } }
   | { type: 'document'; source: { type: 'base64'; media_type: string; data: string } }
+
+type SystemBlock = { type: 'text'; text: string; cache_control?: { type: 'ephemeral' } }
 
 function buildDocIntakeContent(summary: DocReadSummary, intakeStr: string): ContentBlock[] {
   const blocks: ContentBlock[] = []
@@ -227,123 +287,236 @@ Os documentos seguem abaixo (PDFs, imagens e textos). Analise o conteúdo real d
   return blocks
 }
 
-function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, escritorioBlock = '', feedbackBlock = ''): { system: string; user: string } | null {
-  const msg = (key: string, fallback: string) => (prompts[key] || fallback) + HUMANIZER_DIRECTIVE + feedbackBlock
+function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, escritorioBlock = '', feedbackBlock = '', bcbData = '', cvmCapital = '', cvmComps = '', intake: Record<string, string> = {}): { system: SystemBlock[]; user: string | ContentBlock[] } | null {
+  // HUMANIZER_DIRECTIVE como primeiro bloco de sistema: prefixo estável compartilhado por
+  // TODOS os agentes e TODAS as análises → máximo de cache hit na API Anthropic.
+  // Cada análise paga o custo de leitura do HUMANIZER_DIRECTIVE apenas na primeira chamada;
+  // as demais (paralelas ou de outros usuários) lêem do cache.
+  const humanizerBlock: SystemBlock = { type: 'text', text: HUMANIZER_DIRECTIVE, cache_control: { type: 'ephemeral' } }
+
+  // Segundo bloco: prompt específico do agente + feedbackBlock do escritório (cacheado por agente/escritório)
+  function sysBlocks(agentPrompt: string): SystemBlock[] {
+    return [
+      humanizerBlock,
+      { type: 'text', text: agentPrompt + feedbackBlock, cache_control: { type: 'ephemeral' } },
+    ]
+  }
+
+  // Contexto compartilhado pelos 6 agentes paralelos: ingestão + orquestração.
+  // Colocado PRIMEIRO no user content como bloco cacheado — todos os agentes paralelos
+  // compartilham o mesmo prefixo, reduzindo tokens em retries e rechamadas.
+  const docsContextText = [
+    outputs['drive_intake']  ? `INGESTÃO DE DOCUMENTOS (o que foi lido e extraído dos arquivos enviados):\n${outputs['drive_intake']}` : '',
+    outputs['orchestration'] ? `ORQUESTRAÇÃO / DRS:\n${outputs['orchestration']}` : '',
+  ].filter(Boolean).join('\n\n---\n\n')
+
+  const sharedContextBlock: ContentBlock | null = docsContextText
+    ? { type: 'text', text: `DEAL INTAKE:\n${intakeStr}\n\n---\n\n${docsContextText}`, cache_control: { type: 'ephemeral' } }
+    : null
+
+  // Para agentes paralelos: user content = [bloco cacheado compartilhado, instrução específica do agente]
+  function parallelUser(instruction: string): ContentBlock[] {
+    if (sharedContextBlock) {
+      return [sharedContextBlock, { type: 'text', text: instruction }]
+    }
+    return [{ type: 'text', text: `${instruction}\n\nDEAL INTAKE:\n${intakeStr}` }]
+  }
+
+  // Para documentos de captação (blind_teaser + sell_side_pitchbook): bloco cacheado compartilhado
+  // Os dois rodam em Promise.all — o mesmo prefixo é cacheado e lido pelos dois sem custo duplo.
+  const sharedCaptacaoBlock: ContentBlock | null = allOutputs
+    ? { type: 'text', text: `DEAL INTAKE:\n${intakeStr}\n\n---\n\nANÁLISES DOS ESPECIALISTAS:\n${allOutputs}`, cache_control: { type: 'ephemeral' } }
+    : null
+
+  function captacaoUser(instruction: string): ContentBlock[] {
+    if (sharedCaptacaoBlock) {
+      return [sharedCaptacaoBlock, { type: 'text', text: instruction + escritorioBlock }]
+    }
+    return [{ type: 'text', text: `${instruction}\n\nDEAL INTAKE:\n${intakeStr}${escritorioBlock}` }]
+  }
+
   switch (step) {
     case 'orchestration':
       return {
-        system: msg('orquestrador', 'Você é Otto Orquestra, Deal Orchestrator da RR7x Capital Hub. Calcule o DRS, mapeie riscos e defina o próximo passo estratégico.'),
-        user: `Analise este deal intake e produza o diagnóstico completo:\n\n${intakeStr}`,
+        system: sysBlocks(prompts['orquestrador'] || 'Você é Otto Orquestra, Deal Orchestrator da RR7x Capital Hub. Calcule o DRS, mapeie riscos e defina o próximo passo estratégico.'),
+        user: outputs['drive_intake']
+          ? `Analise este deal intake e produza o diagnóstico completo:\n\n${intakeStr}\n\n---\nINGESTÃO DE DOCUMENTOS:\n${outputs['drive_intake']}`
+          : `Analise este deal intake e produza o diagnóstico completo:\n\n${intakeStr}`,
       }
     case 'pesquisa':
       return {
-        system: msg('pesquisador', 'Você é Pedro Panorama, Market Intelligence Analyst da RR7x Capital Hub. Produza um Estudo de Viabilidade Econômica com veredicto Go/No-Go.'),
-        user: `Produza a pesquisa mercadológica completa para este ativo:\n\n${intakeStr}`,
+        system: sysBlocks(prompts['pesquisador'] || 'Você é Pedro Panorama, Market Intelligence Analyst da RR7x Capital Hub. Produza inteligência de mercado rigorosa: mapeamento setorial, benchmarks, múltiplos de transação e posição de mercado para a operação proposta. Não emita veredicto de aptidão sobre o deal — isso cabe ao Orchestrator (DRS) e ao Deal Readiness Coach (Maturidade). Sua função é dados externos e contexto setorial.'),
+        user: parallelUser(`Produza a pesquisa mercadológica completa para este ativo.${bcbData}${cvmComps}`),
       }
+    case 'kyc': {
+      const cadeCheck   = checkCADE(intake)
+      const cadeContext = formatCADEForPrompt(cadeCheck)
+      return {
+        system: sysBlocks(prompts['kyc'] || 'Você é Carmen Compliance, KYC & Compliance Analyst da RR7x Capital Hub. Realize o screening de conformidade, KYC e red flags regulatórios do deal.'),
+        user: parallelUser(`Realize o screening de compliance e KYC completo para este deal.${cadeContext}`),
+      }
+    }
     case 'diagnostico':
       return {
-        system: msg('diagnosticador', 'Você é Davi Diagnóstico, Financial Diagnostician da RR7x Capital Hub. Diagnostique a saúde financeira e recomende a estrutura de operação.'),
-        user: `Produza o diagnóstico financeiro completo para este ativo:\n\n${intakeStr}`,
+        system: sysBlocks(prompts['diagnosticador'] || 'Você é Davi Diagnóstico, Financial Diagnostician da RR7x Capital Hub. Diagnostique a saúde financeira e recomende a estrutura de operação.'),
+        user: parallelUser('Produza o diagnóstico financeiro completo para este ativo.'),
       }
     case 'analise_ma':
       return {
-        system: msg('arquiteto_ma', 'Você é Arthur Aquisição, M&A Architect da RR7x Capital Hub. Construa o valuation, articule a tese e defina a estratégia de negociação.'),
-        user: `Produza a análise de M&A completa para este ativo:\n\n${intakeStr}`,
+        system: sysBlocks(prompts['arquiteto_ma'] || 'Você é Arthur Aquisição, M&A Architect da RR7x Capital Hub. Construa o valuation, articule a tese e defina a estratégia de negociação.'),
+        user: parallelUser('Produza a análise de M&A completa para este ativo.'),
       }
     case 'contratos':
       return {
-        system: msg('contratualista', 'Você é Clara Cláusula, Contracts Specialist da RR7x Capital Hub. Mapeie riscos jurídicos e recomende a documentação necessária.'),
-        user: `Produza a análise contratual completa para este ativo:\n\n${intakeStr}`,
+        system: sysBlocks(prompts['contratualista'] || 'Você é Clara Cláusula, Contracts Specialist da RR7x Capital Hub. Mapeie riscos jurídicos e recomende a documentação necessária.'),
+        user: parallelUser('Produza a análise contratual completa para este ativo.'),
       }
     case 'originacao':
       return {
-        system: msg('originador', 'Você é Victor Valor, Deal Originator da RR7x Capital Hub. Estruture o posicionamento comercial e o pipeline de compradores.'),
-        user: `Produza a estratégia de venda e originação para este ativo:\n\n${intakeStr}`,
+        system: sysBlocks(prompts['originador'] || 'Você é Victor Valor, Deal Originator da RR7x Capital Hub. Estruture o posicionamento comercial, o perfil de compradores-alvo e o pipeline de originação. Sua entrega é estratégia e inteligência comercial — os documentos finais (Blind Teaser, Pitchbook) são produzidos por agentes dedicados que usam seu output como insumo.'),
+        user: parallelUser('Produza a estratégia de venda e originação para este ativo.'),
       }
     case 'estruturacao':
       return {
-        system: msg('estruturador', 'Você é Estela Estrutura, Operation Structure Advisor da RR7x Capital Hub. Mapeie as operações financeiras e prescreva as melhores.'),
-        user: `Produza a estruturação operacional completa para este ativo:\n\n${intakeStr}`,
+        system: sysBlocks(prompts['estruturador'] || 'Você é Estela Estrutura, Operation Structure Advisor da RR7x Capital Hub. Mapeie as operações financeiras e prescreva as melhores.'),
+        user: parallelUser(`Produza a estruturação operacional completa para este ativo.${bcbData}${cvmCapital}`),
       }
     case 'maturidade':
       return {
-        system: msg('preparador', 'Você é Paulo Preparo, Deal Readiness Coach da RR7x Capital Hub. Emita o Veredicto de Maturidade definitivo e o plano de preparação.'),
+        system: sysBlocks(prompts['preparador'] || 'Você é Paulo Preparo, Deal Readiness Coach da RR7x Capital Hub. Emita o Veredicto de Maturidade definitivo e o plano de preparação.'),
         user: `Com base em todos os outputs dos especialistas abaixo, emita o Veredicto de Maturidade:\n\n${allOutputs}`,
       }
     case 'revisao':
       return {
-        system: msg('revisor', 'Você é Rodrigo Relatório, Quality Reviewer da RR7x Capital Hub. Verifique coerência, completude e consistência entre todos os outputs.'),
+        system: sysBlocks(prompts['revisor'] || 'Você é Rodrigo Relatório, Quality Reviewer da RR7x Capital Hub. Verifique coerência, completude e consistência entre todos os outputs.'),
         user: `Revise a coerência e qualidade de todos os outputs:\n\n${allOutputs}`,
       }
     case 'blind_teaser':
       return {
-        system: msg('blind_teaser', `Você é um especialista em comunicação de M&A. Gere um Blind Teaser profissional sem revelar o nome do ativo.
+        system: sysBlocks(prompts['blind_teaser'] || `Você é um especialista em comunicação de M&A da RR7x Capital Hub. Produza um Blind Teaser profissional de 1-2 páginas sem revelar nome, CNPJ ou qualquer dado identificador do ativo.
+
+ESTRUTURA DO BLIND TEASER:
+- Cabeçalho com logo e dados do escritório emissor
+- Headline: proposta de valor do deal em 1 frase
+- Visão geral do ativo (setor, localização, porte — sem identificar)
+- Principais métricas financeiras (ticket, EBITDA, receita — anonimizados)
+- Tese de investimento: por que este ativo é atrativo
+- Perfil do comprador / investidor ideal
+- Próximos passos e contato do escritório
+- Rodapé com dados de contato do escritório
 
 IDENTIDADE DO DOCUMENTO:
-- Os dados do escritório / assessoria estão no campo "DADOS DO ESCRITÓRIO" da mensagem do usuário
-- Use o nome do escritório como emissor do documento em todos os cabeçalhos, rodapés e assinaturas — nunca use "RR7x Capital Hub"
-- Se uma Logo URL estiver disponível, inclua no topo: ![Logo](url)
-- Use o email, telefone e site do escritório no rodapé de cada página
-- Se não houver dados de escritório, use apenas "Assessoria Confidencial" como emissor`),
-        user: `Gere o Blind Teaser:\n\nDEAL INTAKE:\n${intakeStr}\n\nOUTPUTS:\n${allOutputs}${escritorioBlock}`,
+- Use o nome do escritório (campo DADOS DO ESCRITÓRIO) como emissor — nunca "RR7x Capital Hub"
+- Se Logo URL disponível, inclua: ![Logo](url) no topo
+- Se não houver dados de escritório: use "Assessoria Confidencial"
+- Email, telefone e site do escritório no rodapé
+
+TOM: documento profissional de mercado financeiro — objetivo, direto, sem linguagem de marketing barata.`),
+        user: captacaoUser('Gere o Blind Teaser completo baseado nas análises acima.'),
       }
     case 'sell_side_pitchbook':
       return {
-        system: msg('sell_side_pitchbook', `Você é um especialista em documentos de captação. Gere um Sell-Side Pitchbook completo e profissional.
+        system: sysBlocks(prompts['sell_side_pitchbook'] || `Você é um especialista em documentos de captação da RR7x Capital Hub. Produza um Sell-Side Pitchbook completo, detalhado e profissional.
+
+ESTRUTURA DO SELL-SIDE PITCHBOOK:
+1. Capa com logo e dados do escritório
+2. Sumário executivo do deal
+3. Descrição completa do ativo (setor, modelo de negócio, histórico)
+4. Análise financeira: receitas, EBITDA, margens, valuation range
+5. Tese de M&A: por que comprar/investir neste ativo agora
+6. Análise de mercado e posicionamento competitivo
+7. Estrutura da transação proposta e condições
+8. Perfil de compradores / investidores ideais
+9. Riscos e mitigações
+10. Timeline da operação e próximos passos
+11. Apêndices com dados de suporte
 
 IDENTIDADE DO DOCUMENTO:
-- Os dados do escritório / assessoria estão no campo "DADOS DO ESCRITÓRIO" da mensagem do usuário
-- Use o nome do escritório como emissor do documento em todos os cabeçalhos, rodapés e assinaturas — nunca use "RR7x Capital Hub"
-- Se uma Logo URL estiver disponível, inclua no topo: ![Logo](url)
-- Use o email, telefone e site do escritório no rodapé de cada página
-- Se não houver dados de escritório, use apenas "Assessoria Confidencial" como emissor`),
-        user: `Gere o Sell-Side Pitchbook:\n\nDEAL INTAKE:\n${intakeStr}\n\nOUTPUTS:\n${allOutputs}${escritorioBlock}`,
+- Use o nome do escritório (campo DADOS DO ESCRITÓRIO) como emissor — nunca "RR7x Capital Hub"
+- Se Logo URL disponível, inclua: ![Logo](url) no topo
+- Se não houver dados de escritório: use "Assessoria Confidencial"
+- Email, telefone e site do escritório no rodapé de cada seção
+
+TOM: documento de alto nível para sofisticados — fundos de PE, family offices, estratégicos. Direto, com dados factuais, sem exageros comerciais.`),
+        user: captacaoUser('Gere o Sell-Side Pitchbook completo baseado nas análises acima.'),
       }
     case 'relatorio_consolidado': {
       const allForReport = buildAllOutputsForReport(outputs)
+      const defaultRelatorioSystem = `Você é o Chief Intelligence Analyst da RR7x Capital Hub. Sua função é produzir o relatório estratégico executivo que integra e cross-referencia todas as análises especializadas do squad em um documento único, acionável e sem redundâncias.
+
+Este relatório é o documento que o assessor usa para tomar decisões e apresentar ao cliente ou investidor. Cada seção deve conter inteligência nova — síntese cross-dimensional, contradições identificadas, priorização executiva — não reproduzir o que os especialistas já escreveram.
+
+PRINCÍPIO CENTRAL: Se você está apenas resumindo o que Pedro ou Arthur já escreveu, está desperdiçando espaço e degradando a qualidade do relatório. Produza síntese, não sumarização.
+
+Esta análise pode estar incompleta. Trabalhe com os dados disponíveis e indique lacunas quando relevante. Nunca recuse gerar o relatório por falta de dados — adapte o nível de confiança da avaliação.`
+
       return {
-        system: `Você é o Chief Intelligence Analyst da RR7x Capital Hub. Sua função é consolidar e sintetizar as análises dos especialistas em um único relatório estratégico executivo.
+        system: sysBlocks(prompts['relatorio_consolidado'] || defaultRelatorioSystem),
+        user: `Produza o Relatório Consolidado Estratégico com EXATAMENTE estas 5 seções:
 
-IMPORTANTE: Esta análise pode estar incompleta. Trabalhe com os dados disponíveis e indique claramente as lacunas quando relevante. Seu objetivo é sempre gerar inteligência acionável, mesmo com dados parciais. Nunca recuse gerar o relatório por falta de dados — adapte o nível de confiança da avaliação.` + HUMANIZER_DIRECTIVE,
-        user: `Com base no deal intake e nas análises disponíveis abaixo, gere o Relatório Consolidado completo com EXATAMENTE estas 5 seções:
+## 1. DIAGNÓSTICO EXECUTIVO
 
-## 1. RESUMO EXECUTIVO GERAL
-- Diagnóstico geral do ativo (2-3 parágrafos objetivos)
-- Nível de maturidade da operação
-- Principais pontos fortes identificados
-- Principais riscos identificados
-- **VEREDITO**: Apto para captação / Não apto / Precisa de ajustes (com justificativa clara e objetiva)
+ANTES de escrever, faça internamente uma auditoria de consistência:
+- Quais dados dos agentes se contradizem ou são incompatíveis?
+- Quais lacunas críticas impedem avaliação completa?
+- O que os documentos revelam que diverge do deal intake declarado?
+Incorpore esses achados aqui e na Seção 3.
 
-## 2. RESUMO POR AGENTE
-Para cada agente com dados disponíveis, apresente em formato estruturado:
-- O que foi analisado
-- Principais insights
-- Problemas identificados
-- Recomendações práticas
+Escreva:
+- Caracterização objetiva do ativo e da operação proposta (1 parágrafo factual — sem floreio)
+- Síntese cross-dimensional: como os achados financeiros, mercadológicos, jurídicos e estratégicos se conectam e se afetam mutuamente — não liste agentes, cruze dimensões
+- Veredicto de Maturidade: extraia e cite o veredicto exato do Paulo Preparo (se disponível) com a justificativa central — não o recalcule
+- Os 3-4 fatores determinantes para o sucesso ou fracasso desta operação específica
 
-(Se um agente não possui dados, indique brevemente e prossiga.)
+## 2. DIAGNÓSTICO POR DIMENSÃO
 
-## 3. ANÁLISE CRÍTICA CONSOLIDADA
-- Cruzamento das análises dos agentes disponíveis
-- Inconsistências ou contradições detectadas entre os relatórios
-- Lacunas de informação que impedem avaliação completa
-- Pontos críticos que travam uma captação ou M&A
+Para cada dimensão: 3-5 bullets com dado concreto + implicação direta para a operação.
+NÃO resuma o relatório do agente — extraia os achados que o assessor precisa saber para decidir.
+Formato: [dado ou achado] → [implicação para a operação]
 
-## 4. PLANO DE AÇÃO SUGERIDO
-### Itens Críticos (bloqueantes — resolver antes de qualquer coisa)
-### Quick Wins (resolução em até 30 dias)
-### Ajustes Estruturais (resolução em 60-180 dias)
+**Dimensão financeira** (Davi Diagnóstico + Ingestão de Dados)
+**Dimensão mercadológica** (Pedro Panorama)
+**Dimensão jurídico-contratual** (Clara Cláusula)
+**Dimensão estratégica** (Arthur Aquisição + Estela Estrutura)
+**Dimensão comercial** (Victor Valor)
 
-## 5. SCORE GERAL DO ATIVO
-- **Nota geral: X/10**
-- Score por dimensão (X/10 cada):
-  - Viabilidade de Mercado
-  - Saúde Financeira
-  - Risco Jurídico-Contratual
-  - Maturidade para M&A/Captação
-  - Posicionamento Comercial
-- Critérios e premissas utilizados
-- Recomendação final para o assessor/investidor
+Se uma dimensão não tem dados disponíveis: declare "Sem dados disponíveis — risco de avaliação incompleta nesta dimensão."
+
+## 3. ANÁLISE CRÍTICA CROSS-DIMENSIONAL
+
+Produza APENAS achados que não existem em nenhum relatório individual — apenas o que emerge do cruzamento:
+- Contradições entre agentes (cite os agentes conflitantes e o dado específico)
+- Dados que se invalidam mutuamente
+- Lacunas que nenhum agente cobriu mas que impactam materialmente a operação
+- Riscos ocultos que só aparecem na intersecção das análises
+- Inconsistências entre o deal intake declarado e o que os documentos/análises revelam
+
+Se não há contradições materiais: declare explicitamente. Não invente conflitos.
+
+## 4. PRIORIZAÇÃO EXECUTIVA
+
+Com base no Veredicto de Maturidade (Paulo Preparo) e nos achados das seções anteriores:
+
+**Bloqueantes imediatos** (o que impede a operação de avançar hoje):
+Para cada item: O que é | Por que bloqueia | Quem resolve | Prazo realista
+
+**Complementos ao roadmap do Paulo** (gaps que o Paulo não mapeou, visão cross-agente):
+Liste apenas se existirem. NÃO repita o que Paulo já mapeou.
+
+**Alerta de risco oculto** (máx. 2):
+Riscos que emergem somente da visão cruzada — que nenhum agente identificou isoladamente.
+
+## 5. DIAGNÓSTICO DE RISCO EXECUTIVO
+
+NÃO recalcule score. O DRS já foi calculado pelo Orchestrator (Otto Orquestra).
+
+**Deal Readiness Score (DRS):** extraia o valor exato do relatório de Orquestração. Se não disponível: declare ausência.
+
+**Riscos executivos materiais** (4-5 riscos, formato tabular):
+| Risco | Probabilidade | Impacto na operação | Mitigação disponível |
+
+**Recomendação final ao assessor** (2-3 frases diretas, sem platitude):
+Qual a ação concreta da próxima semana para avançar este deal ou decidir não avançar.
 
 ---
 DEAL INTAKE:
@@ -378,11 +551,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const intake = analise.deal_intake as Record<string, string>
     const outputs = (analise.outputs ?? {}) as Record<string, string>
-    const [prompts, escritorioData] = await Promise.all([loadPrompts(), loadEscritorio(analise.user_id)])
+    const sectorKeywords = extractSectorKeywords(
+      intake.tipoAtivo ?? '',
+      intake.resumoAtivo ?? ''
+    )
+
+    const [prompts, escritorioData, bcbData, cvmCapital, cvmComps] = await Promise.all([
+      loadPrompts(),
+      loadEscritorio(analise.user_id),
+      (step === 'pesquisa' || step === 'estruturacao') ? fetchBCBIndicators() : Promise.resolve(''),
+      step === 'estruturacao' ? fetchCapitalMarketsData(sectorKeywords)  : Promise.resolve(''),
+      step === 'pesquisa'     ? fetchListedComparables(sectorKeywords)   : Promise.resolve(''),
+    ])
     const escritorioBlock = escritorioData.block
     const feedbackBlock   = await loadFeedbacks(escritorioData.escritorioId)
     const intakeStr    = formatIntake(intake)
     const allOutputs   = buildAllOutputs(outputs)
+
+    const stepStartedAt  = Date.now()
+    const contextSteps   = Object.keys(outputs).filter((k) => outputs[k])
+    const externalData   = { bcb: !!bcbData, cvmCapital: !!cvmCapital, cvmComps: !!cvmComps }
 
     let fullText = ''
 
@@ -390,16 +578,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (step === 'drive_intake') {
       const summary = await readAnalyseDocs(analise.user_id, id)
       const userContent = buildDocIntakeContent(summary, intakeStr)
-      const systemPrompt = (prompts['doc_intake'] || `Você é o Agente de Ingestão de Dados da RR7x Capital Hub. Leia os documentos enviados e produza um diagnóstico documental detalhado: o que foi lido, o que cada documento revela sobre o ativo, lacunas identificadas e nível de confiança para a análise.
+      const docIntakeSystem: SystemBlock[] = [
+        { type: 'text', text: HUMANIZER_DIRECTIVE, cache_control: { type: 'ephemeral' } },
+        {
+          type: 'text',
+          text: (prompts['doc_intake'] || `Você é o Agente de Ingestão de Dados da RR7x Capital Hub. Leia os documentos enviados e produza um diagnóstico documental detalhado: o que foi lido, o que cada documento revela sobre o ativo, lacunas identificadas e nível de confiança para a análise.
 
-Seja completamente honesto: se um documento não pôde ser lido, diga claramente. Se foi lido, extraia e destaque as informações mais relevantes — números, datas, estrutura societária, indicadores financeiros, cláusulas contratuais relevantes, qualquer dado concreto disponível. O assessor precisa saber exatamente o que o sistema ingeriu para calibrar a análise.`) + HUMANIZER_DIRECTIVE + feedbackBlock
+Seja completamente honesto: se um documento não pôde ser lido, diga claramente. Se foi lido, extraia e destaque as informações mais relevantes — números, datas, estrutura societária, indicadores financeiros, cláusulas contratuais relevantes, qualquer dado concreto disponível. O assessor precisa saber exatamente o que o sistema ingeriu para calibrar a análise.`) + feedbackBlock,
+          cache_control: { type: 'ephemeral' },
+        },
+      ]
 
       const readable = new ReadableStream({
         start(controller) {
           const messageStream = anthropic.messages.stream({
             model: MODEL,
             max_tokens: 10000,
-            system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
+            system: docIntakeSystem as any,
             messages: [{ role: 'user', content: userContent as any }],
           })
 
@@ -408,17 +603,37 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
             controller.enqueue(new TextEncoder().encode(text))
           })
 
-          messageStream.on('finalMessage', async () => {
-            const newOutputs = { ...outputs, [step]: fullText }
-            await admin.from('analises').update({
-              outputs: newOutputs,
-              atualizado_em: new Date().toISOString(),
-            }).eq('id', id)
-            controller.close()
+          messageStream.on('finalMessage', (msg) => {
+            void (async () => {
+              const { data: latest } = await admin.from('analises').select('outputs').eq('id', id).single()
+              const latestOutputs = (latest?.outputs ?? outputs) as Record<string, string>
+              await Promise.all([
+                admin.from('analises').update({
+                  outputs: { ...latestOutputs, [step]: fullText },
+                  atualizado_em: new Date().toISOString(),
+                }).eq('id', id),
+                saveOutputVersion(admin, id, step, fullText),
+                saveAuditLog(admin, {
+                  analiseId:      id,
+                  stepKey:        step,
+                  modelId:        MODEL,
+                  inputTokens:    msg.usage?.input_tokens  ?? 0,
+                  outputTokens:   msg.usage?.output_tokens ?? 0,
+                  intakeSnapshot: intake,
+                  contextSteps,
+                  externalData,
+                  startedAt:      stepStartedAt,
+                }),
+              ])
+              controller.close()
+            })().catch(() => controller.close())
           })
 
           messageStream.on('error', (err: Error) => {
-            controller.error(err)
+            try {
+              controller.enqueue(new TextEncoder().encode(`\x00ERROR:${err.message}`))
+              controller.close()
+            } catch { /* stream já fechado */ }
           })
         },
       })
@@ -433,30 +648,53 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
     }
 
     // Todos os outros steps
-    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock, feedbackBlock)
+    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock, feedbackBlock, bcbData, cvmCapital, cvmComps, intake)
     if (!args) return NextResponse.json({ error: 'Step inválido' }, { status: 400 })
+
+    const useThinking = THINKING_STEPS.has(step)
 
     const readable = new ReadableStream({
       start(controller) {
-        const messageStream = anthropic.messages.stream({
-          model: MODEL,
-          max_tokens: 10000,
-          system: [{ type: 'text', text: args.system, cache_control: { type: 'ephemeral' } }],
-          messages: [{ role: 'user', content: args.user }],
-        })
+        const streamParams: any = {
+          model:      MODEL,
+          max_tokens: useThinking ? 16000 : 10000,
+          system:     args.system as any,
+          messages:   [{ role: 'user', content: args.user as any }],
+        }
+        if (useThinking) {
+          streamParams.thinking = { type: 'enabled', budget_tokens: 8000 }
+        }
+        const messageStream = anthropic.messages.stream(streamParams)
 
         messageStream.on('text', (text) => {
           fullText += text
           controller.enqueue(new TextEncoder().encode(text))
         })
 
-        messageStream.on('finalMessage', async () => {
-          const newOutputs = { ...outputs, [step]: fullText }
-          await admin.from('analises').update({
-            outputs: newOutputs,
-            atualizado_em: new Date().toISOString(),
-          }).eq('id', id)
-          controller.close()
+        messageStream.on('finalMessage', (msg) => {
+          void (async () => {
+            const { data: latest } = await admin.from('analises').select('outputs').eq('id', id).single()
+            const latestOutputs = (latest?.outputs ?? outputs) as Record<string, string>
+            await Promise.all([
+              admin.from('analises').update({
+                outputs: { ...latestOutputs, [step]: fullText },
+                atualizado_em: new Date().toISOString(),
+              }).eq('id', id),
+              saveOutputVersion(admin, id, step, fullText),
+              saveAuditLog(admin, {
+                analiseId:      id,
+                stepKey:        step,
+                modelId:        MODEL,
+                inputTokens:    msg.usage?.input_tokens  ?? 0,
+                outputTokens:   msg.usage?.output_tokens ?? 0,
+                intakeSnapshot: intake,
+                contextSteps,
+                externalData,
+                startedAt:      stepStartedAt,
+              }),
+            ])
+            controller.close()
+          })().catch(() => controller.close())
         })
 
         messageStream.on('error', (err: Error) => {
