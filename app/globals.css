@@ -95,6 +95,39 @@
   100% { transform: scale(1.15); opacity: 0; }
 }
 
+/* ─── Motion keyframes ───────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes blur-reveal {
+  from { opacity: 0; filter: blur(10px); transform: translateY(14px); }
+  to   { opacity: 1; filter: blur(0);    transform: translateY(0); }
+}
+@keyframes lp-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+@keyframes lp-float-slow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50%       { transform: translateY(-16px) rotate(0.4deg); }
+}
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50%       { opacity: 1;    transform: scale(1.12); }
+}
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to   { background-position:  200% center; }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
 html, body {
   background: var(--color-bg);
   color: var(--color-ink);
@@ -117,6 +150,126 @@ body {
   border: 2px solid var(--color-bg);
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-ink-3); }
+
+/* ─── Animation utilities ─────────────────────────────────────────────────── */
+.animate-fade-up        { animation: fade-up 0.72s cubic-bezier(0.22,1,0.36,1) both; }
+.animate-fade-in        { animation: fade-in 0.6s ease both; }
+.animate-blur-reveal    { animation: blur-reveal 0.8s cubic-bezier(0.22,1,0.36,1) both; }
+.animate-float          { animation: lp-float 4s ease-in-out infinite; }
+.animate-float-slow     { animation: lp-float-slow 6s ease-in-out infinite; }
+.animate-glow-breathe   { animation: glow-breathe 4s ease-in-out infinite; }
+
+/* ─── Scroll reveal (toggled by ScrollObserver) ───────────────────────────── */
+.reveal,
+.reveal-blur,
+.reveal-left,
+.reveal-right {
+  transition-property: opacity, transform, filter;
+  transition-timing-function: cubic-bezier(0.22,1,0.36,1);
+  transition-duration: 0.65s;
+}
+.reveal-blur { transition-duration: 0.78s; }
+
+.reveal       { opacity: 0; transform: translateY(22px); }
+.reveal-blur  { opacity: 0; filter: blur(8px); transform: translateY(12px); }
+.reveal-left  { opacity: 0; transform: translateX(-22px); }
+.reveal-right { opacity: 0; transform: translateX(22px); }
+
+.reveal.visible       { opacity: 1; transform: none; }
+.reveal-blur.visible  { opacity: 1; filter: blur(0); transform: none; }
+.reveal-left.visible  { opacity: 1; transform: none; }
+.reveal-right.visible { opacity: 1; transform: none; }
+
+/* Stagger grid: parent gets .stagger-reveal, children get staggered delay on visible */
+.stagger-reveal > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1),
+              transform 0.6s cubic-bezier(0.22,1,0.36,1);
+}
+.stagger-reveal.visible > * { opacity: 1; transform: none; }
+.stagger-reveal.visible > *:nth-child(1)  { transition-delay: 0ms; }
+.stagger-reveal.visible > *:nth-child(2)  { transition-delay: 75ms; }
+.stagger-reveal.visible > *:nth-child(3)  { transition-delay: 150ms; }
+.stagger-reveal.visible > *:nth-child(4)  { transition-delay: 225ms; }
+.stagger-reveal.visible > *:nth-child(5)  { transition-delay: 300ms; }
+.stagger-reveal.visible > *:nth-child(6)  { transition-delay: 375ms; }
+.stagger-reveal.visible > *:nth-child(7)  { transition-delay: 450ms; }
+.stagger-reveal.visible > *:nth-child(8)  { transition-delay: 525ms; }
+.stagger-reveal.visible > *:nth-child(9)  { transition-delay: 600ms; }
+
+/* Reduced motion: disable everything */
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal-blur, .reveal-left, .reveal-right, .stagger-reveal > *,
+  .animate-fade-up, .animate-fade-in, .animate-blur-reveal,
+  .animate-float, .animate-float-slow, .animate-glow-breathe {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* ─── Hero visual: grid pattern ──────────────────────────────────────────── */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(22,85,232,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22,85,232,0.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 130% 90% at 65% 25%, black 0%, transparent 62%);
+  -webkit-mask-image: radial-gradient(ellipse 130% 90% at 65% 25%, black 0%, transparent 62%);
+}
+
+/* ─── Button microinteractions ────────────────────────────────────────────── */
+.lp-btn-primary {
+  transition: box-shadow 0.25s ease, transform 0.2s cubic-bezier(0.22,1,0.36,1) !important;
+}
+.lp-btn-primary:hover {
+  box-shadow: 0 0 28px rgba(22,85,232,0.38), 0 4px 16px rgba(22,85,232,0.18) !important;
+  transform: translateY(-1.5px) !important;
+}
+
+.lp-btn-secondary {
+  transition: background 0.2s, transform 0.2s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.2s !important;
+}
+.lp-btn-secondary:hover {
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06) !important;
+}
+
+/* ─── Card hover lift ─────────────────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.25s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(22,85,232,0.07), 0 3px 10px rgba(0,0,0,0.05);
+  border-color: rgba(22,85,232,0.18) !important;
+}
+
+/* ─── Input focus glow ────────────────────────────────────────────────────── */
+input[type="email"]:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgba(22,85,232,0.45) !important;
+  box-shadow: 0 0 0 3px rgba(22,85,232,0.1) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ─── Shimmer gradient text ───────────────────────────────────────────────── */
+.text-shimmer {
+  background: linear-gradient(120deg, #1655E8 0%, #378ADD 40%, #1655E8 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
 
 /* ─── Dark sidebar token overrides ───────────────────────────────────────── */
 .sidebar-dark {

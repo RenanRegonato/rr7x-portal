@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, DM_Serif_Display, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import ScrollObserver from "@/components/ScrollObserver";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -168,6 +169,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${dmSerifDisplay.variable} ${jetbrainsMono.variable} min-h-full bg-bg text-ink font-sans antialiased`}
       >
+        <ScrollObserver />
         {children}
       </body>
     </html>

@@ -276,13 +276,31 @@ export default function LandingPage() {
 
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden lp-hero-bg">
-        {/* Glow background */}
+        {/* Grid pattern */}
+        <div className="absolute inset-0 hero-grid pointer-events-none" aria-hidden="true" />
+        {/* Glow orb 1 — top-right */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="absolute pointer-events-none animate-glow-breathe"
           aria-hidden="true"
           style={{
-            background:
-              "radial-gradient(ellipse 60% 50% at 70% 40%, rgba(22,85,232,0.07) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 20% 60%, rgba(55,138,221,0.05) 0%, transparent 70%)",
+            top: "-15%", right: "5%",
+            width: 650, height: 650,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(22,85,232,0.1) 0%, transparent 68%)",
+            filter: "blur(40px)",
+          }}
+        />
+        {/* Glow orb 2 — bottom-left */}
+        <div
+          className="absolute pointer-events-none"
+          aria-hidden="true"
+          style={{
+            bottom: "-5%", left: "2%",
+            width: 420, height: 420,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(55,138,221,0.07) 0%, transparent 70%)",
+            filter: "blur(50px)",
+            animation: "glow-breathe 5s ease-in-out infinite reverse",
           }}
         />
 
@@ -292,23 +310,23 @@ export default function LandingPage() {
             {/* ── Left: copy ── */}
             <div>
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 border border-lp-border-strong bg-lp-canvas text-lp-ink-2 text-[11px] font-medium px-3.5 py-1.5 rounded-full mb-7 tracking-widest uppercase">
-                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#1655E8" }} />
+              <div className="animate-fade-up inline-flex items-center gap-2 border border-lp-border-strong bg-lp-canvas text-lp-ink-2 text-[11px] font-medium px-3.5 py-1.5 rounded-full mb-7 tracking-widest uppercase" style={{ animationDelay: "0ms" }}>
+                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#1655E8" }} />
                 9 inteligências em paralelo · 40 minutos
               </div>
 
               {/* Headline */}
-              <h1 className="font-display text-[42px] sm:text-[50px] lg:text-[56px] leading-[1.06] tracking-tight text-lp-ink mb-5">
+              <h1 className="animate-fade-up font-display text-[42px] sm:text-[50px] lg:text-[56px] leading-[1.06] tracking-tight text-lp-ink mb-5" style={{ animationDelay: "90ms" }}>
                 Seu escritório recebe mais deals do que consegue analisar de verdade.{" "}
                 <em style={{ fontStyle: "italic" }}>Quantos você está deixando passar?</em>
               </h1>
 
               {/* Use case pills */}
-              <div className="flex flex-wrap items-center gap-2 mb-6">
+              <div className="animate-fade-up flex flex-wrap items-center gap-2 mb-6" style={{ animationDelay: "200ms" }}>
                 {["M&A", "Crédito Estruturado", "Preparação para Mercado"].map((label) => (
                   <span
                     key={label}
-                    className="text-[11px] font-medium px-3 py-1 rounded-full border border-lp-border bg-lp-fog text-lp-ink-2"
+                    className="text-[11px] font-medium px-3 py-1 rounded-full border border-lp-border bg-lp-fog text-lp-ink-2 transition-colors hover:border-lp-border-strong hover:bg-white"
                   >
                     {label}
                   </span>
@@ -316,7 +334,7 @@ export default function LandingPage() {
               </div>
 
               {/* Subline */}
-              <p className="text-[15.5px] text-lp-ink-2 leading-relaxed max-w-[520px] mb-8">
+              <p className="animate-fade-up text-[15.5px] text-lp-ink-2 leading-relaxed max-w-[520px] mb-8" style={{ animationDelay: "280ms" }}>
                 Plataforma de inteligência operacional para M&A, crédito estruturado e
                 preparação de ativos — com{" "}
                 <strong className="text-lp-ink font-semibold">compliance documentado</strong>{" "}
@@ -324,10 +342,10 @@ export default function LandingPage() {
               </p>
 
               {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-4">
+              <div className="animate-fade-up flex flex-col sm:flex-row gap-3 mb-4" style={{ animationDelay: "360ms" }}>
                 <Link
                   href="/auth/signup"
-                  className="inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-6 py-3.5 rounded-[10px] transition-opacity hover:opacity-90"
+                  className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-6 py-3.5 rounded-[10px]"
                   style={{ background: "#1655E8" }}
                 >
                   Solicitar acesso
@@ -335,18 +353,18 @@ export default function LandingPage() {
                 </Link>
                 <a
                   href="#comparativo"
-                  className="inline-flex items-center justify-center text-[14px] font-medium text-lp-ink border border-lp-border-strong px-6 py-3.5 rounded-[10px] hover:bg-lp-fog transition-colors"
+                  className="lp-btn-secondary inline-flex items-center justify-center text-[14px] font-medium text-lp-ink border border-lp-border-strong px-6 py-3.5 rounded-[10px] hover:bg-lp-fog"
                 >
                   Ver comparativo
                 </a>
               </div>
-              <p className="text-[12px] text-lp-ink-3">
+              <p className="animate-fade-up text-[12px] text-lp-ink-3" style={{ animationDelay: "420ms" }}>
                 Reservamos uma conversa inicial para entender o contexto do escritório
               </p>
             </div>
 
             {/* ── Right: product mockup ── */}
-            <div className="hidden lg:block relative" aria-hidden="true">
+            <div className="animate-blur-reveal hidden lg:block relative" aria-hidden="true" style={{ animationDelay: "150ms" }}>
               {/* Main panel */}
               <div
                 className="relative rounded-[20px] overflow-hidden lp-card-shadow"
@@ -429,8 +447,8 @@ export default function LandingPage() {
 
               {/* Floating card: resultado */}
               <div
-                className="absolute -bottom-5 -left-8 w-[210px] bg-lp-canvas rounded-[14px] p-4 lp-card-shadow"
-                style={{ border: "1px solid rgba(0,0,0,0.07)" }}
+                className="animate-float absolute -bottom-5 -left-8 w-[210px] bg-lp-canvas rounded-[14px] p-4 lp-card-shadow"
+                style={{ border: "1px solid rgba(0,0,0,0.07)", animationDelay: "0.5s" }}
               >
                 <p className="text-[10px] font-medium text-lp-ink-3 uppercase tracking-widest mb-2">Valuation estimado</p>
                 <p className="font-display text-[28px] leading-none text-lp-ink mb-0.5">R$ 48M</p>
@@ -439,7 +457,7 @@ export default function LandingPage() {
 
               {/* Floating card: material */}
               <div
-                className="absolute -top-5 -right-4 w-[190px] bg-lp-canvas rounded-[14px] p-3.5 lp-card-shadow"
+                className="animate-float-slow absolute -top-5 -right-4 w-[190px] bg-lp-canvas rounded-[14px] p-3.5 lp-card-shadow"
                 style={{ border: "1px solid rgba(0,0,0,0.07)" }}
               >
                 <p className="text-[10px] font-medium text-lp-ink-3 uppercase tracking-widest mb-2">Outputs gerados</p>
@@ -459,7 +477,7 @@ export default function LandingPage() {
       {/* ── Metrics bar ────────────────────────────────────────────────────── */}
       <section className="border-y border-lp-border bg-lp-fog">
         <div className="max-w-[1280px] mx-auto px-6 py-8">
-          <dl className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <dl className="stagger-reveal grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
               { value: "40 min",     label: "análise completa"          },
               { value: "40+",        label: "deals analisáveis/mês"     },
@@ -478,7 +496,7 @@ export default function LandingPage() {
       {/* ── Problema: Tempo ────────────────────────────────────────────────── */}
       <section className="max-w-[1280px] mx-auto px-6 py-20 lg:py-28">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div>
+          <div className="reveal-left">
             <p className="text-[11px] font-medium text-lp-accent uppercase tracking-widest mb-4">o gargalo operacional</p>
             <h2 className="font-display text-[36px] sm:text-[46px] leading-[1.08] tracking-tight text-lp-ink mb-5">
               Cada análise consome
@@ -497,7 +515,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="bg-lp-fog rounded-[20px] p-8 border border-lp-border">
+          <div className="reveal-right card-hover bg-lp-fog rounded-[20px] p-8 border border-lp-border">
             <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center text-center">
               <div>
                 <p className="text-[11px] font-medium text-lp-ink-3 uppercase tracking-wider mb-3">modelo tradicional</p>
@@ -529,7 +547,7 @@ export default function LandingPage() {
               <em style={{ fontStyle: "italic" }}>estruturada.</em>
             </h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="stagger-reveal grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               {
                 value: "R$ 15k–30k",
@@ -579,7 +597,7 @@ export default function LandingPage() {
 
       {/* ── Custo de oportunidade ─────────────────────────────────────────── */}
       <section className="max-w-[1280px] mx-auto px-6 py-20 lg:py-28">
-        <h2 className="font-display text-[44px] sm:text-[58px] lg:text-[72px] leading-[1.04] tracking-tight text-lp-ink max-w-[900px] mb-10">
+        <h2 className="reveal font-display text-[44px] sm:text-[58px] lg:text-[72px] leading-[1.04] tracking-tight text-lp-ink max-w-[900px] mb-10">
           A pergunta não é
           <br />
           se Otto vale.
@@ -635,7 +653,7 @@ export default function LandingPage() {
               A decisão final pertence ao profissional. Otto entrega o diagnóstico e sai de cena.
             </p>
           </div>
-          <div className="grid sm:grid-cols-3 gap-5">
+          <div className="stagger-reveal grid sm:grid-cols-3 gap-5">
             {[
               {
                 num: "01",
@@ -653,7 +671,7 @@ export default function LandingPage() {
                 body: "Material gerado com a identidade do escritório. Consistência técnica em todos os deals, independente do analista.",
               },
             ].map((f) => (
-              <div key={f.num} className="bg-lp-canvas rounded-[18px] p-6 border border-lp-border lp-card-shadow-sm">
+              <div key={f.num} className="card-hover bg-lp-canvas rounded-[18px] p-6 border border-lp-border lp-card-shadow-sm">
                 <p className="font-display text-[12px] text-lp-ink-4 mb-3">{f.num}</p>
                 <h3 className="text-[15px] font-semibold text-lp-ink mb-2.5">{f.title}</h3>
                 <p className="text-[13.5px] text-lp-ink-3 leading-relaxed">{f.body}</p>
@@ -858,7 +876,7 @@ export default function LandingPage() {
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="stagger-reveal grid md:grid-cols-4 gap-6 mb-8">
           {[
             {
               num: "01",
@@ -989,9 +1007,9 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="stagger-reveal grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {inteligencias.map((a) => (
-            <article key={a.num} className="bg-lp-canvas rounded-[18px] p-5 border border-lp-border lp-card-shadow-sm">
+            <article key={a.num} className="card-hover bg-lp-canvas rounded-[18px] p-5 border border-lp-border lp-card-shadow-sm">
               <div className="flex items-center gap-2.5 mb-3">
                 <div className={`w-9 h-9 rounded-[10px] ${a.bg} grid place-items-center font-display font-normal text-[13px] text-lp-ink flex-shrink-0`}>
                   {a.num}
@@ -1098,9 +1116,9 @@ export default function LandingPage() {
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="stagger-reveal grid md:grid-cols-3 gap-5">
           {depoimentos.map((d) => (
-            <figure key={d.nome} className="bg-lp-canvas rounded-[20px] p-6 border border-lp-border lp-card-shadow-sm flex flex-col">
+            <figure key={d.nome} className="card-hover bg-lp-canvas rounded-[20px] p-6 border border-lp-border lp-card-shadow-sm flex flex-col">
               <blockquote className="flex-1 mb-6">
                 <p className="text-[14px] text-lp-ink-2 leading-relaxed">
                   &ldquo;{d.texto}&rdquo;
@@ -1135,11 +1153,11 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-5 max-w-[960px] mx-auto">
+          <div className="stagger-reveal grid md:grid-cols-3 gap-5 max-w-[960px] mx-auto">
             {planos.map((p) => (
               <div
                 key={p.nome}
-                className={`relative rounded-[20px] p-7 flex flex-col ${
+                className={`card-hover relative rounded-[20px] p-7 flex flex-col ${
                   p.destaque ? "border-2 lp-card-shadow" : "border border-lp-border bg-lp-canvas lp-card-shadow-sm"
                 }`}
                 style={p.destaque ? { borderColor: "#1655E8", background: "#FFFFFF" } : {}}
@@ -1213,21 +1231,21 @@ export default function LandingPage() {
       <section className="lp-dark-section">
         <div className="max-w-[1280px] mx-auto px-6 py-20 lg:py-28 text-center">
           <h2
-            className="font-display text-[44px] sm:text-[60px] lg:text-[72px] leading-[1.04] tracking-tight mb-6"
+            className="reveal font-display text-[44px] sm:text-[60px] lg:text-[72px] leading-[1.04] tracking-tight mb-6"
             style={{ color: "#EEF3FF" }}
           >
             Para conhecer
             <br />
             <em style={{ fontStyle: "italic", color: "#93B4F8" }}>Otto.</em>
           </h2>
-          <p className="text-[16px] leading-relaxed max-w-[520px] mx-auto mb-10" style={{ color: "#7A92BE" }}>
+          <p className="reveal text-[16px] leading-relaxed max-w-[520px] mx-auto mb-10" style={{ color: "#7A92BE", transitionDelay: "100ms" }}>
             M&A, crédito estruturado ou preparação para mercado: solicite acesso e
             reservamos uma conversa inicial para entender o contexto do escritório.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="reveal flex flex-col sm:flex-row gap-3 justify-center" style={{ transitionDelay: "200ms" }}>
             <Link
               href="/auth/signup"
-              className="inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-7 py-3.5 rounded-[11px] transition-opacity hover:opacity-90"
+              className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-7 py-3.5 rounded-[11px]"
               style={{ background: "#1655E8" }}
             >
               Solicitar acesso
