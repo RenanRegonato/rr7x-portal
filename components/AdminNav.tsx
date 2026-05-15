@@ -2,11 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { IconSettings, IconSquad, IconDoc, IconHome, IconUsers, IconBuilding, IconSparkle } from './Icons'
+import { IconSettings, IconSquad, IconDoc, IconHome, IconUsers, IconBuilding, IconSparkle, IconFolder } from './Icons'
 
 const NAV = [
   { href: '/dashboard/admin',              label: 'Overview',     Icon: IconHome     },
   { href: '/dashboard/admin/escritorios',  label: 'Escritórios',  Icon: IconBuilding },
+  { href: '/dashboard/admin/pacotes',      label: 'Pacotes',      Icon: IconFolder   },
   { href: '/dashboard/admin/agentes',      label: 'Agentes',      Icon: IconSettings },
   { href: '/dashboard/admin/aprendizados', label: 'Aprendizados', Icon: IconDoc      },
   { href: '/dashboard/admin/preview',      label: 'Output Demo',  Icon: IconSparkle  },

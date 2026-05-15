@@ -10,6 +10,10 @@ export type AuditEvent =
   | 'admin.plan_cancelled'
   | 'admin.user_searched'
   | 'invite.sent'
+  | 'pacote.created'
+  | 'pacote.updated'
+  | 'pacote.deleted'
+  | 'pacote.consumed'
 
 interface AuditParams {
   event:      AuditEvent

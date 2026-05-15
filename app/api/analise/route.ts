@@ -28,19 +28,60 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient()
 
-  const { data: sub } = await admin
-    .from('subscriptions')
-    .select('*')
+  // 1. Identifica o escritório do usuário (se houver) — usado para consumir do pacote
+  const { data: perfil } = await admin
+    .from('perfis')
+    .select('escritorio_id')
     .eq('user_id', user.id)
-    .eq('status', 'ativo')
-    .single()
+    .maybeSingle()
 
-  if (!sub) {
-    return NextResponse.json({ error: 'Sem assinatura ativa. Adquira um plano para continuar.' }, { status: 403 })
+  // 2. Tenta consumir do pacote ativo do escritório (FIFO: mais antigo primeiro)
+  let pacoteId: string | null = null
+  let pacoteNovoConsumido: number | null = null
+
+  if (perfil?.escritorio_id) {
+    const { data: pacote } = await admin
+      .from('pacotes')
+      .select('id, analises_total, analises_consumidas')
+      .eq('escritorio_id', perfil.escritorio_id)
+      .eq('status', 'ativo')
+      .order('criado_em', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+
+    if (pacote && pacote.analises_consumidas < pacote.analises_total) {
+      pacoteId = pacote.id
+      pacoteNovoConsumido = pacote.analises_consumidas + 1
+    } else if (pacote) {
+      return NextResponse.json(
+        { error: 'Pacote esgotado. Solicite ao gestor a habilitação de um novo pacote.' },
+        { status: 403 }
+      )
+    }
+    // Se não tem pacote, cai no fallback de subscriptions abaixo
   }
 
-  if (sub.analises_restantes !== null && sub.analises_restantes <= 0) {
-    return NextResponse.json({ error: 'Limite de análises atingido.' }, { status: 403 })
+  // 3. Fallback: usa subscriptions legacy se não consumiu de pacote
+  let sub: { id: string; analises_restantes: number | null } | null = null
+  if (!pacoteId) {
+    const { data } = await admin
+      .from('subscriptions')
+      .select('id, analises_restantes')
+      .eq('user_id', user.id)
+      .eq('status', 'ativo')
+      .maybeSingle()
+    sub = data
+
+    if (!sub) {
+      return NextResponse.json(
+        { error: 'Sem pacote ativo ou assinatura. Solicite ao gestor a habilitação de um pacote.' },
+        { status: 403 }
+      )
+    }
+
+    if (sub.analises_restantes !== null && sub.analises_restantes <= 0) {
+      return NextResponse.json({ error: 'Limite de análises atingido.' }, { status: 403 })
+    }
   }
 
   const { data: analise, error: createError } = await admin
@@ -50,6 +91,7 @@ export async function POST(req: NextRequest) {
       nome_ativo:  intake.nomeAtivo,
       deal_intake: encryptSensitiveFields(intake),
       status:      'processando',
+      pacote_id:   pacoteId,
     })
     .select()
     .single()
@@ -62,12 +104,30 @@ export async function POST(req: NextRequest) {
     event:    'analise.created',
     userId:   user.id,
     targetId: analise.id,
-    metadata: { nome_ativo: intake.nomeAtivo, tipo_ativo: intake.tipoAtivo },
+    metadata: { nome_ativo: intake.nomeAtivo, tipo_ativo: intake.tipoAtivo, pacote_id: pacoteId },
     ip:       extractIp(req.headers),
     userAgent: req.headers.get('user-agent'),
   })
 
-  if (sub.analises_restantes !== null) {
+  // 4. Decrementa: pacote (preferido) ou subscription legacy
+  if (pacoteId && pacoteNovoConsumido !== null) {
+    await admin
+      .from('pacotes')
+      .update({
+        analises_consumidas: pacoteNovoConsumido,
+        atualizado_em: new Date().toISOString(),
+      })
+      .eq('id', pacoteId)
+
+    void audit({
+      event:    'pacote.consumed',
+      userId:   user.id,
+      targetId: pacoteId,
+      metadata: { analise_id: analise.id, novo_consumido: pacoteNovoConsumido },
+      ip:       extractIp(req.headers),
+      userAgent: req.headers.get('user-agent'),
+    })
+  } else if (sub && sub.analises_restantes !== null) {
     await admin
       .from('subscriptions')
       .update({ analises_restantes: sub.analises_restantes - 1 })

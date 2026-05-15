@@ -68,6 +68,24 @@ export const ConvidarSchema = z.object({
   email: z.string().email('Email inválido').max(200).trim().toLowerCase(),
 })
 
+// POST /api/admin/pacotes
+export const PacoteCreateSchema = z.object({
+  escritorio_id:  uuid,
+  tipo:           z.enum(['pontual', 'institucional', 'corporativo']),
+  analises_total: z.number().int().positive().max(1000),
+  observacoes:    shortStr(2000).optional(),
+}).refine(
+  (d) => d.tipo !== 'institucional' || d.analises_total <= 20,
+  { message: 'Pacote institucional permite no máximo 20 análises', path: ['analises_total'] }
+)
+
+// PATCH /api/admin/pacotes/[id]
+export const PacoteUpdateSchema = z.object({
+  analises_total: z.number().int().positive().max(1000).optional(),
+  status:         z.enum(['ativo', 'pausado', 'encerrado']).optional(),
+  observacoes:    shortStr(2000).optional(),
+})
+
 // PATCH /api/escritorio
 export const EscritorioUpdateSchema = z.object({
   nome:           shortStr(200).optional(),

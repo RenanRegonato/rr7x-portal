@@ -472,10 +472,32 @@ export default function EscritoriosPage() {
               </div>
             </section>
 
-            {/* ── Seção: Plano ────────────────────────────────────────────── */}
+            {/* ── Seção: Pacotes (novo modelo) ────────────────────────────── */}
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-3">
+                  Pacotes de análises
+                </p>
+                <a
+                  href={`/dashboard/admin/pacotes?escritorio_id=${detalhe.id}`}
+                  className="text-[12px] text-accent-strong hover:underline"
+                >
+                  Gerenciar pacotes →
+                </a>
+              </div>
+              <div className="bg-surface border border-border rounded-[12px] p-4 text-[12px] text-ink-3">
+                Os pacotes de análises (Pontual / Institucional / Corporativo) são gerenciados na página{' '}
+                <a href={`/dashboard/admin/pacotes?escritorio_id=${detalhe.id}`} className="text-accent-strong hover:underline">
+                  Pacotes
+                </a>
+                . Cada pacote pertence ao escritório e é consumido por qualquer usuário vinculado.
+              </div>
+            </section>
+
+            {/* ── Seção: Plano (legacy — mantido para compat) ─────────────── */}
             <section>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-3">
-                Plano contratado
+                Plano contratado <span className="text-ink-3 normal-case font-normal">(legacy)</span>
               </p>
               <div className="bg-surface border border-border rounded-[12px] p-5 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
