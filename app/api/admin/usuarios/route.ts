@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
         invited_role:          role,
         invited_escritorio_id: resolvedEscId,
       },
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rr7x-portal.vercel.app'}/auth/definir-senha`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.mandor.com.br'}/auth/definir-senha`,
     })
 
     if (inviteErr) return NextResponse.json({ error: inviteErr.message }, { status: 500 })

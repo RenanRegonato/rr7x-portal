@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--jetbrains-mono",
 });
 
-const SITE_URL = "https://rr7x-portal.vercel.app";
+const SITE_URL = "https://www.mandor.com.br";
 const SITE_NAME = "Mandor";
 
 export const metadata: Metadata = {

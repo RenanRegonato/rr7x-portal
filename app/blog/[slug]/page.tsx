@@ -145,11 +145,11 @@ export default async function BlogPostPage({
     publisher: {
       "@type": "Organization",
       name: "Mandor",
-      url: "https://rr7x-portal.vercel.app",
+      url: "https://www.mandor.com.br",
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://rr7x-portal.vercel.app/blog/${slug}`,
+      "@id": `https://www.mandor.com.br/blog/${slug}`,
     },
   };
 

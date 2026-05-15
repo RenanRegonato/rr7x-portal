@@ -3,7 +3,7 @@
 **Versão:** 2.0  
 **Data:** Maio de 2026  
 **Classificação:** Documento Mestre do Sistema  
-**Plataforma:** rr7x-portal.vercel.app
+**Plataforma:** www.mandor.com.br
 
 ---
 
@@ -1499,8 +1499,8 @@ ENCRYPTION_KEY=          # 64 hex chars = 32 bytes AES-256
 SHARE_TOKEN_SECRET=      # string aleatória >= 32 chars
 
 # URLs
-NEXT_PUBLIC_SITE_URL=https://rr7x-portal.vercel.app
-NEXT_PUBLIC_APP_URL=https://rr7x-portal.vercel.app
+NEXT_PUBLIC_SITE_URL=https://www.mandor.com.br
+NEXT_PUBLIC_APP_URL=https://www.mandor.com.br
 ```
 
 ## Apêndice B — Registro de Eventos de Audit Log

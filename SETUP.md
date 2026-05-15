@@ -82,7 +82,7 @@ Teste o fluxo completo:
 4. Siga as perguntas: confirme o projeto, escolha a org, etc.
 5. Após o primeiro deploy, acesse o **Vercel Dashboard**
 6. Vá em **Settings → Environment Variables** e adicione todas as variáveis do `.env.local`
-   - Importante: mude `NEXT_PUBLIC_APP_URL` para a URL real do Vercel (ex: `https://rr7x-portal.vercel.app`)
+   - Importante: mude `NEXT_PUBLIC_APP_URL` para a URL de produção (ex: `https://www.mandor.com.br`)
 7. Rode `vercel --prod` para o deploy final
 
 ---
