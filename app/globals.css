@@ -7,7 +7,7 @@
   --font-mono: var(--jetbrains-mono);
 }
 
-/* Otto Design Tokens */
+/* Mandor Design Tokens */
 @theme {
   /* Backgrounds & surfaces */
   --color-bg:             oklch(0.985 0.005 60);

@@ -144,7 +144,7 @@ export default async function BlogPostPage({
     },
     publisher: {
       "@type": "Organization",
-      name: "Otto by RR7x",
+      name: "Mandor",
       url: "https://rr7x-portal.vercel.app",
     },
     mainEntityOfPage: {
@@ -167,7 +167,7 @@ export default async function BlogPostPage({
       >
         <nav className="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <img src="/logo/otto-horizontal.svg" alt="Otto" className="h-7 w-auto" />
+            <img src="/logo/mandor-horizontal.svg" alt="Mandor" className="h-7 w-auto" />
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/blog" className="text-[13px] text-lp-ink-2 hover:text-lp-ink transition-colors">← Blog</Link>
@@ -328,7 +328,7 @@ export default async function BlogPostPage({
       <footer className="border-t border-lp-border">
         <div className="max-w-[1280px] mx-auto px-6 py-8 flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <img src="/logo/otto-horizontal.svg" alt="Otto" className="h-6 w-auto" />
+            <img src="/logo/mandor-horizontal.svg" alt="Mandor" className="h-6 w-auto" />
           </Link>
           <p className="text-[12px] text-lp-ink-3">© {new Date().getFullYear()} RR7x Capital Hub</p>
         </div>

@@ -208,7 +208,7 @@ function buildAllOutputs(outputs: Record<string, string>): string {
 function buildAllOutputsForReport(outputs: Record<string, string>): string {
   const all = [
     { key: 'drive_intake',   label: 'INGESTÃO DE DADOS — Diagnóstico Documental' },
-    { key: 'orchestration',  label: 'ORQUESTRAÇÃO — Otto Orquestra (Deal Orchestrator)' },
+    { key: 'orchestration',  label: 'ORQUESTRAÇÃO — Mandor Orquestra (Deal Orchestrator)' },
     { key: 'pesquisa',       label: 'PESQUISA MERCADOLÓGICA — Pedro Panorama (Market Intelligence)' },
     { key: 'diagnostico',    label: 'DIAGNÓSTICO FINANCEIRO — Davi Diagnóstico (Financial Diagnostician)' },
     { key: 'kyc',            label: 'COMPLIANCE KYC — Carmen Compliance (KYC & Compliance Analyst)' },
@@ -338,7 +338,7 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
   switch (step) {
     case 'orchestration':
       return {
-        system: sysBlocks(prompts['orquestrador'] || 'Você é Otto Orquestra, Deal Orchestrator da RR7x Capital Hub. Calcule o DRS, mapeie riscos e defina o próximo passo estratégico.'),
+        system: sysBlocks(prompts['orquestrador'] || 'Você é Mandor Orquestra, Deal Orchestrator da RR7x Capital Hub. Calcule o DRS, mapeie riscos e defina o próximo passo estratégico.'),
         user: outputs['drive_intake']
           ? `Analise este deal intake e produza o diagnóstico completo:\n\n${intakeStr}\n\n---\nINGESTÃO DE DOCUMENTOS:\n${outputs['drive_intake']}`
           : `Analise este deal intake e produza o diagnóstico completo:\n\n${intakeStr}`,
@@ -508,7 +508,7 @@ Riscos que emergem somente da visão cruzada — que nenhum agente identificou i
 
 ## 5. DIAGNÓSTICO DE RISCO EXECUTIVO
 
-NÃO recalcule score. O DRS já foi calculado pelo Orchestrator (Otto Orquestra).
+NÃO recalcule score. O DRS já foi calculado pelo Orchestrator (Mandor Orquestra).
 
 **Deal Readiness Score (DRS):** extraia o valor exato do relatório de Orquestração. Se não disponível: declare ausência.
 

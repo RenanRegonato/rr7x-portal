@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
       tags: Array.isArray(tags) ? tags : [],
       published: published === true,
       published_at: published === true ? now : null,
-      author_name: author_name?.trim() || "Equipe Otto by RR7x",
+      author_name: author_name?.trim() || "Equipe Mandor",
       author_avatar_url: author_avatar_url?.trim() || null,
       reading_time_minutes: estimateReadingTime(content),
       seo_title: seo_title?.trim() || null,

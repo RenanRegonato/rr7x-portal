@@ -1,7 +1,0 @@
-<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Otto ícone de app">
-  <rect width="512" height="512" rx="114" fill="#0B0C0E"/>
-  <g transform="translate(106,106) scale(3)">
-    <path d="M 50 12 A 38 38 0 1 1 22 24" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round"/>
-    <circle cx="50" cy="50" r="8.5" fill="#5BA3E8"/>
-  </g>
-</svg>

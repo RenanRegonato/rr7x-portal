@@ -21,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 const SITE_URL = "https://rr7x-portal.vercel.app";
-const SITE_NAME = "Otto by RR7x";
+const SITE_NAME = "Mandor";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Otto by RR7x — Deal Intelligence",
+        alt: "Mandor — Deal Intelligence",
       },
     ],
   },
@@ -124,7 +124,7 @@ const schemaOrg = {
     {
       "@type": "SoftwareApplication",
       "@id": `${SITE_URL}/#software`,
-      name: "Otto Deal Intelligence",
+      name: "Mandor",
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
       description:

@@ -1,0 +1,8 @@
+<svg width="60" height="64" viewBox="0 0 60 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mandor símbolo">
+  <g transform="translate(11,12)">
+    <rect x="0" y="0" width="7" height="40" rx="2" fill="#FFFFFF"/>
+    <rect x="10.3" y="8.6" width="7" height="31.4" rx="2" fill="#FFFFFF"/>
+    <rect x="20.6" y="8.6" width="7" height="31.4" rx="2" fill="#FFFFFF"/>
+    <rect x="31" y="0" width="7" height="40" rx="2" fill="#5BA3E8"/>
+  </g>
+</svg>

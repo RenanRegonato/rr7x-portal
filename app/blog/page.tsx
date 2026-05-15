@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "Artigos e insights sobre M&A, crédito estruturado, valuation, deal readiness e inteligência de deals para assessores e gestores de capital.",
   alternates: { canonical: "/blog" },
   openGraph: {
-    title: "Blog Otto by RR7x — M&A, Crédito e Deal Intelligence",
+    title: "Blog Mandor — M&A, Crédito e Deal Intelligence",
     description:
       "Insights sobre M&A, crédito estruturado, valuation e deal intelligence.",
     url: "/blog",
@@ -99,7 +99,7 @@ export default async function BlogPage({
       >
         <nav className="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <img src="/logo/otto-horizontal.svg" alt="Otto" className="h-7 w-auto" />
+            <img src="/logo/mandor-horizontal.svg" alt="Mandor" className="h-7 w-auto" />
           </Link>
           <div className="flex items-center gap-2">
             <Link href="/auth/login" className="hidden sm:block text-[13px] text-lp-ink-2 hover:text-lp-ink px-4 py-2 transition-colors">
@@ -276,7 +276,7 @@ export default async function BlogPage({
       <footer className="border-t border-lp-border mt-8">
         <div className="max-w-[1280px] mx-auto px-6 py-8 flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <img src="/logo/otto-horizontal.svg" alt="Otto" className="h-6 w-auto" />
+            <img src="/logo/mandor-horizontal.svg" alt="Mandor" className="h-6 w-auto" />
           </Link>
           <p className="text-[12px] text-lp-ink-3">© {new Date().getFullYear()} RR7x Capital Hub</p>
         </div>

@@ -45,7 +45,7 @@ const PAGE_SIZE = 12
 
 const HOW_IT_WORKS = [
   { n: '1', title: 'Deal Intake', desc: 'Preencha o formulário com os dados do ativo — nome, tipo, ticket, documentos.' },
-  { n: '2', title: '9 especialistas em paralelo', desc: 'Otto aciona o squad: diagnóstico financeiro, M&A, crédito, contratos, originação e mais.' },
+  { n: '2', title: '9 especialistas em paralelo', desc: 'Mandor aciona o squad: diagnóstico financeiro, M&A, crédito, contratos, originação e mais.' },
   { n: '3', title: 'Relatório em 45–90 min', desc: 'DRS, Blind Teaser, Pitchbook e Relatório Consolidado prontos para apresentar.' },
 ]
 
@@ -53,8 +53,8 @@ function EmptyPipeline({ onStart }: { onStart: () => void }) {
   return (
     <div className="bg-surface border border-border rounded-[14px] shadow-soft-sm overflow-hidden">
       <div className="px-10 py-10 text-center border-b border-border">
-        <img src="/logo/otto-simbolo.svg" alt="Otto" className="w-10 h-10 mx-auto mb-4" />
-        <h2 className="font-display text-[22px] font-medium tracking-tight mb-2">Bem-vindo ao Otto</h2>
+        <img src="/logo/mandor-simbolo.svg" alt="Mandor" className="w-10 h-10 mx-auto mb-4" />
+        <h2 className="font-display text-[22px] font-medium tracking-tight mb-2">Bem-vindo ao Mandor</h2>
         <p className="text-[13px] text-ink-2 max-w-sm mx-auto leading-relaxed">
           Análise completa de ativo em 90 minutos. Ative o squad no seu primeiro deal abaixo.
         </p>
@@ -301,7 +301,7 @@ export default function DashboardClient({
         <section className="bg-surface border border-border rounded-[14px] shadow-soft-sm p-[22px] sticky top-[61px]">
           <h3 className="font-display text-[18px] font-medium tracking-tight m-0">Novo deal</h3>
           <p className="text-[12px] text-ink-3 mt-1 mb-[18px]">
-            Otto orquestra os 9 especialistas em até 90 min.
+            Mandor orquestra os 9 especialistas em até 90 min.
           </p>
 
           <Segmented value={mode} onChange={setMode} options={['Ativo', 'Proprietário', 'Mandato']} fullWidth/>

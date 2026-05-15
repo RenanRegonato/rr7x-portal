@@ -56,7 +56,7 @@ export default function EditarArtigoPage() {
 
   useEffect(() => {
     async function load() {
-      const res = await fetch(`/api/dashboard/admin/blog/${id}`)
+      const res = await fetch(`/api/admin/blog/${id}`)
       if (!res.ok) { router.push('/dashboard/admin/blog'); return }
       const data = await res.json()
       const p: Post = data.post
@@ -94,7 +94,7 @@ export default function EditarArtigoPage() {
     const tags = form.tags.split(',').map(t => t.trim()).filter(Boolean)
     const published = publishOverride !== undefined ? publishOverride : form.published
 
-    const res = await fetch(`/api/dashboard/admin/blog/${id}`, {
+    const res = await fetch(`/api/admin/blog/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, tags, published }),
@@ -116,7 +116,7 @@ export default function EditarArtigoPage() {
 
   async function del() {
     if (!confirm('Excluir este artigo? Esta ação não pode ser desfeita.')) return
-    await fetch(`/api/dashboard/admin/blog/${id}`, { method: 'DELETE' })
+    await fetch(`/api/admin/blog/${id}`, { method: 'DELETE' })
     router.push('/dashboard/admin/blog')
   }
 

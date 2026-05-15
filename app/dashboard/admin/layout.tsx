@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* Top bar */}
       <header className="border-b border-border px-6 py-3 flex items-center justify-between shrink-0 bg-bg sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <img src="/logo/otto-horizontal.svg" alt="Otto" className="h-6 w-auto" />
+          <img src="/logo/mandor-horizontal.svg" alt="Mandor" className="h-6 w-auto" />
           <span className="text-ink-3 text-[11px] mx-0.5">/</span>
           <span className="text-ink-2 text-[13px] font-medium">Admin</span>
         </div>

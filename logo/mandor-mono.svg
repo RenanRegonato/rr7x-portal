@@ -1,0 +1,9 @@
+<svg width="270" height="70" viewBox="0 0 270 70" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mandor">
+  <g transform="translate(8,17)">
+    <rect x="0" y="0" width="6.5" height="37" rx="1.8" fill="#1A1C1F"/>
+    <rect x="10" y="8" width="6.5" height="29" rx="1.8" fill="#1A1C1F"/>
+    <rect x="20" y="8" width="6.5" height="29" rx="1.8" fill="#1A1C1F"/>
+    <rect x="30" y="0" width="6.5" height="37" rx="1.8" fill="#1A1C1F"/>
+  </g>
+  <text x="52" y="54" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="50" font-weight="500" letter-spacing="-2" fill="#1A1C1F">andor</text>
+</svg>

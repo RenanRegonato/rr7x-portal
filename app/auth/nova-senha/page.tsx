@@ -65,8 +65,8 @@ export default function NovaSenhaPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <img src="/logo/otto-horizontal.svg" alt="Otto" className="h-9 w-auto mx-auto mb-2" />
-          <p className="text-ink-3 text-[13px]">Deal intelligence · RR7x Capital Hub</p>
+          <img src="/logo/mandor-horizontal.svg" alt="Mandor" className="h-9 w-auto mx-auto mb-2" />
+          <p className="text-ink-3 text-[13px]">Nenhum deal sem análise</p>
         </div>
 
         <div className="bg-surface border border-border rounded-[14px] shadow-soft-md p-8">

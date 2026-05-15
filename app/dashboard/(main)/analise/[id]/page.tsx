@@ -24,7 +24,7 @@ function isEstruturaActive(objetivo?: string) { return ESTRUTURA_OBJECTIVES.some
 // ─── Agent definitions ────────────────────────────────────────────────────────
 
 const AGENTS: AgentDef[] = [
-  { key: 'orchestration', name: 'Otto Orquestra',   role: 'Deal Orchestrator',           color: 'peach', initial: 'O', deliverable: 'Deal Readiness Score + ativação dos especialistas' },
+  { key: 'orchestration', name: 'Mandor Orquestra', role: 'Deal Orchestrator',           color: 'peach', initial: 'M', deliverable: 'Deal Readiness Score + ativação dos especialistas' },
   { key: 'pesquisa',      name: 'Pedro Panorama',   role: 'Market Researcher',            color: 'sky',   initial: 'P', deliverable: 'Pesquisa mercadológica e benchmarks' },
   { key: 'diagnostico',   name: 'Davi Diagnóstico', role: 'Financial Diagnostician',      color: 'sage',  initial: 'D', deliverable: 'DRE, fluxo de caixa, valuation, EBITDA normalizado' },
   { key: 'analise_ma',    name: 'Arthur Aquisição', role: 'M&A Architect',                color: 'sand',  initial: 'A', deliverable: 'Tese de M&A e estrutura da transação' },

@@ -33,7 +33,7 @@ export default function AdminBlogPage() {
   const fetchPosts = useCallback(async () => {
     setLoading(true)
     const qs = filter !== 'all' ? `?published=${filter === 'published'}` : ''
-    const res = await fetch(`/api/dashboard/admin/blog${qs}`)
+    const res = await fetch(`/api/admin/blog${qs}`)
     if (res.ok) {
       const data = await res.json()
       setPosts(data.posts ?? [])
@@ -45,7 +45,7 @@ export default function AdminBlogPage() {
   useEffect(() => { fetchPosts() }, [fetchPosts])
 
   async function togglePublish(post: Post) {
-    const res = await fetch(`/api/dashboard/admin/blog/${post.id}`, {
+    const res = await fetch(`/api/admin/blog/${post.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ published: !post.published }),
@@ -60,7 +60,7 @@ export default function AdminBlogPage() {
   async function deletePost(id: string, title: string) {
     if (!confirm(`Excluir "${title}"? Esta ação não pode ser desfeita.`)) return
     setDeleting(id)
-    const res = await fetch(`/api/dashboard/admin/blog/${id}`, { method: 'DELETE' })
+    const res = await fetch(`/api/admin/blog/${id}`, { method: 'DELETE' })
     setDeleting(null)
     if (res.ok) {
       setMsg('Artigo excluído.')

@@ -3,7 +3,7 @@ import Link from "next/link";
 import AuthErrorHandler from "@/components/AuthErrorHandler";
 
 export const metadata: Metadata = {
-  title: "Otto by RR7x | Inteligência operacional para M&A, crédito estruturado e preparação de deals",
+  title: "Mandor | Inteligência operacional para M&A, crédito estruturado e preparação de deals",
   description:
     "Analise operações de M&A, estruture crédito e prepare ativos para o mercado em até 40 minutos. 9 módulos especializados em paralelo. Material institucional pronto para o mercado.",
   alternates: { canonical: "/" },
@@ -165,7 +165,7 @@ const planos = [
 const depoimentos = [
   {
     texto:
-      "Testamos o Otto em dois deals que eram candidatos ao No-Go de início. Em menos de uma hora tinha análise financeira e mapa jurídico de ambos. Um descartamos mesmo. O outro revelou uma estrutura de crédito que ninguém tinha visto. Hoje é um mandato ativo.",
+      "Testamos o Mandor em dois deals que eram candidatos ao No-Go de início. Em menos de uma hora tinha análise financeira e mapa jurídico de ambos. Um descartamos mesmo. O outro revelou uma estrutura de crédito que ninguém tinha visto. Hoje é um mandato ativo.",
     nome: "Ricardo C.",
     cargo: "Sócio",
     empresa: "Boutique M&A · São Paulo",
@@ -195,18 +195,18 @@ const depoimentos = [
 const faqs = [
   {
     q: "Como os dados dos deals são protegidos?",
-    a: "Otto opera com criptografia em trânsito (TLS 1.3) e em repouso (AES-256). Nenhum dado é compartilhado entre escritórios. Cada análise fica isolada em ambiente dedicado ao escritório contratante.",
+    a: "Mandor opera com criptografia em trânsito (TLS 1.3) e em repouso (AES-256). Nenhum dado é compartilhado entre escritórios. Cada análise fica isolada em ambiente dedicado ao escritório contratante.",
   },
   {
     q: "A plataforma está em conformidade com a LGPD?",
-    a: "Sim. Otto opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para planos Institucional e Corporativo.",
+    a: "Sim. Mandor opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para planos Institucional e Corporativo.",
   },
   {
     q: "Quanto tempo leva para ter a plataforma funcionando?",
     a: "O onboarding leva de 1 a 3 dias úteis para os planos Institucional e Corporativo. Para o plano Pontual, a primeira análise pode ser submetida no mesmo dia do contrato.",
   },
   {
-    q: "Otto se integra com ferramentas que já usamos?",
+    q: "Mandor se integra com ferramentas que já usamos?",
     a: "Atualmente exporta em PDF, Word e formato editável compatível com Office. Integração via API e conectores para CRMs estão no roadmap. Para planos Corporativo, avaliamos integrações customizadas mediante escopo.",
   },
   {
@@ -240,7 +240,7 @@ export default function LandingPage() {
           aria-label="Navegação principal"
         >
           <Link href="/" className="flex items-center">
-            <img src="/logo/otto-horizontal.svg" alt="Otto" height={32} width={104} className="h-8 w-auto" />
+            <img src="/logo/mandor-horizontal.svg" alt="Mandor" height={32} width={104} className="h-8 w-auto" />
           </Link>
 
           <ul className="hidden md:flex items-center gap-1 text-[13.5px] text-lp-ink-2">
@@ -335,10 +335,8 @@ export default function LandingPage() {
 
               {/* Subline */}
               <p className="animate-fade-up text-[15.5px] text-lp-ink-2 leading-relaxed max-w-[520px] mb-8" style={{ animationDelay: "280ms" }}>
-                Plataforma de inteligência operacional para M&A, crédito estruturado e
-                preparação de ativos — com{" "}
-                <strong className="text-lp-ink font-semibold">compliance documentado</strong>{" "}
-                e material pronto para o cliente.
+                Transforme semanas de análise em minutos com uma IA cognitiva desenvolvida
+                para escritórios, assessores e operações de M&amp;A.
               </p>
 
               {/* CTAs */}
@@ -525,7 +523,7 @@ export default function LandingPage() {
               </div>
               <div className="font-display text-[28px] text-lp-ink-4">×</div>
               <div>
-                <p className="text-[11px] font-medium text-lp-accent uppercase tracking-wider mb-3">Otto</p>
+                <p className="text-[11px] font-medium text-lp-accent uppercase tracking-wider mb-3">Mandor</p>
                 <p className="font-display text-[52px] leading-none text-lp-ink">40</p>
                 <p className="text-[13px] text-lp-ink-3 mt-1">minutos</p>
                 <p className="text-[11.5px] text-lp-ink-4 mt-1">9 módulos em paralelo</p>
@@ -600,7 +598,7 @@ export default function LandingPage() {
         <h2 className="reveal font-display text-[44px] sm:text-[58px] lg:text-[72px] leading-[1.04] tracking-tight text-lp-ink max-w-[900px] mb-10">
           A pergunta não é
           <br />
-          se Otto vale.
+          se Mandor vale.
           <br />
           É{" "}
           <em style={{ fontStyle: "italic" }}>quanto custa esperar.</em>
@@ -608,7 +606,7 @@ export default function LandingPage() {
         <div className="grid sm:grid-cols-2 gap-4 max-w-[720px]">
           <div className="border-l-2 border-lp-border-strong pl-5">
             <p className="text-[15.5px] text-lp-ink-2 leading-relaxed">
-              Cada semana sem Otto são 10 deals que entram e saem sem análise real.
+              Cada semana sem Mandor são 10 deals que entram e saem sem análise real.
             </p>
           </div>
           <div className="border-l-2 pl-5" style={{ borderColor: "#1655E8" }}>
@@ -631,7 +629,7 @@ export default function LandingPage() {
               <em style={{ fontStyle: "italic" }}>potencializa assessores.</em>
             </h2>
             <p className="text-[15.5px] text-lp-ink-2 leading-relaxed mb-5">
-              Otto potencializa o trabalho do profissional. A plataforma estrutura informação,
+              Mandor potencializa o trabalho do profissional. A plataforma estrutura informação,
               cruza dados e entrega mais capacidade analítica para a equipe que toma as decisões.
             </p>
             {/* 3 use cases */}
@@ -650,7 +648,7 @@ export default function LandingPage() {
               ))}
             </div>
             <p className="text-[14.5px] text-lp-ink-3 leading-relaxed border-l-2 border-lp-border-strong pl-4">
-              A decisão final pertence ao profissional. Otto entrega o diagnóstico e sai de cena.
+              A decisão final pertence ao profissional. Mandor entrega o diagnóstico e sai de cena.
             </p>
           </div>
           <div className="stagger-reveal grid sm:grid-cols-3 gap-5">
@@ -692,7 +690,7 @@ export default function LandingPage() {
               <em style={{ fontStyle: "italic" }}>Tudo em uma tela.</em>
             </h2>
             <p className="text-[15px] text-lp-ink-2 leading-relaxed mb-6">
-              O assessor submete os documentos do ativo. Otto orquestra os 9 módulos
+              O assessor submete os documentos do ativo. Mandor orquestra os 9 módulos
               em paralelo e entrega o diagnóstico completo em até 40 minutos: DRS, valuation,
               mapa jurídico, estruturação e Blind Teaser.
             </p>
@@ -731,8 +729,8 @@ export default function LandingPage() {
               <div className="border-b border-lp-border px-5 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-5">
                   <div className="flex items-center gap-1.5">
-                    <img src="/logo/otto-simbolo.svg" alt="Otto" className="h-5 w-auto" />
-                    <span className="text-[12px] font-medium text-lp-ink">Otto</span>
+                    <img src="/logo/mandor-simbolo.svg" alt="Mandor" className="h-5 w-auto" />
+                    <span className="text-[12px] font-medium text-lp-ink">Mandor</span>
                   </div>
                   <div className="hidden sm:flex gap-4 text-[11px] text-lp-ink-3">
                     <span className="text-lp-accent font-medium border-b border-lp-accent pb-0.5">Análises</span>
@@ -831,7 +829,7 @@ export default function LandingPage() {
             <p className="text-[11px] font-medium text-lp-accent uppercase tracking-widest mb-4">comparativo</p>
             <h2 className="font-display text-[36px] sm:text-[46px] leading-[1.08] tracking-tight text-lp-ink">
               Modelo Tradicional
-              <br />× <em style={{ fontStyle: "italic" }}>Otto.</em>
+              <br />× <em style={{ fontStyle: "italic" }}>Mandor.</em>
             </h2>
           </div>
 
@@ -846,7 +844,7 @@ export default function LandingPage() {
                     Modelo Tradicional
                   </th>
                   <th className="text-left py-3 pl-4 font-semibold text-[11px] uppercase tracking-wider" style={{ color: "#1655E8" }}>
-                    Otto
+                    Mandor
                   </th>
                 </tr>
               </thead>
@@ -900,7 +898,7 @@ export default function LandingPage() {
               num: "04",
               tag: "saída",
               title: "Saída padronizada",
-              body: "Blind Teaser e Sell-Side Pitchbook gerados com a identidade do escritório. Otto sai de cena no documento final.",
+              body: "Blind Teaser e Sell-Side Pitchbook gerados com a identidade do escritório. Mandor sai de cena no documento final.",
             },
           ].map((s) => (
             <div key={s.num} className="bg-lp-fog rounded-[18px] p-6 border border-lp-border lp-card-shadow-sm">
@@ -913,7 +911,7 @@ export default function LandingPage() {
         </div>
 
         <p className="font-display text-[20px] italic text-lp-ink-2 border-t border-lp-border pt-6">
-          Otto sai de cena no documento final.
+          Mandor sai de cena no documento final.
         </p>
       </section>
 
@@ -946,7 +944,7 @@ export default function LandingPage() {
             <div className="space-y-4">
               {[
                 {
-                  header: "sem Otto",
+                  header: "sem Mandor",
                   dark: false,
                   items: [
                     "40 deals recebidos/mês",
@@ -957,7 +955,7 @@ export default function LandingPage() {
                   ],
                 },
                 {
-                  header: "com Otto",
+                  header: "com Mandor",
                   dark: true,
                   items: [
                     "40 deals com diagnóstico completo",
@@ -1026,13 +1024,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Otto potencializa ──────────────────────────────────────────────── */}
+      {/* ── Mandor potencializa ──────────────────────────────────────────────── */}
       <section className="bg-lp-fog border-y border-lp-border">
         <div className="max-w-[1280px] mx-auto px-6 py-20 lg:py-28">
           <div className="max-w-[540px] mb-12">
             <p className="text-[11px] font-medium text-lp-accent uppercase tracking-widest mb-4">posicionamento</p>
             <h2 className="font-display text-[36px] sm:text-[46px] leading-[1.08] tracking-tight text-lp-ink mb-4">
-              Otto potencializa.
+              Mandor potencializa.
               <br />
               <em style={{ fontStyle: "italic" }}>Nunca substitui.</em>
             </h2>
@@ -1044,7 +1042,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-5">
             {[
               {
-                header: "Otto faz",
+                header: "Mandor faz",
                 accent: false,
                 items: [
                   "Organiza informações e dados",
@@ -1135,6 +1133,144 @@ export default function LandingPage() {
               </figcaption>
             </figure>
           ))}
+        </div>
+      </section>
+
+      {/* ── Segurança ──────────────────────────────────────────────────────── */}
+      <section id="seguranca" className="bg-lp-fog border-y border-lp-border">
+        <div className="max-w-[1280px] mx-auto px-6 py-20 lg:py-28">
+          <div className="text-center max-w-[600px] mx-auto mb-14">
+            <p className="stagger-reveal text-[11px] font-medium text-lp-accent uppercase tracking-widest mb-4">segurança &amp; privacidade</p>
+            <h2 className="stagger-reveal font-display text-[36px] sm:text-[44px] leading-[1.1] tracking-tight text-lp-ink">
+              Seus dados de deal{" "}
+              <em style={{ fontStyle: "italic" }}>protegidos como deveriam ser.</em>
+            </h2>
+            <p className="stagger-reveal text-[15px] text-lp-ink-2 mt-4 leading-relaxed">
+              Construímos a Mandor pensando em isolamento, LGPD e controle desde o primeiro dia.
+              Você decide quem entra, o que vê e quando sai.
+            </p>
+          </div>
+
+          {/* Cards grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+            {[
+              {
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5" /><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3" />
+                  </svg>
+                ),
+                iconBg: "#EEF3FF",
+                iconColor: "#1655E8",
+                title: "Seus dados são só seus",
+                body: "Cada escritório opera em ambiente isolado. Nenhum cliente, parceiro ou outro escritório enxerga sua operação ou seus deals.",
+                tag: "Multi-tenancy + RLS",
+              },
+              {
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                ),
+                iconBg: "#EDFAF4",
+                iconColor: "#16A34A",
+                title: "100% LGPD",
+                body: "Tratamos dados conforme a Lei nº 13.709/2018. Você pode exportar, corrigir ou excluir tudo a qualquer momento.",
+                tag: "LGPD nº 13.709/2018",
+              },
+              {
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                ),
+                iconBg: "#F3EEFF",
+                iconColor: "#7C3AED",
+                title: "Acesso protegido de ponta a ponta",
+                body: "Senhas criptografadas, 2FA disponível e bloqueio automático de tentativas suspeitas de login.",
+                tag: "TLS + 2FA + JWT",
+              },
+              {
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                ),
+                iconBg: "#FEF8ED",
+                iconColor: "#D97706",
+                title: "Você decide quem vê o quê",
+                body: "Permissões por usuário e por área: equipe interna, analistas ou clientes — cada um acessa apenas o necessário.",
+                tag: "RBAC + permissões granulares",
+              },
+              {
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  </svg>
+                ),
+                iconBg: "#FFF0F0",
+                iconColor: "#DC2626",
+                title: "Dados nunca repassados a terceiros",
+                body: "Seus documentos e relatórios de deal não passam por plataformas externas de analytics, publicidade ou rastreamento.",
+                tag: "Sem telemetria externa",
+              },
+              {
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" />
+                  </svg>
+                ),
+                iconBg: "#F0FFF4",
+                iconColor: "#059669",
+                title: "Backup, auditoria e portabilidade",
+                body: "Histórico completo de quem acessou o quê, backups automáticos e exportação dos seus dados quando quiser.",
+                tag: "Logs + exports + backups",
+              },
+            ].map((card) => (
+              <div
+                key={card.title}
+                className="card-hover bg-lp-canvas border border-lp-border rounded-[16px] p-6 flex flex-col"
+              >
+                <div
+                  className="w-11 h-11 rounded-[12px] flex items-center justify-center mb-5 flex-shrink-0"
+                  style={{ background: card.iconBg, color: card.iconColor }}
+                >
+                  {card.icon}
+                </div>
+                <h3 className="text-[15px] font-semibold text-lp-ink mb-2">{card.title}</h3>
+                <p className="text-[13.5px] text-lp-ink-2 leading-relaxed flex-1">{card.body}</p>
+                <p className="mt-4 text-[11.5px] font-mono text-lp-ink-3 bg-lp-fog border border-lp-border rounded-md px-2.5 py-1 self-start">
+                  {card.tag}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Trust bar */}
+          <div className="border border-lp-border rounded-[14px] bg-lp-canvas px-6 py-4">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+              {[
+                "Criptografia em repouso",
+                "TLS 1.3 em trânsito",
+                "Documentos criptografados",
+                "Política de Privacidade pública",
+                "Sem venda de dados",
+              ].map((item) => (
+                <span key={item} className="flex items-center gap-1.5 text-[12px] text-lp-ink-2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-ok flex-shrink-0">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                  {item}
+                </span>
+              ))}
+            </div>
+            <div className="text-center mt-4 pt-4 border-t border-lp-border">
+              <p className="text-[14px] font-semibold text-lp-accent mb-1">Você mantém controle total.</p>
+              <Link href="/privacidade" className="text-[13px] text-lp-ink-2 hover:text-lp-accent transition-colors">
+                Leia nossa Política de Privacidade →
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1236,7 +1372,7 @@ export default function LandingPage() {
           >
             Para conhecer
             <br />
-            <em style={{ fontStyle: "italic", color: "#93B4F8" }}>Otto.</em>
+            <em style={{ fontStyle: "italic", color: "#93B4F8" }}>Mandor.</em>
           </h2>
           <p className="reveal text-[16px] leading-relaxed max-w-[520px] mx-auto mb-10" style={{ color: "#7A92BE", transitionDelay: "100ms" }}>
             M&A, crédito estruturado ou preparação para mercado: solicite acesso e
@@ -1252,7 +1388,7 @@ export default function LandingPage() {
               <span aria-hidden>→</span>
             </Link>
             <a
-              href="mailto:gestor@renanregonato.com.br?subject=Quero%20conhecer%20Otto"
+              href="mailto:gestor@renanregonato.com.br?subject=Quero%20conhecer%20Mandor"
               className="inline-flex items-center justify-center text-[14px] font-medium px-7 py-3.5 rounded-[11px] lp-dark-btn"
             >
               Falar com nossa equipe
@@ -1271,7 +1407,7 @@ export default function LandingPage() {
             {/* Brand */}
             <div className="col-span-2">
               <div className="mb-3">
-                <img src="/logo/otto-horizontal-dark.svg" alt="Otto" className="h-7 w-auto" />
+                <img src="/logo/mandor-horizontal-dark.svg" alt="Mandor" className="h-7 w-auto" />
               </div>
               <p className="text-[12px] leading-relaxed mb-3 max-w-[240px]" style={{ color: "#4A6090" }}>
                 Inteligência operacional para M&amp;A, crédito estruturado e preparação de deals.
@@ -1321,7 +1457,7 @@ export default function LandingPage() {
                 {[
                   { label: "Política de Privacidade", href: "/privacidade"    },
                   { label: "Termos de Uso",           href: "/termos"         },
-                  { label: "Contato",                 href: "mailto:gestor@renanregonato.com.br" },
+                  { label: "Contato",                 href: "/contato"                           },
                 ].map((l) => (
                   <li key={l.label}>
                     <Link href={l.href} className="text-[13px] hover:underline" style={{ color: "#6B82A8" }}>{l.label}</Link>

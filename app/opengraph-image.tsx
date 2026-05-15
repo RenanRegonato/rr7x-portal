@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Otto by RR7x — Diagnóstico de M&A em 40 minutos";
+export const alt = "Mandor — Deal Intelligence para M&A e Crédito Estruturado";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

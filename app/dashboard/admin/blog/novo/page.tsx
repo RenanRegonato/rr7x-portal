@@ -22,7 +22,7 @@ export default function NovoArtigoPage() {
     cover_image_url: '',
     category: '',
     tags: '',
-    author_name: 'Equipe Otto by RR7x',
+    author_name: 'Equipe Mandor',
     custom_slug: '',
     published: false,
     seo_title: '',
@@ -42,7 +42,7 @@ export default function NovoArtigoPage() {
     setSaving(true)
     const tags = form.tags.split(',').map(t => t.trim()).filter(Boolean)
 
-    const res = await fetch('/api/dashboard/admin/blog', {
+    const res = await fetch('/api/admin/blog', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, tags, published: publish }),
