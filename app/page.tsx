@@ -110,8 +110,8 @@ const planos = [
   {
     nome: "Pontual",
     tag: "avulso · por análise",
-    preco: "R$ 2.500",
-    complemento: "– 5.000 / análise",
+    preco: "R$ 3.500",
+    complemento: "/ análise",
     desc: "Para escritórios com demanda esporádica. Créditos sob demanda, sem comprometimento mensal.",
     features: [
       "Pipeline completo por análise",
@@ -127,7 +127,7 @@ const planos = [
   {
     nome: "Institucional",
     tag: "mensal · escritório",
-    preco: "R$ 12.000",
+    preco: "R$ 17.000",
     complemento: "/ mês",
     desc: "Para escritórios com fluxo constante. Análises ilimitadas dentro da capacidade mensal.",
     features: [
