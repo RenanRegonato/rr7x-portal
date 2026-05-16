@@ -5,6 +5,7 @@ import { readAnalyseDocs, DocReadSummary } from '@/lib/doc-reader'
 import { fetchBCBIndicators } from '@/lib/bcb-data'
 import { fetchCapitalMarketsData, fetchListedComparables, extractSectorKeywords } from '@/lib/cvm-data'
 import { checkCADE, formatCADEForPrompt } from '@/lib/cade-check'
+import { getFacts, formatTruthLayer } from '@/lib/truth-layer'
 
 // Steps que recebem extended thinking para raciocínio financeiro mais profundo
 const THINKING_STEPS = new Set(['diagnostico', 'analise_ma', 'estruturacao'])
@@ -287,19 +288,27 @@ Os documentos seguem abaixo (PDFs, imagens e textos). Analise o conteúdo real d
   return blocks
 }
 
-function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, escritorioBlock = '', feedbackBlock = '', bcbData = '', cvmCapital = '', cvmComps = '', intake: Record<string, string> = {}): { system: SystemBlock[]; user: string | ContentBlock[] } | null {
+function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, escritorioBlock = '', feedbackBlock = '', bcbData = '', cvmCapital = '', cvmComps = '', intake: Record<string, string> = {}, truthLayerBlock = ''): { system: SystemBlock[]; user: string | ContentBlock[] } | null {
   // HUMANIZER_DIRECTIVE como primeiro bloco de sistema: prefixo estável compartilhado por
   // TODOS os agentes e TODAS as análises → máximo de cache hit na API Anthropic.
   // Cada análise paga o custo de leitura do HUMANIZER_DIRECTIVE apenas na primeira chamada;
   // as demais (paralelas ou de outros usuários) lêem do cache.
   const humanizerBlock: SystemBlock = { type: 'text', text: HUMANIZER_DIRECTIVE, cache_control: { type: 'ephemeral' } }
 
+  // Truth Layer (Fase 6): bloco de fatos consolidados, cacheado por análise.
+  // Vai ANTES do prompt específico para que o agente leia primeiro o que é fato
+  // antes das instruções de execução. Só é incluído se houver conteúdo (drive_intake
+  // não recebe truth layer, já que é a fonte dos fatos).
+  const truthBlock: SystemBlock | null = truthLayerBlock
+    ? { type: 'text', text: truthLayerBlock, cache_control: { type: 'ephemeral' } }
+    : null
+
   // Segundo bloco: prompt específico do agente + feedbackBlock do escritório (cacheado por agente/escritório)
   function sysBlocks(agentPrompt: string): SystemBlock[] {
-    return [
-      humanizerBlock,
-      { type: 'text', text: agentPrompt + feedbackBlock, cache_control: { type: 'ephemeral' } },
-    ]
+    const blocks: SystemBlock[] = [humanizerBlock]
+    if (truthBlock) blocks.push(truthBlock)
+    blocks.push({ type: 'text', text: agentPrompt + feedbackBlock, cache_control: { type: 'ephemeral' } })
+    return blocks
   }
 
   // Contexto compartilhado pelos 6 agentes paralelos: ingestão + orquestração.
@@ -556,17 +565,21 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       intake.resumoAtivo ?? ''
     )
 
-    const [prompts, escritorioData, bcbData, cvmCapital, cvmComps] = await Promise.all([
+    const [prompts, escritorioData, bcbData, cvmCapital, cvmComps, factsData] = await Promise.all([
       loadPrompts(),
       loadEscritorio(analise.user_id),
       (step === 'pesquisa' || step === 'estruturacao') ? fetchBCBIndicators() : Promise.resolve(''),
       step === 'estruturacao' ? fetchCapitalMarketsData(sectorKeywords)  : Promise.resolve(''),
       step === 'pesquisa'     ? fetchListedComparables(sectorKeywords)   : Promise.resolve(''),
+      getFacts(id),
     ])
     const escritorioBlock = escritorioData.block
     const feedbackBlock   = await loadFeedbacks(escritorioData.escritorioId)
     const intakeStr    = formatIntake(intake)
     const allOutputs   = buildAllOutputs(outputs)
+    // Truth Layer: bloco de fatos consolidados que será injetado no system prompt
+    // de TODOS os agentes (exceto drive_intake, que é a fonte original dos fatos).
+    const truthLayerBlock = step === 'drive_intake' ? '' : formatTruthLayer(factsData)
 
     const stepStartedAt  = Date.now()
     const contextSteps   = Object.keys(outputs).filter((k) => outputs[k])
@@ -648,7 +661,7 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
     }
 
     // Todos os outros steps
-    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock, feedbackBlock, bcbData, cvmCapital, cvmComps, intake)
+    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock, feedbackBlock, bcbData, cvmCapital, cvmComps, intake, truthLayerBlock)
     if (!args) return NextResponse.json({ error: 'Step inválido' }, { status: 400 })
 
     // Se houver regeneração executada para este step, injeta o briefing do

@@ -20,6 +20,7 @@ export type AuditEvent =
   | 'regeneracao.cancelada'
   | 'regeneracao.cascade_avaliada'
   | 'regeneracao.cascade_step_executado'
+  | 'fact.extracted'
 
 interface AuditParams {
   event:      AuditEvent

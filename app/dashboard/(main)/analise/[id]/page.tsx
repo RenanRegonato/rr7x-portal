@@ -14,6 +14,7 @@ import remarkGfm from 'remark-gfm'
 import DealPipelinePanel from '@/components/DealPipelinePanel'
 import RegenerarModal from '@/components/RegenerarModal'
 import CascadeImpactoModal from '@/components/CascadeImpactoModal'
+import FatosPanel from '@/components/FatosPanel'
 
 const MAX_REGENERACOES = 3
 
@@ -62,6 +63,7 @@ const INTAKE_AGENT: AgentDef = {
 const DETAIL_TABS = [
   { key: 'relatorio_consolidado', label: 'Resumo Executivo' },
   { key: 'drive_intake',          label: 'Ingestão'         },
+  { key: 'fatos',                 label: 'Fatos'            },
   { key: 'orchestration',         label: 'Orquestração'     },
   { key: 'pesquisa',              label: 'Mercado'          },
   { key: 'diagnostico',           label: 'Diagnóstico'      },
@@ -127,6 +129,27 @@ export default function AnalisePage() {
     return () => clearInterval(t)
   }, [status])
 
+  async function runFactExtraction(): Promise<void> {
+    addLog('Fact Extractor', 'Extraindo fatos consolidados da ingestão...')
+    try {
+      const r = await fetch(`/api/analise/${id}/fact-extract`, { method: 'POST' })
+      if (!r.ok) {
+        const d = await r.json().catch(() => ({}))
+        addLog('Fact Extractor', `⚠ Falhou: ${d.error ?? 'erro desconhecido'} (prosseguindo)`)
+        return
+      }
+      const d = await r.json()
+      if (d.ja_extraido) {
+        addLog('Fact Extractor', '↩ Fatos já extraídos previamente')
+      } else {
+        addLog('Fact Extractor', `✓ ${d.facts_count ?? 0} fato${d.facts_count === 1 ? '' : 's'} consolidados`)
+      }
+    } catch (err) {
+      console.error('[fact-extract]', err)
+      addLog('Fact Extractor', '⚠ Erro ao extrair fatos (prosseguindo sem truth layer)')
+    }
+  }
+
   async function runStep(step: string, regeneracaoId?: string): Promise<string> {
     setRunningSteps((prev) => new Set([...prev, step]))
     const agent = [...AGENTS, INTAKE_AGENT].find((a) => a.key === step)
@@ -187,6 +210,10 @@ export default function AnalisePage() {
 
     try {
       await maybeRun('drive_intake')
+      // Truth Layer (Fase 6): após ingestão, extrai fatos estruturados
+      // para que todos os agentes downstream consultem antes de afirmar
+      // disponibilidade documental ou citar números.
+      await runFactExtraction()
       await maybeRun('orchestration')
 
       await Promise.all([
@@ -637,7 +664,10 @@ function DealDetail({
   const [shareUrl,       setShareUrl]       = useState<string | null>(null)
   const [shareCopied,    setShareCopied]    = useState(false)
   const [shareLoading,   setShareLoading]   = useState(false)
-  const visibleTabs = DETAIL_TABS.filter((t) => outputs[t.key])
+  const visibleTabs = DETAIL_TABS.filter((t) => {
+    if (t.key === 'fatos') return !!analise.facts_extracted_at
+    return !!outputs[t.key]
+  })
   const slug = analise.nome_ativo?.replace(/\s+/g, '-') ?? 'analise'
 
   async function createShareLink() {
@@ -817,7 +847,13 @@ function DealDetail({
 
       <div className="flex flex-1 min-h-0">
         <div className="flex-1 p-8 overflow-y-auto">
-        {activeTab && outputs[activeTab] ? (
+        {activeTab === 'fatos' ? (
+          <FatosPanel
+            analiseId={analise.id}
+            factsExtractedAt={analise.facts_extracted_at ?? null}
+            onReextract={() => { /* o painel já recarrega internamente */ }}
+          />
+        ) : activeTab && outputs[activeTab] ? (
           <OutputPanel
             label={DETAIL_TABS.find((t) => t.key === activeTab)?.label ?? activeTab}
             content={outputs[activeTab]}
