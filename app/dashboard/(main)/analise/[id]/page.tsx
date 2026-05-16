@@ -15,6 +15,7 @@ import DealPipelinePanel from '@/components/DealPipelinePanel'
 import RegenerarModal from '@/components/RegenerarModal'
 import CascadeImpactoModal from '@/components/CascadeImpactoModal'
 import FatosPanel from '@/components/FatosPanel'
+import ClaimsSection from '@/components/ClaimsSection'
 
 const MAX_REGENERACOES = 3
 
@@ -1304,6 +1305,9 @@ function OutputPanel({
           {content}
         </ReactMarkdown>
       </div>
+      {analiseId && (
+        <ClaimsSection analiseId={analiseId} stepKey={stepKey}/>
+      )}
     </div>
   )
 }

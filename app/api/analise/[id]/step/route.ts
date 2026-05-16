@@ -7,9 +7,18 @@ import { fetchCapitalMarketsData, fetchListedComparables, extractSectorKeywords 
 import { checkCADE, formatCADEForPrompt } from '@/lib/cade-check'
 import { getFacts, formatTruthLayer } from '@/lib/truth-layer'
 import { listBenchmarks, formatBenchmarksForPrompt } from '@/lib/benchmarks'
+import { parseClaims, persistClaims, CLAIMS_DIRECTIVE } from '@/lib/claims'
 
 // Steps que recebem extended thinking para raciocínio financeiro mais profundo
 const THINKING_STEPS = new Set(['diagnostico', 'analise_ma', 'estruturacao'])
+
+// Steps que emitem claims estruturados (Fase 8). Excluímos:
+// - drive_intake (upstream, produz fatos)
+// - blind_teaser e sell_side_pitchbook (documentos derivados de marketing)
+const CLAIM_AGENTS = new Set([
+  'orchestration', 'pesquisa', 'diagnostico', 'analise_ma', 'kyc',
+  'contratos', 'originacao', 'estruturacao', 'maturidade', 'relatorio_consolidado',
+])
 
 export const maxDuration = 300
 
@@ -310,10 +319,18 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
     ? { type: 'text', text: benchmarksBlock, cache_control: { type: 'ephemeral' } }
     : null
 
-  // Ordem dos blocos: humanizer (global) → benchmarks (global) → truth (por análise) → prompt do agente
+  // CLAIMS_DIRECTIVE (Fase 8): instrução para o agente emitir claims estruturados
+  // ao final do output (bloco invisível parseado pelo sistema).
+  // Cacheado globalmente — diretiva idêntica para todos os agentes analíticos.
+  const claimsBlock: SystemBlock | null = CLAIM_AGENTS.has(step)
+    ? { type: 'text', text: CLAIMS_DIRECTIVE, cache_control: { type: 'ephemeral' } }
+    : null
+
+  // Ordem: humanizer → benchmarks → claims directive → truth (por análise) → prompt do agente
   function sysBlocks(agentPrompt: string): SystemBlock[] {
     const blocks: SystemBlock[] = [humanizerBlock]
     if (benchmarksBlk) blocks.push(benchmarksBlk)
+    if (claimsBlock)   blocks.push(claimsBlock)
     if (truthBlock)    blocks.push(truthBlock)
     blocks.push({ type: 'text', text: agentPrompt + feedbackBlock, cache_control: { type: 'ephemeral' } })
     return blocks
@@ -741,14 +758,22 @@ ${regen.briefing_motivo}
 
         messageStream.on('finalMessage', (msg) => {
           void (async () => {
+            // Fase 8: extrai bloco <!--CLAIMS-START-->...<!--CLAIMS-END--> do output
+            // antes de persistir o texto narrativo. Claims vão para tabela própria.
+            const { claims, cleanedText } = CLAIM_AGENTS.has(step)
+              ? parseClaims(fullText)
+              : { claims: [], cleanedText: fullText }
+
+            const textForStorage = cleanedText
+
             const { data: latest } = await admin.from('analises').select('outputs').eq('id', id).single()
             const latestOutputs = (latest?.outputs ?? outputs) as Record<string, string>
             await Promise.all([
               admin.from('analises').update({
-                outputs: { ...latestOutputs, [step]: fullText },
+                outputs: { ...latestOutputs, [step]: textForStorage },
                 atualizado_em: new Date().toISOString(),
               }).eq('id', id),
-              saveOutputVersion(admin, id, step, fullText),
+              saveOutputVersion(admin, id, step, textForStorage),
               saveAuditLog(admin, {
                 analiseId:      id,
                 stepKey:        step,
@@ -760,6 +785,8 @@ ${regen.briefing_motivo}
                 externalData,
                 startedAt:      stepStartedAt,
               }),
+              // Persiste claims em tabela própria (apaga as anteriores deste step antes)
+              claims.length > 0 ? persistClaims(id, step, claims) : Promise.resolve(),
             ])
             controller.close()
           })().catch(() => controller.close())
