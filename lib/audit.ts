@@ -14,6 +14,10 @@ export type AuditEvent =
   | 'pacote.updated'
   | 'pacote.deleted'
   | 'pacote.consumed'
+  | 'regeneracao.solicitada'
+  | 'regeneracao.avaliada'
+  | 'regeneracao.executada'
+  | 'regeneracao.cancelada'
 
 interface AuditParams {
   event:      AuditEvent

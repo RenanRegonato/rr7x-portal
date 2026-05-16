@@ -539,7 +539,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
     const { id } = await params
-    const { step } = await req.json()
+    const { step, regeneracao_id } = await req.json() as { step: string; regeneracao_id?: string }
 
     const admin = createAdminClient()
 
@@ -650,6 +650,44 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
     // Todos os outros steps
     const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock, feedbackBlock, bcbData, cvmCapital, cvmComps, intake)
     if (!args) return NextResponse.json({ error: 'Step inválido' }, { status: 400 })
+
+    // Se houver regeneração executada para este step, injeta o briefing do
+    // assessor como prefixo no user content. O Revisor já aprovou ou o
+    // assessor decidiu prosseguir apesar do contra-argumento.
+    if (regeneracao_id) {
+      const { data: regen } = await admin
+        .from('regeneracoes')
+        .select('briefing_o_que, briefing_motivo, executada, step_key, analise_id')
+        .eq('id', regeneracao_id)
+        .maybeSingle()
+
+      if (regen && regen.executada && regen.analise_id === id && regen.step_key === step) {
+        const briefingHeader =
+`# DIRETRIZ DE REGENERAÇÃO (BRIEFING DO ASSESSOR)
+
+O assessor responsável solicitou a regeneração deste step com o seguinte briefing. Considere essas diretrizes ao produzir o novo output, mantendo o rigor técnico habitual da análise.
+
+**O que ele quer alterar:**
+${regen.briefing_o_que}
+
+**Motivo:**
+${regen.briefing_motivo}
+
+---
+
+# INSTRUÇÕES ORIGINAIS DO STEP
+
+`
+        if (typeof args.user === 'string') {
+          args.user = briefingHeader + args.user
+        } else if (Array.isArray(args.user)) {
+          args.user = [
+            { type: 'text', text: briefingHeader },
+            ...args.user,
+          ] as typeof args.user
+        }
+      }
+    }
 
     const useThinking = THINKING_STEPS.has(step)
 

@@ -12,6 +12,9 @@ import { IconDownload, IconCheck, IconClock, IconArrowRight } from '@/components
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import DealPipelinePanel from '@/components/DealPipelinePanel'
+import RegenerarModal from '@/components/RegenerarModal'
+
+const MAX_REGENERACOES = 3
 
 // ─── Conditional agent logic ──────────────────────────────────────────────────
 
@@ -83,6 +86,10 @@ export default function AnalisePage() {
   const [logLines,     setLogLines]     = useState<LogLine[]>([])
   const [elapsed,      setElapsed]      = useState(0)
 
+  // Regenerar com briefing
+  const [regenStep,    setRegenStep]    = useState<string | null>(null)
+  const [regenCount,   setRegenCount]   = useState(0)
+
   const pipelineStarted  = useRef(false)
   const startTime        = useRef(Date.now())
 
@@ -98,16 +105,16 @@ export default function AnalisePage() {
     return () => clearInterval(t)
   }, [status])
 
-  async function runStep(step: string): Promise<string> {
+  async function runStep(step: string, regeneracaoId?: string): Promise<string> {
     setRunningSteps((prev) => new Set([...prev, step]))
     const agent = [...AGENTS, INTAKE_AGENT].find((a) => a.key === step)
-    addLog(agent?.name ?? step, 'Iniciando análise...')
+    addLog(agent?.name ?? step, regeneracaoId ? 'Regenerando com briefing...' : 'Iniciando análise...')
 
     try {
       const res = await fetch(`/api/analise/${id}/step`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ step }),
+        body:    JSON.stringify({ step, regeneracao_id: regeneracaoId }),
       })
 
       if (!res.ok) {
@@ -225,6 +232,7 @@ export default function AnalisePage() {
       const data = await res.json()
       setAnalise(data)
       setStatus(data.status)
+      setRegenCount(Number(data.regeneracoes_count ?? 0))
       const existing = (data.outputs ?? {}) as Record<string, string>
       setOutputs(existing)
 
@@ -237,6 +245,16 @@ export default function AnalisePage() {
     }
     init()
   }, [id])
+
+  async function onRegenerarConfirmado(step: string, regeneracaoId: string) {
+    // Bumpa contador local imediatamente (o backend já incrementou ao executar)
+    setRegenCount((c) => c + 1)
+    try {
+      await runStep(step, regeneracaoId)
+    } catch (err) {
+      console.error('[regenerar/runStep]', err)
+    }
+  }
 
   if (!analise) {
     return (
@@ -352,22 +370,47 @@ export default function AnalisePage() {
     />
   }
 
-  return <DealDetail
-    analise={analise}
-    outputs={outputs}
-    status={status}
-    activeTab={activeTab}
-    setActiveTab={setActiveTab}
-    onBack={() => router.push('/dashboard')}
-    onRegenerate={async () => {
-      try {
-        await runStep('relatorio_consolidado')
-        setStatus('concluido')
-      } catch {}
-    }}
-    runningSteps={runningSteps}
-    onReprocessStep={reprocessStep}
-  />
+  const regenStepLabel = regenStep
+    ? (DETAIL_TABS.find(t => t.key === regenStep)?.label ?? regenStep)
+    : ''
+
+  return (
+    <>
+      <DealDetail
+        analise={analise}
+        outputs={outputs}
+        status={status}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onBack={() => router.push('/dashboard')}
+        onRegenerate={async () => {
+          try {
+            await runStep('relatorio_consolidado')
+            setStatus('concluido')
+          } catch {}
+        }}
+        runningSteps={runningSteps}
+        onReprocessStep={(step) => setRegenStep(step)}
+        regenCount={regenCount}
+      />
+      {regenStep && (
+        <RegenerarModal
+          analiseId={id}
+          step={regenStep}
+          stepLabel={regenStepLabel}
+          regeneracoesCount={regenCount}
+          maxRegeneracoes={MAX_REGENERACOES}
+          open={true}
+          onClose={() => setRegenStep(null)}
+          onConfirmed={(regeneracaoId) => {
+            const stepToRun = regenStep
+            setRegenStep(null)
+            if (stepToRun) void onRegenerarConfirmado(stepToRun, regeneracaoId)
+          }}
+        />
+      )}
+    </>
+  )
 }
 
 // ─── SquadView ────────────────────────────────────────────────────────────────
@@ -504,7 +547,7 @@ function SquadView({
 function DealDetail({
   analise, outputs, status, activeTab, setActiveTab,
   onBack, onRegenerate, runningSteps,
-  onReprocessStep,
+  onReprocessStep, regenCount,
 }: {
   analise:          any
   outputs:          Record<string, string>
@@ -515,6 +558,7 @@ function DealDetail({
   onRegenerate:     () => void
   runningSteps:     Set<string>
   onReprocessStep:  (step: string) => void
+  regenCount:       number
 }) {
   const runningConsolidado = runningSteps.has('relatorio_consolidado')
   const [showPipeline,   setShowPipeline]   = useState(false)
@@ -714,6 +758,8 @@ function DealDetail({
             analiseTipo={analise.deal_intake?.tipoAtivo}
             onReprocess={() => onReprocessStep(activeTab)}
             isReprocessing={runningSteps.has(activeTab)}
+            regenLabel={`Regenerar (${regenCount}/${MAX_REGENERACOES})`}
+            regenDisabled={regenCount >= MAX_REGENERACOES || runningSteps.has(activeTab)}
           />
         ) : (
           <div className="bg-surface border border-border rounded-[14px] p-16 text-center shadow-soft-sm">
@@ -743,15 +789,18 @@ function OutputPanel({
   label, content, stepKey, analiseId,
   analiseTitle, analiseTipo,
   onReprocess, isReprocessing,
+  regenLabel, regenDisabled,
 }: {
-  label:          string
-  content:        string
-  stepKey:        string
-  analiseId?:     string
-  analiseTitle?:  string
-  analiseTipo?:   string
-  onReprocess?:   () => void
+  label:           string
+  content:         string
+  stepKey:         string
+  analiseId?:      string
+  analiseTitle?:   string
+  analiseTipo?:    string
+  onReprocess?:    () => void
   isReprocessing?: boolean
+  regenLabel?:     string
+  regenDisabled?:  boolean
 }) {
   const FINANCIAL_STEPS = new Set(['diagnostico', 'analise_ma', 'estruturacao'])
   const hasUnverifiedWarning = FINANCIAL_STEPS.has(stepKey) && (
@@ -881,12 +930,13 @@ function OutputPanel({
           {onReprocess && (
             <button
               onClick={onReprocess}
-              disabled={isReprocessing}
-              className="text-[12px] text-ink-3 hover:text-ink flex items-center gap-1.5 transition-colors disabled:opacity-40"
+              disabled={regenDisabled ?? isReprocessing}
+              title={regenDisabled && !isReprocessing ? 'Limite de regenerações atingido. Suba o Deal novamente para uma nova análise.' : undefined}
+              className="text-[12px] text-accent-strong hover:opacity-80 flex items-center gap-1.5 transition-colors disabled:opacity-40 disabled:text-ink-3 disabled:hover:opacity-100 font-medium"
             >
               {isReprocessing
-                ? <span className="animate-pulse">Reprocessando...</span>
-                : '↺ Reprocessar'}
+                ? <span className="animate-pulse">Regenerando...</span>
+                : <>✦ {regenLabel ?? 'Regenerar Resumo'}</>}
             </button>
           )}
           <button

@@ -68,6 +68,25 @@ export const ConvidarSchema = z.object({
   email: z.string().email('Email inválido').max(200).trim().toLowerCase(),
 })
 
+// Steps válidos para regeneração (mesmos da página de análise)
+const STEP_KEYS = [
+  'orchestration', 'pesquisa', 'diagnostico', 'analise_ma', 'kyc',
+  'contratos', 'originacao', 'estruturacao', 'maturidade',
+  'relatorio_consolidado', 'blind_teaser', 'sell_side_pitchbook',
+] as const
+
+// POST /api/analise/[id]/regenerar/avaliar
+export const RegenerarAvaliarSchema = z.object({
+  step:    z.enum(STEP_KEYS),
+  o_que:   z.string().min(10, 'Mínimo 10 caracteres').max(3000, 'Máximo 3000 caracteres').trim(),
+  motivo:  z.string().min(10, 'Mínimo 10 caracteres').max(3000, 'Máximo 3000 caracteres').trim(),
+})
+
+// POST /api/analise/[id]/regenerar/executar
+export const RegenerarExecutarSchema = z.object({
+  regeneracao_id: uuid,
+})
+
 // POST /api/admin/pacotes
 export const PacoteCreateSchema = z.object({
   escritorio_id:  uuid,

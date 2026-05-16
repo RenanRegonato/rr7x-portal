@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
 
   const { data } = await admin
     .from('analises')
-    .select('id, status, outputs, nome_ativo, deal_intake, criado_em')
+    .select('id, status, outputs, nome_ativo, deal_intake, criado_em, regeneracoes_count')
     .eq('id', id)
     .single()
 
