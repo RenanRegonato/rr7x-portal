@@ -17,6 +17,7 @@ import CascadeImpactoModal from '@/components/CascadeImpactoModal'
 import FatosPanel from '@/components/FatosPanel'
 import ClaimsSection from '@/components/ClaimsSection'
 import ConsistencyPanel from '@/components/ConsistencyPanel'
+import MesaVerdictBanner from '@/components/MesaVerdictBanner'
 
 const MAX_REGENERACOES = 3
 
@@ -157,6 +158,46 @@ export default function AnalisePage() {
     }
   }
 
+  async function runRiskCorrelation(): Promise<void> {
+    addLog('Sentinela de Riscos', 'Detectando síndromes cross-dimensionais...')
+    try {
+      const r = await fetch(`/api/analise/${id}/risk-correlation`, { method: 'POST' })
+      if (!r.ok) {
+        addLog('Sentinela de Riscos', '⚠ Falha (prosseguindo)')
+        return
+      }
+      const d = await r.json()
+      if ((d.total ?? 0) === 0) {
+        addLog('Sentinela de Riscos', '✓ Nenhuma síndrome cross-dimensional detectada')
+      } else {
+        addLog('Sentinela de Riscos', `⚠ ${d.total} síndrome${d.total === 1 ? '' : 's'} detectada${d.total === 1 ? '' : 's'} — ver aba Consistência`)
+      }
+    } catch (err) {
+      console.error('[risk-correlation]', err)
+    }
+  }
+
+  async function runMesaRevisao(): Promise<void> {
+    addLog('Mesa Consolidadora', 'Revisor final institucional analisando...')
+    try {
+      const r = await fetch(`/api/analise/${id}/mesa-revisao`, { method: 'POST' })
+      if (!r.ok) {
+        addLog('Mesa Consolidadora', '⚠ Falha (prosseguindo sem veredito)')
+        return
+      }
+      const d = await r.json()
+      const ap = d.mesa_revisao?.aprovacao ?? 'desconhecido'
+      const map: Record<string, string> = {
+        aprovado:                '✓ APROVADO',
+        aprovado_com_ressalvas:  '⚠ APROVADO COM RESSALVAS',
+        revisao_necessaria:      '⛔ REVISÃO NECESSÁRIA',
+      }
+      addLog('Mesa Consolidadora', map[ap] ?? `veredito: ${ap}`)
+    } catch (err) {
+      console.error('[mesa-revisao]', err)
+    }
+  }
+
   async function runFactExtraction(): Promise<void> {
     addLog('Fact Extractor', 'Extraindo fatos consolidados da ingestão...')
     try {
@@ -264,9 +305,15 @@ export default function AnalisePage() {
 
       await maybeRun('maturidade')
 
-      // Consistency Engine (Fase 9): checa contradições entre claims/facts/benchmarks
-      // antes dos documentos finais. Não-bloqueante: relatório segue, mas com aviso.
+      // Consistency Engine (Fase 9): regras determinísticas
       await runConsistencyCheck()
+
+      // Sentinela de Riscos (Fase 10): síndromes cross-dimensionais via IA
+      await runRiskCorrelation()
+
+      // Mesa Consolidadora (Fase 10): revisor final institucional
+      // — lê todos outputs + issues + síndromes e emite veredito
+      await runMesaRevisao()
 
       await Promise.all([
         maybeRun('blind_teaser'),
@@ -897,6 +944,10 @@ function DealDetail({
         ) : activeTab === 'consistencia' ? (
           <ConsistencyPanel analiseId={analise.id}/>
         ) : activeTab && outputs[activeTab] ? (
+          <>
+            {activeTab === 'relatorio_consolidado' && analise.mesa_revisao && (
+              <MesaVerdictBanner mesa={analise.mesa_revisao} checkedAt={analise.mesa_revisao_at}/>
+            )}
           <OutputPanel
             label={DETAIL_TABS.find((t) => t.key === activeTab)?.label ?? activeTab}
             content={outputs[activeTab]}
@@ -909,6 +960,7 @@ function DealDetail({
             regenLabel={`Regenerar (${regenCount}/${MAX_REGENERACOES})`}
             regenDisabled={regenCount >= MAX_REGENERACOES || runningSteps.has(activeTab)}
           />
+          </>
         ) : (
           <div className="bg-surface border border-border rounded-[14px] p-16 text-center shadow-soft-sm">
             <div className="text-ink-3 text-[13px]">Selecione uma aba acima para ver o conteúdo.</div>

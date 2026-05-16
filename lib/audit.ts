@@ -26,6 +26,8 @@ export type AuditEvent =
   | 'benchmark.archived'
   | 'claims.persisted'
   | 'consistency.checked'
+  | 'risk.correlation_run'
+  | 'mesa.revisao_run'
 
 interface AuditParams {
   event:      AuditEvent
