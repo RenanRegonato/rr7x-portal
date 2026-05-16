@@ -21,6 +21,9 @@ export type AuditEvent =
   | 'regeneracao.cascade_avaliada'
   | 'regeneracao.cascade_step_executado'
   | 'fact.extracted'
+  | 'benchmark.created'
+  | 'benchmark.updated'
+  | 'benchmark.archived'
 
 interface AuditParams {
   event:      AuditEvent

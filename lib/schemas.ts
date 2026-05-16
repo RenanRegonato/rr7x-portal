@@ -92,6 +92,35 @@ export const RegenerarCascadeSchema = z.object({
   regeneracao_id: uuid,
 })
 
+// POST /api/admin/benchmarks
+export const BenchmarkCreateSchema = z.object({
+  instrument:  shortStr(100).min(1),
+  parameter:   shortStr(100).min(1),
+  value_min:   z.number().finite(),
+  value_max:   z.number().finite(),
+  unit:        z.enum(['BRL', 'pct', 'multiplo', 'meses', 'qtd', 'pct_cdi']),
+  descricao:   shortStr(500).optional(),
+  notes:       shortStr(2000).optional(),
+  source:      shortStr(500).optional(),
+  valid_from:  z.string().optional(),    // YYYY-MM-DD
+  valid_to:    z.string().nullable().optional(),
+}).refine((d) => d.value_max >= d.value_min, {
+  message: 'value_max precisa ser >= value_min',
+  path:    ['value_max'],
+})
+
+// PATCH /api/admin/benchmarks/[id]
+export const BenchmarkUpdateSchema = z.object({
+  value_min:   z.number().finite().optional(),
+  value_max:   z.number().finite().optional(),
+  unit:        z.enum(['BRL', 'pct', 'multiplo', 'meses', 'qtd', 'pct_cdi']).optional(),
+  descricao:   shortStr(500).optional(),
+  notes:       shortStr(2000).optional(),
+  source:      shortStr(500).optional(),
+  valid_to:    z.string().nullable().optional(),
+  ativo:       z.boolean().optional(),
+})
+
 // POST /api/admin/pacotes
 export const PacoteCreateSchema = z.object({
   escritorio_id:  uuid,

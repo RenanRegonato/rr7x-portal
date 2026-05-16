@@ -6,6 +6,7 @@ import { fetchBCBIndicators } from '@/lib/bcb-data'
 import { fetchCapitalMarketsData, fetchListedComparables, extractSectorKeywords } from '@/lib/cvm-data'
 import { checkCADE, formatCADEForPrompt } from '@/lib/cade-check'
 import { getFacts, formatTruthLayer } from '@/lib/truth-layer'
+import { listBenchmarks, formatBenchmarksForPrompt } from '@/lib/benchmarks'
 
 // Steps que recebem extended thinking para raciocínio financeiro mais profundo
 const THINKING_STEPS = new Set(['diagnostico', 'analise_ma', 'estruturacao'])
@@ -288,7 +289,7 @@ Os documentos seguem abaixo (PDFs, imagens e textos). Analise o conteúdo real d
   return blocks
 }
 
-function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, escritorioBlock = '', feedbackBlock = '', bcbData = '', cvmCapital = '', cvmComps = '', intake: Record<string, string> = {}, truthLayerBlock = ''): { system: SystemBlock[]; user: string | ContentBlock[] } | null {
+function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, escritorioBlock = '', feedbackBlock = '', bcbData = '', cvmCapital = '', cvmComps = '', intake: Record<string, string> = {}, truthLayerBlock = '', benchmarksBlock = ''): { system: SystemBlock[]; user: string | ContentBlock[] } | null {
   // HUMANIZER_DIRECTIVE como primeiro bloco de sistema: prefixo estável compartilhado por
   // TODOS os agentes e TODAS as análises → máximo de cache hit na API Anthropic.
   // Cada análise paga o custo de leitura do HUMANIZER_DIRECTIVE apenas na primeira chamada;
@@ -303,10 +304,17 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
     ? { type: 'text', text: truthLayerBlock, cache_control: { type: 'ephemeral' } }
     : null
 
-  // Segundo bloco: prompt específico do agente + feedbackBlock do escritório (cacheado por agente/escritório)
+  // Benchmark Registry (Fase 7): parâmetros de mercado para validação quantitativa.
+  // Cacheado globalmente (mesmos benchmarks pra todas análises) → cache hit alto.
+  const benchmarksBlk: SystemBlock | null = benchmarksBlock
+    ? { type: 'text', text: benchmarksBlock, cache_control: { type: 'ephemeral' } }
+    : null
+
+  // Ordem dos blocos: humanizer (global) → benchmarks (global) → truth (por análise) → prompt do agente
   function sysBlocks(agentPrompt: string): SystemBlock[] {
     const blocks: SystemBlock[] = [humanizerBlock]
-    if (truthBlock) blocks.push(truthBlock)
+    if (benchmarksBlk) blocks.push(benchmarksBlk)
+    if (truthBlock)    blocks.push(truthBlock)
     blocks.push({ type: 'text', text: agentPrompt + feedbackBlock, cache_control: { type: 'ephemeral' } })
     return blocks
   }
@@ -565,13 +573,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       intake.resumoAtivo ?? ''
     )
 
-    const [prompts, escritorioData, bcbData, cvmCapital, cvmComps, factsData] = await Promise.all([
+    // Agentes que se beneficiam de benchmarks de mercado (decidem viabilidade
+    // de produto financeiro ou múltiplos de M&A). Truncar nos outros evita
+    // poluir o prompt sem necessidade.
+    const stepUsaBenchmarks = ['estruturacao', 'analise_ma', 'pesquisa', 'originacao', 'maturidade'].includes(step)
+
+    const [prompts, escritorioData, bcbData, cvmCapital, cvmComps, factsData, benchmarksData] = await Promise.all([
       loadPrompts(),
       loadEscritorio(analise.user_id),
       (step === 'pesquisa' || step === 'estruturacao') ? fetchBCBIndicators() : Promise.resolve(''),
       step === 'estruturacao' ? fetchCapitalMarketsData(sectorKeywords)  : Promise.resolve(''),
       step === 'pesquisa'     ? fetchListedComparables(sectorKeywords)   : Promise.resolve(''),
       getFacts(id),
+      stepUsaBenchmarks ? listBenchmarks() : Promise.resolve([]),
     ])
     const escritorioBlock = escritorioData.block
     const feedbackBlock   = await loadFeedbacks(escritorioData.escritorioId)
@@ -580,6 +594,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     // Truth Layer: bloco de fatos consolidados que será injetado no system prompt
     // de TODOS os agentes (exceto drive_intake, que é a fonte original dos fatos).
     const truthLayerBlock = step === 'drive_intake' ? '' : formatTruthLayer(factsData)
+    // Benchmark Registry (Fase 7): parâmetros de mercado para validação
+    // quantitativa pelos agentes que recomendam produtos/estruturas.
+    const benchmarksBlock = stepUsaBenchmarks ? formatBenchmarksForPrompt(benchmarksData) : ''
 
     const stepStartedAt  = Date.now()
     const contextSteps   = Object.keys(outputs).filter((k) => outputs[k])
@@ -661,7 +678,7 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
     }
 
     // Todos os outros steps
-    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock, feedbackBlock, bcbData, cvmCapital, cvmComps, intake, truthLayerBlock)
+    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock, feedbackBlock, bcbData, cvmCapital, cvmComps, intake, truthLayerBlock, benchmarksBlock)
     if (!args) return NextResponse.json({ error: 'Step inválido' }, { status: 400 })
 
     // Se houver regeneração executada para este step, injeta o briefing do
