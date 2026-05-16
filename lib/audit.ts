@@ -28,6 +28,7 @@ export type AuditEvent =
   | 'consistency.checked'
   | 'risk.correlation_run'
   | 'mesa.revisao_run'
+  | 'coverage.checked'
 
 interface AuditParams {
   event:      AuditEvent

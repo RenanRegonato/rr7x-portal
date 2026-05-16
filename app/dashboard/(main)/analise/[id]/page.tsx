@@ -18,6 +18,7 @@ import FatosPanel from '@/components/FatosPanel'
 import ClaimsSection from '@/components/ClaimsSection'
 import ConsistencyPanel from '@/components/ConsistencyPanel'
 import MesaVerdictBanner from '@/components/MesaVerdictBanner'
+import CoveragePanel from '@/components/CoveragePanel'
 
 const MAX_REGENERACOES = 3
 
@@ -66,6 +67,7 @@ const INTAKE_AGENT: AgentDef = {
 const DETAIL_TABS = [
   { key: 'relatorio_consolidado', label: 'Resumo Executivo' },
   { key: 'consistencia',          label: 'Consistência'     },
+  { key: 'cobertura',             label: 'Cobertura'        },
   { key: 'drive_intake',          label: 'Ingestão'         },
   { key: 'fatos',                 label: 'Fatos'            },
   { key: 'orchestration',         label: 'Orquestração'     },
@@ -174,6 +176,30 @@ export default function AnalisePage() {
       }
     } catch (err) {
       console.error('[risk-correlation]', err)
+    }
+  }
+
+  async function runCoverageCheck(): Promise<void> {
+    addLog('Coverage Validator', 'Validando cobertura da checklist obrigatória...')
+    try {
+      const r = await fetch(`/api/analise/${id}/coverage-check`, { method: 'POST' })
+      if (!r.ok) {
+        addLog('Coverage Validator', '⚠ Falha (prosseguindo)')
+        return
+      }
+      const d = await r.json()
+      const { coberto = 0, parcial = 0, nao_coberto = 0 } = d.coverage_check?.resumo ?? {}
+      const total = coberto + parcial + nao_coberto
+      if (nao_coberto === 0 && parcial === 0) {
+        addLog('Coverage Validator', `✓ Cobertura completa (${coberto}/${total} itens)`)
+      } else {
+        const parts = []
+        if (nao_coberto > 0) parts.push(`${nao_coberto} não coberto${nao_coberto === 1 ? '' : 's'}`)
+        if (parcial     > 0) parts.push(`${parcial} parcial${parcial === 1 ? 'l' : 'is'}`)
+        addLog('Coverage Validator', `⚠ ${parts.join(', ')} de ${total} itens — ver aba Cobertura`)
+      }
+    } catch (err) {
+      console.error('[coverage-check]', err)
     }
   }
 
@@ -311,8 +337,11 @@ export default function AnalisePage() {
       // Sentinela de Riscos (Fase 10): síndromes cross-dimensionais via IA
       await runRiskCorrelation()
 
+      // Coverage Validator (Fase 11): valida checklist obrigatória por tipo de operação
+      await runCoverageCheck()
+
       // Mesa Consolidadora (Fase 10): revisor final institucional
-      // — lê todos outputs + issues + síndromes e emite veredito
+      // — lê todos outputs + issues + síndromes + cobertura e emite veredito
       await runMesaRevisao()
 
       await Promise.all([
@@ -754,6 +783,7 @@ function DealDetail({
   const visibleTabs = DETAIL_TABS.filter((t) => {
     if (t.key === 'fatos')        return !!analise.facts_extracted_at
     if (t.key === 'consistencia') return !!analise.consistency_checked_at
+    if (t.key === 'cobertura')    return !!analise.coverage_checked_at
     return !!outputs[t.key]
   })
   const slug = analise.nome_ativo?.replace(/\s+/g, '-') ?? 'analise'
@@ -943,6 +973,14 @@ function DealDetail({
           />
         ) : activeTab === 'consistencia' ? (
           <ConsistencyPanel analiseId={analise.id}/>
+        ) : activeTab === 'cobertura' ? (
+          <CoveragePanel
+            analiseId={analise.id}
+            onSolicitarAgente={(step) => {
+              setActiveTab(step)
+              onReprocessStep(step)
+            }}
+          />
         ) : activeTab && outputs[activeTab] ? (
           <>
             {activeTab === 'relatorio_consolidado' && analise.mesa_revisao && (
