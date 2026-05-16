@@ -32,11 +32,12 @@ export default function Sidebar({
   const pathname = usePathname()
 
   const workspaceItems: NavItem[] = [
-    { id: 'home',       label: 'Início',     icon: 'home',     href: '/dashboard' },
-    { id: 'pipeline',   label: 'Pipeline',   icon: 'pipeline', href: '/dashboard', count: analiseCount || undefined },
-    { id: 'escritorio', label: 'Escritório', icon: 'building', href: '/dashboard/escritorio' },
-    { id: 'planos',     label: 'Planos',     icon: 'sparkle',  href: '/dashboard/planos' },
-    { id: 'conta',      label: 'Minha Conta', icon: 'user',    href: '/dashboard/conta' },
+    { id: 'home',       label: 'Início',      icon: 'home',     href: '/dashboard' },
+    { id: 'pipeline',   label: 'Pipeline',    icon: 'pipeline', href: '/dashboard', count: analiseCount || undefined },
+    { id: 'escritorio', label: 'Escritório',  icon: 'building', href: '/dashboard/escritorio' },
+    { id: 'benchmarks', label: 'Benchmarks',  icon: 'doc',      href: '/dashboard/escritorio/benchmarks' },
+    { id: 'planos',     label: 'Planos',      icon: 'sparkle',  href: '/dashboard/planos' },
+    { id: 'conta',      label: 'Minha Conta', icon: 'user',     href: '/dashboard/conta' },
   ]
 
   const equipeItems: NavItem[] = [

@@ -121,6 +121,17 @@ export const BenchmarkUpdateSchema = z.object({
   ativo:       z.boolean().optional(),
 })
 
+// PATCH /api/escritorio/benchmarks/[id] — com optimistic locking (Fase 12)
+export const BenchmarkEscritorioUpdateSchema = z.object({
+  value_min:        z.number().finite().optional(),
+  value_max:        z.number().finite().optional(),
+  unit:             z.enum(['BRL', 'pct', 'multiplo', 'meses', 'qtd', 'pct_cdi']).optional(),
+  descricao:        shortStr(500).optional(),
+  notes:            shortStr(2000).optional(),
+  source:           shortStr(500).optional(),
+  expected_version: z.number().int().min(1),   // optimistic lock
+})
+
 // POST /api/admin/pacotes
 export const PacoteCreateSchema = z.object({
   escritorio_id:  uuid,

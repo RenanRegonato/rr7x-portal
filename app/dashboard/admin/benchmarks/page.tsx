@@ -182,9 +182,10 @@ export default function BenchmarksAdminPage() {
     <div className="max-w-6xl mx-auto px-8 py-8 w-full">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-display text-[28px] font-medium tracking-tight">Benchmarks de mercado</h1>
+          <h1 className="font-display text-[28px] font-medium tracking-tight">Benchmarks de mercado <span className="text-[14px] text-ink-3 font-sans">(globais Mandor)</span></h1>
           <p className="text-ink-3 text-[13px] mt-1">
             Parâmetros de mercado consultados pelos agentes para validação quantitativa de elegibilidade.
+            Escritórios podem sobrescrever via <span className="font-mono text-ink-2">/dashboard/escritorio/benchmarks</span>.
           </p>
         </div>
         <button
@@ -193,6 +194,21 @@ export default function BenchmarksAdminPage() {
         >
           + Novo benchmark
         </button>
+      </div>
+
+      {/* Disclaimer regulatório */}
+      <div className="rounded-[12px] border-2 border-warn/40 bg-warn/5 p-4 mb-5">
+        <div className="flex items-start gap-3">
+          <span className="text-warn text-[18px] leading-none mt-0.5">⚠</span>
+          <div className="text-[13px] text-ink-2 leading-relaxed">
+            <p className="font-semibold text-warn mb-1">Estes valores são propagados a TODOS os escritórios como base.</p>
+            <p>
+              Alterações aqui afetam o comportamento dos agentes em todas as análises. Mantenha citações regulatórias
+              (CVM, ANBIMA, Lei) quando aplicável. Escritórios podem sobrescrever parâmetros individualmente; a Mandor não se
+              responsabiliza por recomendações em análises onde os benchmarks foram sobrescritos pelo escritório.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Filtros */}

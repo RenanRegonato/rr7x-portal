@@ -620,14 +620,18 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     // poluir o prompt sem necessidade.
     const stepUsaBenchmarks = ['estruturacao', 'analise_ma', 'pesquisa', 'originacao', 'maturidade'].includes(step)
 
-    const [prompts, escritorioData, bcbData, cvmCapital, cvmComps, factsData, benchmarksData] = await Promise.all([
+    // Carrega escritório antes do paralelo — usado tanto para escritorioBlock
+    // quanto para listar benchmarks com merge de overrides do escritório (Fase 12)
+    const escritorioData = await loadEscritorio(analise.user_id)
+    const escritorioIdParaBenchmarks = escritorioData.escritorioId ?? undefined
+
+    const [prompts, bcbData, cvmCapital, cvmComps, factsData, benchmarksData] = await Promise.all([
       loadPrompts(),
-      loadEscritorio(analise.user_id),
       (step === 'pesquisa' || step === 'estruturacao') ? fetchBCBIndicators() : Promise.resolve(''),
       step === 'estruturacao' ? fetchCapitalMarketsData(sectorKeywords)  : Promise.resolve(''),
       step === 'pesquisa'     ? fetchListedComparables(sectorKeywords)   : Promise.resolve(''),
       getFacts(id),
-      stepUsaBenchmarks ? listBenchmarks() : Promise.resolve([]),
+      stepUsaBenchmarks ? listBenchmarks({ escritorio_id: escritorioIdParaBenchmarks }) : Promise.resolve([]),
     ])
     const escritorioBlock = escritorioData.block
     const feedbackBlock   = await loadFeedbacks(escritorioData.escritorioId)

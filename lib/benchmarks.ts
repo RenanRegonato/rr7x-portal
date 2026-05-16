@@ -16,36 +16,70 @@ export interface Benchmark {
   valid_from:    string
   valid_to:      string | null
   ativo:         boolean
+  escritorio_id: string | null  // NULL = global Mandor; UUID = override do escritório
+  version:       number         // optimistic locking
   criado_em:     string
   atualizado_em: string
 }
 
 export interface BenchmarkLookup {
-  instrument: string
-  parameter?: string
+  instrument?:   string
+  parameter?:   string
+  /** Se fornecido, faz merge: overrides do escritório vencem sobre globais. */
+  escritorio_id?: string
 }
 
-// Lista benchmarks ativos filtrando opcionalmente por instrument/parameter.
-// Service role bypassa RLS — ok pois é usado server-side a partir de rotas
-// já protegidas por autenticação.
+// Lista benchmarks ativos. Quando escritorio_id é fornecido, retorna globais
+// MERGEADOS com overrides do escritório (override vence quando há colisão de
+// instrument + parameter). Service role bypassa RLS.
 export async function listBenchmarks(lookup?: BenchmarkLookup): Promise<Benchmark[]> {
   const admin = createAdminClient()
-  let q = admin
+
+  // 1. Globais (escritorio_id IS NULL)
+  let globalQ = admin
     .from('market_benchmarks')
     .select('*')
     .eq('ativo', true)
+    .is('escritorio_id', null)
     .order('instrument', { ascending: true })
     .order('parameter',  { ascending: true })
 
-  if (lookup?.instrument) q = q.eq('instrument', lookup.instrument)
-  if (lookup?.parameter)  q = q.eq('parameter',  lookup.parameter)
+  if (lookup?.instrument) globalQ = globalQ.eq('instrument', lookup.instrument)
+  if (lookup?.parameter)  globalQ = globalQ.eq('parameter',  lookup.parameter)
 
-  const { data, error } = await q
-  if (error) {
-    console.error('[benchmarks] listBenchmarks failed:', error)
+  const { data: globals, error: gErr } = await globalQ
+  if (gErr) {
+    console.error('[benchmarks] global query failed:', gErr)
     return []
   }
-  return (data ?? []) as Benchmark[]
+
+  if (!lookup?.escritorio_id) return (globals ?? []) as Benchmark[]
+
+  // 2. Overrides do escritório
+  let overrideQ = admin
+    .from('market_benchmarks')
+    .select('*')
+    .eq('ativo', true)
+    .eq('escritorio_id', lookup.escritorio_id)
+
+  if (lookup.instrument) overrideQ = overrideQ.eq('instrument', lookup.instrument)
+  if (lookup.parameter)  overrideQ = overrideQ.eq('parameter',  lookup.parameter)
+
+  const { data: overrides, error: oErr } = await overrideQ
+  if (oErr) {
+    console.error('[benchmarks] override query failed:', oErr)
+    return (globals ?? []) as Benchmark[]
+  }
+
+  // 3. Merge: override vence sobre global por (instrument, parameter)
+  const merged = new Map<string, Benchmark>()
+  for (const g of (globals ?? []) as Benchmark[]) {
+    merged.set(`${g.instrument}|${g.parameter}`, g)
+  }
+  for (const o of (overrides ?? []) as Benchmark[]) {
+    merged.set(`${o.instrument}|${o.parameter}`, o)
+  }
+  return Array.from(merged.values())
 }
 
 // Formata benchmarks como bloco markdown injetável em prompts de agentes.
@@ -133,8 +167,8 @@ export interface EligibilityResult {
   benchmarks_consultados: string[]   // IDs
 }
 
-export async function isEligible(input: EligibilityInput): Promise<EligibilityResult> {
-  const benchmarks = await listBenchmarks({ instrument: input.instrument })
+export async function isEligible(input: EligibilityInput, escritorio_id?: string): Promise<EligibilityResult> {
+  const benchmarks = await listBenchmarks({ instrument: input.instrument, escritorio_id })
   const violations: EligibilityViolation[] = []
   const consulted: string[] = []
 
