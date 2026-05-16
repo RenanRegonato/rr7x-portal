@@ -13,8 +13,24 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import DealPipelinePanel from '@/components/DealPipelinePanel'
 import RegenerarModal from '@/components/RegenerarModal'
+import CascadeImpactoModal from '@/components/CascadeImpactoModal'
 
 const MAX_REGENERACOES = 3
+
+const STEP_LABELS_MAP: Record<string, string> = {
+  orchestration:         'Mandor Orquestra',
+  pesquisa:              'Pedro Panorama',
+  diagnostico:           'Davi Diagnóstico',
+  analise_ma:            'Arthur Aquisição',
+  kyc:                   'Carmen Compliance',
+  contratos:             'Clara Cláusula',
+  originacao:            'Victor Valor',
+  estruturacao:          'Estela Estrutura',
+  maturidade:            'Paulo Preparo',
+  relatorio_consolidado: 'Relatório Consolidado',
+  blind_teaser:          'Blind Teaser',
+  sell_side_pitchbook:   'Sell-Side Pitchbook',
+}
 
 // ─── Conditional agent logic ──────────────────────────────────────────────────
 
@@ -89,6 +105,12 @@ export default function AnalisePage() {
   // Regenerar com briefing
   const [regenStep,    setRegenStep]    = useState<string | null>(null)
   const [regenCount,   setRegenCount]   = useState(0)
+
+  // Cascade após regenerar
+  const [cascadeModalOpen,   setCascadeModalOpen]   = useState(false)
+  const [cascadeLoading,     setCascadeLoading]     = useState(false)
+  const [cascadeImpactos,    setCascadeImpactos]    = useState<{ step_key: string; severidade: 'alta'|'media'|'baixa'; justificativa: string }[]>([])
+  const [cascadeStepOrigem,  setCascadeStepOrigem]  = useState<string>('')
 
   const pipelineStarted  = useRef(false)
   const startTime        = useRef(Date.now())
@@ -253,6 +275,43 @@ export default function AnalisePage() {
       await runStep(step, regeneracaoId)
     } catch (err) {
       console.error('[regenerar/runStep]', err)
+      return
+    }
+
+    // Após regenerar o step principal, dispara o Detetive Dependência
+    // para avaliar impacto nos demais agentes (cascade).
+    setCascadeStepOrigem(step)
+    setCascadeImpactos([])
+    setCascadeModalOpen(true)
+    setCascadeLoading(true)
+    try {
+      const r = await fetch(`/api/analise/${id}/regenerar/cascade`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ regeneracao_id: regeneracaoId }),
+      })
+      const d = await r.json()
+      if (r.ok) {
+        setCascadeImpactos(d.impactos ?? [])
+      } else {
+        console.error('[cascade]', d.error)
+      }
+    } catch (err) {
+      console.error('[cascade]', err)
+    } finally {
+      setCascadeLoading(false)
+    }
+  }
+
+  async function reprocessarCascade(stepKeys: string[]) {
+    setCascadeModalOpen(false)
+    // Reprocessa em série pra não saturar a Anthropic API
+    for (const sk of stepKeys) {
+      try {
+        await runStep(sk)
+      } catch (err) {
+        console.error('[cascade/runStep]', sk, err)
+      }
     }
   }
 
@@ -409,6 +468,16 @@ export default function AnalisePage() {
           }}
         />
       )}
+      <CascadeImpactoModal
+        open={cascadeModalOpen}
+        loading={cascadeLoading}
+        impactos={cascadeImpactos}
+        stepLabels={STEP_LABELS_MAP}
+        stepOrigemKey={cascadeStepOrigem}
+        stepOrigemLabel={STEP_LABELS_MAP[cascadeStepOrigem] ?? cascadeStepOrigem}
+        onClose={() => setCascadeModalOpen(false)}
+        onReprocessar={(stepKeys) => void reprocessarCascade(stepKeys)}
+      />
     </>
   )
 }

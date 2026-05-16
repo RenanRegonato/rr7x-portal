@@ -87,6 +87,11 @@ export const RegenerarExecutarSchema = z.object({
   regeneracao_id: uuid,
 })
 
+// POST /api/analise/[id]/regenerar/cascade
+export const RegenerarCascadeSchema = z.object({
+  regeneracao_id: uuid,
+})
+
 // POST /api/admin/pacotes
 export const PacoteCreateSchema = z.object({
   escritorio_id:  uuid,
