@@ -25,6 +25,7 @@ export type AuditEvent =
   | 'benchmark.updated'
   | 'benchmark.archived'
   | 'claims.persisted'
+  | 'consistency.checked'
 
 interface AuditParams {
   event:      AuditEvent

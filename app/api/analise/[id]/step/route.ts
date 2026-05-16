@@ -20,6 +20,19 @@ const CLAIM_AGENTS = new Set([
   'contratos', 'originacao', 'estruturacao', 'maturidade', 'relatorio_consolidado',
 ])
 
+// Cross-Reading (Fase 9): mapa de dependências reais entre agentes.
+// Para cada agente, lista outros agentes cujos outputs ele deveria ler.
+// Resolve o gap G2 do caso PRPEVE: agentes não viam uns aos outros.
+// O sharedContextBlock já inclui drive_intake + orchestration; este mapa
+// estende para incluir outputs específicos do mesmo wave anterior.
+const CROSS_READING_DEPS: Record<string, string[]> = {
+  // Wave 2 (depois de pesquisa, diagnostico, kyc, contratos):
+  analise_ma:    ['diagnostico', 'contratos', 'pesquisa'],   // M&A precisa dos números, contratos e contexto de mercado
+  estruturacao:  ['diagnostico', 'pesquisa'],                // estruturação de crédito precisa números e contexto
+  originacao:    ['pesquisa', 'diagnostico', 'contratos'],   // originação precisa contexto e números
+  // maturidade lê todos via allOutputs (lógica existente)
+}
+
 export const maxDuration = 300
 
 const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
@@ -336,9 +349,7 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
     return blocks
   }
 
-  // Contexto compartilhado pelos 6 agentes paralelos: ingestão + orquestração.
-  // Colocado PRIMEIRO no user content como bloco cacheado — todos os agentes paralelos
-  // compartilham o mesmo prefixo, reduzindo tokens em retries e rechamadas.
+  // Contexto compartilhado base: ingestão + orquestração (cacheado globalmente).
   const docsContextText = [
     outputs['drive_intake']  ? `INGESTÃO DE DOCUMENTOS (o que foi lido e extraído dos arquivos enviados):\n${outputs['drive_intake']}` : '',
     outputs['orchestration'] ? `ORQUESTRAÇÃO / DRS:\n${outputs['orchestration']}` : '',
@@ -348,12 +359,26 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
     ? { type: 'text', text: `DEAL INTAKE:\n${intakeStr}\n\n---\n\n${docsContextText}`, cache_control: { type: 'ephemeral' } }
     : null
 
-  // Para agentes paralelos: user content = [bloco cacheado compartilhado, instrução específica do agente]
+  // Cross-Reading (Fase 9): bloco extra com outputs de agentes upstream específicos
+  // do mesmo wave. NÃO é cacheado (varia por step) mas o conteúdo é determinado.
+  const crossDeps = CROSS_READING_DEPS[step] ?? []
+  const crossReadingText = crossDeps
+    .filter(k => outputs[k])
+    .map(k => `## OUTPUT DO AGENTE ${k.toUpperCase()} (use como contexto):\n${outputs[k]}`)
+    .join('\n\n---\n\n')
+  const crossReadingBlock: ContentBlock | null = crossReadingText
+    ? { type: 'text', text: crossReadingText }
+    : null
+
+  // Para agentes paralelos: user content = [bloco cacheado compartilhado, cross-reading (se houver), instrução específica]
   function parallelUser(instruction: string): ContentBlock[] {
-    if (sharedContextBlock) {
-      return [sharedContextBlock, { type: 'text', text: instruction }]
-    }
-    return [{ type: 'text', text: `${instruction}\n\nDEAL INTAKE:\n${intakeStr}` }]
+    const blocks: ContentBlock[] = []
+    if (sharedContextBlock) blocks.push(sharedContextBlock)
+    if (crossReadingBlock)  blocks.push(crossReadingBlock)
+    blocks.push({ type: 'text', text: instruction })
+    return blocks.length > 1
+      ? blocks
+      : [{ type: 'text', text: `${instruction}\n\nDEAL INTAKE:\n${intakeStr}` }]
   }
 
   // Para documentos de captação (blind_teaser + sell_side_pitchbook): bloco cacheado compartilhado

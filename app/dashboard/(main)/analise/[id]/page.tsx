@@ -16,6 +16,7 @@ import RegenerarModal from '@/components/RegenerarModal'
 import CascadeImpactoModal from '@/components/CascadeImpactoModal'
 import FatosPanel from '@/components/FatosPanel'
 import ClaimsSection from '@/components/ClaimsSection'
+import ConsistencyPanel from '@/components/ConsistencyPanel'
 
 const MAX_REGENERACOES = 3
 
@@ -63,6 +64,7 @@ const INTAKE_AGENT: AgentDef = {
 
 const DETAIL_TABS = [
   { key: 'relatorio_consolidado', label: 'Resumo Executivo' },
+  { key: 'consistencia',          label: 'Consistência'     },
   { key: 'drive_intake',          label: 'Ingestão'         },
   { key: 'fatos',                 label: 'Fatos'            },
   { key: 'orchestration',         label: 'Orquestração'     },
@@ -129,6 +131,31 @@ export default function AnalisePage() {
     const t = setInterval(() => setElapsed((e) => e + 1), 1000)
     return () => clearInterval(t)
   }, [status])
+
+  async function runConsistencyCheck(): Promise<void> {
+    addLog('Consistency Engine', 'Validando coerência entre agentes...')
+    try {
+      const r = await fetch(`/api/analise/${id}/consistency-check`, { method: 'POST' })
+      if (!r.ok) {
+        addLog('Consistency Engine', '⚠ Falha na checagem (prosseguindo)')
+        return
+      }
+      const d = await r.json()
+      const { bloqueante = 0, alerta = 0, info = 0 } = d.por_severidade ?? {}
+      if (bloqueante + alerta + info === 0) {
+        addLog('Consistency Engine', '✓ Nenhuma inconsistência detectada')
+      } else {
+        const parts = []
+        if (bloqueante > 0) parts.push(`${bloqueante} bloqueante${bloqueante === 1 ? '' : 's'}`)
+        if (alerta     > 0) parts.push(`${alerta} alerta${alerta === 1 ? '' : 's'}`)
+        if (info       > 0) parts.push(`${info} info`)
+        addLog('Consistency Engine', `⚠ ${parts.join(', ')} detectado${d.total === 1 ? '' : 's'} — ver aba Consistência`)
+      }
+    } catch (err) {
+      console.error('[consistency]', err)
+      addLog('Consistency Engine', '⚠ Erro na checagem')
+    }
+  }
 
   async function runFactExtraction(): Promise<void> {
     addLog('Fact Extractor', 'Extraindo fatos consolidados da ingestão...')
@@ -217,17 +244,29 @@ export default function AnalisePage() {
       await runFactExtraction()
       await maybeRun('orchestration')
 
+      // Wave 1 (Fase 9): agentes que NÃO dependem uns dos outros — rodam
+      // paralelos vendo apenas drive_intake + orchestration + truth_layer.
       await Promise.all([
         maybeRun('pesquisa'),
         maybeRun('diagnostico'),
         maybeRun('kyc'),
-        ...(runMA        ? [maybeRun('analise_ma')]   : []),
         maybeRun('contratos'),
+      ])
+
+      // Wave 2: agentes que precisam ver outputs da Wave 1 para evitar
+      // contradições (cross-reading via CROSS_READING_DEPS no /step).
+      // Roda paralelo entre si, mas após Wave 1 completar.
+      await Promise.all([
+        ...(runMA        ? [maybeRun('analise_ma')]    : []),
+        ...(runEstrutura ? [maybeRun('estruturacao')]  : []),
         maybeRun('originacao'),
-        ...(runEstrutura ? [maybeRun('estruturacao')] : []),
       ])
 
       await maybeRun('maturidade')
+
+      // Consistency Engine (Fase 9): checa contradições entre claims/facts/benchmarks
+      // antes dos documentos finais. Não-bloqueante: relatório segue, mas com aviso.
+      await runConsistencyCheck()
 
       await Promise.all([
         maybeRun('blind_teaser'),
@@ -666,7 +705,8 @@ function DealDetail({
   const [shareCopied,    setShareCopied]    = useState(false)
   const [shareLoading,   setShareLoading]   = useState(false)
   const visibleTabs = DETAIL_TABS.filter((t) => {
-    if (t.key === 'fatos') return !!analise.facts_extracted_at
+    if (t.key === 'fatos')        return !!analise.facts_extracted_at
+    if (t.key === 'consistencia') return !!analise.consistency_checked_at
     return !!outputs[t.key]
   })
   const slug = analise.nome_ativo?.replace(/\s+/g, '-') ?? 'analise'
@@ -854,6 +894,8 @@ function DealDetail({
             factsExtractedAt={analise.facts_extracted_at ?? null}
             onReextract={() => { /* o painel já recarrega internamente */ }}
           />
+        ) : activeTab === 'consistencia' ? (
+          <ConsistencyPanel analiseId={analise.id}/>
         ) : activeTab && outputs[activeTab] ? (
           <OutputPanel
             label={DETAIL_TABS.find((t) => t.key === activeTab)?.label ?? activeTab}
