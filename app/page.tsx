@@ -787,7 +787,7 @@ export default function LandingPage() {
                 <span className="w-3 h-3 rounded-full bg-[#28C840]" />
               </div>
               <div className="flex-1 bg-lp-canvas rounded-md px-3 py-1 text-[11px] text-lp-ink-3 font-mono">
-                app.ottobyrr7x.com.br/analise/MRD-2025-041
+                www.mandor.com.br/dashboard/analise/MRD-2025-041
               </div>
             </div>
 
