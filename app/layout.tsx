@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "9 especialistas em IA executando em paralelo. Diagnóstico financeiro completo de ativos em 90 minutos — DRS, DRE normalizada, EBITDA ajustado, valuation, análise de M&A, estruturação de crédito, contratos, blind teaser e pitchbook.",
+    "10 especialistas em IA executando em paralelo. Diagnóstico financeiro completo de ativos em 90 minutos — DRS, DRE normalizada, EBITDA ajustado, valuation, análise de M&A, estruturação de crédito, contratos, blind teaser e pitchbook.",
   keywords: [
     "M&A",
     "crédito estruturado",
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: `${SITE_NAME} — Deal Intelligence para M&A e Crédito Estruturado`,
     description:
-      "9 especialistas em IA em paralelo. Diagnóstico completo de ativos em 90 minutos.",
+      "10 especialistas em IA em paralelo. Diagnóstico completo de ativos em 90 minutos.",
     images: [
       {
         url: "/og-image.png",
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `${SITE_NAME} — Deal Intelligence`,
-    description: "9 especialistas em IA. Diagnóstico completo em 90 minutos.",
+    description: "10 especialistas em IA. Diagnóstico completo em 90 minutos.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -146,7 +146,7 @@ const schemaOrg = {
       operatingSystem: "Web",
       url: SITE_URL,
       description:
-        "Plataforma de análise para M&A, crédito estruturado e preparação de ativos. Nove inteligências em paralelo entregam diagnóstico financeiro, valuation, Pitchbook e Blind Teaser em até 40 minutos.",
+        "Plataforma de análise para M&A, crédito estruturado e preparação de ativos. Dez inteligências em paralelo entregam diagnóstico financeiro, valuation, Pitchbook e Blind Teaser em até 40 minutos.",
       softwareVersion: "1.0",
       publisher: { "@id": `${SITE_URL}/#organization` },
       featureList: [

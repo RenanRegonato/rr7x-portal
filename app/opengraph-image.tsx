@@ -97,7 +97,7 @@ export default function OgImage() {
             marginBottom: 52,
           }}
         >
-          9 especialistas em IA em paralelo. Análise institucional completa para escritórios de M&A.
+          10 especialistas em IA em paralelo. Análise institucional completa para escritórios de M&A.
         </div>
 
         {/* Metrics row */}

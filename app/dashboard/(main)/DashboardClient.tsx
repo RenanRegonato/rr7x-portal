@@ -45,7 +45,7 @@ const PAGE_SIZE = 12
 
 const HOW_IT_WORKS = [
   { n: '1', title: 'Deal Intake', desc: 'Preencha o formulário com os dados do ativo — nome, tipo, ticket, documentos.' },
-  { n: '2', title: '9 especialistas em paralelo', desc: 'Mandor aciona o squad: diagnóstico financeiro, M&A, crédito, contratos, originação e mais.' },
+  { n: '2', title: '10 especialistas em paralelo', desc: 'Mandor aciona o squad: diagnóstico financeiro, M&A, crédito, contratos, originação, revisão final e mais.' },
   { n: '3', title: 'Relatório em 45–90 min', desc: 'DRS, Blind Teaser, Pitchbook e Relatório Consolidado prontos para apresentar.' },
 ]
 
@@ -301,7 +301,7 @@ export default function DashboardClient({
         <section className="bg-surface border border-border rounded-[14px] shadow-soft-sm p-[22px] sticky top-[61px]">
           <h3 className="font-display text-[18px] font-medium tracking-tight m-0">Novo deal</h3>
           <p className="text-[12px] text-ink-3 mt-1 mb-[18px]">
-            Mandor orquestra os 9 especialistas em até 90 min.
+            Mandor orquestra os 10 especialistas em até 90 min.
           </p>
 
           <Segmented value={mode} onChange={setMode} options={['Ativo', 'Proprietário', 'Mandato']} fullWidth/>

@@ -5,7 +5,7 @@ import AuthErrorHandler from "@/components/AuthErrorHandler";
 export const metadata: Metadata = {
   title: "Mandor | Inteligência operacional para M&A, crédito estruturado e preparação de deals",
   description:
-    "Analise operações de M&A, estruture crédito e prepare ativos para o mercado em até 40 minutos. 9 módulos especializados em paralelo. Material institucional pronto para o mercado.",
+    "Analise operações de M&A, estruture crédito e prepare ativos para o mercado em até 40 minutos. 10 módulos especializados em paralelo. Material institucional pronto para o mercado.",
   alternates: { canonical: "/" },
 };
 
@@ -151,11 +151,20 @@ const inteligencias = [
   {
     num: "09",
     bg: "bg-[#ECF8FF]",
-    dominio: "consolidação",
-    funcao: "Controle de Qualidade",
+    dominio: "consistência",
+    funcao: "Consistency Engine",
     descricao:
-      "Faz revisão cruzada entre todas as leituras e garante consistência técnica no relatório final.",
-    beneficio: "O material entregue ao cliente passou por uma checagem interna completa.",
+      "Cruza as leituras de todos os módulos durante o pipeline, identifica divergências entre fontes e força reconciliação antes do fechamento.",
+    beneficio: "Contradições entre módulos são resolvidas dentro do sistema, não no relatório.",
+  },
+  {
+    num: "10",
+    bg: "bg-lp-accent-soft",
+    dominio: "revisão final",
+    funcao: "Quality Reviewer",
+    descricao:
+      "Revisão final do dossiê antes da entrega: confere coerência narrativa, completude técnica e consistência entre todos os outputs.",
+    beneficio: "Nenhum relatório chega ao cliente sem passar por uma checagem crítica de fechamento.",
   },
 ];
 
@@ -380,7 +389,7 @@ export default function LandingPage() {
               {/* Badge */}
               <div className="animate-fade-up inline-flex items-center gap-2 border border-lp-border-strong bg-lp-canvas text-lp-ink-2 text-[11px] font-medium px-3.5 py-1.5 rounded-full mb-7 tracking-widest uppercase" style={{ animationDelay: "0ms" }}>
                 <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#1655E8" }} />
-                9 inteligências em paralelo · 40 minutos
+                10 inteligências em paralelo · 40 minutos
               </div>
 
               {/* Headline */}
@@ -507,7 +516,7 @@ export default function LandingPage() {
                     <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#1655E8" }} />
                     <span className="text-[10px] text-lp-ink-2">Originação em execução…</span>
                   </div>
-                  <span className="text-[10px] text-lp-ink-3">6 de 9 módulos · ~14 min restantes</span>
+                  <span className="text-[10px] text-lp-ink-3">7 de 10 módulos · ~14 min restantes</span>
                 </div>
               </div>
 
@@ -594,7 +603,7 @@ export default function LandingPage() {
                 <p className="text-[11px] font-medium text-lp-accent uppercase tracking-wider mb-3">Mandor</p>
                 <p className="font-display text-[52px] leading-none text-lp-ink">40</p>
                 <p className="text-[13px] text-lp-ink-3 mt-1">minutos</p>
-                <p className="text-[11.5px] text-lp-ink-4 mt-1">9 módulos em paralelo</p>
+                <p className="text-[11.5px] text-lp-ink-4 mt-1">10 módulos em paralelo</p>
               </div>
             </div>
           </div>
@@ -758,7 +767,7 @@ export default function LandingPage() {
               <em style={{ fontStyle: "italic" }}>Tudo em uma tela.</em>
             </h2>
             <p className="text-[15px] text-lp-ink-2 leading-relaxed mb-6">
-              O assessor submete os documentos do ativo. Mandor orquestra os 9 módulos
+              O assessor submete os documentos do ativo. Mandor orquestra os 10 módulos
               em paralelo e entrega o diagnóstico completo em até 40 minutos: DRS, valuation,
               mapa jurídico, estruturação e Blind Teaser.
             </p>
@@ -959,7 +968,7 @@ export default function LandingPage() {
             {
               num: "03",
               tag: "análise",
-              title: "9 módulos em paralelo",
+              title: "10 módulos em paralelo",
               body: "Cada módulo processa o ativo no seu domínio. Financeiro, jurídico, mercado e valuation, todos simultâneos.",
             },
             {
@@ -1063,7 +1072,7 @@ export default function LandingPage() {
         <div className="text-center max-w-[600px] mx-auto mb-14">
           <p className="text-[11px] font-medium text-lp-accent uppercase tracking-widest mb-4">rede neural</p>
           <h2 className="font-display text-[36px] sm:text-[46px] leading-[1.08] tracking-tight text-lp-ink mb-4">
-            Nove módulos em rede.
+            Dez módulos em rede.
             <br />
             <em style={{ fontStyle: "italic" }}>Um único pipeline.</em>
           </h2>

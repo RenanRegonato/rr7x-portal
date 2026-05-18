@@ -286,7 +286,7 @@ export default async function BlogPostPage({
             <em style={{ fontStyle: "italic", color: "#93B4F8" }}>seu próximo deal?</em>
           </h2>
           <p className="text-[14px] mb-7" style={{ color: "#7A92BE" }}>
-            Primeira análise gratuita. 9 especialistas em IA em paralelo. Resultado em 90 minutos.
+            Primeira análise gratuita. 10 especialistas em IA em paralelo. Resultado em 90 minutos.
           </p>
           <Link
             href="/auth/signup"

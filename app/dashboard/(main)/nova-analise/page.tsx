@@ -399,7 +399,7 @@ function NovaAnaliseInner() {
         </div>
 
         <p className="text-center text-[12px] text-ink-3 mt-4">
-          Mandor valida o preenchimento e ativa os 9 especialistas automaticamente. Entrega em 45–90 minutos.
+          Mandor valida o preenchimento e ativa os 10 especialistas automaticamente. Entrega em 45–90 minutos.
         </p>
       </div>
     </div>

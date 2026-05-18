@@ -74,7 +74,7 @@ export default function TermosPage() {
               <li>Diagnóstico financeiro automatizado (DRE normalizada, EBITDA ajustado, valuation);</li>
               <li>Deal Readiness Score (DRS) e análise de riscos;</li>
               <li>Geração de documentos institucionais (blind teaser, pitchbook, relatórios);</li>
-              <li>Pipeline de 9 módulos especializados de inteligência artificial executando em paralelo;</li>
+              <li>Pipeline de 10 módulos especializados de inteligência artificial executando em paralelo;</li>
               <li>Gestão de equipe, escritório e histórico de análises.</li>
             </ul>
             <p>
