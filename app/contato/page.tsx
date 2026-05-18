@@ -17,7 +17,7 @@ export default function ContatoPage() {
     const body = encodeURIComponent(
       `Nome: ${form.nome}\nEmail: ${form.email}\nEscritório: ${form.escritorio}\n\n${form.mensagem}`
     );
-    window.location.href = `mailto:gestor@renanregonato.com.br?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:mandor@rr7x.com.br?subject=${subject}&body=${body}`;
     setEnviado(true);
   }
 
@@ -143,8 +143,8 @@ export default function ContatoPage() {
                 </svg>
               }
               title="Email direto"
-              content="gestor@renanregonato.com.br"
-              href="mailto:gestor@renanregonato.com.br"
+              content="mandor@rr7x.com.br"
+              href="mailto:mandor@rr7x.com.br"
             />
             <ContactCard
               icon={

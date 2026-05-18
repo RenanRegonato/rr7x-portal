@@ -230,7 +230,7 @@ const planos = [
     ],
     destaque: false,
     cta: "Falar com nossa equipe",
-    href: "mailto:gestor@renanregonato.com.br?subject=Proposta%20Corporativo",
+    href: "mailto:mandor@rr7x.com.br?subject=Proposta%20Corporativo",
     roi: null as string | null,
   },
 ];
@@ -1465,7 +1465,7 @@ export default function LandingPage() {
               <span aria-hidden>→</span>
             </Link>
             <a
-              href="mailto:gestor@renanregonato.com.br?subject=Quero%20conhecer%20Mandor"
+              href="mailto:mandor@rr7x.com.br?subject=Quero%20conhecer%20Mandor"
               className="inline-flex items-center justify-center text-[14px] font-medium px-7 py-3.5 rounded-[11px] lp-dark-btn"
             >
               Falar com nossa equipe
@@ -1489,8 +1489,8 @@ export default function LandingPage() {
               <p className="text-[12px] leading-relaxed mb-3 max-w-[240px]" style={{ color: "#4A6090" }}>
                 Inteligência operacional para M&amp;A, crédito estruturado e preparação de deals.
               </p>
-              <a href="mailto:gestor@renanregonato.com.br" className="text-[12px] hover:underline" style={{ color: "#7A92BE" }}>
-                gestor@renanregonato.com.br
+              <a href="mailto:mandor@rr7x.com.br" className="text-[12px] hover:underline" style={{ color: "#7A92BE" }}>
+                mandor@rr7x.com.br
               </a>
             </div>
 

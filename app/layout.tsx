@@ -109,7 +109,7 @@ const schemaOrg = {
       image: `${SITE_URL}/opengraph-image`,
       description:
         "Plataforma de Deal Intelligence para escritórios de M&A, crédito estruturado e preparação de ativos para o mercado.",
-      email: "gestor@renanregonato.com.br",
+      email: "mandor@rr7x.com.br",
       areaServed: {
         "@type": "Country",
         name: "Brasil",
@@ -124,7 +124,7 @@ const schemaOrg = {
       },
       contactPoint: {
         "@type": "ContactPoint",
-        email: "gestor@renanregonato.com.br",
+        email: "mandor@rr7x.com.br",
         contactType: "customer support",
         availableLanguage: ["Portuguese"],
       },
@@ -187,7 +187,7 @@ const schemaOrg = {
             "Volume customizado para redes, fundos e estruturas com alto fluxo",
           priceCurrency: "BRL",
           availability: "https://schema.org/InStock",
-          url: "mailto:gestor@renanregonato.com.br",
+          url: "mailto:mandor@rr7x.com.br",
         },
       ],
     },

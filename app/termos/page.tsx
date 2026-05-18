@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 const LAST_UPDATED = "14 de maio de 2026";
-const CONTACT_EMAIL = "gestor@renanregonato.com.br";
+const CONTACT_EMAIL = "mandor@rr7x.com.br";
 
 export default function TermosPage() {
   return (
