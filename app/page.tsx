@@ -9,6 +9,70 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://www.mandor.com.br/#faq",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Como os dados dos deals são protegidos?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Mandor opera com criptografia em trânsito (TLS 1.3) e em repouso (AES-256). Nenhum dado é compartilhado entre escritórios. Cada análise fica isolada em ambiente dedicado ao escritório contratante.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "A plataforma está em conformidade com a LGPD?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Sim. Mandor opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para planos Institucional e Corporativo.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Quanto tempo leva para ter a plataforma funcionando?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "O onboarding leva de 1 a 3 dias úteis para os planos Institucional e Corporativo. Para o plano Pontual, a primeira análise pode ser submetida no mesmo dia do contrato.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Mandor se integra com ferramentas que já usamos?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Atualmente exporta em PDF, Word e formato editável compatível com Office. Integração via API e conectores para CRMs estão no roadmap. Para planos Corporativo, avaliamos integrações customizadas mediante escopo.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Como funciona o cancelamento?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Planos mensais têm cancelamento a qualquer momento com 30 dias de aviso. Não há fidelidade mínima nos planos Pontual e Institucional. Planos Corporativos seguem o contrato negociado.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Qual suporte está disponível?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Todos os planos têm suporte por e-mail com resposta em até 24h úteis. O plano Institucional inclui suporte prioritário. O plano Corporativo inclui gestor de conta dedicado e SLA customizado.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Quanto tempo leva para receber a análise?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Até 40 minutos após a submissão dos documentos. Para planos Institucional e Corporativo, entrega garantida no mesmo dia mesmo para casos com documentação incompleta.",
+      },
+    },
+  ],
+};
+
 /* ─── Data ───────────────────────────────────────────────────────────────── */
 
 const inteligencias = [
@@ -228,6 +292,10 @@ const faqs = [
 export default function LandingPage() {
   return (
     <div className="bg-lp-canvas text-lp-ink font-sans antialiased">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <AuthErrorHandler />
 
       {/* ── Navbar ─────────────────────────────────────────────────────────── */}
