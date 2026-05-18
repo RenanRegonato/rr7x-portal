@@ -97,21 +97,37 @@ const schemaOrg = {
     {
       "@type": "Organization",
       "@id": `${SITE_URL}/#organization`,
-      name: SITE_NAME,
+      name: "Mandor",
+      legalName: "RR7x Capital Hub",
       url: SITE_URL,
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_URL}/logo.png`,
+        url: `${SITE_URL}/logo/mandor-horizontal.svg`,
+        width: 600,
+        height: 120,
       },
+      image: `${SITE_URL}/opengraph-image`,
       description:
-        "Deal Intelligence para escritórios de M&A e Crédito Estruturado.",
+        "Plataforma de Deal Intelligence para escritórios de M&A, crédito estruturado e preparação de ativos para o mercado.",
+      email: "gestor@renanregonato.com.br",
+      areaServed: {
+        "@type": "Country",
+        name: "Brasil",
+      },
+      founder: {
+        "@type": "Person",
+        name: "Renan Regonato",
+      },
+      parentOrganization: {
+        "@type": "Organization",
+        name: "RR7x Capital Hub",
+      },
       contactPoint: {
         "@type": "ContactPoint",
         email: "gestor@renanregonato.com.br",
-        contactType: "customer service",
-        availableLanguage: "Portuguese",
+        contactType: "customer support",
+        availableLanguage: ["Portuguese"],
       },
-      sameAs: [],
     },
     {
       "@type": "WebSite",
@@ -124,31 +140,118 @@ const schemaOrg = {
     {
       "@type": "SoftwareApplication",
       "@id": `${SITE_URL}/#software`,
-      name: "Mandor",
+      name: "Mandor — Deal Intelligence",
       applicationCategory: "BusinessApplication",
+      applicationSubCategory: "Financial Analysis Software",
       operatingSystem: "Web",
+      url: SITE_URL,
       description:
-        "Plataforma de Deal Intelligence com 9 agentes de IA especializados que executam em paralelo para entregar diagnóstico financeiro completo de ativos em 90 minutos.",
+        "Plataforma de análise para M&A, crédito estruturado e preparação de ativos. Nove inteligências em paralelo entregam diagnóstico financeiro, valuation, Pitchbook e Blind Teaser em até 40 minutos.",
+      softwareVersion: "1.0",
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      featureList: [
+        "Deal Readiness Score automatizado",
+        "Diagnóstico financeiro com EBITDA ajustado",
+        "Valuation por múltiplos e DCF",
+        "Análise jurídica e mapa de riscos",
+        "Estruturação de crédito (CRI, CRA, debêntures, securitização)",
+        "Pipeline de compradores e originação",
+        "Blind Teaser e Sell-Side Pitchbook white-label",
+        "Exportação em PDF, Word e templates customizados",
+        "Multi-tenancy com isolamento por escritório",
+        "Conformidade LGPD",
+      ],
       offers: [
         {
           "@type": "Offer",
-          name: "Avulso",
-          price: "2500",
+          name: "Plano Pontual",
+          description: "Análise avulsa sob demanda, sem fidelidade",
+          price: "3500.00",
           priceCurrency: "BRL",
-          description: "1 análise completa por análise",
+          availability: "https://schema.org/InStock",
+          url: `${SITE_URL}/auth/signup`,
         },
         {
           "@type": "Offer",
-          name: "Recorrente",
-          price: "8000",
+          name: "Plano Institucional",
+          description: "Até 20 análises mensais com onboarding incluído",
+          price: "17000.00",
           priceCurrency: "BRL",
-          priceSpecification: {
-            "@type": "UnitPriceSpecification",
-            billingDuration: "P1M",
+          availability: "https://schema.org/InStock",
+          url: `${SITE_URL}/auth/signup`,
+        },
+        {
+          "@type": "Offer",
+          name: "Plano Corporativo",
+          description:
+            "Volume customizado para redes, fundos e estruturas com alto fluxo",
+          priceCurrency: "BRL",
+          availability: "https://schema.org/InStock",
+          url: "mailto:gestor@renanregonato.com.br",
+        },
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${SITE_URL}/#faq`,
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Como os dados dos deals são protegidos?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Mandor opera com criptografia em trânsito (TLS 1.3) e em repouso (AES-256). Nenhum dado é compartilhado entre escritórios. Cada análise fica isolada em ambiente dedicado ao escritório contratante.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "A plataforma está em conformidade com a LGPD?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Sim. Mandor opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para planos Institucional e Corporativo.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quanto tempo leva para ter a plataforma funcionando?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "O onboarding leva de 1 a 3 dias úteis para os planos Institucional e Corporativo. Para o plano Pontual, a primeira análise pode ser submetida no mesmo dia do contrato.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Mandor se integra com ferramentas que já usamos?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Atualmente exporta em PDF, Word e formato editável compatível com Office. Integração via API e conectores para CRMs estão no roadmap. Para planos Corporativo, avaliamos integrações customizadas mediante escopo.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Como funciona o cancelamento?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Planos mensais têm cancelamento a qualquer momento com 30 dias de aviso. Não há fidelidade mínima nos planos Pontual e Institucional. Planos Corporativos seguem o contrato negociado.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Qual suporte está disponível?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Todos os planos têm suporte por e-mail com resposta em até 24h úteis. O plano Institucional inclui suporte prioritário. O plano Corporativo inclui gestor de conta dedicado e SLA customizado.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quanto tempo leva para receber a análise?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Até 40 minutos após a submissão dos documentos. Para planos Institucional e Corporativo, entrega garantida no mesmo dia mesmo para casos com documentação incompleta.",
           },
         },
       ],
-      publisher: { "@id": `${SITE_URL}/#organization` },
     },
   ],
 };
