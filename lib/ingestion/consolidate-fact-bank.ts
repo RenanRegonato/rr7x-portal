@@ -16,7 +16,7 @@ interface ConsolidateParams {
 interface RawFact {
   fact_type:     string
   fact_key:      string
-  fact_value:    string         // JSON-encoded
+  fact_value:    string
   source_quote:  string | null
   source_page:   number | null
   confidence:    number
@@ -24,38 +24,40 @@ interface RawFact {
   document_name: string
 }
 
+interface ConsolidatedFact {
+  fact_type:           string
+  key:                 string
+  value:               unknown
+  status?:             'consolidated' | 'conflict'
+  confidence:          number
+  sources:             Array<{ doc_id: string; doc_name: string; page: number | null; quote: string | null }>
+  conflicting_values?: Array<{ value: unknown; doc_id: string; doc_name: string; page: number | null }>
+}
+
 const CONSOLIDATOR_SYSTEM = `Você é o Consolidador da Mandor — agrupa fatos extraídos de múltiplos chunks/documentos numa única "verdade" da análise (fact_bank).
 
-Você recebe um array de fatos extraídos, cada um com source_doc + source_page + confidence. Eles vêm de diferentes documentos do mesmo deal. Pode haver:
-- Duplicatas literais (mesmo fato em vários chunks).
-- Variações do mesmo fato com unidades diferentes ("R$ 2,3 mi" vs "2.300.000").
-- Conflitos (um doc diz EBITDA 2024 = 2.3M, outro doc diz 2.5M).
+Você recebe um BATCH de fatos extraídos. Esse batch é apenas uma fração de TODOS os fatos da análise. Foque em deduplicar e consolidar dentro deste batch.
 
-Sua tarefa: produzir o fact_bank consolidado em JSON estruturado.
+## Regras
 
-## Regras de consolidação
+1. **Deduplique** fatos com mesmo (fact_type, key) e valor idêntico/equivalente → 1 entrada com sources[] juntando todas as fontes.
+2. **Padronize unidades**: "R$ 2,3 mi" e "2.300.000 BRL" são o mesmo valor — escolha forma canônica (número absoluto em BRL).
+3. **Conflitos** (mesmo key, valores divergentes): emita entry com status="conflict" e \`conflicting_values\` listando as variantes.
+4. **Confidence consolidado**: max das originais quando concordam; min quando conflito.
+5. **Preserve TODAS as fontes** em \`sources\`: { doc_id, doc_name, page, quote }.
 
-1. **Deduplique** fatos idênticos: mesmo fact_type + fact_key + mesmo valor → 1 entrada com source_docs[] juntando todas as fontes.
-2. **Resolva variações de unidade**: padronize. "R$ 2,3 mi" e "2.300.000 BRL" são o mesmo fato — escolha a forma canônica (número absoluto em BRL).
-3. **Conflitos**: NÃO escolha um "vencedor". Emita entry com \`conflicting_values: [{value, source_doc, source_page}, ...]\` e \`status: "conflict"\`. Os agentes downstream decidem.
-4. **Reduza confidence** quando consolidar várias fontes que concordam: nova confidence = max das originais. Em conflito: nova confidence = min das originais.
-5. **Preserve TODAS as fontes**: cada fato consolidado mantém um array \`sources[]\` com {doc_id, doc_name, page, quote}.
-
-## Output schema (JSON puro, sem markdown)
+## Output schema (JSON puro, sem markdown, sem prosa)
 
 {
   "facts": [
     {
-      "fact_type": "numero_financeiro" | "estrutura_societaria" | ...,
+      "fact_type": "numero_financeiro",
       "key": "ebitda_2024",
-      "value": { /* objeto consolidado */ },
-      "status": "consolidated" | "conflict",
-      "confidence": 0.0 a 1.0,
+      "value": { "amount": 2300000, "unit": "BRL", "periodo": "2024" },
+      "status": "consolidated",
+      "confidence": 0.92,
       "sources": [
-        { "doc_id": "uuid", "doc_name": "Balanço 2024.pdf", "page": 3, "quote": "..." }
-      ],
-      "conflicting_values": [ /* só quando status="conflict" */
-        { "value": {...}, "doc_id": "uuid", "doc_name": "X.pdf", "page": 4 }
+        { "doc_id": "uuid", "doc_name": "Balanço 2024.pdf", "page": 3, "quote": "EBITDA = R$ 2.300.000" }
       ]
     }
   ],
@@ -67,12 +69,15 @@ Sua tarefa: produzir o fact_bank consolidado em JSON estruturado.
   }
 }
 
-Nada além do JSON. Sem prosa, sem \`\`\`json\`\`\`.`
+Nada além do JSON. Sem \`\`\`json\`\`\`.`
+
+const BATCH_SIZE      = 40       // 40 facts por chamada Sonnet
+const MAX_TOKENS_PER_BATCH = 8000 // safe vs limite de 8192 do Sonnet 4.6 standard
 
 export async function consolidateFactBank({ analiseId, step, logger }: ConsolidateParams) {
   const admin = createAdminClient()
 
-  // 1) Carrega TODOS os fatos da análise (com nome do documento)
+  // 1) Carrega fatos
   const facts = await step.run('load-facts', async () => {
     const { data, error } = await admin
       .from('document_facts')
@@ -90,7 +95,6 @@ export async function consolidateFactBank({ analiseId, step, logger }: Consolida
       .returns<Array<RawFact & { analise_documents: { file_name: string } }>>()
     if (error) throw new Error(`load-facts: ${error.message}`)
 
-    // Achata o nome do doc pra dentro do fact
     return (data ?? []).map(f => ({
       fact_type:     f.fact_type,
       fact_key:      f.fact_key,
@@ -113,39 +117,74 @@ export async function consolidateFactBank({ analiseId, step, logger }: Consolida
     })
   }
 
-  // 2) Chama Sonnet pra consolidar
-  const consolidated = await step.run('llm-consolidate', async () => {
-    const factsForPrompt = facts.map(f => ({
-      type:     f.fact_type,
-      key:      f.fact_key,
-      value:    safeParseJson(f.fact_value),
-      doc_id:   f.document_id,
-      doc_name: f.document_name,
-      page:     f.source_page,
-      quote:    f.source_quote,
-      conf:     f.confidence,
-    }))
+  // 2) Agrupa por fact_type — duplicatas reais ficam no mesmo grupo
+  const byType: Record<string, RawFact[]> = {}
+  for (const f of facts) {
+    (byType[f.fact_type] ??= []).push(f)
+  }
 
-    const userPrompt = `## Fatos extraídos (input)\n\n${JSON.stringify(factsForPrompt, null, 2)}\n\n## Sua tarefa\nProduza o fact_bank consolidado conforme o schema descrito no system prompt. JSON puro.`
+  // 3) Pra cada tipo, processa em batches de BATCH_SIZE.
+  //    Cada batch é um step.run separado — output do step é só o array de facts
+  //    consolidados desse batch (pequeno: ~40 facts × ~400 chars = ~16KB).
+  const allFacts: ConsolidatedFact[] = []
+  let totalConflicts = 0
+  let totalDuplicatesMerged = 0
 
-    const msg = await anthropic.messages.create({
-      model:       SONNET_MODEL,
-      max_tokens:  16000,
-      temperature: 0,
-      system:      CONSOLIDATOR_SYSTEM,
-      messages:    [{ role: 'user', content: userPrompt }],
-    })
+  for (const [factType, list] of Object.entries(byType)) {
+    const batches = chunkArray(list, BATCH_SIZE)
+    for (let bi = 0; bi < batches.length; bi++) {
+      const batch = batches[bi]
+      const batchKey = `${factType}-${bi}`
 
-    const block = msg.content.find(b => b.type === 'text')
-    if (!block || block.type !== 'text') throw new Error('Sonnet retornou bloco vazio')
-    return parseJsonOrEmpty(block.text)
-  })
+      const result = await step.run(`consolidate-batch-${batchKey}`, async () => {
+        const factsForPrompt = batch.map(f => ({
+          type:     f.fact_type,
+          key:      f.fact_key,
+          value:    safeParseJson(f.fact_value),
+          doc_id:   f.document_id,
+          doc_name: f.document_name,
+          page:     f.source_page,
+          quote:    f.source_quote,
+          conf:     f.confidence,
+        }))
 
-  // 3) Persiste em analises.fact_bank
+        const userPrompt = `## Batch (apenas fatos do tipo "${factType}", parte ${bi + 1} de ${batches.length})\n\n${JSON.stringify(factsForPrompt, null, 2)}\n\n## Sua tarefa\nProduza o fact_bank parcial deste batch. JSON puro.`
+
+        const msg = await anthropic.messages.create({
+          model:       SONNET_MODEL,
+          max_tokens:  MAX_TOKENS_PER_BATCH,
+          temperature: 0,
+          system:      CONSOLIDATOR_SYSTEM,
+          messages:    [{ role: 'user', content: userPrompt }],
+        })
+
+        const block = msg.content.find(b => b.type === 'text')
+        if (!block || block.type !== 'text') {
+          return {
+            facts: [] as ConsolidatedFact[],
+            stats: { total_facts_in: batch.length, total_facts_out: 0, conflicts: 0, duplicates_merged: 0 },
+            parse_error: true,
+          }
+        }
+        return parseJsonOrEmpty(block.text)
+      }) as { facts?: ConsolidatedFact[]; stats?: { conflicts?: number; duplicates_merged?: number }; parse_error?: boolean }
+
+      if (Array.isArray(result.facts)) allFacts.push(...result.facts)
+      totalConflicts        += result.stats?.conflicts ?? 0
+      totalDuplicatesMerged += result.stats?.duplicates_merged ?? 0
+    }
+  }
+
+  // 4) Persiste
   return await persistFactBank(admin, analiseId, step, {
-    ...consolidated as object,
+    facts: allFacts,
+    stats: {
+      total_facts_in:    facts.length,
+      total_facts_out:   allFacts.length,
+      conflicts:         totalConflicts,
+      duplicates_merged: totalDuplicatesMerged,
+    },
     consolidation_model: SONNET_MODEL,
-    total_facts_in:      facts.length,
   })
 }
 
@@ -203,6 +242,12 @@ async function persistFactBank(
   return { ok: true, fact_bank: factBank }
 }
 
+function chunkArray<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = []
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
+  return out
+}
+
 function safeParseJson(s: string): unknown {
   try { return JSON.parse(s) } catch { return s }
 }
@@ -217,6 +262,10 @@ function parseJsonOrEmpty(text: string): Record<string, unknown> {
   try {
     return JSON.parse(slice) as Record<string, unknown>
   } catch {
-    return { facts: [], stats: { total_facts_in: 0, total_facts_out: 0, conflicts: 0, duplicates_merged: 0 }, parse_error: true }
+    return {
+      facts: [],
+      stats: { total_facts_in: 0, total_facts_out: 0, conflicts: 0, duplicates_merged: 0 },
+      parse_error: true,
+    }
   }
 }
