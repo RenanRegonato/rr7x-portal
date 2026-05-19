@@ -35,6 +35,17 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  // Pacotes server-only que devem ficar como CJS externo (sem bundling).
+  // voyageai e @mistralai/mistralai são ESM com imports sem extensão que o Webpack do
+  // Next.js não resolve. pdf-parse, mammoth e xlsx são puros runtime Node com bindings
+  // não-bundláveis. inngest entra junto pra não tentar bundlar handlers do worker.
+  serverExternalPackages: [
+    '@mistralai/mistralai',
+    'pdf-parse',
+    'mammoth',
+    'xlsx',
+    'inngest',
+  ],
   async headers() {
     return [
       {

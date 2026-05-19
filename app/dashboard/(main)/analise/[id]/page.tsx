@@ -123,6 +123,12 @@ export default function AnalisePage() {
   const pipelineStarted  = useRef(false)
   const startTime        = useRef(Date.now())
 
+  // Ingestão assíncrona (Fase 13): pipeline só inicia quando fact_bank está pronto.
+  // Se a análise foi criada antes da Fase 13 (sem ingest disparado), status fica 'idle'
+  // e o fluxo legado roda transparentemente — drive_intake lê PDFs do Storage.
+  const [ingestStatus, setIngestStatus] = useState<'unknown' | 'idle' | 'in_progress' | 'completed' | 'failed'>('unknown')
+  const [ingestProgress, setIngestProgress] = useState<{ total: number; completed: number; failed: number; percent: number }>({ total: 0, completed: 0, failed: 0, percent: 0 })
+
   function addLog(agent: string, msg: string) {
     const secs = Math.floor((Date.now() - startTime.current) / 1000)
     setLogLines((prev) => [...prev, { time: fmtTime(secs), agent, msg }])
@@ -392,9 +398,57 @@ export default function AnalisePage() {
   }
 
   useEffect(() => {
+    let cancelled = false
+    let pollTimer: ReturnType<typeof setTimeout> | null = null
+
+    async function checkIngestionAndMaybeRun(data: { status: string; deal_intake?: { objetivo?: string }; outputs?: Record<string, string> }) {
+      const existing = (data.outputs ?? {}) as Record<string, string>
+      try {
+        const r = await fetch(`/api/analise/${id}/ingest/status`)
+        if (!r.ok) {
+          // Endpoint pode não existir em ambientes antigos — fallback ao fluxo legado
+          setIngestStatus('idle')
+          if (data.status === 'processando') {
+            startTime.current = Date.now()
+            runPipeline(existing, data.deal_intake?.objetivo)
+          }
+          return
+        }
+        const stat = await r.json() as {
+          status: 'idle' | 'in_progress' | 'completed' | 'failed'
+          fact_bank_ready: boolean
+          progress: { total: number; completed: number; failed: number; percent: number }
+        }
+        if (cancelled) return
+        setIngestStatus(stat.status)
+        setIngestProgress(stat.progress)
+
+        if (stat.status === 'in_progress') {
+          // Aguarda — não inicia pipeline ainda
+          pollTimer = setTimeout(() => checkIngestionAndMaybeRun(data), 5000)
+          return
+        }
+
+        // idle (sem ingestão registrada — análise antiga) OU completed OU failed:
+        // pipeline pode rodar. Se idle/failed: drive_intake usa fluxo legado (re-lê PDFs).
+        if (data.status === 'processando') {
+          startTime.current = Date.now()
+          runPipeline(existing, data.deal_intake?.objetivo)
+        }
+      } catch (e) {
+        console.error('[ingest status]', e)
+        setIngestStatus('idle')
+        if (data.status === 'processando') {
+          startTime.current = Date.now()
+          runPipeline(existing, data.deal_intake?.objetivo)
+        }
+      }
+    }
+
     async function init() {
       const res  = await fetch(`/api/analise-status?id=${id}`)
       const data = await res.json()
+      if (cancelled) return
       setAnalise(data)
       setStatus(data.status)
       setRegenCount(Number(data.regeneracoes_count ?? 0))
@@ -403,12 +457,14 @@ export default function AnalisePage() {
 
       if (existing.relatorio_consolidado) setActiveTab('relatorio_consolidado')
 
-      if (data.status === 'processando') {
-        startTime.current = Date.now()
-        runPipeline(existing, data.deal_intake?.objetivo)
-      }
+      await checkIngestionAndMaybeRun(data)
     }
     init()
+
+    return () => {
+      cancelled = true
+      if (pollTimer) clearTimeout(pollTimer)
+    }
   }, [id])
 
   async function onRegenerarConfirmado(step: string, regeneracaoId: string) {
@@ -462,6 +518,46 @@ export default function AnalisePage() {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-ink-3 font-display text-[18px]">Carregando análise...</div>
+      </div>
+    )
+  }
+
+  // Bloqueia a UI principal enquanto a ingestão assíncrona está rodando.
+  // O pipeline só inicia quando fact_bank está pronto — economiza tokens em long-context.
+  if (ingestStatus === 'in_progress') {
+    return (
+      <div className="flex-1 flex flex-col">
+        <Topbar
+          variant="context"
+          title={analise.nome_ativo}
+          badge={{ label: 'Processando documentos', kind: 'live' }}
+        />
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="max-w-md w-full bg-surface border border-border rounded-[14px] p-8 shadow-soft-sm text-center">
+            <div className="w-12 h-12 rounded-full bg-accent-soft flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">📄</span>
+            </div>
+            <h2 className="font-display text-[20px] mb-2 text-ink">Lendo os documentos</h2>
+            <p className="text-[14px] text-ink-3 leading-relaxed mb-6">
+              O sistema está extraindo e estruturando o conteúdo de cada arquivo. Isso garante que 100% dos documentos sejam lidos, sem cortar nada, antes do pipeline de análise começar.
+            </p>
+            <div className="bg-bg-tint border border-border rounded-[10px] p-4 text-left">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[12px] text-ink-2 font-semibold">Progresso</span>
+                <span className="text-[12px] text-ink-2 tabular-nums">{ingestProgress.completed + ingestProgress.failed} / {ingestProgress.total}</span>
+              </div>
+              <div className="h-2 bg-border rounded-full overflow-hidden">
+                <div className="h-full bg-accent transition-all" style={{ width: `${ingestProgress.percent}%` }} />
+              </div>
+              {ingestProgress.failed > 0 && (
+                <p className="mt-3 text-[11px] text-warn">{ingestProgress.failed} arquivo(s) com erro — análise segue mesmo assim.</p>
+              )}
+            </div>
+            <p className="mt-6 text-[11px] text-ink-3">
+              Você pode fechar essa aba — vamos te avisar por email quando estiver pronto.
+            </p>
+          </div>
+        </div>
       </div>
     )
   }

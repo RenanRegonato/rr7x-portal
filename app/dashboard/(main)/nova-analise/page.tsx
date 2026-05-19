@@ -255,6 +255,19 @@ function NovaAnaliseInner() {
       await supabase.storage.from('analises').uploadToSignedUrl(urlInfo.path, urlInfo.token, file)
     }
 
+    // Dispara ingestão assíncrona (Fase 13) — Inngest processa em background.
+    // Não bloqueia o redirect: a página da análise faz polling em /ingest/status.
+    // Se o disparo falhar (ex.: Inngest fora), análise continua acessível e
+    // pode rodar no fluxo legado (drive_intake re-lê PDFs do Storage).
+    if (files.length > 0) {
+      setLoadingLabel('Iniciando processamento dos documentos em background...')
+      try {
+        await fetch(`/api/analise/${analiseId}/ingest`, { method: 'POST' })
+      } catch (e) {
+        console.error('[ingest] dispatch failed:', e)
+      }
+    }
+
     localStorage.removeItem(DRAFT_KEY)
     router.push(`/dashboard/analise/${analiseId}`)
   }

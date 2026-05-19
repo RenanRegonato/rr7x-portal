@@ -256,12 +256,14 @@ function buildAllOutputsForReport(outputs: Record<string, string>): string {
   return result
 }
 
+type CacheControl = { type: 'ephemeral'; ttl?: '5m' | '1h' }
+
 type ContentBlock =
-  | { type: 'text'; text: string; cache_control?: { type: 'ephemeral' } }
+  | { type: 'text'; text: string; cache_control?: CacheControl }
   | { type: 'image'; source: { type: 'base64'; media_type: string; data: string } }
   | { type: 'document'; source: { type: 'base64'; media_type: string; data: string } }
 
-type SystemBlock = { type: 'text'; text: string; cache_control?: { type: 'ephemeral' } }
+type SystemBlock = { type: 'text'; text: string; cache_control?: CacheControl }
 
 function buildDocIntakeContent(summary: DocReadSummary, intakeStr: string): ContentBlock[] {
   const blocks: ContentBlock[] = []
@@ -311,32 +313,76 @@ Os documentos seguem abaixo (PDFs, imagens e textos). Analise o conteúdo real d
   return blocks
 }
 
+/**
+ * Modo Fase 13: monta o input do drive_intake a partir do fact_bank consolidado
+ * (resultado da ingestão assíncrona). Substitui a leitura bruta dos PDFs por um
+ * resumo estruturado já processado, evitando que o drive_intake bata em long-context.
+ */
+function buildDriveIntakeFromFactBank(factBank: Record<string, unknown>, intakeStr: string): ContentBlock[] {
+  const factsArr = Array.isArray((factBank as { facts?: unknown }).facts)
+    ? (factBank as { facts: unknown[] }).facts
+    : []
+
+  const factsByType = new Map<string, unknown[]>()
+  for (const f of factsArr) {
+    const ft = (f as { fact_type?: string })?.fact_type ?? 'outros'
+    const arr = factsByType.get(ft) ?? []
+    arr.push(f)
+    factsByType.set(ft, arr)
+  }
+
+  const factsSummary = Array.from(factsByType.entries())
+    .map(([type, list]) => `### ${type} (${list.length})\n${JSON.stringify(list, null, 2)}`)
+    .join('\n\n')
+
+  const stats = (factBank as { stats?: unknown }).stats ?? {}
+
+  return [{
+    type: 'text',
+    text: `Produza o Diagnóstico de Ingestão de Dados a partir do FACT_BANK consolidado pela ingestão assíncrona da Fase 13.
+
+DEAL INTAKE:
+${intakeStr}
+
+---
+FACT_BANK CONSOLIDADO:
+
+Estatísticas: ${JSON.stringify(stats)}
+
+${factsSummary}
+
+---
+
+Sua tarefa: produzir um diagnóstico narrativo do que os documentos do deal revelam, **usando exclusivamente o fact_bank acima**. Não invente fatos não listados. Cite documentos pelos source_doc dos fatos. Aponte lacunas e conflitos explicitamente (status: conflict).`,
+  }]
+}
+
 function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, escritorioBlock = '', feedbackBlock = '', bcbData = '', cvmCapital = '', cvmComps = '', intake: Record<string, string> = {}, truthLayerBlock = '', benchmarksBlock = ''): { system: SystemBlock[]; user: string | ContentBlock[] } | null {
   // HUMANIZER_DIRECTIVE como primeiro bloco de sistema: prefixo estável compartilhado por
   // TODOS os agentes e TODAS as análises → máximo de cache hit na API Anthropic.
   // Cada análise paga o custo de leitura do HUMANIZER_DIRECTIVE apenas na primeira chamada;
   // as demais (paralelas ou de outros usuários) lêem do cache.
-  const humanizerBlock: SystemBlock = { type: 'text', text: HUMANIZER_DIRECTIVE, cache_control: { type: 'ephemeral' } }
+  const humanizerBlock: SystemBlock = { type: 'text', text: HUMANIZER_DIRECTIVE, cache_control: { type: 'ephemeral', ttl: '1h' } }
 
   // Truth Layer (Fase 6): bloco de fatos consolidados, cacheado por análise.
   // Vai ANTES do prompt específico para que o agente leia primeiro o que é fato
   // antes das instruções de execução. Só é incluído se houver conteúdo (drive_intake
   // não recebe truth layer, já que é a fonte dos fatos).
   const truthBlock: SystemBlock | null = truthLayerBlock
-    ? { type: 'text', text: truthLayerBlock, cache_control: { type: 'ephemeral' } }
+    ? { type: 'text', text: truthLayerBlock, cache_control: { type: 'ephemeral', ttl: '1h' } }
     : null
 
   // Benchmark Registry (Fase 7): parâmetros de mercado para validação quantitativa.
   // Cacheado globalmente (mesmos benchmarks pra todas análises) → cache hit alto.
   const benchmarksBlk: SystemBlock | null = benchmarksBlock
-    ? { type: 'text', text: benchmarksBlock, cache_control: { type: 'ephemeral' } }
+    ? { type: 'text', text: benchmarksBlock, cache_control: { type: 'ephemeral', ttl: '1h' } }
     : null
 
   // CLAIMS_DIRECTIVE (Fase 8): instrução para o agente emitir claims estruturados
   // ao final do output (bloco invisível parseado pelo sistema).
   // Cacheado globalmente — diretiva idêntica para todos os agentes analíticos.
   const claimsBlock: SystemBlock | null = CLAIM_AGENTS.has(step)
-    ? { type: 'text', text: CLAIMS_DIRECTIVE, cache_control: { type: 'ephemeral' } }
+    ? { type: 'text', text: CLAIMS_DIRECTIVE, cache_control: { type: 'ephemeral', ttl: '1h' } }
     : null
 
   // Ordem: humanizer → benchmarks → claims directive → truth (por análise) → prompt do agente
@@ -345,7 +391,7 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
     if (benchmarksBlk) blocks.push(benchmarksBlk)
     if (claimsBlock)   blocks.push(claimsBlock)
     if (truthBlock)    blocks.push(truthBlock)
-    blocks.push({ type: 'text', text: agentPrompt + feedbackBlock, cache_control: { type: 'ephemeral' } })
+    blocks.push({ type: 'text', text: agentPrompt + feedbackBlock, cache_control: { type: 'ephemeral', ttl: '1h' } })
     return blocks
   }
 
@@ -356,7 +402,7 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
   ].filter(Boolean).join('\n\n---\n\n')
 
   const sharedContextBlock: ContentBlock | null = docsContextText
-    ? { type: 'text', text: `DEAL INTAKE:\n${intakeStr}\n\n---\n\n${docsContextText}`, cache_control: { type: 'ephemeral' } }
+    ? { type: 'text', text: `DEAL INTAKE:\n${intakeStr}\n\n---\n\n${docsContextText}`, cache_control: { type: 'ephemeral', ttl: '1h' } }
     : null
 
   // Cross-Reading (Fase 9): bloco extra com outputs de agentes upstream específicos
@@ -384,7 +430,7 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
   // Para documentos de captação (blind_teaser + sell_side_pitchbook): bloco cacheado compartilhado
   // Os dois rodam em Promise.all — o mesmo prefixo é cacheado e lido pelos dois sem custo duplo.
   const sharedCaptacaoBlock: ContentBlock | null = allOutputs
-    ? { type: 'text', text: `DEAL INTAKE:\n${intakeStr}\n\n---\n\nANÁLISES DOS ESPECIALISTAS:\n${allOutputs}`, cache_control: { type: 'ephemeral' } }
+    ? { type: 'text', text: `DEAL INTAKE:\n${intakeStr}\n\n---\n\nANÁLISES DOS ESPECIALISTAS:\n${allOutputs}`, cache_control: { type: 'ephemeral', ttl: '1h' } }
     : null
 
   function captacaoUser(instruction: string): ContentBlock[] {
@@ -650,18 +696,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     let fullText = ''
 
-    // drive_intake: lê arquivos reais do Supabase Storage e passa para Claude com content blocks
+    // drive_intake: dois modos
+    //   - Novo (Fase 13): se já existe fact_bank consolidado, monta o input a partir
+    //     dele (compacto, ~30k tokens). Sem custo de re-ler PDFs gigantes.
+    //   - Legado: lê arquivos reais do Supabase Storage e passa pra Claude com content blocks.
+    // Trocar via flag `analise.fact_bank_consolidated_at IS NOT NULL`.
     if (step === 'drive_intake') {
-      const summary = await readAnalyseDocs(analise.user_id, id)
-      const userContent = buildDocIntakeContent(summary, intakeStr)
+      const factBank = (analise as { fact_bank?: unknown }).fact_bank
+      const useFactBank = !!factBank && !!(analise as { fact_bank_consolidated_at?: string }).fact_bank_consolidated_at
+
+      const userContent: ContentBlock[] = useFactBank
+        ? buildDriveIntakeFromFactBank(factBank as Record<string, unknown>, intakeStr)
+        : buildDocIntakeContent(await readAnalyseDocs(analise.user_id, id), intakeStr)
       const docIntakeSystem: SystemBlock[] = [
-        { type: 'text', text: HUMANIZER_DIRECTIVE, cache_control: { type: 'ephemeral' } },
+        { type: 'text', text: HUMANIZER_DIRECTIVE, cache_control: { type: 'ephemeral', ttl: '1h' } },
         {
           type: 'text',
           text: (prompts['doc_intake'] || `Você é o Agente de Ingestão de Dados da RR7x Capital Hub. Leia os documentos enviados e produza um diagnóstico documental detalhado: o que foi lido, o que cada documento revela sobre o ativo, lacunas identificadas e nível de confiança para a análise.
 
 Seja completamente honesto: se um documento não pôde ser lido, diga claramente. Se foi lido, extraia e destaque as informações mais relevantes — números, datas, estrutura societária, indicadores financeiros, cláusulas contratuais relevantes, qualquer dado concreto disponível. O assessor precisa saber exatamente o que o sistema ingeriu para calibrar a análise.`) + feedbackBlock,
-          cache_control: { type: 'ephemeral' },
+          cache_control: { type: 'ephemeral', ttl: '1h' },
         },
       ]
 

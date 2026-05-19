@@ -31,6 +31,38 @@ export async function sendCompletionEmail(params: {
   })
 }
 
+export async function sendIngestionCompleteEmail(params: {
+  to:           string
+  nomeAtivo:    string
+  analiseId:    string
+  totalDocs:    number
+  totalFacts:   number
+  baseUrl:      string
+}) {
+  const url = `${params.baseUrl}/dashboard/analise/${params.analiseId}`
+  await resend.emails.send({
+    from:    FROM,
+    to:      params.to,
+    subject: `📄 Documentos processados — ${params.nomeAtivo}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1208">
+        <h2 style="font-size:20px;margin-bottom:8px">Ingestão de documentos concluída</h2>
+        <p style="color:#5a4e42;line-height:1.6">
+          Os <strong>${params.totalDocs} documento${params.totalDocs === 1 ? '' : 's'}</strong> da análise <strong>${params.nomeAtivo}</strong> foram lidos integralmente e processados.
+          O sistema extraiu <strong>${params.totalFacts} fato${params.totalFacts === 1 ? '' : 's'} estruturado${params.totalFacts === 1 ? '' : 's'}</strong>.
+        </p>
+        <p style="color:#5a4e42;line-height:1.6">
+          Agora você já pode iniciar o pipeline de análise dos especialistas.
+        </p>
+        <a href="${url}" style="display:inline-block;margin-top:20px;padding:10px 20px;background:#c04a2a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+          Iniciar análise →
+        </a>
+        <p style="margin-top:32px;font-size:11px;color:#8a7a68">RR7x Capital Hub · Deal Intelligence</p>
+      </div>
+    `,
+  })
+}
+
 export async function sendErrorNotification(params: {
   nomeAtivo:  string
   analiseId:  string
