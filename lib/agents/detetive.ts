@@ -1,4 +1,4 @@
-import { anthropic, MODEL } from '@/lib/anthropic'
+import { anthropic, HAIKU_MODEL } from '@/lib/anthropic'
 
 // Agente "Detetive Dependência" — após uma regeneração executada,
 // avalia quais OUTROS agentes da análise podem ter ficado inconsistentes
@@ -101,10 +101,11 @@ Avalie agora e retorne o JSON conforme instruído.`
 
 export async function avaliarImpactoCascade(input: DetetiveInput): Promise<DetetiveOutput> {
   const resp = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 3000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: buildUserPrompt(input) }],
+    model:       HAIKU_MODEL,
+    max_tokens:  3000,
+    temperature: 0,
+    system:      SYSTEM_PROMPT,
+    messages:    [{ role: 'user', content: buildUserPrompt(input) }],
   })
 
   const textBlock = resp.content.find((b) => b.type === 'text')

@@ -1,4 +1,4 @@
-import { anthropic, MODEL } from '@/lib/anthropic'
+import { anthropic, HAIKU_MODEL } from '@/lib/anthropic'
 
 // Agente "Revisor Régis" — avalia pedidos de regeneração de step.
 // Não regenera nada; apenas analisa se o briefing faz sentido técnico.
@@ -90,10 +90,11 @@ function truncate(s: string, max: number): string {
 
 export async function avaliarPedidoRegeneracao(input: RevisorInput): Promise<RevisorOutput> {
   const resp = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 2000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: buildUserPrompt(input) }],
+    model:       HAIKU_MODEL,
+    max_tokens:  2000,
+    temperature: 0,
+    system:      SYSTEM_PROMPT,
+    messages:    [{ role: 'user', content: buildUserPrompt(input) }],
   })
 
   const textBlock = resp.content.find((b) => b.type === 'text')

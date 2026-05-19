@@ -1,4 +1,4 @@
-import { anthropic, MODEL } from '@/lib/anthropic'
+import { anthropic, HAIKU_MODEL } from '@/lib/anthropic'
 import type { FactType } from '@/lib/truth-layer'
 
 // Fact Extractor — converte o output narrativo do drive_intake em fatos
@@ -182,10 +182,11 @@ Extraia agora os fatos conforme instruído. Retorne SOMENTE o JSON.`
 
 export async function extractFacts(input: ExtractorInput): Promise<ExtractorOutput> {
   const resp = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 8000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: buildUserPrompt(input) }],
+    model:       HAIKU_MODEL,
+    max_tokens:  8000,
+    temperature: 0,
+    system:      SYSTEM_PROMPT,
+    messages:    [{ role: 'user', content: buildUserPrompt(input) }],
   })
 
   const textBlock = resp.content.find((b) => b.type === 'text')

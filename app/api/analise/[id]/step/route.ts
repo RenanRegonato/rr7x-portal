@@ -1,16 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
-import { anthropic, MODEL } from '@/lib/anthropic'
+import { anthropic, MODEL, HAIKU_MODEL } from '@/lib/anthropic'
 import { readAnalyseDocs, DocReadSummary } from '@/lib/doc-reader'
 import { fetchBCBIndicators } from '@/lib/bcb-data'
 import { fetchCapitalMarketsData, fetchListedComparables, extractSectorKeywords } from '@/lib/cvm-data'
 import { checkCADE, formatCADEForPrompt } from '@/lib/cade-check'
 import { getFacts, formatTruthLayer } from '@/lib/truth-layer'
+import { getFactBankForAgent, formatFactBankForPrompt } from '@/lib/fact-bank-for-agent'
 import { listBenchmarks, formatBenchmarksForPrompt } from '@/lib/benchmarks'
 import { parseClaims, persistClaims, CLAIMS_DIRECTIVE } from '@/lib/claims'
 
 // Steps que recebem extended thinking para raciocínio financeiro mais profundo
 const THINKING_STEPS = new Set(['diagnostico', 'analise_ma', 'estruturacao'])
+
+// Steps que rodam em Haiku 4.5 (3x mais barato que Sonnet). São tarefas estruturadas
+// ou de compressão sobre outputs já validados — não exigem raciocínio profundo.
+// Steps em Sonnet por padrão: drive_intake, pesquisa, kyc, contratos, diagnostico,
+// analise_ma, estruturacao, originacao, maturidade, revisao, sell_side_pitchbook,
+// relatorio_consolidado.
+const HAIKU_STEPS = new Set(['orchestration', 'blind_teaser'])
+function modelForStep(step: string): string {
+  return HAIKU_STEPS.has(step) ? HAIKU_MODEL : MODEL
+}
 
 // Steps que emitem claims estruturados (Fase 8). Excluímos:
 // - drive_intake (upstream, produz fatos)
@@ -685,7 +696,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const allOutputs   = buildAllOutputs(outputs)
     // Truth Layer: bloco de fatos consolidados que será injetado no system prompt
     // de TODOS os agentes (exceto drive_intake, que é a fonte original dos fatos).
-    const truthLayerBlock = step === 'drive_intake' ? '' : formatTruthLayer(factsData)
+    // Truth layer: se fact_bank consolidado (Fase 13) está disponível, usa ele
+    // filtrado por agente — mais auditável e granular que truth_layer legado.
+    // Pra drive_intake: vazio (ele é a fonte; modo dual em buildDriveIntakeFromFactBank).
+    // Senão: cai pro truth_layer legado (Fase 6).
+    const fb = (analise as { fact_bank?: unknown; fact_bank_consolidated_at?: string }).fact_bank
+    const fbReady = !!fb && !!(analise as { fact_bank_consolidated_at?: string }).fact_bank_consolidated_at
+    const truthLayerBlock = step === 'drive_intake'
+      ? ''
+      : fbReady
+        ? formatFactBankForPrompt(getFactBankForAgent(fb as { facts?: unknown[] }, step))
+        : formatTruthLayer(factsData)
     // Benchmark Registry (Fase 7): parâmetros de mercado para validação
     // quantitativa pelos agentes que recomendam produtos/estruturas.
     const benchmarksBlock = stepUsaBenchmarks ? formatBenchmarksForPrompt(benchmarksData) : ''
@@ -823,8 +844,9 @@ ${regen.briefing_motivo}
 
     const readable = new ReadableStream({
       start(controller) {
+        const chosenModel = modelForStep(step)
         const streamParams: any = {
-          model:      MODEL,
+          model:      chosenModel,
           max_tokens: useThinking ? 16000 : 10000,
           system:     args.system as any,
           messages:   [{ role: 'user', content: args.user as any }],
@@ -860,7 +882,7 @@ ${regen.briefing_motivo}
               saveAuditLog(admin, {
                 analiseId:      id,
                 stepKey:        step,
-                modelId:        MODEL,
+                modelId:        chosenModel,
                 inputTokens:    msg.usage?.input_tokens  ?? 0,
                 outputTokens:   msg.usage?.output_tokens ?? 0,
                 intakeSnapshot: intake,

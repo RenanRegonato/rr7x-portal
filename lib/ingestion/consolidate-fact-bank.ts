@@ -154,7 +154,11 @@ export async function consolidateFactBank({ analiseId, step, logger }: Consolida
           model:       SONNET_MODEL,
           max_tokens:  MAX_TOKENS_PER_BATCH,
           temperature: 0,
-          system:      CONSOLIDATOR_SYSTEM,
+          // System prompt é idêntico em todos os batches → cache TTL 1h.
+          // Primeira chamada paga write (1.25x input), demais leem a 0.1x.
+          system: [
+            { type: 'text', text: CONSOLIDATOR_SYSTEM, cache_control: { type: 'ephemeral', ttl: '1h' } },
+          ],
           messages:    [{ role: 'user', content: userPrompt }],
         })
 

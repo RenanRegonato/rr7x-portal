@@ -1,4 +1,4 @@
-import { anthropic, MODEL } from '@/lib/anthropic'
+import { anthropic, HAIKU_MODEL } from '@/lib/anthropic'
 import type { ChecklistItem, TipoOperacao } from '@/lib/coverage-checklists'
 
 // Coverage Validator (Fase 11) — agente que avalia se cada item da
@@ -113,10 +113,11 @@ function truncate(s: string, max: number): string {
 
 export async function validarCoverage(input: CoverageInput): Promise<CoverageOutput> {
   const resp = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 6000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: buildUserPrompt(input) }],
+    model:       HAIKU_MODEL,
+    max_tokens:  6000,
+    temperature: 0,
+    system:      SYSTEM_PROMPT,
+    messages:    [{ role: 'user', content: buildUserPrompt(input) }],
   })
 
   const textBlock = resp.content.find((b) => b.type === 'text')
