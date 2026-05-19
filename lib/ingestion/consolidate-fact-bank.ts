@@ -207,25 +207,28 @@ async function persistFactBank(
       .eq('id', analiseId)
   })
 
-  // Notifica o usuário por email — best effort, não falha o job se Resend falhar
+  // Notifica o usuário por email — best effort, não falha o job se Resend falhar.
+  // Retorna info estruturada pra debug via Inngest UI.
   await step.run('notify-user', async () => {
+    const { data: analise } = await admin
+      .from('analises')
+      .select('user_id, nome_ativo, documents_total')
+      .eq('id', analiseId)
+      .single()
+    if (!analise) return { status: 'skipped', reason: 'analise_not_found' }
+
+    const { data: userInfo, error: userErr } = await admin.auth.admin.getUserById(analise.user_id)
+    if (userErr) return { status: 'failed', reason: 'auth_admin_error', error: userErr.message }
+    const email = userInfo?.user?.email
+    if (!email) return { status: 'skipped', reason: 'user_email_empty', user_id: analise.user_id }
+
+    const factsArr = Array.isArray((factBank as { facts?: unknown }).facts)
+      ? (factBank as { facts: unknown[] }).facts
+      : []
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.mandor.com.br'
+
     try {
-      const { data: analise } = await admin
-        .from('analises')
-        .select('user_id, nome_ativo, documents_total')
-        .eq('id', analiseId)
-        .single()
-      if (!analise) return
-
-      const { data: userInfo } = await admin.auth.admin.getUserById(analise.user_id)
-      const email = userInfo?.user?.email
-      if (!email) return
-
-      const factsArr = Array.isArray((factBank as { facts?: unknown }).facts)
-        ? (factBank as { facts: unknown[] }).facts
-        : []
-
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.mandor.com.br'
       await sendIngestionCompleteEmail({
         to:         email,
         nomeAtivo:  analise.nome_ativo ?? 'Análise',
@@ -234,8 +237,11 @@ async function persistFactBank(
         totalFacts: factsArr.length,
         baseUrl,
       })
+      return { status: 'sent', to: email, facts: factsArr.length, from: process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev' }
     } catch (e) {
-      console.error('[consolidate-fact-bank] email notification failed:', e)
+      const err = e as Error
+      console.error('[consolidate-fact-bank] resend failed:', err)
+      return { status: 'failed', reason: 'resend_error', error: err.message, to: email, from: process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev' }
     }
   })
 

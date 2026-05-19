@@ -40,7 +40,9 @@ export async function sendIngestionCompleteEmail(params: {
   baseUrl:      string
 }) {
   const url = `${params.baseUrl}/dashboard/analise/${params.analiseId}`
-  await resend.emails.send({
+  // Resend SDK retorna { data, error } sem throw. Checamos manualmente e propagamos
+  // o erro pra cima pra que o caller possa lidar (logging, retry, etc).
+  const result = await resend.emails.send({
     from:    FROM,
     to:      params.to,
     subject: `📄 Documentos processados — ${params.nomeAtivo}`,
@@ -61,6 +63,9 @@ export async function sendIngestionCompleteEmail(params: {
       </div>
     `,
   })
+  if (result.error) {
+    throw new Error(`Resend API: ${result.error.name} — ${result.error.message}`)
+  }
 }
 
 export async function sendErrorNotification(params: {
