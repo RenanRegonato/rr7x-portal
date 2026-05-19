@@ -3,6 +3,12 @@ import { inngest } from '@/lib/inngest'
 import { processDocument } from '@/lib/ingestion/process-document'
 import { consolidateFactBank } from '@/lib/ingestion/consolidate-fact-bank'
 
+// Cada step do Inngest é uma request HTTP serverless. Steps como extract-text
+// (com OCR Mistral em PDFs grandes) e embed-chunks (várias chamadas Voyage)
+// podem demorar mais que o default 60s da Vercel Pro. 300s = max do plano Pro.
+// Se ainda assim travar em algum step, fragmentar o step em sub-steps menores.
+export const maxDuration = 300
+
 // Função 1: processa 1 documento (download → OCR/parse → chunks → embeddings → facts)
 export const processDocumentFn = inngest.createFunction(
   {

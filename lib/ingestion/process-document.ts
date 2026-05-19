@@ -20,10 +20,14 @@ interface ProcessParams {
   logger:     Logger
 }
 
+// REGRA DE OURO: step.run() tem limite de 4MB de output. Buffer de PDFs grandes
+// e textos longos NÃO podem ser retornados. Dados pesados ficam no banco; steps
+// retornam apenas counts/IDs/strings curtas.
+
 export async function processDocument({ analiseId, documentId, step, logger }: ProcessParams) {
   const admin = createAdminClient()
 
-  // 1) Carrega metadados do documento
+  // 1) Carrega metadados
   const doc = await step.run('load-document', async () => {
     const { data, error } = await admin
       .from('analise_documents')
@@ -32,136 +36,176 @@ export async function processDocument({ analiseId, documentId, step, logger }: P
       .single()
     if (error || !data) throw new Error(`Documento ${documentId} não encontrado: ${error?.message}`)
     return data
-  })
+  }) as { id: string; file_path: string; file_name: string; file_size_bytes: number; file_category: string; status: string }
 
   if (doc.status === 'completed') {
     logger.info('Document already completed, skipping', { documentId })
     return { skipped: true }
   }
 
-  // 2) Marca status = downloading
-  await step.run('mark-downloading', async () => {
+  // 2) Download → extract → chunk → save chunks (sem embedding ainda).
+  //    Buffer e texto bruto vivem DENTRO deste step. Output retornado é só counts.
+  const summary = await step.run('download-extract-chunk-save', async () => {
     await admin.from('analise_documents').update({ status: 'downloading' }).eq('id', documentId)
-  })
 
-  // 3) Download do Storage
-  const buffer = await step.run('download-file', async () => {
-    const { data, error } = await admin.storage.from('analises').download(doc.file_path)
-    if (error || !data) throw new Error(`Download falhou: ${error?.message}`)
-    return Buffer.from(await data.arrayBuffer())
-  })
+    const { data: blob, error: dlErr } = await admin.storage.from('analises').download(doc.file_path)
+    if (dlErr || !blob) throw new Error(`Download falhou: ${dlErr?.message ?? 'sem dados'}`)
+    const buffer = Buffer.from(await blob.arrayBuffer())
 
-  // 4) Extrai texto (OCR via Mistral pra PDFs scaneados, parser nativo pra resto)
-  const extracted = await step.run('extract-text', async () => {
-    return await extractTextFromDocument(doc.file_category as ExtractCategory, buffer, doc.file_name, doc.file_path)
-  })
+    await admin.from('analise_documents').update({ status: 'parsing' }).eq('id', documentId)
+    const extracted = await extractTextFromDocument(
+      doc.file_category as ExtractCategory,
+      buffer,
+      doc.file_name,
+      doc.file_path,
+    )
 
-  await step.run('mark-parsing-done', async () => {
+    await admin.from('analise_documents').update({ status: 'chunking' }).eq('id', documentId)
+    const chunks = chunkText(extracted.text)
+
+    if (chunks.length > 0) {
+      // Insere em lotes pra não estourar payload do Postgres em docs com 100+ chunks
+      const BATCH = 50
+      for (let i = 0; i < chunks.length; i += BATCH) {
+        const slice = chunks.slice(i, i + BATCH)
+        const rows = slice.map(c => ({
+          document_id:     documentId,
+          analise_id:      analiseId,
+          chunk_index:     c.index,
+          chunk_text:      c.text,
+          char_start:      c.char_start,
+          char_end:        c.char_end,
+          page_start:      null,
+          page_end:        null,
+          token_count:     c.token_count,
+          embedding:       null,                  // preenchido no step embed-all-chunks
+          embedding_model: 'voyage-3-large',
+        }))
+        const { error: insErr } = await admin.from('document_chunks').upsert(rows, { onConflict: 'document_id,chunk_index' })
+        if (insErr) throw new Error(`Falha ao salvar chunks: ${insErr.message}`)
+      }
+    }
+
     await admin.from('analise_documents').update({
-      status:        'chunking',
+      status:       chunks.length > 0 ? 'embedding' : 'completed',
+      ocr_provider: extracted.ocr_provider,
+      pages_count:  extracted.pages_count,
+      total_chars:  extracted.text.length,
+      total_chunks: chunks.length,
+      completed_at: chunks.length === 0 ? new Date().toISOString() : null,
+    }).eq('id', documentId)
+
+    return {
+      total_chunks:  chunks.length,
+      total_chars:   extracted.text.length,
       ocr_provider:  extracted.ocr_provider,
       pages_count:   extracted.pages_count,
-      total_chars:   extracted.text.length,
-    }).eq('id', documentId)
-  })
-
-  // 5) Chunking — quebra texto bruto em chunks de ~30k tokens com overlap
-  const chunks = await step.run('chunk-text', async () => {
-    return chunkText(extracted.text)
-  }) as Array<{ index: number; text: string; char_start: number; char_end: number; token_count: number }>
-
-  if (chunks.length === 0) {
-    // Documento vazio ou ilegível — marca completed mesmo assim pra não travar o pipeline
-    await step.run('mark-empty', async () => {
-      await admin.from('analise_documents').update({
-        status:       'completed',
-        completed_at: new Date().toISOString(),
-        total_chunks: 0,
-      }).eq('id', documentId)
-    })
-  } else {
-    // 5b) Atualiza total_chunks
-    await step.run('set-total-chunks', async () => {
-      await admin.from('analise_documents').update({
-        status:       'embedding',
-        total_chunks: chunks.length,
-      }).eq('id', documentId)
-    })
-
-    // 5c) Embeddings em batch (voyage-3-large) — todas as chamadas em paralelo via SDK
-    const embeddings = await step.run('embed-chunks', async () => {
-      return await embedDocuments(chunks.map(c => c.text))
-    })
-
-    // 5d) Persiste chunks com embeddings em document_chunks
-    await step.run('save-chunks', async () => {
-      const rows = chunks.map((c, i) => ({
-        document_id:     documentId,
-        analise_id:      analiseId,
-        chunk_index:     c.index,
-        chunk_text:      c.text,
-        char_start:      c.char_start,
-        char_end:        c.char_end,
-        page_start:      null,                       // PDFs com text-layer não preservam mapeamento exato
-        page_end:        null,
-        token_count:     c.token_count,
-        embedding:       embeddings[i] as unknown as string, // pgvector aceita number[] como string
-        embedding_model: 'voyage-3-large',
-      }))
-      await admin.from('document_chunks').upsert(rows, { onConflict: 'document_id,chunk_index' })
-    })
-
-    // 6) Fact extraction por chunk (Haiku 4.5, sequencial dentro deste doc)
-    await step.run('mark-fact-extracting', async () => {
-      await admin.from('analise_documents').update({ status: 'fact_extracting' }).eq('id', documentId)
-    })
-
-    for (let i = 0; i < chunks.length; i++) {
-      await step.run(`extract-facts-chunk-${i}`, async () => {
-        // Re-busca o chunk_id (foi criado no save-chunks step)
-        const { data: chunkRow } = await admin
-          .from('document_chunks')
-          .select('id')
-          .eq('document_id', documentId)
-          .eq('chunk_index', chunks[i].index)
-          .single()
-        if (!chunkRow) return
-
-        const facts = await extractFactsFromChunk({
-          documentName:  doc.file_name,
-          chunkText:     chunks[i].text,
-          pageStartHint: null,
-          pageEndHint:   null,
-        })
-
-        if (facts.length === 0) return
-
-        const rows = facts.map(f => ({
-          analise_id:   analiseId,
-          document_id:  documentId,
-          chunk_id:     chunkRow.id,
-          fact_type:    f.fact_type,
-          fact_key:     f.fact_key,
-          fact_value:   f.fact_value,
-          source_quote: f.source_quote,
-          source_page:  f.source_page,
-          confidence:   f.confidence,
-          model_id:     FACT_EXTRACTOR_MODEL,
-        }))
-        await admin.from('document_facts').insert(rows)
-      })
-
-      await step.run(`bump-chunks-completed-${i}`, async () => {
-        await admin
-          .from('analise_documents')
-          .update({ chunks_completed: i + 1 })
-          .eq('id', documentId)
-      })
     }
+  }) as { total_chunks: number; total_chars: number; ocr_provider: string | null; pages_count: number | null }
+
+  // Doc vazio (sem texto extraível): incrementa contador e segue
+  if (summary.total_chunks === 0) {
+    await step.run('inc-completed-empty', async () => {
+      const { data: a } = await admin
+        .from('analises')
+        .select('documents_completed')
+        .eq('id', analiseId)
+        .single()
+      await admin
+        .from('analises')
+        .update({ documents_completed: (a?.documents_completed ?? 0) + 1 })
+        .eq('id', analiseId)
+    })
+    await maybeTriggerConsolidation(admin, analiseId, step)
+    return { ok: true, documentId, chars: summary.total_chars, total_chunks: 0 }
   }
 
-  // 7) Marca completed e incrementa contador da análise (atomic read-then-update;
-  // race condition aceitável pois Inngest serializa por concorrência=4 dentro da analise)
+  // 3) Embeddings: lê chunks do banco, faz Voyage em batch, update no banco.
+  //    Embedding vectors NÃO são retornados como output do step (são grandes).
+  await step.run('embed-all-chunks', async () => {
+    const { data: rows } = await admin
+      .from('document_chunks')
+      .select('id, chunk_text')
+      .eq('document_id', documentId)
+      .order('chunk_index')
+    if (!rows || rows.length === 0) return { embedded: 0 }
+
+    const embeddings = await embedDocuments(rows.map(r => r.chunk_text))
+
+    for (let i = 0; i < rows.length; i++) {
+      const { error: upErr } = await admin
+        .from('document_chunks')
+        .update({ embedding: embeddings[i] as unknown as string })
+        .eq('id', rows[i].id)
+      if (upErr) throw new Error(`Falha ao atualizar embedding ${i}: ${upErr.message}`)
+    }
+    return { embedded: rows.length }
+  })
+
+  // 4) Marca status pra fact_extracting
+  await step.run('mark-fact-extracting', async () => {
+    await admin.from('analise_documents').update({ status: 'fact_extracting' }).eq('id', documentId)
+  })
+
+  // 5) Lista chunk_ids (output pequeno: só array de { id, idx })
+  const chunkRefs = await step.run('list-chunk-refs', async () => {
+    const { data } = await admin
+      .from('document_chunks')
+      .select('id, chunk_index')
+      .eq('document_id', documentId)
+      .order('chunk_index')
+    return (data ?? []).map(c => ({ id: c.id, idx: c.chunk_index }))
+  }) as Array<{ id: string; idx: number }>
+
+  // 6) Fact extraction por chunk — cada step lê o chunk do banco pelo ID
+  for (const cr of chunkRefs) {
+    await step.run(`extract-facts-chunk-${cr.idx}`, async () => {
+      const { data: chunk } = await admin
+        .from('document_chunks')
+        .select('chunk_text')
+        .eq('id', cr.id)
+        .single()
+      if (!chunk) return { facts: 0 }
+
+      const facts = await extractFactsFromChunk({
+        documentName:  doc.file_name,
+        chunkText:     chunk.chunk_text,
+        pageStartHint: null,
+        pageEndHint:   null,
+      })
+
+      if (facts.length === 0) return { facts: 0 }
+
+      const rows = facts.map(f => ({
+        analise_id:   analiseId,
+        document_id:  documentId,
+        chunk_id:     cr.id,
+        fact_type:    f.fact_type,
+        fact_key:     f.fact_key,
+        fact_value:   f.fact_value,
+        source_quote: f.source_quote,
+        source_page:  f.source_page,
+        confidence:   f.confidence,
+        model_id:     FACT_EXTRACTOR_MODEL,
+      }))
+      await admin.from('document_facts').insert(rows)
+      return { facts: rows.length }
+    })
+
+    await step.run(`bump-chunks-completed-${cr.idx}`, async () => {
+      const { data: d } = await admin
+        .from('analise_documents')
+        .select('chunks_completed')
+        .eq('id', documentId)
+        .single()
+      await admin
+        .from('analise_documents')
+        .update({ chunks_completed: (d?.chunks_completed ?? 0) + 1 })
+        .eq('id', documentId)
+    })
+  }
+
+  // 7) Marca completed e incrementa contador da análise
   await step.run('mark-completed', async () => {
     await admin.from('analise_documents').update({
       status:       'completed',
@@ -180,24 +224,33 @@ export async function processDocument({ analiseId, documentId, step, logger }: P
   })
 
   // 8) Se foi o último doc, dispara consolidação do fact_bank
+  await maybeTriggerConsolidation(admin, analiseId, step)
+
+  return { ok: true, documentId, chars: summary.total_chars, total_chunks: summary.total_chunks }
+}
+
+async function maybeTriggerConsolidation(
+  admin:     ReturnType<typeof createAdminClient>,
+  analiseId: string,
+  step:      Step,
+) {
   await step.run('maybe-trigger-consolidation', async () => {
     const { data: a } = await admin
       .from('analises')
       .select('documents_completed, documents_failed, documents_total, fact_bank_consolidated_at')
       .eq('id', analiseId)
       .single()
-
-    if (!a) return
+    if (!a) return { triggered: false }
     const done = (a.documents_completed ?? 0) + (a.documents_failed ?? 0)
     if (done >= (a.documents_total ?? 0) && !a.fact_bank_consolidated_at) {
       await inngest.send({
         name: 'analise/fact_bank.consolidate_requested',
         data: { analiseId },
       })
+      return { triggered: true }
     }
+    return { triggered: false }
   })
-
-  return { ok: true, documentId, chars: extracted.text.length }
 }
 
 type ExtractCategory = 'pdf' | 'image' | 'docx' | 'excel' | 'text' | 'unsupported'
@@ -218,7 +271,6 @@ async function extractTextFromDocument(
   filePath: string,
 ): Promise<{ text: string; pages_count: number | null; ocr_provider: string | null }> {
   if (category === 'pdf') {
-    // Tenta camada de texto primeiro (PDFs editáveis)
     try {
       const { PDFParse } = await import('pdf-parse')
       const parser = new PDFParse({ data: new Uint8Array(buffer), verbosity: 0 })
