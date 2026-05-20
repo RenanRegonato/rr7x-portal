@@ -11,7 +11,14 @@
 --
 -- Ordem importa: recriar as funções ANTES do DROP COLUMN (senão as versões
 -- antigas, que fazem SELECT t.empresa_codinome, quebrariam ao perder a coluna).
+--
+-- DROP antes do CREATE: o tipo de retorno (RETURNS TABLE) mudou
+-- (empresa_codinome → empresa_nome), e o Postgres não permite alterar o tipo
+-- de retorno via CREATE OR REPLACE.
 -- ============================================================
+
+DROP FUNCTION IF EXISTS public.invest_match_buscar_teses_para_investidor(uuid, integer, numeric);
+DROP FUNCTION IF EXISTS public.invest_match_busca_semantica_teses(uuid, integer, double precision);
 
 CREATE OR REPLACE FUNCTION public.invest_match_buscar_teses_para_investidor(
   p_investidor_id  uuid,
