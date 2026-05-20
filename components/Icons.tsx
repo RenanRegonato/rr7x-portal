@@ -44,6 +44,7 @@ export const IconBuilding   = (p: IconProps) => <Svg {...p}><rect x="4" y="2" wi
 export const IconUsers      = (p: IconProps) => <Svg {...p}><circle cx="9" cy="7" r="3"/><circle cx="17" cy="7" r="2"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5 M16 19c0-2 2-3 4-3"/></Svg>
 export const IconLock       = (p: IconProps) => <Svg {...p}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></Svg>
 export const IconUser       = (p: IconProps) => <Svg {...p}><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></Svg>
+export const IconHandshake  = (p: IconProps) => <Svg {...p}><path d="M11 17l2 2a1 1 0 1 0 3-3 M14 14l2.5 2.5a1 1 0 1 0 3-3L15 9 M14 14l-1.5-1.5a1 1 0 0 0-1.4 0L9 14.5a1 1 0 0 1-1.4 0L5.5 12.5a1 1 0 0 1 0-1.4l5-5a1 1 0 0 1 1.4 0L13 7l3.5-1.5a2 2 0 0 1 2 0L21 7 M3 12L7 8 M21 7l-3 3"/></Svg>
 
 export const ICONS_BY_NAME: Record<string, (p: IconProps) => React.ReactElement> = {
   home:       IconHome,
@@ -68,4 +69,5 @@ export const ICONS_BY_NAME: Record<string, (p: IconProps) => React.ReactElement>
   users:      IconUsers,
   lock:       IconLock,
   user:       IconUser,
+  handshake:  IconHandshake,
 }

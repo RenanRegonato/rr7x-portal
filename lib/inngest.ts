@@ -23,4 +23,17 @@ export type Events = {
       analiseId: string
     }
   }
+  'invest-match/thesis.created': {
+    data: {
+      teseId:    string
+      analiseId: string | null   // null pra teses manuais
+      userId:    string          // pra auditoria
+    }
+  }
+  'invest-match/investidor.match_requested': {
+    data: {
+      investidorId: string
+      userId:       string       // pra auditoria
+    }
+  }
 }

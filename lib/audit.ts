@@ -29,6 +29,15 @@ export type AuditEvent =
   | 'risk.correlation_run'
   | 'mesa.revisao_run'
   | 'coverage.checked'
+  | 'tese.created'
+  | 'tese.updated'
+  | 'investidor.created'
+  | 'investidor.updated'
+  | 'investidor.archived'
+  | 'match.status_changed'
+  | 'match.tag_toggled'
+  | 'match.feedback'
+  | 'tese.rematch_requested'
 
 interface AuditParams {
   event:      AuditEvent
