@@ -133,33 +133,58 @@ export default async function InvestMatchOverviewPage() {
         ))}
       </section>
 
-      {/* Ações rápidas */}
+      {/* Como funciona — 3 passos */}
       <section className="bg-surface border border-border rounded-xl p-6">
-        <h2 className="text-sm font-semibold text-ink mb-4">Próximos passos</h2>
-        <ol className="space-y-3 text-sm text-ink-2 list-decimal list-inside">
-          <li>
-            <strong className="text-ink">Cadastre seus investidores.</strong>{' '}
-            Preencha a tese declarada de cada um — quanto mais detalhe (faixa de ticket,
-            setores aceitos/excluídos, narrativa), mais preciso o matching.{' '}
-            <Link href="/dashboard/invest-match/investidores/novo" className="text-accent-strong hover:underline">
-              Cadastrar agora →
-            </Link>
-          </li>
-          <li>
-            <strong className="text-ink">Gere tese a partir de uma análise.</strong>{' '}
-            Abra uma análise consolidada da Mandor (com mesa de revisão aprovada) e use{' '}
-            <span className="font-mono text-xs bg-surface-2 px-1.5 py-0.5 rounded">
-              POST /api/invest-match/teses/from-analise/[id]
-            </span>{' '}
-            — a tese estruturada e o embedding são criados automaticamente.
-          </li>
-          <li>
-            <strong className="text-ink">Veja os matches.</strong>{' '}
-            O motor cruza tese × investidor em 5 camadas (filtros rígidos, score estruturado,
-            similaridade semântica e análise por LLM) e ranqueia oportunidades.
-          </li>
-        </ol>
+        <h2 className="text-sm font-semibold text-ink mb-5">Como funciona, em 3 passos</h2>
+        <div className="space-y-5">
+          <PassoItem
+            numero={1}
+            titulo="Cadastre seus investidores"
+            descricao="Registre o perfil de cada investidor: setores de interesse, faixa de ticket, estágio das empresas e uma descrição da estratégia. Quanto mais completo, melhores e mais certeiras as conexões."
+            acaoLabel="Cadastrar investidor"
+            acaoHref="/dashboard/invest-match/investidores/novo"
+          />
+          <PassoItem
+            numero={2}
+            titulo="Transforme uma análise em oportunidade"
+            descricao="Escolha uma análise já concluída e, com um clique, ela vira uma tese de investimento pronta para conexão. O sistema lê o diagnóstico e organiza tudo automaticamente."
+            acaoLabel="Gerar tese de uma análise"
+            acaoHref="/dashboard/invest-match/teses/nova"
+          />
+          <PassoItem
+            numero={3}
+            titulo="Receba as conexões qualificadas"
+            descricao="O sistema compara cada empresa com a base de investidores e apresenta as conexões mais promissoras — com uma explicação clara de por que combinam e o que conversar na primeira reunião."
+            acaoLabel="Ver conexões"
+            acaoHref="/dashboard/invest-match/matches"
+          />
+        </div>
       </section>
+    </div>
+  )
+}
+
+function PassoItem({
+  numero, titulo, descricao, acaoLabel, acaoHref,
+}: {
+  numero:    number
+  titulo:    string
+  descricao: string
+  acaoLabel: string
+  acaoHref:  string
+}) {
+  return (
+    <div className="flex gap-4">
+      <div className="shrink-0 w-7 h-7 rounded-full bg-accent-soft text-accent-ink grid place-items-center text-sm font-semibold">
+        {numero}
+      </div>
+      <div className="min-w-0">
+        <h3 className="text-sm font-semibold text-ink">{titulo}</h3>
+        <p className="text-sm text-ink-2 mt-1 leading-relaxed">{descricao}</p>
+        <Link href={acaoHref} className="inline-block mt-2 text-sm font-medium text-accent-strong hover:underline">
+          {acaoLabel} →
+        </Link>
+      </div>
     </div>
   )
 }

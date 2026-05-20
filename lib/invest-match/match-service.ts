@@ -249,6 +249,73 @@ export async function listTeses(ctx: ListTesesCtx): Promise<{ rows: TeseComConta
   return { rows: teses, total: count ?? 0 }
 }
 
+// ============================================================
+// Análises elegíveis para virar tese
+// ============================================================
+// Lista análises concluídas dos membros do escritório, marcando quais já têm
+// mesa de revisão (pré-requisito p/ gerar tese) e quais já viraram tese.
+export interface AnaliseElegivel {
+  id:           string
+  nome_ativo:   string
+  setor:        string | null
+  ticket:       string | null
+  criado_em:    string
+  tem_mesa:     boolean   // mesa de revisão emitida → pode gerar tese
+  tem_tese:     boolean   // já existe tese para esta análise
+  tese_id:      string | null
+}
+
+export async function listAnalisesElegiveis(escritorioId: string): Promise<AnaliseElegivel[]> {
+  const admin = createAdminClient()
+
+  // 1) user_ids do escritório: dono + membros (perfis)
+  const [{ data: dono }, { data: membros }] = await Promise.all([
+    admin.from('escritorios').select('user_id').eq('id', escritorioId).maybeSingle(),
+    admin.from('perfis').select('user_id').eq('escritorio_id', escritorioId),
+  ])
+  const userIds = new Set<string>()
+  if (dono?.user_id) userIds.add(dono.user_id)
+  for (const m of membros ?? []) if (m.user_id) userIds.add(m.user_id)
+  if (userIds.size === 0) return []
+
+  // 2) análises concluídas desses usuários
+  const { data: analises, error } = await admin
+    .from('analises')
+    .select('id, nome_ativo, criado_em, deal_intake, mesa_revisao_at, status')
+    .in('user_id', Array.from(userIds))
+    .eq('status', 'concluido')
+    .order('criado_em', { ascending: false })
+    .limit(100)
+  if (error) throw new Error(`listAnalisesElegiveis: ${error.message}`)
+  if (!analises?.length) return []
+
+  // 3) teses já existentes (por analise_id) no escritório
+  const { data: teses } = await admin
+    .from('teses')
+    .select('id, analise_id')
+    .eq('escritorio_id', escritorioId)
+    .not('analise_id', 'is', null)
+  const teseByAnalise = new Map<string, string>()
+  for (const t of teses ?? []) {
+    if (t.analise_id) teseByAnalise.set(t.analise_id, t.id)
+  }
+
+  return analises.map(a => {
+    const intake = (a.deal_intake ?? {}) as { tipoAtivo?: string; ticketEstimado?: string }
+    const teseId = teseByAnalise.get(a.id) ?? null
+    return {
+      id:        a.id,
+      nome_ativo: a.nome_ativo,
+      setor:     intake.tipoAtivo ?? null,
+      ticket:    intake.ticketEstimado ?? null,
+      criado_em: a.criado_em,
+      tem_mesa:  a.mesa_revisao_at != null,
+      tem_tese:  teseId != null,
+      tese_id:   teseId,
+    }
+  })
+}
+
 export async function getTese(teseId: string, escritorioId: string): Promise<StructuredThesis | null> {
   const admin = createAdminClient()
   const { data, error } = await admin

@@ -20,14 +20,22 @@ export default async function TesesListPage() {
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto w-full">
-      <div className="flex items-center gap-3 mb-6">
-        <Link href="/dashboard/invest-match" className="p-1.5 rounded-md hover:bg-surface-hover text-ink-2">
-          <IconArrowLeft size={18}/>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-semibold text-ink">Teses</h1>
-          <p className="text-ink-3 text-xs mt-0.5">{total} teses estruturadas</p>
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/invest-match" className="p-1.5 rounded-md hover:bg-surface-hover text-ink-2">
+            <IconArrowLeft size={18}/>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-semibold text-ink">Teses</h1>
+            <p className="text-ink-3 text-xs mt-0.5">{total} teses estruturadas</p>
+          </div>
         </div>
+        <Link
+          href="/dashboard/invest-match/teses/nova"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-strong text-white text-sm font-medium hover:opacity-90"
+        >
+          <IconSparkle size={16}/> Gerar tese de análise
+        </Link>
       </div>
 
       {rows.length === 0 ? (
