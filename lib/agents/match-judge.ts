@@ -48,7 +48,7 @@ export interface MatchJudgeInput {
     exemplos_deals_passados: string | null
   }
   tese: {
-    empresa_codinome:       string | null
+    empresa_nome:           string
     setor_primario:         string
     sub_setores:            string[]
     modelos_negocio:        string[]
@@ -197,7 +197,7 @@ ${i.tese_resumo    ? `**Resumo:** ${i.tese_resumo}\n`    : ''}${i.tese_completa 
 
 ---
 
-## Tese da empresa: ${t.empresa_codinome ?? 'projeto blind'}
+## Tese da empresa: ${t.empresa_nome}
 
 ### Estruturado (Mandor + intake)
 - Setor primário:       ${t.setor_primario}

@@ -490,7 +490,7 @@ function buildJudgeInput(
       exemplos_deals_passados:  inv.exemplos_deals_passados,
     },
     tese: {
-      empresa_codinome:        tese.empresa_codinome,
+      empresa_nome:            tese.empresa_nome,
       setor_primario:          tese.setor_primario,
       sub_setores:             tese.sub_setores ?? [],
       modelos_negocio:         tese.modelos_negocio ?? [],
@@ -540,7 +540,7 @@ const JUDGE_INVESTOR_FIELDS = `
 // Campos da tese carregados pro judge no fluxo reverso (espelha TeseRow,
 // sem o embedding — vetor pesado e desnecessário aqui).
 const TESE_JUDGE_FIELDS = `
-  id, escritorio_id, analise_id, empresa_codinome, setor_primario, sub_setores,
+  id, escritorio_id, analise_id, empresa_nome, setor_primario, sub_setores,
   modelos_negocio, vertical_tags, estagio, receita_anual_brl, ebitda_brl,
   crescimento_yoy_pct, capital_buscado_brl, valuation_pre_money_brl,
   equity_oferecido_pct, governance_score, risk_overall_score, documentacao_score,
@@ -567,7 +567,7 @@ interface CandidatoSemantico {
 // Resultados das RPCs reversas (investidor → teses)
 interface TeseCandidata {
   tese_id:            string
-  empresa_codinome:   string | null
+  empresa_nome:       string | null
   score_estruturado:  number
   passou_hard_filter: boolean
   motivos_bloqueio:   string[]
@@ -576,7 +576,7 @@ interface TeseCandidata {
 
 interface TeseSemantica {
   tese_id:          string
-  empresa_codinome: string | null
+  empresa_nome:     string | null
   similarity:       number
 }
 
@@ -617,7 +617,7 @@ interface TeseRow {
   id:                      string
   escritorio_id:           string
   analise_id:              string | null
-  empresa_codinome:        string | null
+  empresa_nome:            string
   setor_primario:          string
   sub_setores:             string[] | null
   modelos_negocio:         string[] | null

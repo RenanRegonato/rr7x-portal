@@ -66,8 +66,6 @@ const teseData = {
   analise_id: PREVEN_ANALISE_ID,
   origem: 'manual',
   empresa_nome: 'Preven Obras',
-  empresa_codinome: 'Projeto PO-742',
-  is_blind: true,
   empresa_descricao_curta: 'Empresa de obras e infraestrutura em estruturação no interior de SP.',
   setor_primario: 'Infraestrutura',
   sub_setores: ['Construção', 'Obras'],

@@ -364,8 +364,6 @@ function mergeThesis(args: {
     origem:                    'mandor' as OrigemTese,
 
     empresa_nome:              args.nome_ativo,
-    empresa_codinome:          codinomeFor(args.nome_ativo),
-    is_blind:                  true,
     empresa_descricao_curta:   null,
 
     setor_primario:            d.setor_primario,
@@ -505,17 +503,6 @@ function parseTicket(raw: string | undefined | null): number | null {
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100
-}
-
-function codinomeFor(nome: string): string {
-  // Codinome blind: pega iniciais da empresa + número aleatório de 3 dígitos.
-  // Mantém estável dentro da mesma análise (deterministic seed pelo nome)
-  const init = nome.split(/\s+/).map(w => w[0]).join('').slice(0, 3).toUpperCase()
-  // Seed determinístico — mesmo nome sempre gera mesmo codinome.
-  let seed = 0
-  for (let i = 0; i < nome.length; i++) seed = (seed * 31 + nome.charCodeAt(i)) >>> 0
-  const num = (seed % 900) + 100
-  return `Projeto ${init || 'XX'}-${num}`
 }
 
 

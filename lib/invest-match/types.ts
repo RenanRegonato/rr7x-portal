@@ -85,8 +85,6 @@ export interface StructuredThesis {
 
   // Identidade
   empresa_nome:                 string
-  empresa_codinome:             string | null
-  is_blind:                     boolean
   empresa_descricao_curta:      string | null
 
   // Setorial

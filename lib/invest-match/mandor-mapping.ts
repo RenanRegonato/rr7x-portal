@@ -121,8 +121,6 @@ export interface MandorThesisInput {
 export const MAPPING = [
   // === IDENTIDADE ===
   { campo: 'empresa_nome',              origem: 'intake',       fonte: 'intake.nomeAtivo' },
-  { campo: 'empresa_codinome',          origem: 'derivado',     fonte: 'gerado: "Projeto " + slug(nomeAtivo)' },
-  { campo: 'is_blind',                  origem: 'derivado',     fonte: 'sempre true até admin tornar público' },
   { campo: 'empresa_descricao_curta',   origem: 'intake',       fonte: 'intake.resumoAtivo' },
 
   // === SETORIAL ===

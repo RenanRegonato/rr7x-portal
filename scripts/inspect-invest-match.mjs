@@ -44,11 +44,11 @@ console.log('\n=== 4) Teses existentes (se tabela existe) ===')
 if (await tableExists('teses')) {
   const { data: teses } = await sb
     .from('teses')
-    .select('id, empresa_nome, empresa_codinome, setor_primario, capital_buscado_brl, analise_id, escritorio_id, status')
+    .select('id, empresa_nome, setor_primario, capital_buscado_brl, analise_id, escritorio_id, status')
     .order('criado_em', { ascending: false })
     .limit(20)
   if (!teses?.length) console.log('  Nenhuma tese cadastrada ainda')
-  else for (const t of teses) console.log(`  ${t.id} | "${t.empresa_nome}" (${t.empresa_codinome}) | ${t.setor_primario} | R$${t.capital_buscado_brl} | analise=${t.analise_id ?? '—'} | escritorio=${t.escritorio_id}`)
+  else for (const t of teses) console.log(`  ${t.id} | "${t.empresa_nome}" | ${t.setor_primario} | R$${t.capital_buscado_brl} | analise=${t.analise_id ?? '—'} | escritorio=${t.escritorio_id}`)
 } else {
   console.log('  (tabela teses não existe — migrations não aplicadas)')
 }

@@ -10,13 +10,13 @@ import type { Match, StructuredThesis, StatusMatch } from './types'
 // ============================================================
 export interface MatchEnriquecido extends Match {
   investidor?: { id: string; nome: string; tipo: string } | null
-  tese?:       { id: string; empresa_codinome: string | null; empresa_nome: string; setor_primario: string; status: string } | null
+  tese?:       { id: string; empresa_nome: string; setor_primario: string; status: string } | null
 }
 
 const MATCH_SELECT = `
   *,
   investidor:investidores ( id, nome, tipo ),
-  tese:teses ( id, empresa_codinome, empresa_nome, setor_primario, status )
+  tese:teses ( id, empresa_nome, setor_primario, status )
 `
 
 
