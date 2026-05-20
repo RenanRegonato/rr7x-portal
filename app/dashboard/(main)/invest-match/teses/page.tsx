@@ -68,7 +68,7 @@ export default async function TesesListPage() {
                 <tr key={t.id} className="border-t border-border hover:bg-surface-hover transition">
                   <td className="px-4 py-3">
                     <Link href={`/dashboard/invest-match/teses/${t.id}`} className="font-medium text-ink hover:text-accent-strong">
-                      {t.is_blind ? (t.empresa_codinome ?? t.empresa_nome) : t.empresa_nome}
+                      {t.empresa_nome}
                     </Link>
                     <div className="text-[11px] text-ink-3 mt-0.5">{STATUS_TESE_LABEL[t.status] ?? t.status}</div>
                   </td>

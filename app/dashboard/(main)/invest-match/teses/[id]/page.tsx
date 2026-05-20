@@ -33,7 +33,10 @@ export default async function TeseDetailPage({ params }: PageProps) {
 
   const { rows: matches } = await listMatches({ escritorioId, teseId: id, limit: 100, offset: 0 })
 
-  const nome = tese.is_blind ? (tese.empresa_codinome ?? tese.empresa_nome) : tese.empresa_nome
+  // Uso interno (dashboard do escritório dono): mostra nome real.
+  // O codinome blind (tese.empresa_codinome) fica reservado para
+  // compartilhamento externo com o investidor antes do NDA.
+  const nome = tese.empresa_nome
 
   return (
     <div className="p-6 md:p-8 max-w-6xl mx-auto w-full space-y-6">

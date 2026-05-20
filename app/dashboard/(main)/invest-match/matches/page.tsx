@@ -83,24 +83,26 @@ export default async function MatchesBoardPage() {
 
 
 function MatchKanbanCard({ match }: { match: MatchEnriquecido }) {
-  const teseNome = match.tese
-    ? (match.tese.empresa_codinome ?? match.tese.empresa_nome)
-    : 'Tese'
+  const empresaNome = match.tese?.empresa_nome ?? 'Empresa'
+  const investidorNome = match.investidor?.nome ?? 'Investidor'
   return (
     <div className="bg-surface border border-border rounded-lg p-3 hover:border-accent-strong/40 transition">
       <div className="flex items-start justify-between gap-2 mb-2">
         <Link
           href={`/dashboard/invest-match/teses/${match.tese_id}`}
-          className="font-medium text-[13px] text-ink hover:text-accent-strong leading-tight line-clamp-2"
+          className="min-w-0 group"
         >
-          {teseNome}
+          {/* Conexão entre as duas partes: empresa ↔ investidor */}
+          <div className="font-medium text-[13px] text-ink group-hover:text-accent-strong leading-tight line-clamp-1">
+            {empresaNome}
+          </div>
+          <div className="text-[11px] text-ink-3 leading-tight mt-0.5 line-clamp-1">
+            <span className="text-accent-strong">↔</span> {investidorNome}
+          </div>
         </Link>
         <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full border text-xs font-bold tabular-nums shrink-0 ${scoreBg(match.score_final)}`}>
           {Math.round(match.score_final)}
         </span>
-      </div>
-      <div className="text-[11px] text-ink-3 mb-2 line-clamp-1">
-        {match.investidor?.nome ?? 'Investidor'}
       </div>
       {match.llm_resumo && (
         <p className="text-[11px] text-ink-2 line-clamp-2 mb-2.5">{match.llm_resumo}</p>

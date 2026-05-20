@@ -76,7 +76,7 @@ export default async function EditInvestidorPage({ params }: PageProps) {
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <span className="font-medium text-ink text-sm leading-tight">
-                    {m.tese?.empresa_codinome ?? m.tese?.empresa_nome ?? 'Tese'}
+                    {m.tese?.empresa_nome ?? 'Empresa'}
                   </span>
                   <span className={`inline-flex items-center justify-center w-9 h-9 rounded-full border text-xs font-bold tabular-nums shrink-0 ${scoreBg(m.score_final)}`}>
                     {Math.round(m.score_final)}
