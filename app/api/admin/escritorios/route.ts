@@ -192,7 +192,28 @@ export async function DELETE(req: NextRequest) {
   if (!id) return NextResponse.json({ error: 'ID obrigatório' }, { status: 400 })
 
   const admin = createAdminClient()
+
+  // Exclusão completa: remove TODOS os usuários membros do auth.users ANTES de
+  // apagar o escritório. auth.admin.deleteUser revoga sessões/refresh tokens e
+  // cascateia perfis e análises (FK ON DELETE CASCADE) — assim ex-membros não
+  // conseguem mais logar com credenciais antigas. Sem isso, eles ficariam órfãos
+  // mas vivos (perfis.escritorio_id é apenas SET NULL ao apagar o escritório).
+  const { data: membros } = await admin
+    .from('perfis')
+    .select('user_id')
+    .eq('escritorio_id', id)
+
+  const memberIds = [...new Set((membros ?? []).map((m: { user_id: string }) => m.user_id))]
+  const falhas: string[] = []
+  for (const uid of memberIds) {
+    const { error: delErr } = await admin.auth.admin.deleteUser(uid)
+    if (delErr) falhas.push(uid)
+  }
+
+  // Apaga a linha do escritório (cascateia pacotes, benchmarks e invest_match).
+  // Pode já ter sido removida por cascata, caso o dono (escritorios.user_id) fosse membro.
   const { error } = await admin.from('escritorios').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ ok: true })
+
+  return NextResponse.json({ ok: true, usuarios_removidos: memberIds.length, falhas })
 }

@@ -13,6 +13,7 @@ export default function SignupPage() {
   const [escritorio, setEscritorio] = useState('')
   const [error,      setError]      = useState('')
   const [success,    setSuccess]    = useState(false)
+  const [jaExiste,   setJaExiste]   = useState(false)
   const [loading,    setLoading]    = useState(false)
   const supabase = createClient()
 
@@ -20,8 +21,9 @@ export default function SignupPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setJaExiste(false)
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -33,9 +35,20 @@ export default function SignupPage() {
     if (error) {
       setError(traduzErroSupabase(error))
       setLoading(false)
-    } else {
-      setSuccess(true)
+      return
     }
+
+    // Proteção anti-enumeração do Supabase: quando o e-mail JÁ possui conta, o
+    // signUp retorna um usuário com identities vazio (não cria conta duplicada nem
+    // reenvia link). Detectamos para impedir duplicidade e direcionar à redefinição.
+    const identities = data.user?.identities
+    if (identities && identities.length === 0) {
+      setJaExiste(true)
+      setLoading(false)
+      return
+    }
+
+    setSuccess(true)
   }
 
   if (success) {
@@ -49,6 +62,33 @@ export default function SignupPage() {
             <strong className="text-ink font-semibold">{email}</strong>.
             Clique no link para ativar sua conta.
           </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (jaExiste) {
+    return (
+      <div className="min-h-screen bg-bg flex items-center justify-center px-4">
+        <div className="text-center max-w-md bg-surface border border-border rounded-[14px] shadow-soft-md p-10">
+          <div className="text-5xl mb-4">🔐</div>
+          <h2 className="font-display text-[22px] font-medium mb-2">Você já tem uma conta</h2>
+          <p className="text-ink-3 text-[13px] mb-6">
+            Já existe um acesso registrado para{' '}
+            <strong className="text-ink font-semibold">{email}</strong>.
+            Não criamos uma conta duplicada. Para entrar, use sua senha — ou redefina, se esqueceu.
+          </p>
+          <div className="flex flex-col gap-2.5">
+            <Link
+              href="/auth/esqueci-senha"
+              className="w-full bg-accent-strong hover:opacity-90 text-white font-semibold py-2.5 rounded-[10px] transition text-[13px]"
+            >
+              Redefinir minha senha
+            </Link>
+            <Link href="/auth/login" className="text-accent-strong hover:underline font-medium text-[13px]">
+              Ir para o login
+            </Link>
+          </div>
         </div>
       </div>
     )

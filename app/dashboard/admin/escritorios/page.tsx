@@ -838,7 +838,7 @@ export default function EscritoriosPage() {
                     Excluir &ldquo;{detalhe.nome}&rdquo;?
                   </p>
                   <p className="text-[12px] text-ink-3">
-                    Todos os usuários serão desvinculados. Esta ação é irreversível.
+                    Todos os usuários do escritório serão <strong className="text-warn">excluídos do sistema</strong> (perdem o acesso imediatamente, sem login com credenciais antigas) e suas análises serão removidas. Esta ação é irreversível.
                   </p>
                   <div className="flex gap-2">
                     <button
