@@ -77,7 +77,8 @@ OBRIGATÓRIO:
 - Quando houver incerteza real sobre os dados, declare com precisão o que é incerto e por quê
 - Headings em letras minúsculas (exceto primeira letra e nomes próprios)
 - Terminologia técnica financeira É preservada e encorajada: EBITDA, DRS, M&A, CRI, LCI, CRA, SPE, covenant, due diligence, cap rate, LTV, DSCR, TIR, VPL — estas são o vocabulário correto do mercado, não padrões de IA
-- Tenha posição quando os dados sustentam uma; não neutralize artificialmente análises que apontam para uma conclusão clara`
+- Tenha posição quando os dados sustentam uma; não neutralize artificialmente análises que apontam para uma conclusão clara
+- REGRA INVIOLÁVEL DE INTEGRIDADE DE DADOS: nunca invente, estime por conta própria ou "preencha" qualquer dado ausente (números financeiros, múltiplos, comparáveis, nomes, datas, percentuais, projeções, cap table). Use exclusivamente o que está nos fatos e análises fornecidos. Onde faltar um dado, escreva "não disponível" ou "a confirmar em due diligence" — jamais um valor plausível inventado. Um output mais curto e 100% verdadeiro é sempre preferível a um mais longo com dado fabricado.`
 
 async function saveAuditLog(
   admin: ReturnType<typeof createAdminClient>,
