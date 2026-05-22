@@ -10,9 +10,10 @@ import { IconArrowRight, IconSparkle } from '@/components/Icons'
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const TIPOS_ATIVO = ['Empresa (M&A)', 'Imóvel / Real Estate', 'Startup / Scale-up', 'Portfólio de Crédito', 'Franquia', 'Agronegócio', 'Outro']
-const ESTAGIOS   = ['Cru / Não validado', 'Estruturando', 'Estruturado', 'Em comercialização', 'Em negociação / Closing']
+const ESTAGIOS   = ['Projeto Pré-Operacional', 'Estruturando', 'Estruturado', 'Em comercialização', 'Em negociação / Closing']
 const OBJETIVOS  = ['Vender 100%', 'Vender participação', 'Captar investimento', 'Estruturar crédito', 'Preparar para o mercado', 'Diagnóstico / Due Diligence']
 const NIVEIS_INFO = ['Baixo (poucos dados formais)', 'Médio (dados parciais)', 'Alto (DRE, balanço e documentos disponíveis)']
+const OPERACAO   = ['Sim — já há operação/receita', 'Não — projeto pré-operacional (sem histórico financeiro)']
 const MICRO_HINTS = [
   'O ativo já foi apresentado ao mercado anteriormente?',
   'Qual é o nível de urgência da operação?',
@@ -23,7 +24,7 @@ const MICRO_HINTS = [
 const ACCEPTED   = '.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg'
 const MAX_FILE_MB = 20
 const DRAFT_KEY     = 'otto-intake-draft'
-const DRAFT_VERSION = 2
+const DRAFT_VERSION = 3
 
 // ─── Section & step definitions ───────────────────────────────────────────────
 
@@ -71,6 +72,7 @@ function NovaAnaliseInner() {
     pais:                 'Brasil',
     estagio:              '',
     nivelInformacao:      '',
+    operacaoEmAndamento:  '',
     ticketEstimado:       '',
     resumoAtivo:          '',
     // ── Proprietário ───────────────────────────────────────────────────────
@@ -182,8 +184,9 @@ function NovaAnaliseInner() {
       if (objetivos.length === 0) return 'Selecione ao menos um objetivo.'
     }
     if (step === 5) {
-      if (!form.ticketEstimado.trim()) return 'Informe o ticket estimado.'
-      if (!form.nivelInformacao)       return 'Selecione o nível de informação.'
+      if (!form.ticketEstimado.trim())   return 'Informe o ticket estimado.'
+      if (!form.nivelInformacao)         return 'Selecione o nível de informação.'
+      if (!form.operacaoEmAndamento)     return 'Informe se a operação já está em andamento.'
     }
     if (step === 6) {
       if (!form.resumoAtivo.trim()) return 'Descreva o ativo e objetivo.'
@@ -239,20 +242,32 @@ function NovaAnaliseInner() {
     const { analiseId } = data
 
     setLoadingLabel('Preparando envio dos documentos...')
-    const urlRes  = await fetch('/api/upload-url', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ analiseId, files: files.map(f => ({ name: f.name })) }),
-    })
-    const { urls } = await urlRes.json()
-
     const supabase = createClient()
-    for (let i = 0; i < files.length; i++) {
-      const file    = files[i]
-      const urlInfo = urls?.find((u: { originalName: string; token: string; path: string }) => u.originalName === file.name)
-      if (!urlInfo?.token) continue
-      setLoadingLabel(`Enviando documentos... (${i + 1}/${files.length}) ${file.name}`)
-      await supabase.storage.from('analises').uploadToSignedUrl(urlInfo.path, urlInfo.token, file)
+    // Upload protegido: uma falha de rede num arquivo não pode deixar a UI
+    // congelada em "Enviando...". Em erro, mostra mensagem clara e reabilita o botão.
+    // A análise já foi criada acima — ao tentar de novo, reenvie deste formulário.
+    try {
+      const urlRes = await fetch('/api/upload-url', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ analiseId, files: files.map(f => ({ name: f.name })) }),
+      })
+      if (!urlRes.ok) throw new Error('Falha ao preparar o envio dos documentos. Tente novamente.')
+      const { urls } = await urlRes.json()
+
+      for (let i = 0; i < files.length; i++) {
+        const file    = files[i]
+        const urlInfo = urls?.find((u: { originalName: string; token: string; path: string }) => u.originalName === file.name)
+        if (!urlInfo?.token) throw new Error(`Não foi possível preparar o envio de "${file.name}". Tente novamente.`)
+        setLoadingLabel(`Enviando documentos... (${i + 1}/${files.length}) ${file.name}`)
+        const { error: upErr } = await supabase.storage.from('analises').uploadToSignedUrl(urlInfo.path, urlInfo.token, file)
+        if (upErr) throw new Error(`Falha ao enviar "${file.name}". Verifique sua conexão e tente novamente.`)
+      }
+    } catch (e) {
+      setError((e as Error).message || 'Falha ao enviar os documentos. Tente novamente.')
+      setLoading(false)
+      setLoadingLabel('')
+      return
     }
 
     // Dispara ingestão assíncrona (Fase 13) — Inngest processa em background.
@@ -412,7 +427,7 @@ function NovaAnaliseInner() {
         </div>
 
         <p className="text-center text-[12px] text-ink-3 mt-4">
-          Mandor valida o preenchimento e ativa os 10 especialistas automaticamente. Entrega em 45–90 minutos.
+          Mandor valida o preenchimento e ativa os 10 especialistas automaticamente. Entrega em até 90 minutos.
         </p>
       </div>
     </div>
@@ -678,6 +693,15 @@ function StepContent({
         <OttoSelect value={form.nivelInformacao} onChange={e => set('nivelInformacao', e.target.value)}>
           <option value="">Selecione...</option>
           {NIVEIS_INFO.map(o => <option key={o}>{o}</option>)}
+        </OttoSelect>
+      </Field>
+      <Field
+        label="A operação já está em andamento? *"
+        help="Projetos pré-operacionais ainda não têm histórico financeiro (DRE, balancete, DFRE). A análise se adapta ao estágio e não penaliza a ausência desses documentos."
+      >
+        <OttoSelect value={form.operacaoEmAndamento} onChange={e => set('operacaoEmAndamento', e.target.value)}>
+          <option value="">Selecione...</option>
+          {OPERACAO.map(o => <option key={o}>{o}</option>)}
         </OttoSelect>
       </Field>
     </div>

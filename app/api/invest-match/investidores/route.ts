@@ -7,7 +7,7 @@ import {
 import {
   createInvestidor, listInvestidores,
 } from '@/lib/invest-match/investidor-service'
-import { resolveEscritorioId } from '@/lib/invest-match/auth-helpers'
+import { gateInvestMatch } from '@/lib/invest-match/auth-helpers'
 import { inngest } from '@/lib/inngest'
 
 // GET /api/invest-match/investidores
@@ -23,13 +23,9 @@ export async function GET(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-  const escritorioId = await resolveEscritorioId(user.id)
-  if (!escritorioId) {
-    return NextResponse.json(
-      { error: 'Usuário sem escritório cadastrado' },
-      { status: 409 },
-    )
-  }
+  const gate = await gateInvestMatch(user.id)
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status })
+  const escritorioId = gate.escritorioId
 
   const url = new URL(req.url)
   const parsed = InvestidorListQuerySchema.safeParse({
@@ -76,13 +72,9 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-  const escritorioId = await resolveEscritorioId(user.id)
-  if (!escritorioId) {
-    return NextResponse.json(
-      { error: 'Usuário sem escritório cadastrado' },
-      { status: 409 },
-    )
-  }
+  const gate = await gateInvestMatch(user.id)
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status })
+  const escritorioId = gate.escritorioId
 
   let body: unknown
   try {

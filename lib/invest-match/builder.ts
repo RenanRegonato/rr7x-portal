@@ -45,7 +45,8 @@ interface AnaliseLoaded {
 
 interface CoverageCheck {
   tipo_operacao?: string
-  resumo?: { coberto?: number; parcial?: number; nao_coberto?: number }
+  early_stage?:   boolean
+  resumo?: { coberto?: number; parcial?: number; nao_coberto?: number; nao_aplicavel?: number }
   items?:  Array<{ key: string; status: string }>
 }
 
@@ -304,13 +305,16 @@ interface MesaShape {
 }
 
 // documentacao_score a partir do coverage_check da Mandor.
-// coberto vale 1.0, parcial 0.5, nao_coberto 0. Retorna null se não há dados.
+// coberto vale 1.0, parcial 0.5, nao_coberto 0. Itens 'nao_aplicavel' (histórico
+// financeiro de deals early-stage) NÃO entram no denominador — ausência justificada
+// não penaliza o score. Retorna null se não há itens aplicáveis.
 function computeDocumentacaoScore(coverage: CoverageCheck | null): number | null {
   const r = coverage?.resumo
   if (!r) return null
   const coberto    = r.coberto ?? 0
   const parcial    = r.parcial ?? 0
   const naoCoberto = r.nao_coberto ?? 0
+  // nao_aplicavel deliberadamente excluído do total (denominador).
   const total      = coberto + parcial + naoCoberto
   if (total === 0) return null
   return Math.round(((coberto + parcial * 0.5) / total) * 100)

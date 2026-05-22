@@ -83,8 +83,8 @@ export default function OgImage() {
             marginBottom: 24,
           }}
         >
-          Diagnóstico de M&A em{" "}
-          <span style={{ color: "#93B4F8", fontStyle: "italic" }}>40 minutos.</span>
+          Diagnóstico de M&A em até{" "}
+          <span style={{ color: "#93B4F8", fontStyle: "italic" }}>90 minutos.</span>
         </div>
 
         {/* Subtitle */}
@@ -103,7 +103,7 @@ export default function OgImage() {
         {/* Metrics row */}
         <div style={{ display: "flex", gap: 40 }}>
           {[
-            { value: "40 min", label: "por análise" },
+            { value: "até 90 min", label: "por análise" },
             { value: "40+", label: "deals/mês" },
             { value: "4×", label: "mais rápido" },
             { value: "R$ 6M–12M", label: "receita incremental/ano" },

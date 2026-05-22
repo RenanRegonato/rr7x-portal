@@ -66,6 +66,7 @@ export async function GET(req: NextRequest) {
       total_usuarios:  membros.length,
       plano:           (e as Record<string, unknown>).plano           ?? null,
       plano_status:    (e as Record<string, unknown>).plano_status    ?? null,
+      invest_match_enabled: (e as Record<string, unknown>).invest_match_enabled === true,
     }
   })
 
@@ -167,7 +168,7 @@ export async function PATCH(req: NextRequest) {
   if (!await verificarAdmin()) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
   const body = await req.json()
-  const { id, nome, plano, plano_status, plano_limite_analises } = body
+  const { id, nome, plano, plano_status, plano_limite_analises, invest_match_enabled } = body
   if (!id) return NextResponse.json({ error: 'ID obrigatório' }, { status: 400 })
 
   const admin  = createAdminClient()
@@ -177,6 +178,7 @@ export async function PATCH(req: NextRequest) {
   if (plano             !== undefined) update.plano                 = plano
   if (plano_status      !== undefined) update.plano_status          = plano_status
   if (plano_limite_analises !== undefined) update.plano_limite_analises = plano_limite_analises ?? null
+  if (invest_match_enabled !== undefined) update.invest_match_enabled = invest_match_enabled === true
 
   const { error } = await admin.from('escritorios').update(update).eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

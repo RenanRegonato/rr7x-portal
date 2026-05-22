@@ -4,21 +4,37 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function ContatoPage() {
-  const [form, setForm] = useState({ nome: "", email: "", escritorio: "", assunto: "", mensagem: "" });
+  const [form, setForm] = useState({ nome: "", email: "", escritorio: "", assunto: "", mensagem: "", website: "" });
   const [enviado, setEnviado] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const [erro, setErro] = useState("");
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const subject = encodeURIComponent(form.assunto || "Contato via site — Mandor");
-    const body = encodeURIComponent(
-      `Nome: ${form.nome}\nEmail: ${form.email}\nEscritório: ${form.escritorio}\n\n${form.mensagem}`
-    );
-    window.location.href = `mailto:mandor@rr7x.com.br?subject=${subject}&body=${body}`;
-    setEnviado(true);
+    setEnviando(true);
+    setErro("");
+    try {
+      const res = await fetch("/api/contato", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        setEnviado(true);
+        setForm({ nome: "", email: "", escritorio: "", assunto: "", mensagem: "", website: "" });
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setErro(d.error ?? "Não foi possível enviar. Tente novamente.");
+      }
+    } catch {
+      setErro("Falha de conexão. Tente novamente.");
+    } finally {
+      setEnviando(false);
+    }
   }
 
   return (
@@ -73,7 +89,7 @@ export default function ContatoPage() {
                 </div>
                 <h2 className="font-display text-[22px] font-medium mb-2">Mensagem enviada!</h2>
                 <p className="text-lp-ink-2 text-[14px] mb-6">
-                  Seu cliente de email foi aberto com a mensagem preenchida. Retornaremos em até 1 dia útil.
+                  Recebemos sua mensagem e retornaremos em até 1 dia útil.
                 </p>
                 <button
                   onClick={() => setEnviado(false)}
@@ -84,6 +100,17 @@ export default function ContatoPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5 max-w-[560px]">
+                {/* Honeypot anti-spam (oculto para humanos) */}
+                <input
+                  type="text"
+                  name="website"
+                  value={form.website}
+                  onChange={handleChange}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+                />
                 <div className="grid sm:grid-cols-2 gap-5">
                   <Field label="Nome completo" name="nome" placeholder="Seu nome" value={form.nome} onChange={handleChange} required />
                   <Field label="Email profissional" name="email" type="email" placeholder="seu@escritorio.com.br" value={form.email} onChange={handleChange} required />
@@ -118,12 +145,16 @@ export default function ContatoPage() {
                     className="w-full border border-lp-border rounded-[10px] px-3 py-2.5 text-[13px] bg-lp-canvas outline-none transition-shadow focus:border-lp-accent focus:shadow-[0_0_0_3px_oklch(0.93_0.04_240)] placeholder:text-lp-ink-3 resize-none"
                   />
                 </div>
+                {erro && (
+                  <p className="text-[13px] text-[oklch(0.55_0.18_25)]">{erro}</p>
+                )}
                 <button
                   type="submit"
-                  className="w-full text-[13px] font-semibold text-white py-3 rounded-[10px] hover:opacity-90 transition"
+                  disabled={enviando}
+                  className="w-full text-[13px] font-semibold text-white py-3 rounded-[10px] hover:opacity-90 transition disabled:opacity-60"
                   style={{ background: "#1655E8" }}
                 >
-                  Enviar mensagem →
+                  {enviando ? "Enviando…" : "Enviar mensagem →"}
                 </button>
                 <p className="text-[11.5px] text-lp-ink-3 text-center">
                   Respondemos em até 1 dia útil · Sem spam · Dados protegidos conforme{" "}

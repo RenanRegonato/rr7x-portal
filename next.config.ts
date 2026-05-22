@@ -16,16 +16,19 @@ const securityHeaders = [
   // Content Security Policy
   // - 'unsafe-inline' kept for Next.js inline styles/scripts; tighten with nonces in a future sprint
   // - Supabase, Stripe and Anthropic domains explicitly allowed
+  // - Google Tag Manager + Google Analytics (GA4) domains allowed for site analytics
+  // - Meta Pixel (connect.facebook.net / facebook.com) and Google Ads
+  //   (googleadservices.com / *.doubleclick.net) allowed for marketing tags via GTM
   {
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://connect.facebook.net https://www.googleadservices.com https://googleads.g.doubleclick.net",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://*.supabase.co https://stripe.com",
+      "img-src 'self' data: blob: https://*.supabase.co https://stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.g.doubleclick.net https://www.facebook.com https://www.googleadservices.com https://www.google.com",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co https://api.anthropic.com https://api.stripe.com https://api.resend.com",
-      "frame-src https://js.stripe.com https://hooks.stripe.com",
+      "connect-src 'self' https://*.supabase.co https://api.anthropic.com https://api.stripe.com https://api.resend.com https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.g.doubleclick.net https://www.facebook.com https://www.googleadservices.com",
+      "frame-src https://js.stripe.com https://hooks.stripe.com https://www.googletagmanager.com https://td.doubleclick.net https://*.g.doubleclick.net",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",

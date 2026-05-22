@@ -41,12 +41,16 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/auth/completar-cadastro', request.url))
     }
 
-    // 2FA obrigatório para todo o dashboard
-    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
-    if (aal && aal.currentLevel !== 'aal2') {
-      const mfaUrl = new URL('/auth/mfa-required', request.url)
-      mfaUrl.searchParams.set('next', pathname)
-      return NextResponse.redirect(mfaUrl)
+    // 2FA obrigatório para todo o dashboard — exceto a conta de demonstração comercial,
+    // que precisa de login sem fricção durante apresentações ao vivo (dados fictícios).
+    const DEMO_EMAILS = new Set(['demo@meridianocapital.com.br'])
+    if (!DEMO_EMAILS.has(user.email ?? '')) {
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+      if (aal && aal.currentLevel !== 'aal2') {
+        const mfaUrl = new URL('/auth/mfa-required', request.url)
+        mfaUrl.searchParams.set('next', pathname)
+        return NextResponse.redirect(mfaUrl)
+      }
     }
   }
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { audit, extractIp } from '@/lib/audit'
-import { resolveEscritorioId } from '@/lib/invest-match/auth-helpers'
+import { gateInvestMatch } from '@/lib/invest-match/auth-helpers'
 import { getMatch, updateMatchStatus } from '@/lib/invest-match/match-service'
 import type { StatusMatch } from '@/lib/invest-match/types'
 
@@ -26,8 +26,9 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-  const escritorioId = await resolveEscritorioId(user.id)
-  if (!escritorioId) return NextResponse.json({ error: 'Sem escritório' }, { status: 409 })
+  const gate = await gateInvestMatch(user.id)
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status })
+  const escritorioId = gate.escritorioId
 
   try {
     const match = await getMatch(id, escritorioId)
@@ -47,8 +48,9 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-  const escritorioId = await resolveEscritorioId(user.id)
-  if (!escritorioId) return NextResponse.json({ error: 'Sem escritório' }, { status: 409 })
+  const gate = await gateInvestMatch(user.id)
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status })
+  const escritorioId = gate.escritorioId
 
   let body: unknown
   try { body = await req.json() } catch { return NextResponse.json({ error: 'JSON inválido' }, { status: 400 }) }

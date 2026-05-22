@@ -9,6 +9,7 @@ import { getFacts, formatTruthLayer } from '@/lib/truth-layer'
 import { getFactBankForAgent, formatFactBankForPrompt } from '@/lib/fact-bank-for-agent'
 import { listBenchmarks, formatBenchmarksForPrompt } from '@/lib/benchmarks'
 import { parseClaims, persistClaims, CLAIMS_DIRECTIVE } from '@/lib/claims'
+import { isEarlyStage, EARLY_STAGE_DIRETRIZ_AGENTE, EARLY_STAGE_RESSALVA } from '@/lib/early-stage'
 
 // Steps que recebem extended thinking para raciocínio financeiro mais profundo
 const THINKING_STEPS = new Set(['diagnostico', 'analise_ma', 'estruturacao'])
@@ -65,6 +66,9 @@ PROIBIDO:
 - Emojis em headings ou bullets
 - Hedging excessivo: "poderia potencialmente", "é possível que talvez", "em certa medida"
 - Seções de "Desafios e Perspectivas" formulaicas
+- Travessões (—) como muleta: no máximo um por parágrafo. Prefira reescrever com vírgula, dois-pontos, parênteses ou uma frase nova. Nunca use travessão para emendar duas orações que ficariam melhores separadas, nem para criar suspense artificial
+- Construção "não é só X, é Y" / "mais do que X, é Y" — fórmula de IA para soar perspicaz
+- Repetição de estrutura: vários bullets ou frases seguidas abrindo com a mesma palavra ou o mesmo molde sintático
 
 OBRIGATÓRIO:
 - Use "é", "tem", "pode", "faz" em vez de "serve como", "representa", "demonstra ser"
@@ -224,10 +228,15 @@ function formatIntake(intake: Record<string, string>): string {
     `Localização: ${intake.localizacao}`,
     `Ticket Estimado: ${intake.ticketEstimado}`,
   ]
-  if (intake.resumoAtivo)          parts.push(`Resumo e Tese do Ativo: ${intake.resumoAtivo}`)
+  if (intake.operacaoEmAndamento)   parts.push(`Operação já em andamento? ${intake.operacaoEmAndamento}`)
+  if (intake.resumoAtivo)           parts.push(`Resumo e Tese do Ativo: ${intake.resumoAtivo}`)
   if (intake.informacoesAdicionais) parts.push(`Informações Adicionais: ${intake.informacoesAdicionais}`)
 
-  return parts.join('\n')
+  let result = parts.join('\n')
+  // Em deals early-stage, injeta a diretriz que orienta TODOS os agentes a não
+  // penalizar a ausência de histórico financeiro e a avaliar potencial/estrutura.
+  if (isEarlyStage(intake)) result += EARLY_STAGE_DIRETRIZ_AGENTE
+  return result
 }
 
 function buildAllOutputs(outputs: Record<string, string>): string {
@@ -566,9 +575,21 @@ PRINCÍPIO CENTRAL: Se você está apenas resumindo o que Pedro ou Arthur já es
 
 Esta análise pode estar incompleta. Trabalhe com os dados disponíveis e indique lacunas quando relevante. Nunca recuse gerar o relatório por falta de dados — adapte o nível de confiança da avaliação.`
 
+      const earlyStageInstrucao = isEarlyStage(intake) ? `⚠️ CONTEXTO OBRIGATÓRIO — OPERAÇÃO EM ESTÁGIO INICIAL DE ESTRUTURAÇÃO (PROJETO PRÉ-OPERACIONAL).
+Este deal ainda não possui operação consolidada nem histórico financeiro. A ausência de DRE, balancete e DFRE é esperada e justificada para o estágio — NÃO a trate como lacuna crítica nem classifique o deal como "incompleto".
+
+Abra a Seção 1 (Diagnóstico Executivo) com uma ressalva institucional, no espírito de:
+"${EARLY_STAGE_RESSALVA}"
+
+Na dimensão financeira da Seção 2, NÃO escreva "Sem dados disponíveis — risco de avaliação incompleta". Em vez disso, avalie projeções, estrutura proposta, uso de recursos e potencial econômico, deixando explícito que a base é prospectiva (não histórica). Trate o ativo como projeto em fase preliminar que já possui direcionamento estratégico definido. Mantenha rigor sobre a coerência do projeto — apenas não exija histórico que, por definição, ainda não existe.
+
+---
+
+` : ''
+
       return {
         system: sysBlocks(prompts['relatorio_consolidado'] || defaultRelatorioSystem),
-        user: `Produza o Relatório Consolidado Estratégico com EXATAMENTE estas 5 seções:
+        user: `${earlyStageInstrucao}Produza o Relatório Consolidado Estratégico com EXATAMENTE estas 5 seções:
 
 ## 1. DIAGNÓSTICO EXECUTIVO
 

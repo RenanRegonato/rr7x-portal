@@ -12,6 +12,7 @@ export const AnaliseCreateSchema = z.object({
   estagio:               shortStr(100).min(1),
   objetivo:              shortStr(2000).min(1),
   nivelInformacao:       shortStr(100).min(1),
+  operacaoEmAndamento:   shortStr(120).optional(),
   localizacao:           shortStr(200).min(1),
   ticketEstimado:        shortStr(100).min(1),
   receitaCaixa:          shortStr(500).optional(),

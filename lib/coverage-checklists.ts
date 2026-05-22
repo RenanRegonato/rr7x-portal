@@ -9,6 +9,11 @@ export interface ChecklistItem {
   label:                string
   description:          string
   agentes_responsaveis: string[]  // quais step_keys deveriam cobrir esse item
+  // Itens que dependem de histórico operacional/financeiro consolidado (DRE,
+  // balancete, DFRE, EBITDA histórico, dívida líquida). Em deals early-stage
+  // (pré-operacionais) esses itens são marcados como 'nao_aplicavel' — a ausência
+  // é esperada e não penaliza o documentacao_score. Ver lib/early-stage.ts.
+  requer_historico_operacional?: boolean
 }
 
 const FIDC_CHECKLIST: ChecklistItem[] = [
@@ -69,6 +74,26 @@ const GERAL_CHECKLIST: ChecklistItem[] = [
   { key: 'kyc_concluido',            label: 'KYC concluído',                      description: 'KYC e screening concluídos.',                                                             agentes_responsaveis: ['kyc'] },
   { key: 'maturidade_avaliada',      label: 'Maturidade avaliada',                description: 'Veredito de maturidade emitido com roadmap.',                                             agentes_responsaveis: ['maturidade'] },
 ]
+
+// Itens cuja cobertura depende de histórico operacional/financeiro consolidado.
+// Em deals early-stage (pré-operacionais) esses itens não se aplicam: a ausência
+// de DRE/balancete/DFRE histórico é esperada e não deve penalizar. Ver lib/early-stage.ts.
+const KEYS_HISTORICO_OPERACIONAL = new Set<string>([
+  'demonstrativos_3y',   // DRE + Balanço dos últimos 3 anos
+  'ebitda_normalizado',  // EBITDA ajustado histórico
+  'ebitda_3y',           // EBITDA dos últimos 3 anos
+  'ebitda_apurado',      // EBITDA apurado
+  'divida_liquida',      // dívida líquida mapeada (depende de balanço)
+  'fluxo_caixa',         // fluxo de caixa operacional histórico
+  'cobertura_juros',     // ICJ e dívida/EBITDA (dependem de demonstrativos)
+  'traction_metrics',    // métricas de tração (receita/growth/retention)
+])
+
+// Verdadeiro quando o item exige histórico operacional que um projeto
+// pré-operacional, por definição, ainda não possui.
+export function requerHistoricoOperacional(item: ChecklistItem): boolean {
+  return item.requer_historico_operacional ?? KEYS_HISTORICO_OPERACIONAL.has(item.key)
+}
 
 export function getChecklist(tipo: TipoOperacao): ChecklistItem[] {
   switch (tipo) {

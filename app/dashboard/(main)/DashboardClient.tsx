@@ -46,7 +46,7 @@ const PAGE_SIZE = 12
 const HOW_IT_WORKS = [
   { n: '1', title: 'Deal Intake', desc: 'Preencha o formulário com os dados do ativo — nome, tipo, ticket, documentos.' },
   { n: '2', title: '10 especialistas em paralelo', desc: 'Mandor aciona o squad: diagnóstico financeiro, M&A, crédito, contratos, originação, revisão final e mais.' },
-  { n: '3', title: 'Relatório em 45–90 min', desc: 'DRS, Blind Teaser, Pitchbook e Relatório Consolidado prontos para apresentar.' },
+  { n: '3', title: 'Relatório em até 90 min', desc: 'DRS, Blind Teaser, Pitchbook e Relatório Consolidado prontos para apresentar.' },
 ]
 
 function EmptyPipeline({ onStart }: { onStart: () => void }) {
@@ -56,7 +56,7 @@ function EmptyPipeline({ onStart }: { onStart: () => void }) {
         <img src="/logo/mandor-simbolo.svg" alt="Mandor" className="w-10 h-10 mx-auto mb-4" />
         <h2 className="font-display text-[22px] font-medium tracking-tight mb-2">Bem-vindo ao Mandor</h2>
         <p className="text-[13px] text-ink-2 max-w-sm mx-auto leading-relaxed">
-          Análise completa de ativo em 90 minutos. Ative o squad no seu primeiro deal abaixo.
+          Análise completa de ativo em até 90 minutos. Ative o squad no seu primeiro deal abaixo.
         </p>
       </div>
       <div className="grid grid-cols-3 divide-x divide-border">
@@ -296,7 +296,7 @@ export default function DashboardClient({
     <>
       <Topbar tabs={tabs} tab={topTab} onTab={setTopTab} userInitials={userInitials}/>
 
-      <div className="grid grid-cols-[300px_1fr] gap-7 p-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-7 p-4 sm:p-8 items-start">
         {/* ── New Deal Panel ──────────────────────────────────────────────── */}
         <section className="bg-surface border border-border rounded-[14px] shadow-soft-sm p-[22px] sticky top-[61px]">
           <h3 className="font-display text-[18px] font-medium tracking-tight m-0">Novo deal</h3>

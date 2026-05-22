@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { audit, extractIp } from '@/lib/audit'
-import { resolveEscritorioId } from '@/lib/invest-match/auth-helpers'
+import { gateInvestMatch } from '@/lib/invest-match/auth-helpers'
 import { getInvestidor } from '@/lib/invest-match/investidor-service'
 import { inngest } from '@/lib/inngest'
 
@@ -16,8 +16,9 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-  const escritorioId = await resolveEscritorioId(user.id)
-  if (!escritorioId) return NextResponse.json({ error: 'Sem escritório' }, { status: 409 })
+  const gate = await gateInvestMatch(user.id)
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status })
+  const escritorioId = gate.escritorioId
 
   const inv = await getInvestidor(id, escritorioId)
   if (!inv) return NextResponse.json({ error: 'Investidor não encontrado' }, { status: 404 })

@@ -16,11 +16,11 @@ const planos = [
   {
     id:       'recorrente',
     nome:     'Institucional',
-    valor:    'R$ 17.000',
-    desc:     '/ mês',
+    valor:    'R$ 18.000',
+    desc:     '/ mês + setup',
     features: ['Até 20 análises/mês', 'Identidade do escritório', 'Suporte prioritário', 'Até 3 usuários'],
     destaque: true,
-    mensagem: 'Olá! Tenho interesse no plano Institucional do Mandor (R$ 17.000/mês). Podemos conversar?',
+    mensagem: 'Olá! Tenho interesse no plano Institucional do Mandor (R$ 18.000/mês + setup). Podemos conversar?',
     botao:    'Contratar',
   },
   {

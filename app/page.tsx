@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import AuthErrorHandler from "@/components/AuthErrorHandler";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 export const metadata: Metadata = {
   title: "Mandor | Inteligência operacional para M&A, crédito estruturado e preparação de deals",
   description:
-    "Analise operações de M&A, estruture crédito e prepare ativos para o mercado em até 40 minutos. 10 módulos especializados em paralelo. Material institucional pronto para o mercado.",
+    "Analise operações de M&A, estruture crédito e prepare ativos para o mercado em até 90 minutos. 10 módulos especializados em paralelo. Material institucional pronto para o mercado.",
   alternates: { canonical: "/" },
 };
 
@@ -67,7 +68,7 @@ const faqSchema = {
       name: "Quanto tempo leva para receber a análise?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Até 40 minutos após a submissão dos documentos. Para planos Institucional e Corporativo, entrega garantida no mesmo dia mesmo para casos com documentação incompleta.",
+        text: "Até 90 minutos após a submissão dos documentos. Para planos Institucional e Corporativo, entrega garantida no mesmo dia mesmo para casos com documentação incompleta.",
       },
     },
   ],
@@ -169,7 +170,7 @@ const inteligencias = [
 ];
 
 const comparativo = [
-  { dim: "Tempo por análise completa",     trad: "10–15 dias úteis",               otto: "até 40 min" },
+  { dim: "Tempo por análise completa",     trad: "10–15 dias úteis",               otto: "até 90 min" },
   { dim: "Capacidade mensal",              trad: "Baixa escala",                   otto: "40+ deals analisáveis" },
   { dim: "Organização do material",        trad: "Descentralizada por pessoa",     otto: "Fluxo estruturado e centralizado" },
   { dim: "Visibilidade sobre riscos",      trad: "Dependente da análise",          otto: "Cruzamento automático" },
@@ -200,12 +201,12 @@ const planos = [
   {
     nome: "Institucional",
     tag: "mensal · escritório",
-    preco: "R$ 17.000",
-    complemento: "/ mês",
+    preco: "R$ 18.000",
+    complemento: "/ mês + setup",
     desc: "Para escritórios com fluxo constante. Análises ilimitadas dentro da capacidade mensal.",
     features: [
       "Até 20 análises por mês",
-      "Onboarding e configuração incluídos",
+      "Onboarding e configuração assistidos",
       "Saída com identidade do escritório",
       "Suporte técnico prioritário",
       "Histórico e acervo de análises",
@@ -292,7 +293,7 @@ const faqs = [
   },
   {
     q: "Quanto tempo leva para receber a análise?",
-    a: "Até 40 minutos após a submissão dos documentos. Para planos Institucional e Corporativo, entrega garantida no mesmo dia mesmo para casos com documentação incompleta.",
+    a: "Até 90 minutos após a submissão dos documentos. Para planos Institucional e Corporativo, entrega garantida no mesmo dia mesmo para casos com documentação incompleta.",
   },
 ];
 
@@ -389,7 +390,7 @@ export default function LandingPage() {
               {/* Badge */}
               <div className="animate-fade-up inline-flex items-center gap-2 border border-lp-border-strong bg-lp-canvas text-lp-ink-2 text-[11px] font-medium px-3.5 py-1.5 rounded-full mb-7 tracking-widest uppercase" style={{ animationDelay: "0ms" }}>
                 <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#1655E8" }} />
-                10 inteligências em paralelo · 40 minutos
+                10 inteligências em paralelo · até 90 minutos
               </div>
 
               {/* Headline */}
@@ -554,7 +555,7 @@ export default function LandingPage() {
         <div className="max-w-[1280px] mx-auto px-6 py-8">
           <dl className="stagger-reveal grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
-              { value: "40 min",     label: "análise completa"          },
+              { value: "até 90 min", label: "análise completa"          },
               { value: "40+",        label: "deals analisáveis/mês"     },
               { value: "4×",         label: "capacidade institucional"  },
               { value: "R$ 6M–12M",  label: "receita incremental/ano"   },
@@ -733,7 +734,7 @@ export default function LandingPage() {
               {
                 num: "01",
                 title: "Velocidade real",
-                body: "Até 40 minutos da submissão ao diagnóstico completo. Para mandatos urgentes, isso muda o resultado da negociação.",
+                body: "Até 90 minutos da submissão ao diagnóstico completo. Para mandatos urgentes, isso muda o resultado da negociação.",
               },
               {
                 num: "02",
@@ -768,7 +769,7 @@ export default function LandingPage() {
             </h2>
             <p className="text-[15px] text-lp-ink-2 leading-relaxed mb-6">
               O assessor submete os documentos do ativo. Mandor orquestra os 10 módulos
-              em paralelo e entrega o diagnóstico completo em até 40 minutos: DRS, valuation,
+              em paralelo e entrega o diagnóstico completo em até 90 minutos: DRS, valuation,
               mapa jurídico, estruturação e Blind Teaser.
             </p>
             <ul className="space-y-3">
@@ -1489,8 +1490,23 @@ export default function LandingPage() {
               <p className="text-[12px] leading-relaxed mb-3 max-w-[240px]" style={{ color: "#4A6090" }}>
                 Inteligência operacional para M&amp;A, crédito estruturado e preparação de deals.
               </p>
-              <a href="mailto:mandor@rr7x.com.br" className="text-[12px] hover:underline" style={{ color: "#7A92BE" }}>
+              <a href="mailto:mandor@rr7x.com.br" className="text-[12px] hover:underline block" style={{ color: "#7A92BE" }}>
                 mandor@rr7x.com.br
+              </a>
+              <a
+                href="https://www.instagram.com/mandor.deals/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram da Mandor (@mandor.deals)"
+                className="inline-flex items-center gap-2 mt-4 text-[12px] hover:underline"
+                style={{ color: "#7A92BE" }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+                @mandor.deals
               </a>
             </div>
 
@@ -1554,6 +1570,8 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      <WhatsAppFloat />
     </div>
   );
 }

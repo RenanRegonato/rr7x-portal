@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
 import { audit, extractIp } from '@/lib/audit'
 import { buildThesisFromAnalise } from '@/lib/invest-match/builder'
+import { gateInvestMatch } from '@/lib/invest-match/auth-helpers'
 import { inngest } from '@/lib/inngest'
 
 // POST /api/invest-match/teses/from-analise/[id]
@@ -28,6 +29,10 @@ export async function POST(
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+
+  // Entitlement: o módulo Invest Match (Plus) precisa estar habilitado no escritório.
+  const gate = await gateInvestMatch(user.id)
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status })
 
   // Permissão: dono da análise OU membro do deal
   const admin = createAdminClient()

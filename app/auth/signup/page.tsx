@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { traduzErroSupabase } from '@/lib/auth-errors'
 
 export default function SignupPage() {
   const [email,      setEmail]      = useState('')
@@ -30,7 +31,7 @@ export default function SignupPage() {
     })
 
     if (error) {
-      setError(error.message)
+      setError(traduzErroSupabase(error))
       setLoading(false)
     } else {
       setSuccess(true)
@@ -64,7 +65,7 @@ export default function SignupPage() {
 
         <div className="bg-surface border border-border rounded-[14px] shadow-soft-md p-8">
           <h2 className="font-display text-[22px] font-medium tracking-tight mb-1">Criar conta</h2>
-          <p className="text-ink-3 text-[13px] mb-6">Comece a analisar deals em 90 minutos.</p>
+          <p className="text-ink-3 text-[13px] mb-6">Comece a analisar deals em até 90 minutos.</p>
 
           <form onSubmit={handleSignup} className="space-y-4">
             <div>

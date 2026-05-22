@@ -5,7 +5,9 @@ import type { ChecklistItem, TipoOperacao } from '@/lib/coverage-checklists'
 // checklist obrigatória da operação foi efetivamente coberto pelos
 // outputs dos agentes especialistas.
 
-export type CoverageStatus = 'coberto' | 'parcial' | 'nao_coberto'
+// 'nao_aplicavel' é atribuído deterministicamente pela rota (não pela IA) a itens
+// de histórico financeiro em deals early-stage / pré-operacionais. Ver lib/early-stage.ts.
+export type CoverageStatus = 'coberto' | 'parcial' | 'nao_coberto' | 'nao_aplicavel'
 
 export interface CoverageItemResult {
   key:                  string
@@ -25,7 +27,7 @@ export interface CoverageInput {
 
 export interface CoverageOutput {
   items: CoverageItemResult[]
-  resumo: { coberto: number; parcial: number; nao_coberto: number }
+  resumo: { coberto: number; parcial: number; nao_coberto: number; nao_aplicavel: number }
 }
 
 const SYSTEM_PROMPT = `Você é o Coverage Validator da Mandor — agente que valida se uma análise multiagente cobriu todos os pontos OBRIGATÓRIOS para o tipo de operação em questão.
@@ -167,7 +169,7 @@ export async function validarCoverage(input: CoverageInput): Promise<CoverageOut
     }
   }
 
-  const resumo = { coberto: 0, parcial: 0, nao_coberto: 0 }
+  const resumo = { coberto: 0, parcial: 0, nao_coberto: 0, nao_aplicavel: 0 }
   for (const r of results) resumo[r.status]++
 
   return { items: results, resumo }

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 
-type Status = 'coberto' | 'parcial' | 'nao_coberto'
+type Status = 'coberto' | 'parcial' | 'nao_coberto' | 'nao_aplicavel'
 
 interface CoverageItem {
   key:                  string
@@ -15,14 +15,16 @@ interface CoverageItem {
 
 interface CoverageData {
   tipo_operacao: string
+  early_stage?:  boolean
   items:         CoverageItem[]
-  resumo:        { coberto: number; parcial: number; nao_coberto: number }
+  resumo:        { coberto: number; parcial: number; nao_coberto: number; nao_aplicavel?: number }
 }
 
 const STATUS_CFG: Record<Status, { label: string; icon: string; cls: string }> = {
-  coberto:     { label: 'Coberto',      icon: '✓', cls: 'text-ok bg-ok/10 border-ok/30' },
-  parcial:     { label: 'Parcial',      icon: '◐', cls: 'text-accent-strong bg-accent-soft border-accent/30' },
-  nao_coberto: { label: 'Não coberto',  icon: '✗', cls: 'text-warn bg-warn/10 border-warn/30' },
+  coberto:       { label: 'Coberto',        icon: '✓', cls: 'text-ok bg-ok/10 border-ok/30' },
+  parcial:       { label: 'Parcial',        icon: '◐', cls: 'text-accent-strong bg-accent-soft border-accent/30' },
+  nao_coberto:   { label: 'Não coberto',    icon: '✗', cls: 'text-warn bg-warn/10 border-warn/30' },
+  nao_aplicavel: { label: 'Não aplicável',  icon: '–', cls: 'text-ink-3 bg-surface-2 border-border' },
 }
 
 const STEP_LABELS: Record<string, string> = {
@@ -99,8 +101,9 @@ export default function CoveragePanel({ analiseId, onSolicitarAgente }: Coverage
     )
   }
 
-  const { items, resumo, tipo_operacao } = data
+  const { items, resumo, tipo_operacao, early_stage } = data
   const total = items.length
+  const naoAplicavel = resumo.nao_aplicavel ?? 0
 
   return (
     <div className="bg-surface border border-border rounded-[14px] shadow-soft-sm overflow-hidden">
@@ -112,6 +115,7 @@ export default function CoveragePanel({ analiseId, onSolicitarAgente }: Coverage
             {' '}<span className="text-ok">{resumo.coberto} cobertos</span>
             {' '}/ <span className="text-accent-strong">{resumo.parcial} parciais</span>
             {' '}/ <span className="text-warn">{resumo.nao_coberto} não cobertos</span>
+            {naoAplicavel > 0 && <>{' '}/ <span className="text-ink-3">{naoAplicavel} não aplicáveis</span></>}
             {' '}de {total}
             {checkedAt && ` · ${new Date(checkedAt).toLocaleString('pt-BR')}`}
           </p>
@@ -124,6 +128,18 @@ export default function CoveragePanel({ analiseId, onSolicitarAgente }: Coverage
           {rerunning ? 'Validando...' : '↺ Re-validar'}
         </button>
       </div>
+
+      {early_stage && (
+        <div className="mx-7 mt-5 rounded-[10px] border border-border bg-surface-2 px-4 py-3">
+          <p className="text-[12px] text-ink-2 leading-relaxed">
+            <span className="font-semibold text-ink">Operação em estágio inicial.</span>{' '}
+            Por se tratar de um projeto pré-operacional, sem histórico operacional consolidado,
+            os itens de demonstrativos financeiros históricos (DRE, balancete, DFRE, EBITDA histórico)
+            estão marcados como <span className="text-ink">não aplicáveis</span> e não penalizam a cobertura.
+            A avaliação prioriza estrutura proposta, projeções e potencial econômico.
+          </p>
+        </div>
+      )}
 
       <div className="p-7 space-y-2">
         {items.map((it) => {

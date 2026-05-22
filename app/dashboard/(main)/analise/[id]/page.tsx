@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Topbar from '@/components/Topbar'
 import AgentRow, { type AgentDef } from '@/components/AgentRow'
@@ -93,6 +93,86 @@ function getAgentPct(key: string, outputs: Record<string, string>, runningSteps:
 
 function fmtTime(s: number) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+}
+
+// ─── Branding / meta do PDF ─────────────────────────────────────────────────────
+
+type Branding = { nome: string; logoUrl: string | null; tagline: string | null; site: string | null; cidadeUf: string | null }
+
+function clip(s: string, n: number) {
+  const t = s.trim()
+  return t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t
+}
+
+function stripMd(s: string) {
+  return s
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/!\[.*?\]\(.*?\)/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[#>*_`|]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+// Resumo executivo da capa: primeiros parágrafos do relatório consolidado
+// (já humanizado pela diretriz de escrita), com fallback para o intake.
+function deriveResumo(outputs: Record<string, string>, di: Record<string, string>): string | undefined {
+  let base = ''
+  const consolidated = outputs?.relatorio_consolidado
+  if (consolidated) {
+    const out: string[] = []
+    for (const raw of consolidated.split('\n')) {
+      const t = raw.trim()
+      if (!t || /^#{1,6}\s/.test(t)) { if (out.length) break; else continue }
+      if (/^[|>\-*+]/.test(t) || /^\d+\.\s/.test(t)) { if (out.length) break; else continue }
+      out.push(t)
+      if (out.join(' ').length > 340) break
+    }
+    base = out.join(' ')
+  }
+  if (!base) base = di?.resumoAtivo ?? ''
+  if (!base) base = di?.objetivo ?? ''
+  base = stripMd(base)
+  if (!base) return undefined
+  const LIMIT = 300
+  if (base.length > LIMIT) {
+    const cut     = base.slice(0, LIMIT)
+    const lastDot = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('? '), cut.lastIndexOf('! '))
+    base = lastDot > 140 ? cut.slice(0, lastDot + 1) : cut.trimEnd() + '…'
+  }
+  return base
+}
+
+function buildPdfMeta(branding: Branding | null, di: Record<string, string>, outputs: Record<string, string>) {
+  return {
+    escritorio:  branding,
+    objetivo:    di?.objetivo        ? clip(di.objetivo, 48)    : undefined,
+    ticket:      di?.ticketEstimado  || undefined,
+    estagio:     di?.estagio         || undefined,
+    localizacao: di?.localizacao     ? clip(di.localizacao, 36) : undefined,
+    resumo:      deriveResumo(outputs, di ?? {}),
+  }
+}
+
+// ─── Navegação por seção (menu lateral / âncoras) ───────────────────────────────
+
+function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+// Extrai texto puro dos filhos renderizados pelo ReactMarkdown (para gerar o id da âncora).
+function nodeText(node: unknown): string {
+  if (node == null || typeof node === 'boolean') return ''
+  if (typeof node === 'string' || typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(nodeText).join('')
+  if (typeof node === 'object' && 'props' in node) {
+    return nodeText((node as { props?: { children?: unknown } }).props?.children)
+  }
+  return ''
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
@@ -803,7 +883,7 @@ function SquadView({
           </div>
 
           <PhaseLabel n={2} label="Análises em paralelo" status={phase2Status}/>
-          <div className="grid grid-cols-2 gap-2.5 mb-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-5">
             {parallelAgents.map((a) => (
               <AgentRow key={a.key} agent={a} pct={getAgentPct(a.key, outputs, runningSteps)} active={activeAgent === a.key} onClick={() => setActiveAgent(a.key)}/>
             ))}
@@ -876,6 +956,19 @@ function DealDetail({
   const [shareUrl,       setShareUrl]       = useState<string | null>(null)
   const [shareCopied,    setShareCopied]    = useState(false)
   const [shareLoading,   setShareLoading]   = useState(false)
+  const [branding,       setBranding]       = useState<Branding | null>(null)
+
+  useEffect(() => {
+    let active = true
+    fetch(`/api/analise/branding?id=${analise.id}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (active && d) setBranding(d.escritorio ?? null) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [analise.id])
+
+  const pdfMeta = buildPdfMeta(branding, analise.deal_intake ?? {}, outputs)
+
   const visibleTabs = DETAIL_TABS.filter((t) => {
     if (t.key === 'fatos')        return !!analise.facts_extracted_at
     if (t.key === 'consistencia') return !!analise.consistency_checked_at
@@ -907,7 +1000,8 @@ function DealDetail({
   async function exportExcel() {
     setXlsxLoading(true)
     try {
-      const res  = await fetch(`/api/analise/export-excel?id=${analise.id}`)
+      const res = await fetch(`/api/analise/export-excel?id=${analise.id}`)
+      if (!res.ok) throw new Error(`status ${res.status}`)
       const blob = await res.blob()
       const url  = URL.createObjectURL(blob)
       const a    = document.createElement('a')
@@ -917,6 +1011,7 @@ function DealDetail({
       URL.revokeObjectURL(url)
     } catch (err) {
       console.error('[export excel]', err)
+      alert('Não foi possível gerar o Excel. Tente novamente em alguns instantes.')
     } finally {
       setXlsxLoading(false)
     }
@@ -925,7 +1020,8 @@ function DealDetail({
   async function exportPptx() {
     setPptxLoading(true)
     try {
-      const res  = await fetch(`/api/analise/export-pptx?id=${analise.id}`)
+      const res = await fetch(`/api/analise/export-pptx?id=${analise.id}`)
+      if (!res.ok) throw new Error(`status ${res.status}`)
       const blob = await res.blob()
       const url  = URL.createObjectURL(blob)
       const a    = document.createElement('a')
@@ -935,6 +1031,7 @@ function DealDetail({
       URL.revokeObjectURL(url)
     } catch (err) {
       console.error('[export pptx]', err)
+      alert('Não foi possível gerar o PowerPoint. Tente novamente em alguns instantes.')
     } finally {
       setPptxLoading(false)
     }
@@ -954,18 +1051,24 @@ function DealDetail({
   async function exportAllPdf() {
     setPdfAllLoading(true)
     try {
-      const { downloadAllPdf } = await import('@/lib/pdf-document')
       const sections = DETAIL_TABS
         .filter((t) => outputs[t.key])
         .map((t) => ({ label: t.label, content: outputs[t.key] }))
+      if (sections.length === 0) {
+        alert('Ainda não há seções concluídas para exportar. Aguarde o processamento das análises.')
+        return
+      }
+      const { downloadAllPdf } = await import('@/lib/pdf-document')
       await downloadAllPdf({
         title:    analise.nome_ativo ?? 'Análise',
         tipo:     analise.deal_intake?.tipoAtivo,
         sections,
-        filename: `${slug}-rr7x`,
+        meta:     pdfMeta,
+        filename: `${slug}-mandor`,
       })
     } catch (err) {
       console.error('[export pdf]', err)
+      alert('Não foi possível gerar o PDF. Tente novamente em alguns instantes.')
     } finally {
       setPdfAllLoading(false)
     }
@@ -1089,6 +1192,7 @@ function DealDetail({
             analiseId={analise.id}
             analiseTitle={analise.nome_ativo ?? 'Análise'}
             analiseTipo={analise.deal_intake?.tipoAtivo}
+            pdfMeta={pdfMeta}
             onReprocess={() => onReprocessStep(activeTab)}
             isReprocessing={runningSteps.has(activeTab)}
             regenLabel={`Regenerar (${regenCount}/${MAX_REGENERACOES})`}
@@ -1121,7 +1225,7 @@ function DealDetail({
 
 function OutputPanel({
   label, content, stepKey, analiseId,
-  analiseTitle, analiseTipo,
+  analiseTitle, analiseTipo, pdfMeta,
   onReprocess, isReprocessing,
   regenLabel, regenDisabled,
 }: {
@@ -1131,6 +1235,7 @@ function OutputPanel({
   analiseId?:      string
   analiseTitle?:   string
   analiseTipo?:    string
+  pdfMeta?:        ReturnType<typeof buildPdfMeta>
   onReprocess?:    () => void
   isReprocessing?: boolean
   regenLabel?:     string
@@ -1143,6 +1248,43 @@ function OutputPanel({
     content.includes('Intake declarado') ||
     content.includes('não verificado')
   )
+
+  // Sumário navegável da seção: extrai headings (## e ###) do markdown para o menu lateral.
+  const headings = useMemo(() => {
+    const out: { level: number; text: string; slug: string }[] = []
+    for (const line of content.split('\n')) {
+      const m = line.match(/^(#{2,3})\s+(.+)/)
+      if (!m) continue
+      const text = m[2].replace(/[*_`]/g, '').trim()
+      if (text) out.push({ level: m[1].length, text, slug: slugify(text) })
+    }
+    return out
+  }, [content])
+
+  const [activeHeading, setActiveHeading] = useState('')
+  useEffect(() => {
+    if (headings.length < 3) return
+    const els = headings
+      .map((h) => document.getElementById(h.slug))
+      .filter((el): el is HTMLElement => !!el)
+    if (!els.length) return
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const vis = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+        if (vis[0]) setActiveHeading(vis[0].target.id)
+      },
+      { rootMargin: '-90px 0px -70% 0px', threshold: 0 },
+    )
+    els.forEach((el) => obs.observe(el))
+    return () => obs.disconnect()
+  }, [headings])
+
+  function jumpTo(slug: string) {
+    document.getElementById(slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    setActiveHeading(slug)
+  }
 
   const [pdfLoading,         setPdfLoading]         = useState(false)
   const [showHistory,        setShowHistory]        = useState(false)
@@ -1231,7 +1373,8 @@ function OutputPanel({
         content,
         title:    analiseTitle ?? label,
         tipo:     analiseTipo,
-        filename: `${stepKey}-rr7x`,
+        meta:     pdfMeta,
+        filename: `${stepKey}-mandor`,
       })
     } catch (err) {
       console.error('[pdf step]', err)
@@ -1241,7 +1384,8 @@ function OutputPanel({
   }
 
   return (
-    <div className="bg-surface border border-border rounded-[14px] shadow-soft-sm overflow-hidden">
+    <div className="flex gap-6 items-start">
+      <div className="flex-1 min-w-0 bg-surface border border-border rounded-[14px] shadow-soft-sm overflow-hidden">
       <div className="flex items-center justify-between px-7 py-4 border-b border-border">
         <h2 className="font-display text-[18px] font-medium">{label}</h2>
         <div className="flex items-center gap-3">
@@ -1511,9 +1655,9 @@ function OutputPanel({
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
-            h1: ({ children }) => <h1 className="font-display text-[24px] font-medium tracking-tight mt-6 mb-3 text-ink">{children}</h1>,
-            h2: ({ children }) => <h2 className="font-display text-[20px] font-medium tracking-tight mt-5 mb-2.5 text-ink">{children}</h2>,
-            h3: ({ children }) => <h3 className="text-[15px] font-semibold mt-4 mb-2 text-ink">{children}</h3>,
+            h1: ({ children }) => <h1 id={slugify(nodeText(children))} className="scroll-mt-6 font-display text-[24px] font-medium tracking-tight mt-6 mb-3 text-ink">{children}</h1>,
+            h2: ({ children }) => <h2 id={slugify(nodeText(children))} className="scroll-mt-6 font-display text-[20px] font-medium tracking-tight mt-5 mb-2.5 text-ink">{children}</h2>,
+            h3: ({ children }) => <h3 id={slugify(nodeText(children))} className="scroll-mt-6 text-[15px] font-semibold mt-4 mb-2 text-ink">{children}</h3>,
             h4: ({ children }) => <h4 className="text-[13px] font-semibold mt-3 mb-1.5 text-ink">{children}</h4>,
             p:  ({ children }) => <p className="text-[13px] text-ink-2 leading-[1.7] mb-3">{children}</p>,
             ul: ({ children }) => <ul className="list-disc pl-5 mb-3 space-y-1 text-[13px] text-ink-2">{children}</ul>,
@@ -1535,6 +1679,25 @@ function OutputPanel({
       </div>
       {analiseId && (
         <ClaimsSection analiseId={analiseId} stepKey={stepKey}/>
+      )}
+      </div>
+      {headings.length >= 3 && (
+        <nav className="hidden xl:block w-60 shrink-0 sticky top-4 self-start max-h-[calc(100vh-110px)] overflow-y-auto pb-4">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-2.5 px-3">Nesta seção</p>
+          <ul className="border-l border-border">
+            {headings.map((h) => (
+              <li key={h.slug}>
+                <button
+                  type="button"
+                  onClick={() => jumpTo(h.slug)}
+                  className={`block w-full text-left py-1.5 leading-snug border-l-2 -ml-px transition-colors ${h.level === 3 ? 'pl-6 text-[11.5px]' : 'pl-3 text-[12px]'} ${activeHeading === h.slug ? 'border-accent-strong text-accent-strong font-medium' : 'border-transparent text-ink-3 hover:text-ink hover:border-border-strong'}`}
+                >
+                  {h.text}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
       )}
     </div>
   )

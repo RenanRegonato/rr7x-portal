@@ -4,6 +4,7 @@ export interface DealIntake {
   estagio: string
   objetivo: string
   nivelInformacao: string
+  operacaoEmAndamento?: string  // 'sim' | 'nao' — sinaliza projeto pré-operacional (early-stage)
   receitaCaixa?: string
   passivos?: string
   localizacao: string

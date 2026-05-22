@@ -16,6 +16,7 @@ type EscritorioSummary = {
   total_usuarios: number
   plano:          PlanoTipo | null
   plano_status:   PlanoStatus | null
+  invest_match_enabled: boolean
 }
 
 type UsuarioDetalhe = {
@@ -35,6 +36,7 @@ type EscritorioDetalhe = {
   plano?:                PlanoTipo | null
   plano_status?:         PlanoStatus | null
   plano_limite_analises?: number | null
+  invest_match_enabled?: boolean
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -96,6 +98,11 @@ export default function EscritoriosPage() {
   const [salvandoPlano,     setSalvandoPlano]     = useState(false)
   const [msgPlano,          setMsgPlano]          = useState('')
 
+  // Invest Match (Plus)
+  const [imEnabled,  setImEnabled]  = useState(false)
+  const [salvandoIM, setSalvandoIM] = useState(false)
+  const [msgIM,      setMsgIM]      = useState('')
+
   // Convidar
   const [showConvite,    setShowConvite]    = useState(false)
   const [inviteEmail,    setInviteEmail]    = useState('')
@@ -138,6 +145,7 @@ export default function EscritoriosPage() {
     setEditPlano((e.plano ?? '') as PlanoTipo)
     setEditPlanoStatus((e.plano_status ?? '') as PlanoStatus)
     setEditPlanoLimite(e.plano_limite_analises != null ? String(e.plano_limite_analises) : '')
+    setImEnabled(e.invest_match_enabled === true)
     setDetLoading(false)
   }, [])
 
@@ -147,6 +155,7 @@ export default function EscritoriosPage() {
     setSelecionado(id)
     setMsgInfo('')
     setMsgPlano('')
+    setMsgIM('')
     setMsgConvite('')
     setShowConvite(false)
     setEditandoUser(null)
@@ -203,6 +212,30 @@ export default function EscritoriosPage() {
     } else {
       const d = await res.json()
       setMsgPlano(d.error ?? 'Erro ao salvar plano.')
+    }
+  }
+
+  // ── Invest Match (Plus) ───────────────────────────────────────────────────
+
+  async function toggleInvestMatch() {
+    if (!selecionado || salvandoIM) return
+    const novo = !imEnabled
+    setSalvandoIM(true)
+    setMsgIM('')
+    const res = await fetch('/api/admin/escritorios', {
+      method:  'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ id: selecionado, invest_match_enabled: novo }),
+    })
+    setSalvandoIM(false)
+    if (res.ok) {
+      setImEnabled(novo)
+      setMsgIM(novo ? 'Invest Match habilitado para este escritório.' : 'Invest Match desabilitado.')
+      setEscritorios(prev => prev.map(e => e.id === selecionado ? { ...e, invest_match_enabled: novo } : e))
+      setDetalhe(prev => prev ? { ...prev, invest_match_enabled: novo } : null)
+    } else {
+      const d = await res.json()
+      setMsgIM(d.error ?? 'Erro ao salvar.')
     }
   }
 
@@ -403,6 +436,9 @@ export default function EscritoriosPage() {
                     <span className={`text-[10px] font-medium ${statusCfg.cls}`}>
                       {statusCfg.label}
                     </span>
+                    {e.invest_match_enabled && (
+                      <p className="text-[9px] font-semibold text-accent-strong mt-0.5 uppercase tracking-wide">IM Plus</p>
+                    )}
                   </div>
                 </div>
               </button>
@@ -491,6 +527,51 @@ export default function EscritoriosPage() {
                   Pacotes
                 </a>
                 . Cada pacote pertence ao escritório e é consumido por qualquer usuário vinculado.
+              </div>
+            </section>
+
+            {/* ── Seção: Invest Match (Plus) ──────────────────────────────── */}
+            <section>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-3">
+                Invest Match <span className="text-accent-strong normal-case font-semibold">Plus</span>
+              </p>
+              <div className="bg-surface border border-border rounded-[12px] p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-medium text-ink">Módulo de originação Invest Match</p>
+                    <p className="text-[12px] text-ink-3 mt-1 leading-relaxed">
+                      Recurso adicional opcional. Habilite apenas para escritórios que contrataram o upgrade Plus.
+                      Quando desabilitado, os usuários do escritório veem uma tela de apresentação ao acessar o módulo.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={imEnabled}
+                    onClick={toggleInvestMatch}
+                    disabled={salvandoIM}
+                    className={`relative shrink-0 w-11 h-6 rounded-full transition-colors disabled:opacity-50 ${
+                      imEnabled ? 'bg-accent-strong' : 'bg-surface-2 border border-border'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
+                        imEnabled ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <span className={`text-[12px] font-medium ${imEnabled ? 'text-ok' : 'text-ink-3'}`}>
+                    {imEnabled ? 'Habilitado' : 'Desabilitado'}
+                  </span>
+                  {salvandoIM && <span className="text-[12px] text-ink-3">salvando…</span>}
+                </div>
+                {msgIM && (
+                  <p className={`text-[12px] mt-1.5 ${msgIM.includes('Erro') ? 'text-warn' : 'text-ok'}`}>
+                    {msgIM}
+                  </p>
+                )}
               </div>
             </section>
 

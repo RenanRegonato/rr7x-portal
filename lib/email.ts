@@ -1,8 +1,10 @@
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM   = process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'
+const FROM   = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 const ADMIN  = 'gestor@renanregonato.com.br'
+// Caixa comercial que recebe contatos do site e avisos de novos cadastros.
+const NOTIFY = 'mandor@rr7x.com.br'
 
 export async function sendCompletionEmail(params: {
   to:          string
@@ -113,6 +115,81 @@ function escapeHtml(s: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
+}
+
+// Mensagem do formulário de contato do site → caixa comercial.
+export async function sendContactEmail(params: {
+  nome:       string
+  email:      string
+  escritorio?: string
+  assunto?:   string
+  mensagem:   string
+}) {
+  const assunto = params.assunto?.trim() || 'Contato via site — Mandor'
+  const result = await resend.emails.send({
+    from:    FROM,
+    to:      NOTIFY,
+    replyTo: params.email,
+    subject: `📨 Contato site: ${assunto}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#0A0F20">
+        <div style="height:3px;background:#1655E8;border-radius:3px;margin-bottom:24px"></div>
+        <h2 style="font-size:20px;margin-bottom:16px">Nova mensagem pelo site</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;color:#374A6E">
+          <tr><td style="padding:6px 0;width:120px;color:#6E82A8">Nome</td><td style="padding:6px 0"><strong>${escapeHtml(params.nome)}</strong></td></tr>
+          <tr><td style="padding:6px 0;color:#6E82A8">Email</td><td style="padding:6px 0"><a href="mailto:${escapeHtml(params.email)}" style="color:#1655E8">${escapeHtml(params.email)}</a></td></tr>
+          ${params.escritorio ? `<tr><td style="padding:6px 0;color:#6E82A8">Escritório</td><td style="padding:6px 0">${escapeHtml(params.escritorio)}</td></tr>` : ''}
+          <tr><td style="padding:6px 0;color:#6E82A8">Assunto</td><td style="padding:6px 0">${escapeHtml(assunto)}</td></tr>
+        </table>
+        <div style="margin-top:16px;padding:16px;background:#F5F8FC;border-radius:10px;white-space:pre-wrap;line-height:1.6;color:#0A0F20">${escapeHtml(params.mensagem)}</div>
+        <p style="margin-top:24px;font-size:12px;color:#6E82A8">Responda este e-mail para falar diretamente com ${escapeHtml(params.nome)}.</p>
+        <p style="margin-top:8px;font-size:11px;color:#9AAAC5">Mandor · RR7x Capital Hub</p>
+      </div>
+    `,
+  })
+  if (result.error) {
+    throw new Error(`Resend API: ${result.error.name} — ${result.error.message}`)
+  }
+}
+
+// Aviso de novo cadastro (escritório self-signup ou gestor) → caixa comercial.
+export async function sendNewSignupNotification(params: {
+  tipo:           'escritorio' | 'gestor'
+  email:          string
+  nome?:          string | null
+  escritorioNome?: string | null
+  role:           string
+  baseUrl:        string
+}) {
+  const titulo = params.tipo === 'escritorio'
+    ? 'Novo escritório cadastrado'
+    : 'Novo gestor cadastrado'
+  const result = await resend.emails.send({
+    from:    FROM,
+    to:      NOTIFY,
+    replyTo: params.email,
+    subject: `🆕 ${titulo} — Mandor`,
+    html: `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#0A0F20">
+        <div style="height:3px;background:#1655E8;border-radius:3px;margin-bottom:24px"></div>
+        <h2 style="font-size:20px;margin-bottom:16px">${titulo}</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;color:#374A6E">
+          ${params.nome ? `<tr><td style="padding:6px 0;width:120px;color:#6E82A8">Nome</td><td style="padding:6px 0"><strong>${escapeHtml(params.nome)}</strong></td></tr>` : ''}
+          <tr><td style="padding:6px 0;color:#6E82A8">Email</td><td style="padding:6px 0"><a href="mailto:${escapeHtml(params.email)}" style="color:#1655E8">${escapeHtml(params.email)}</a></td></tr>
+          ${params.escritorioNome ? `<tr><td style="padding:6px 0;color:#6E82A8">Escritório</td><td style="padding:6px 0">${escapeHtml(params.escritorioNome)}</td></tr>` : ''}
+          <tr><td style="padding:6px 0;color:#6E82A8">Perfil</td><td style="padding:6px 0">${escapeHtml(params.role)}</td></tr>
+        </table>
+        <a href="${params.baseUrl}/dashboard/admin/escritorios" style="display:inline-block;margin-top:20px;padding:10px 20px;background:#1655E8;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+          Ver no painel →
+        </a>
+        <p style="margin-top:24px;font-size:12px;color:#6E82A8">Responda este e-mail para falar diretamente com o novo usuário.</p>
+        <p style="margin-top:8px;font-size:11px;color:#9AAAC5">Mandor · RR7x Capital Hub</p>
+      </div>
+    `,
+  })
+  if (result.error) {
+    throw new Error(`Resend API: ${result.error.name} — ${result.error.message}`)
+  }
 }
 
 export async function sendErrorNotification(params: {

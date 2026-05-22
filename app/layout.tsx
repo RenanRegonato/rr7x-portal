@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "10 especialistas em IA executando em paralelo. Diagnóstico financeiro completo de ativos em 90 minutos — DRS, DRE normalizada, EBITDA ajustado, valuation, análise de M&A, estruturação de crédito, contratos, blind teaser e pitchbook.",
+    "10 especialistas em IA executando em paralelo. Diagnóstico financeiro completo de ativos em até 90 minutos — DRS, DRE normalizada, EBITDA ajustado, valuation, análise de M&A, estruturação de crédito, contratos, blind teaser e pitchbook.",
   keywords: [
     "M&A",
     "crédito estruturado",
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: `${SITE_NAME} — Deal Intelligence para M&A e Crédito Estruturado`,
     description:
-      "10 especialistas em IA em paralelo. Diagnóstico completo de ativos em 90 minutos.",
+      "10 especialistas em IA em paralelo. Diagnóstico completo de ativos em até 90 minutos.",
     images: [
       {
         url: "/og-image.png",
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `${SITE_NAME} — Deal Intelligence`,
-    description: "10 especialistas em IA. Diagnóstico completo em 90 minutos.",
+    description: "10 especialistas em IA. Diagnóstico completo em até 90 minutos.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -146,7 +146,7 @@ const schemaOrg = {
       operatingSystem: "Web",
       url: SITE_URL,
       description:
-        "Plataforma de análise para M&A, crédito estruturado e preparação de ativos. Dez inteligências em paralelo entregam diagnóstico financeiro, valuation, Pitchbook e Blind Teaser em até 40 minutos.",
+        "Plataforma de análise para M&A, crédito estruturado e preparação de ativos. Dez inteligências em paralelo entregam diagnóstico financeiro, valuation, Pitchbook e Blind Teaser em até 90 minutos.",
       softwareVersion: "1.0",
       publisher: { "@id": `${SITE_URL}/#organization` },
       featureList: [
@@ -174,8 +174,8 @@ const schemaOrg = {
         {
           "@type": "Offer",
           name: "Plano Institucional",
-          description: "Até 20 análises mensais com onboarding incluído",
-          price: "17000.00",
+          description: "Até 20 análises mensais com onboarding assistido",
+          price: "18000.00",
           priceCurrency: "BRL",
           availability: "https://schema.org/InStock",
           url: `${SITE_URL}/auth/signup`,
@@ -202,6 +202,17 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="h-full">
       <head>
+        {/* Google Tag Manager */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H453CLF');`,
+          }}
+        />
+        {/* End Google Tag Manager */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
@@ -210,6 +221,17 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${dmSerifDisplay.variable} ${jetbrainsMono.variable} min-h-full bg-bg text-ink font-sans antialiased`}
       >
+        {/* Google Tag Manager (noscript) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-5H453CLF"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+            title="Google Tag Manager"
+          />
+        </noscript>
+        {/* End Google Tag Manager (noscript) */}
         <ScrollObserver />
         {children}
       </body>
