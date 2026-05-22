@@ -318,103 +318,207 @@ Avançar. A operação tem mérito de crédito e tese de equity consistentes. A 
 
 O.blind_teaser = `# Blind Teaser — Projeto Cobalto
 
-Material de divulgação anônima. A identidade da companhia é revelada mediante assinatura de acordo de confidencialidade.
+Material de divulgação anônima preparado pela assessoria responsável. A identidade da companhia é revelada exclusivamente mediante assinatura de acordo de confidencialidade (NDA).
 
-## A oportunidade
+## Resumo da oportunidade
 
-Fabricante nacional de especialidades químicas de performance, com quinze anos de operação, duas plantas industriais no Sudeste e no Nordeste e posição de liderança em um nicho técnico de alta barreira de entrada. A companhia atende cerca de 380 clientes industriais nos mercados de tintas, adesivos e tratamento de água.
+Fabricante nacional de especialidades químicas de performance, em operação há quinze anos, com duas plantas industriais (Sudeste e Nordeste) e posição entre os cinco maiores players do nicho de aditivos de alta especificação técnica. Atende cerca de 380 clientes industriais nos mercados de tintas, adesivos e tratamento de água, com 40% da receita vinculada a formulações desenvolvidas sob especificação do cliente — o que eleva o custo de troca e sustenta contratos de longo prazo.
+
+A Companhia capta R$ 280 milhões em crédito estruturado com garantias reais e avalia a entrada de um sócio minoritário para acelerar um programa de consolidação setorial. O controle permanece com os atuais acionistas.
+
+## Indicadores-chave (2025)
+
+| Métrica | Valor |
+| --- | --- |
+| Receita líquida | R$ 487 milhões |
+| EBITDA ajustado | R$ 108 milhões |
+| Margem EBITDA | 22% |
+| Crescimento médio 2021–2025 | 14% a.a. |
+| Dívida líquida / EBITDA | 1,8x |
+| Colaboradores | ~520 |
+| Clientes ativos | ~380 |
 
 ## Destaques do investimento
 
-- Receita líquida de R$ 487 milhões e EBITDA ajustado de R$ 108 milhões em 2025.
-- Margem EBITDA de 22%, em expansão consistente nos últimos cinco anos.
+- Nicho técnico defensável: especialidades de baixo volume e alta especificação, com poder de repasse de preço e baixo risco de substituição.
+- Margem EBITDA de 22%, no terço superior dos pares e em expansão por cinco anos consecutivos.
 - Crescimento composto de 14% ao ano desde 2021, acima da média do setor.
-- Alavancagem conservadora, em 1,8x dívida líquida sobre EBITDA.
+- Alavancagem conservadora (1,8x dívida líquida sobre EBITDA) e geração de caixa previsível.
 - Carteira recorrente, com contratos de longo prazo e custo de troca elevado.
-- 40% da receita vinculada a formulações desenvolvidas sob especificação do cliente.
+- Vetor de crescimento estrutural na frente de saneamento, puxado pelo novo marco regulatório.
+- Plataforma de consolidação: pipeline de quatro alvos regionais mapeado, a múltiplo de entrada abaixo do da plataforma.
+
+## Composição da receita
+
+| Linha de produto | Participação |
+| --- | --- |
+| Aditivos para tintas | 54% |
+| Resinas para adesivos | 28% |
+| Insumos para tratamento de água | 18% |
+
+A frente de tratamento de água é a de maior crescimento, sustentada pelas metas de universalização do saneamento até 2033.
 
 ## Síntese financeira
 
-| Indicador | 2023 | 2024 | 2025 |
+| R$ milhões | 2023 | 2024 | 2025 |
 | --- | --- | --- | --- |
-| Receita líquida (R$ M) | 388 | 431 | 487 |
-| EBITDA ajustado (R$ M) | 78 | 89 | 108 |
+| Receita líquida | 388 | 431 | 487 |
+| EBITDA ajustado | 78 | 89 | 108 |
 | Margem EBITDA | 20% | 21% | 22% |
+| Dívida líquida / EBITDA | 2,4x | 2,1x | 1,8x |
 
 ## Contexto de mercado
 
-O mercado de especialidades químicas cresce acima do PIB industrial. A frente de tratamento de água ganha tração com o novo marco do saneamento e as metas de universalização até 2033, o que amplia a demanda pela linha de maior valor agregado da companhia.
+O mercado brasileiro de especialidades químicas movimenta cerca de R$ 90 bilhões ao ano e cresce acima do PIB industrial, puxado por revestimentos, construção e saneamento. Diferentemente da química de commodity, o segmento compete por desempenho técnico, não por preço, o que protege margem. A substituição de importações é um vetor adicional: parte dos aditivos concorrentes é importada e exposta a câmbio e frete.
 
 ## A operação
 
-A companhia busca captação de R$ 280 milhões em crédito estruturado, com garantias reais, e avalia a entrada de um sócio minoritário para acelerar um programa de aquisições em um setor pulverizado. O controle permanece com os atuais acionistas.
+| Componente | Faixa |
+| --- | --- |
+| Crédito estruturado | R$ 280 milhões, com garantias reais |
+| Equity primário (minoritário) | R$ 120–160 milhões, até 25% do capital |
+| Valor da firma (referência) | 7,4x a 8,5x EBITDA |
+
+Os recursos destinam-se ao refinanciamento de dívida de curto prazo, à expansão da segunda planta e ao programa de aquisições bolt-on.
 
 ## Perfil de investidor buscado
 
-Fundos com tese industrial e apetite para consolidação, family offices em busca de ativos reais com fluxo previsível e investidores institucionais para a tranche de crédito.
+Fundos com tese industrial e apetite para consolidação, family offices em busca de ativos reais com fluxo previsível e investidores institucionais para a tranche de crédito estruturado.
 
 ## Próximos passos
 
-Contrapartes qualificadas podem solicitar o Confidential Information Memorandum mediante assinatura de acordo de confidencialidade junto à assessoria responsável.`
+Contrapartes qualificadas podem solicitar o Confidential Information Memorandum (CIM) e o acesso ao data room mediante assinatura de NDA junto à assessoria responsável.`
 
 O.sell_side_pitchbook = `# Pitchbook — Projeto Cobalto
 
-Sinterra Especialidades Químicas S.A. Material confidencial para uso restrito de potenciais investidores.
+Sinterra Especialidades Químicas S.A. Material confidencial para uso restrito de potenciais investidores e credores qualificados.
 
-## Visão geral da companhia
+## 1. Sumário executivo
 
-Fundada em 2009 e sediada em Jundiaí, a Sinterra fabrica aditivos e resinas de performance para os mercados de tintas, adesivos e tratamento de água. Opera duas plantas, em Jundiaí (SP) e Camaçari (BA), com cerca de 520 colaboradores, e atende aproximadamente 380 clientes industriais.
+A Sinterra é uma fabricante de aditivos e resinas de performance para os mercados de tintas, adesivos e tratamento de água, com quinze anos de operação, duas plantas industriais (Jundiaí/SP e Camaçari/BA) e posição entre as cinco maiores do nicho de especialidades de alta especificação no Brasil. Fechou 2025 com receita líquida de R$ 487,3 milhões e EBITDA ajustado de R$ 108,1 milhões (margem de 22,2%), após cinco anos de expansão consecutiva de receita e margem.
 
-## Destaques do investimento
+O Projeto Cobalto estrutura uma captação de R$ 280 milhões em crédito estruturado e avalia a entrada de um sócio minoritário (R$ 120–160 milhões), com dois objetivos: alongar e baratear o endividamento atual e financiar a expansão de Camaçari e um programa de aquisições em um setor pulverizado.
+
+## 2. Visão geral da companhia
+
+Fundada em 2009 e sediada em Jundiaí (SP), a Sinterra desenvolve formulações proprietárias e mantém laboratório de P&D dedicado ao atendimento técnico sob especificação.
+
+| Perfil | |
+| --- | --- |
+| Fundação | 2009 |
+| Sede | Jundiaí (SP) |
+| Plantas | Jundiaí (SP) e Camaçari (BA) |
+| Colaboradores | ~520 |
+| Clientes ativos | ~380 |
+| Segmento | Especialidades químicas de performance |
+
+## 3. Destaques do investimento
 
 - Nicho técnico defensável, com poder de repasse de preço e baixo risco de substituição.
-- Margem EBITDA de 22%, acima da média de químicos de commodity e em expansão.
-- Crescimento composto de 14% ao ano com alavancagem conservadora.
-- Vetor de crescimento estrutural na frente de saneamento.
+- Margem EBITDA de 22,2%, acima da média de químicos de commodity e em expansão há cinco anos.
+- Crescimento composto de 14,2% ao ano (2021–2025) com alavancagem conservadora (1,8x).
+- 40% da receita vinculada a formulações sob especificação, sustentando contratos de longo prazo.
+- Vetor de crescimento estrutural na frente de saneamento (marco regulatório, universalização até 2033).
 - Plataforma pronta para consolidação, com pipeline de quatro alvos mapeado.
+- ROIC de 16,8% em 2025, acima do custo de capital.
 
-## Modelo de negócio
+## 4. Modelo de negócio e portfólio
 
-A receita se divide em três linhas: aditivos para tintas (54%), resinas para adesivos (28%) e insumos para tratamento de água (18%). Cerca de 40% do faturamento passa por formulações desenvolvidas sob especificação, o que eleva o custo de troca e sustenta contratos de longo prazo.
+A receita se divide em três linhas. Cerca de 40% do faturamento passa por formulações desenvolvidas sob especificação do cliente, o que eleva o custo de troca. Os dez maiores clientes respondem por 48% da receita, com relacionamento médio superior a oito anos.
 
-## Desempenho financeiro
-
-| R$ milhões | 2023 | 2024 | 2025 |
+| Linha de produto | Receita | Margem relativa | Dinâmica |
 | --- | --- | --- | --- |
-| Receita líquida | 388,2 | 431,0 | 487,3 |
-| EBITDA ajustado | 78,0 | 89,3 | 108,1 |
-| Margem EBITDA | 20,1% | 20,7% | 22,2% |
-| Dívida líquida / EBITDA | 2,4x | 2,1x | 1,8x |
+| Aditivos para tintas | 54% | Alta | Estável, base de caixa |
+| Resinas para adesivos | 28% | Média-alta | Crescimento moderado |
+| Tratamento de água | 18% | Alta | Maior crescimento (saneamento) |
 
-No cenário base, a projeção aponta receita de R$ 815 milhões e EBITDA de R$ 184 milhões em 2030, com margem estável em torno de 22,6%.
+## 5. Desempenho financeiro
 
-## Mercado e posicionamento
+| R$ milhões | 2021 | 2022 | 2023 | 2024 | 2025 |
+| --- | --- | --- | --- | --- | --- |
+| Receita líquida | 286,4 | 331,9 | 388,2 | 431,0 | 487,3 |
+| Lucro bruto | 100,2 | 119,5 | 143,6 | 162,9 | 185,2 |
+| Margem bruta | 35,0% | 36,0% | 37,0% | 37,8% | 38,0% |
+| EBITDA ajustado | 51,8 | 64,0 | 78,0 | 89,3 | 108,1 |
+| Margem EBITDA aj. | 18,1% | 19,3% | 20,1% | 20,7% | 22,2% |
+| Dívida líquida / EBITDA | — | — | 2,4x | 2,1x | 1,8x |
+| ROIC | — | — | 14,1% | 15,3% | 16,8% |
 
-Mercado endereçável de especialidades químicas em crescimento acima do PIB industrial. A Sinterra figura entre as cinco maiores fabricantes nacionais do nicho de aditivos de performance, com participação estimada de 9% no mercado endereçável.
+Ajustes ao EBITDA de 2025 (não recorrentes): R$ 3,8 M de rescisões, R$ 2,1 M de consultoria de implantação de ERP e R$ 1,7 M de perda com cliente em recuperação judicial. A dívida líquida encerrou 2025 em R$ 188 milhões; o ciclo de caixa de 71 dias oferece cerca de R$ 22 milhões de capital de giro liberável via gestão coordenada de compras entre as plantas.
 
-## Estratégia de crescimento
+## 6. Projeções (cenário base)
 
-O plano combina crescimento orgânico, com a expansão de Camaçari e a linha de saneamento, e um programa de aquisições bolt-on. O pipeline atual reúne quatro alvos regionais, com EBITDA somado de R$ 31 milhões e múltiplo médio de entrada de 5,5x, abaixo do múltiplo da plataforma.
+| R$ milhões | 2025 | 2030E |
+| --- | --- | --- |
+| Receita líquida | 487,3 | 815 |
+| EBITDA ajustado | 108,1 | 184 |
+| Margem EBITDA | 22,2% | ~22,6% |
 
-## Governança
+As projeções assumem crescimento orgânico das três linhas, ramp-up da expansão de Camaçari na frente de saneamento e contribuição parcial do programa de aquisições. Não incorporam sinergias plenas dos alvos de M&A.
 
-O controle é detido por uma holding familiar (72%), com fundo de private equity minoritário (21%) e executivos no plano de participação (7%). A constituição de um conselho de administração formal está prevista como parte da operação.
+## 7. Mercado e posicionamento
 
-## Estrutura proposta e valuation
+O mercado brasileiro de especialidades químicas movimenta cerca de R$ 90 bilhões ao ano e cresce acima do PIB industrial. A Sinterra figura entre as cinco maiores fabricantes nacionais do nicho de aditivos de performance, com participação estimada de 9% no mercado endereçável.
 
-| Componente | Faixa |
+| Comparável | Perfil | EV/EBITDA | Margem EBITDA |
+| --- | --- | --- | --- |
+| Comparável I | Especialidades, listada LatAm | 9,2x | 23% |
+| Comparável II | Aditivos de performance, global | 8,4x | 21% |
+| Comparável III | Química de revestimentos, Brasil | 7,1x | 19% |
+| Precedente A | M&A controle, 2024 | 8,8x | 22% |
+| Precedente B | M&A minoritário, 2023 | 6,5x | 18% |
+| Sinterra (implícito) | Projeto Cobalto | 8,0x | 22% |
+
+## 8. Tese de consolidação (M&A)
+
+O setor reúne dezenas de fabricantes regionais subescala, candidatos naturais a aquisições bolt-on. O pipeline atual reúne quatro alvos, com EBITDA somado de R$ 31 milhões e múltiplo médio de entrada de 5,5x — abaixo dos 8,0x da plataforma, o que cria arbitragem de múltiplo na consolidação.
+
+## 9. Valuation
+
+| Metodologia | Faixa de EV |
 | --- | --- |
-| Crédito estruturado | R$ 280 milhões |
+| Múltiplos de mercado (7,4x–8,5x EBITDA 2025) | R$ 760–870 milhões |
+| Fluxo de caixa descontado (WACC 13,5%, g 4,0%) | R$ 815 milhões (cenário base) |
+
+Descontada a dívida líquida de R$ 188 milhões, o valor do equity situa-se entre R$ 572 e R$ 682 milhões.
+
+## 10. Estrutura proposta da transação
+
+| Componente | Termos |
+| --- | --- |
+| Crédito estruturado | R$ 280 M, debêntures ou CRI, duas séries, 7 anos, 2 de carência |
+| Garantias | Alienação fiduciária da planta de Jundiaí + cessão fiduciária de recebíveis |
+| Covenants | Dívida líquida/EBITDA ≤ 2,5x; DSCR mínimo de 1,5x |
 | Equity primário (minoritário) | R$ 120–160 M, até 25% do capital |
-| Valor da firma (referência) | R$ 760–870 M (7,4x a 8,5x EBITDA) |
 
-## Uso dos recursos
+Uso dos recursos: refinanciamento da dívida de curto prazo, expansão da planta de Camaçari (linha de saneamento) e capital para o programa de aquisições bolt-on.
 
-Refinanciamento da dívida de curto prazo, expansão da planta de Camaçari e capital para o programa de aquisições bolt-on.
+## 11. Governança e estrutura societária
 
-## Aviso
+| Acionista | Participação |
+| --- | --- |
+| Holding familiar (controladora) | 72% |
+| Fundo de private equity (minoritário) | 21% |
+| Executivos (plano de participação) | 7% |
 
-Material confidencial preparado exclusivamente para avaliação preliminar por investidores qualificados. As informações não foram objeto de auditoria independente e não constituem oferta de valores mobiliários.`
+A constituição de um conselho de administração formal, com membros independentes, está prevista como parte da operação.
+
+## 12. Riscos e mitigações
+
+| Risco | Impacto | Mitigação |
+| --- | --- | --- |
+| Concentração de clientes (10 maiores = 48%) | Perda do maior reduz EBITDA em ~R$ 14 M/ano | Formalização de contratos de longo prazo; diversificação via saneamento |
+| Matéria-prima importada (30%, atrelada ao petróleo) | Pressão de margem em ciclos de alta | Cláusulas de repasse; hedge cambial; dual sourcing |
+| Licença ambiental de Camaçari pendente | Atraso na expansão | Liberação da 2ª série condicionada à obtenção da licença |
+| Dois contratos por aditivo verbal | Risco de descontinuidade de receita | Renovação formal antes da emissão (prazo de 30–45 dias) |
+
+## 13. Próximos passos
+
+Disponibilização do data room e do Confidential Information Memorandum mediante NDA, sessões de Q&A com a administração, due diligence confirmatória e estruturação jurídica da emissão. Cronograma estimado de 60 a 90 dias até o closing da tranche de crédito.
+
+## 14. Aviso
+
+Material confidencial preparado exclusivamente para avaliação preliminar por investidores e credores qualificados. As informações não foram objeto de auditoria independente e não constituem oferta de valores mobiliários nos termos da regulamentação aplicável.`
 
 const MESA = {
   aprovacao: 'aprovado_com_ressalvas',
