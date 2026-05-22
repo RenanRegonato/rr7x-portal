@@ -330,6 +330,9 @@ export default function EscritoriosPage() {
       setNovoNome('')
       setShowNovo(false)
       carregarLista()
+    } else {
+      const d = await res.json().catch(() => ({}))
+      alert(d.error || 'Não foi possível criar o escritório. Tente novamente.')
     }
   }
 
