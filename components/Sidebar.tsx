@@ -37,6 +37,9 @@ export default function Sidebar({
     { id: 'invest-match', label: 'Invest Match', icon: 'handshake', href: '/dashboard/invest-match' },
     { id: 'escritorio',   label: 'Escritório',   icon: 'building',  href: '/dashboard/escritorio' },
     { id: 'benchmarks',   label: 'Benchmarks',   icon: 'doc',       href: '/dashboard/escritorio/benchmarks' },
+    ...(userRole === 'gerente' || userRole === 'admin'
+      ? [{ id: 'consumo', label: 'Consumo', icon: 'fileText', href: '/dashboard/consumo' } as NavItem]
+      : []),
     { id: 'planos',       label: 'Planos',       icon: 'sparkle',   href: '/dashboard/planos' },
     { id: 'conta',        label: 'Minha Conta',  icon: 'user',      href: '/dashboard/conta' },
   ]
