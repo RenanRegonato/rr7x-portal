@@ -1,15 +1,34 @@
+"use client";
+
 const WHATSAPP = "5514988220001";
 const MENSAGEM = "Olá! Estava no site da Mandor e gostaria de saber mais sobre a plataforma.";
 const HREF = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(MENSAGEM)}`;
 
 // Botão flutuante de WhatsApp, fixo no canto inferior direito.
 // Permanece visível durante toda a navegação/rolagem da página.
+//
+// Ao clicar, empurra o evento `whatsapp_click` para o dataLayer do GTM.
+// No GTM: criar um trigger "Custom Event" = whatsapp_click e disparar o tag do
+// Meta Pixel (evento Contact ou custom WhatsAppClick). A conversão personalizada
+// é criada no Meta Events Manager em cima desse evento.
 export default function WhatsAppFloat() {
+  function handleClick() {
+    if (typeof window === "undefined") return;
+    const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
+    w.dataLayer = w.dataLayer || [];
+    w.dataLayer.push({
+      event: "whatsapp_click",
+      click_location: "floating_button",
+      link_url: HREF,
+    });
+  }
+
   return (
     <a
       href={HREF}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={handleClick}
       aria-label="Falar no WhatsApp"
       title="Fale conosco no WhatsApp"
       className="fixed bottom-5 right-5 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-lg transition-transform hover:scale-110"
