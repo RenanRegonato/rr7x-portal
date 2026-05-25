@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase-server";
 
+// ISR: regenera a listagem a cada 60s para que posts novos apareçam sem redeploy.
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Blog — M&A, Crédito e Deal Intelligence",
   description:

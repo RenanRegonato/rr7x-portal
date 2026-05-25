@@ -5,6 +5,11 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { createAdminClient } from "@/lib/supabase-server";
 
+// ISR: páginas de artigo revalidam a cada 60s; slugs novos (não gerados no build)
+// renderizam on-demand e passam a aparecer sem redeploy manual.
+export const revalidate = 60;
+export const dynamicParams = true;
+
 type Post = {
   id: string;
   slug: string;
