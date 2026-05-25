@@ -14,7 +14,13 @@ const HREF = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(MENSAGEM)}`;
 export default function WhatsAppFloat() {
   function handleClick() {
     if (typeof window === "undefined") return;
-    const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
+    const w = window as unknown as {
+      dataLayer?: Record<string, unknown>[];
+      fbq?: (...args: unknown[]) => void;
+    };
+    // Meta Pixel: evento Contact (base da conversão personalizada do clique).
+    w.fbq?.("track", "Contact", { click_location: "floating_button" });
+    // dataLayer do GTM (caso queira gerenciar pelo GTM no futuro).
     w.dataLayer = w.dataLayer || [];
     w.dataLayer.push({
       event: "whatsapp_click",
