@@ -356,7 +356,7 @@ export default function LandingPage() {
       <section className="relative overflow-hidden lp-hero-bg">
         {/* Grid pattern */}
         <div className="absolute inset-0 hero-grid pointer-events-none" aria-hidden="true" />
-        {/* Glow orb 1 — top-right */}
+        {/* Glow orb 1 · top-right */}
         <div
           className="absolute pointer-events-none animate-glow-breathe"
           aria-hidden="true"
@@ -368,7 +368,7 @@ export default function LandingPage() {
             filter: "blur(40px)",
           }}
         />
-        {/* Glow orb 2 — bottom-left */}
+        {/* Glow orb 2 · bottom-left */}
         <div
           className="absolute pointer-events-none"
           aria-hidden="true"
@@ -453,7 +453,7 @@ export default function LandingPage() {
                 <div className="flex items-center justify-between px-5 py-3.5 border-b border-lp-border bg-lp-canvas">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#1655E8" }} />
-                    <span className="text-[11px] font-medium text-lp-ink-2 tracking-wide">Pipeline — Grupo Meridian S.A.</span>
+                    <span className="text-[11px] font-medium text-lp-ink-2 tracking-wide">Pipeline · Grupo Meridian S.A.</span>
                   </div>
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "#EDFAF4", color: "#14753B" }}>
                     Concluído
@@ -1277,7 +1277,7 @@ export default function LandingPage() {
                 iconBg: "#FEF8ED",
                 iconColor: "#D97706",
                 title: "Você decide quem vê o quê",
-                body: "Permissões por usuário e por área: equipe interna, analistas ou clientes — cada um acessa apenas o necessário.",
+                body: "Permissões por usuário e por área: equipe interna, analistas ou clientes, cada um acessa apenas o necessário.",
                 tag: "RBAC + permissões granulares",
               },
               {
