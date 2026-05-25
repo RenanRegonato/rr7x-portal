@@ -159,7 +159,15 @@ function NovaAnaliseInner() {
       const raw = localStorage.getItem(DRAFT_KEY)
       if (!raw) return
       const d = JSON.parse(raw)
-      if (d.form)     setForm(prev => ({ ...prev, ...d.form }))
+      // Restaura só campos que o formulário atual conhece. Rascunhos antigos
+      // podem conter campos já removidos (ex.: linkDocumentos, do antigo fluxo
+      // de Google Drive) que quebrariam a validação ao serem reenviados.
+      if (d.form) setForm(prev => {
+        const known = Object.fromEntries(
+          Object.entries(d.form as Record<string, unknown>).filter(([k]) => k in prev)
+        )
+        return { ...prev, ...known }
+      })
       if (d.objetivos) setObjetivos(d.objetivos)
       if (d.step != null) setStep(d.step)
       setDraftRestored(true)
