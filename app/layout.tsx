@@ -26,11 +26,11 @@ const SITE_NAME = "Mandor";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — Deal Intelligence para M&A e Crédito Estruturado`,
+    default: `${SITE_NAME} · Deal Intelligence para M&A e Crédito Estruturado`,
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "10 especialistas em IA executando em paralelo. Diagnóstico financeiro completo de ativos em até 90 minutos — DRS, DRE normalizada, EBITDA ajustado, valuation, análise de M&A, estruturação de crédito, contratos, blind teaser e pitchbook.",
+    "10 especialistas em IA executando em paralelo. Diagnóstico financeiro completo de ativos em até 90 minutos: DRS, DRE normalizada, EBITDA ajustado, valuation, análise de M&A, estruturação de crédito, contratos, blind teaser e pitchbook.",
   keywords: [
     "M&A",
     "crédito estruturado",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — Deal Intelligence para M&A e Crédito Estruturado`,
+    title: `${SITE_NAME} · Deal Intelligence para M&A e Crédito Estruturado`,
     description:
       "10 especialistas em IA em paralelo. Diagnóstico completo de ativos em até 90 minutos.",
     images: [
@@ -62,13 +62,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Mandor — Deal Intelligence",
+        alt: "Mandor · Deal Intelligence",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} — Deal Intelligence`,
+    title: `${SITE_NAME} · Deal Intelligence`,
     description: "10 especialistas em IA. Diagnóstico completo em até 90 minutos.",
     images: ["/og-image.png"],
   },
@@ -140,7 +140,7 @@ const schemaOrg = {
     {
       "@type": "SoftwareApplication",
       "@id": `${SITE_URL}/#software`,
-      name: "Mandor — Deal Intelligence",
+      name: "Mandor · Deal Intelligence",
       applicationCategory: "BusinessApplication",
       applicationSubCategory: "Financial Analysis Software",
       operatingSystem: "Web",
