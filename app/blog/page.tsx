@@ -6,12 +6,12 @@ import { createAdminClient } from "@/lib/supabase-server";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Blog — M&A, Crédito e Deal Intelligence",
+  title: "Blog · M&A, Crédito e Deal Intelligence",
   description:
     "Artigos e insights sobre M&A, crédito estruturado, valuation, deal readiness e inteligência de deals para assessores e gestores de capital.",
   alternates: { canonical: "/blog" },
   openGraph: {
-    title: "Blog Mandor — M&A, Crédito e Deal Intelligence",
+    title: "Blog Mandor · M&A, Crédito e Deal Intelligence",
     description:
       "Insights sobre M&A, crédito estruturado, valuation e deal intelligence.",
     url: "/blog",

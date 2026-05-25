@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Termos de Uso | Mandor",
   description:
-    "Termos e condições de uso da plataforma Mandor — deal intelligence para M&A e crédito estruturado.",
+    "Termos e condições de uso da plataforma Mandor · deal intelligence para M&A e crédito estruturado.",
   alternates: { canonical: "/termos" },
 };
 

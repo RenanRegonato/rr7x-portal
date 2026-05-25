@@ -125,7 +125,7 @@ export default function ContatoPage() {
                     className="w-full border border-lp-border rounded-[10px] px-3 py-2.5 text-[13px] bg-lp-canvas outline-none transition-shadow focus:border-lp-accent focus:shadow-[0_0_0_3px_oklch(0.93_0.04_240)] text-lp-ink"
                   >
                     <option value="">Selecione o assunto…</option>
-                    <option value="Quero conhecer a Mandor — Solicitar demonstração">Solicitar demonstração</option>
+                    <option value="Quero conhecer a Mandor: Solicitar demonstração">Solicitar demonstração</option>
                     <option value="Dúvida sobre planos e preços">Dúvida sobre planos e preços</option>
                     <option value="Suporte técnico">Suporte técnico</option>
                     <option value="Parceria ou integração">Parceria ou integração</option>
@@ -205,7 +205,7 @@ export default function ContatoPage() {
                 {[
                   { label: "Política de Privacidade", href: "/privacidade" },
                   { label: "Termos de Uso", href: "/termos" },
-                  { label: "Blog — M&A e Deal Intelligence", href: "/blog" },
+                  { label: "Blog · M&A e Deal Intelligence", href: "/blog" },
                   { label: "Criar conta", href: "/auth/signup" },
                 ].map((l) => (
                   <li key={l.label}>

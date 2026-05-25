@@ -54,7 +54,7 @@ export default function PrivacidadePage() {
               A <strong>Mandor</strong>, operada pela <strong>RR7x Capital Hub</strong>, tem o compromisso de proteger
               a privacidade e a confidencialidade dos dados de seus usuários. Esta Política descreve quais dados
               coletamos, como os utilizamos e quais são os seus direitos conforme a Lei Geral de Proteção de Dados
-              (LGPD — Lei nº 13.709/2018) e demais normas aplicáveis.
+              (LGPD, Lei nº 13.709/2018) e demais normas aplicáveis.
             </p>
           </section>
 
@@ -123,7 +123,7 @@ export default function PrivacidadePage() {
               seguintes situações:
             </p>
             <ul>
-              <li><strong>Fornecedores de infraestrutura:</strong> Supabase (banco de dados e autenticação), Vercel (hospedagem) e Anthropic/OpenAI (processamento de IA) — todos sujeitos a contratos de processamento de dados e obrigações de confidencialidade.</li>
+              <li><strong>Fornecedores de infraestrutura:</strong> Supabase (banco de dados e autenticação), Vercel (hospedagem) e Anthropic/OpenAI (processamento de IA), todos sujeitos a contratos de processamento de dados e obrigações de confidencialidade.</li>
               <li><strong>Gateway de pagamento:</strong> processamento seguro de cobranças, sem acesso a dados de deal.</li>
               <li><strong>Obrigação legal:</strong> quando exigido por lei, regulação ou ordem judicial.</li>
               <li><strong>Proteção de direitos:</strong> para prevenir fraudes ou proteger a segurança da plataforma.</li>
@@ -141,7 +141,7 @@ export default function PrivacidadePage() {
               <li><strong>Isolamento por escritório:</strong> cada conta opera em ambiente isolado via Row Level Security (RLS). Nenhum outro usuário tem acesso aos seus dados.</li>
               <li><strong>Criptografia em repouso e em trânsito:</strong> todos os dados são criptografados no armazenamento e transmitidos via TLS 1.3.</li>
               <li><strong>Autenticação segura:</strong> suporte a autenticação em dois fatores (2FA), tokens JWT com expiração e bloqueio automático de tentativas suspeitas.</li>
-              <li><strong>Controle de acesso:</strong> permissões granulares por usuário — cada membro da equipe acessa apenas o que precisa.</li>
+              <li><strong>Controle de acesso:</strong> permissões granulares por usuário: cada membro da equipe acessa apenas o que precisa.</li>
               <li><strong>Logs de auditoria:</strong> registro completo de acessos e ações para rastreabilidade.</li>
               <li><strong>Backups regulares:</strong> cópias de segurança automatizadas com retenção configurável.</li>
             </ul>
