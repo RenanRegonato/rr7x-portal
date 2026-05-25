@@ -26,7 +26,7 @@ const MICRO_HINTS = [
 const ACCEPTED   = '.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg'
 const MAX_FILE_MB = 20
 const DRAFT_KEY     = 'otto-intake-draft'
-const DRAFT_VERSION = 3
+const DRAFT_VERSION = 4   // v4: descarta rascunhos com campos do antigo fluxo de Drive (linkDocumentos)
 
 // ─── Section & step definitions ───────────────────────────────────────────────
 
@@ -281,6 +281,12 @@ function NovaAnaliseInner() {
       informacoesAdicionais: form.resumoAtivo,
       lgpdConsentimento:     `Consentimento LGPD registrado em ${new Date().toISOString()} — dados processados por IA para análise de deal conforme LGPD art. 7º, inc. V (execução de contrato).`,
     }
+
+    // Defesa: o formulário não coleta mais linkDocumentos (era do antigo fluxo
+    // de Google Drive). Se ele ainda estiver no estado por causa de um rascunho
+    // restaurado, removemos antes de validar/enviar — senão um valor que não é
+    // URL barra o submit com "linkDocumentos: URL inválida".
+    delete (payload as Record<string, unknown>).linkDocumentos
 
     // Valida com o MESMO schema do backend antes de enviar. Sem isso, um e-mail
     // malformado ou um texto acima do limite passava pela validação por etapa e
