@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase'
 import Topbar from '@/components/Topbar'
 import { OttoInput, OttoTextarea, OttoSelect, Field } from '@/components/form-primitives'
 import { IconArrowRight, IconSparkle } from '@/components/Icons'
+import { AnaliseCreateSchema } from '@/lib/schemas'
+import { z } from 'zod'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -44,6 +46,56 @@ const SECTIONS = [
   { label: 'Mandato',      start: 1, end: 1 },
   { label: 'Ativo',        start: 2, end: 7 },
 ]
+
+// Mapeia cada campo do AnaliseCreateSchema para um rótulo legível e a etapa
+// onde ele é editado — usado para transformar o 400 genérico "Dados inválidos"
+// numa mensagem que aponta exatamente o que corrigir e onde.
+const FIELD_LABELS: Record<string, { label: string; step: number }> = {
+  nomeAtivo:             { label: 'Nome do ativo',                step: 2 },
+  tipoAtivo:             { label: 'Tipo de ativo',                step: 2 },
+  estagio:               { label: 'Estágio atual',                step: 3 },
+  localizacao:           { label: 'Localização (cidade/estado)',  step: 3 },
+  objetivo:              { label: 'Objetivo da operação',         step: 4 },
+  ticketEstimado:        { label: 'Ticket estimado',              step: 5 },
+  nivelInformacao:       { label: 'Nível de informação',          step: 5 },
+  operacaoEmAndamento:   { label: 'Operação em andamento',        step: 5 },
+  resumoAtivo:           { label: 'Tese do ativo',                step: 6 },
+  informacoesAdicionais: { label: 'Tese do ativo',                step: 6 },
+  nomeProprietario:      { label: 'Nome do proprietário',         step: 0 },
+  cpfCnpjProprietario:   { label: 'CPF / CNPJ do proprietário',   step: 0 },
+  telefoneProprietario:  { label: 'Telefone do proprietário',     step: 0 },
+  emailProprietario:     { label: 'Email do proprietário',        step: 0 },
+  obsProprietario:       { label: 'Observações do proprietário',  step: 0 },
+  assessorNome:          { label: 'Nome do assessor',             step: 1 },
+  assessorTelefone:      { label: 'Telefone do assessor',         step: 1 },
+  assessorEmail:         { label: 'Email do assessor',            step: 1 },
+  parceiroNome:          { label: 'Nome do parceiro',             step: 1 },
+  parceiroTelefone:      { label: 'Telefone do parceiro',         step: 1 },
+  parceiroEmail:         { label: 'Email do parceiro',            step: 1 },
+  obsMandato:            { label: 'Observações do mandato',       step: 1 },
+}
+
+const EMAIL_FIELDS = new Set(['emailProprietario', 'assessorEmail', 'parceiroEmail'])
+
+// Transforma os erros do Zod (cliente) numa frase única em PT, com campo + etapa.
+function describeIntakeErrors(error: z.ZodError): string {
+  const parts = error.issues.map(iss => {
+    const key   = String(iss.path[0] ?? '')
+    const info  = FIELD_LABELS[key]
+    const label = info?.label ?? key
+    let why = iss.message
+    if (iss.code === 'too_big' && 'maximum' in iss)   why = `muito longo (máximo ${iss.maximum} caracteres)`
+    else if (iss.code === 'too_small')                why = 'obrigatório'
+    else if (EMAIL_FIELDS.has(key))                   why = 'e-mail inválido'
+    else if (key === 'linkDocumentos')                why = 'URL inválida'
+    const where = info ? ` — etapa ${info.step + 1}` : ''
+    return `${label}: ${why}${where}`
+  })
+  const unique = Array.from(new Set(parts))
+  return unique.length === 1
+    ? `Não foi possível ativar. ${unique[0]}.`
+    : `Corrija os campos antes de ativar: ${unique.join('; ')}.`
+}
 
 // ─── Page (inner — needs useSearchParams) ────────────────────────────────────
 
@@ -213,10 +265,7 @@ function NovaAnaliseInner() {
   async function handleSubmit() {
     const err = validateStep()
     if (err) { setError(err); return }
-    setError('')
-    setLoading(true)
 
-    setLoadingLabel('Criando análise...')
     const payload = {
       ...form,
       objetivo:              objetivos.join(', '),
@@ -224,6 +273,19 @@ function NovaAnaliseInner() {
       informacoesAdicionais: form.resumoAtivo,
       lgpdConsentimento:     `Consentimento LGPD registrado em ${new Date().toISOString()} — dados processados por IA para análise de deal conforme LGPD art. 7º, inc. V (execução de contrato).`,
     }
+
+    // Valida com o MESMO schema do backend antes de enviar. Sem isso, um e-mail
+    // malformado ou um texto acima do limite passava pela validação por etapa e
+    // só era barrado no servidor com o 400 genérico "Dados inválidos".
+    const check = AnaliseCreateSchema.safeParse(payload)
+    if (!check.success) {
+      setError(describeIntakeErrors(check.error))
+      return
+    }
+
+    setError('')
+    setLoading(true)
+    setLoadingLabel('Criando análise...')
 
     const res  = await fetch('/api/analise', {
       method:  'POST',
@@ -233,7 +295,17 @@ function NovaAnaliseInner() {
     const data = await res.json()
 
     if (!res.ok) {
-      setError(data.error ?? 'Erro ao criar análise.')
+      // Se o backend devolveu detalhes de validação por campo, aponta qual.
+      const fieldErrors = data.details as Record<string, string[]> | undefined
+      let msg = data.error ?? 'Erro ao criar análise.'
+      if (fieldErrors && Object.keys(fieldErrors).length > 0) {
+        const parts = Object.entries(fieldErrors).map(([key, errs]) => {
+          const info = FIELD_LABELS[key]
+          return `${info?.label ?? key}${info ? ` (etapa ${info.step + 1})` : ''}: ${errs[0]}`
+        })
+        msg = `Corrija os campos: ${parts.join('; ')}.`
+      }
+      setError(msg)
       setLoading(false)
       setLoadingLabel('')
       return
