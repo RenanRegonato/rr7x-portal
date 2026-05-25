@@ -1,6 +1,13 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Cliente Resend instanciado de forma lazy: criado só na primeira vez que um
+// e-mail é enviado, nunca no carregamento do módulo. Evita que o `next build`
+// quebre quando RESEND_API_KEY não está presente no ambiente (ex.: preview).
+let _resend: Resend | null = null
+function getResend(): Resend {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY)
+  return _resend
+}
 // Fallback é um remetente de domínio VERIFICADO no Resend (rr7x.com.br) — não o
 // sandbox 'onboarding@resend.dev', que só entrega para o dono da conta. Assim os
 // e-mails do app chegam em clientes mesmo se RESEND_FROM_EMAIL não estiver setada.
@@ -16,7 +23,7 @@ export async function sendCompletionEmail(params: {
   baseUrl:     string
 }) {
   const url = `${params.baseUrl}/dashboard/analise/${params.analiseId}`
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      params.to,
     subject: `✅ Análise concluída — ${params.nomeAtivo}`,
@@ -47,7 +54,7 @@ export async function sendIngestionCompleteEmail(params: {
   const url = `${params.baseUrl}/dashboard/analise/${params.analiseId}`
   // Resend SDK retorna { data, error } sem throw. Checamos manualmente e propagamos
   // o erro pra cima pra que o caller possa lidar (logging, retry, etc).
-  const result = await resend.emails.send({
+  const result = await getResend().emails.send({
     from:    FROM,
     to:      params.to,
     subject: `📄 Documentos processados — ${params.nomeAtivo}`,
@@ -87,7 +94,7 @@ export async function sendDealMatchesEmail(params: {
     ? `<p style="color:#5a4e42;line-height:1.6"><strong>${params.autoAprovados}</strong> ${params.autoAprovados === 1 ? 'foi classificado' : 'foram classificados'} como aderência alta (score ≥ 85).</p>`
     : ''
 
-  const result = await resend.emails.send({
+  const result = await getResend().emails.send({
     from:    FROM,
     to:      params.to,
     subject: `🤝 ${params.totalMatches} ${plural} para ${params.nomeAtivo}`,
@@ -129,7 +136,7 @@ export async function sendContactEmail(params: {
   mensagem:   string
 }) {
   const assunto = params.assunto?.trim() || 'Contato via site — Mandor'
-  const result = await resend.emails.send({
+  const result = await getResend().emails.send({
     from:    FROM,
     to:      NOTIFY,
     replyTo: params.email,
@@ -167,7 +174,7 @@ export async function sendNewSignupNotification(params: {
   const titulo = params.tipo === 'escritorio'
     ? 'Novo escritório cadastrado'
     : 'Novo gestor cadastrado'
-  const result = await resend.emails.send({
+  const result = await getResend().emails.send({
     from:    FROM,
     to:      NOTIFY,
     replyTo: params.email,
@@ -201,7 +208,7 @@ export async function sendErrorNotification(params: {
   baseUrl:    string
 }) {
   const url = `${params.baseUrl}/dashboard/analise/${params.analiseId}`
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      ADMIN,
     subject: `⚠️ Erro no pipeline — ${params.nomeAtivo}`,

@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
 import { Resend } from 'resend'
 
-const resend   = new Resend(process.env.RESEND_API_KEY)
+// Cliente Resend lazy — instanciado só no envio, não no carregamento do módulo,
+// para o `next build` não quebrar quando RESEND_API_KEY falta (ex.: preview).
+let _resend: Resend | null = null
+function getResend(): Resend {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY)
+  return _resend
+}
 const FROM     = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
 
@@ -150,7 +156,7 @@ export async function POST(req: NextRequest) {
     recipientName: recipientName ?? recipientEmail.split('@')[0],
   })
 
-  const { data: emailData, error: emailError } = await resend.emails.send({
+  const { data: emailData, error: emailError } = await getResend().emails.send({
     from:    FROM,
     to:      [recipientEmail],
     replyTo: escritorioEmail ? [escritorioEmail] : undefined,
