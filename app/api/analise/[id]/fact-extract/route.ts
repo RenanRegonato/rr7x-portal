@@ -4,6 +4,7 @@ import { canAccessAnalise, getUserContext } from '@/lib/get-role'
 import { audit, extractIp } from '@/lib/audit'
 import { extractFacts } from '@/lib/agents/fact-extractor'
 import { upsertFact } from '@/lib/truth-layer'
+import { isInternalCall } from '@/lib/internal-auth'
 
 // Dispara extração de fatos a partir do output do drive_intake.
 // Idempotente: se já rodou, retorna 200 sem re-executar (a menos que ?force=1).
@@ -11,12 +12,30 @@ import { upsertFact } from '@/lib/truth-layer'
 export const maxDuration = 300
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+  // Chamada server-to-server do orquestrador Inngest pula auth de usuário.
+  const internal = isInternalCall(req)
 
-  const ctx = await getUserContext()
-  if (!ctx) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+  let userId: string | null = null
+  if (!internal) {
+    const supabase = await createServerSupabaseClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    userId = user.id
+
+    const ctx = await getUserContext()
+    if (!ctx) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+
+    const { id: analiseIdAuth } = await params
+    const admin0 = createAdminClient()
+    const { data: a0 } = await admin0
+      .from('analises')
+      .select('user_id')
+      .eq('id', analiseIdAuth)
+      .maybeSingle()
+    if (!a0) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
+    const podeAcessar = await canAccessAnalise(ctx, a0.user_id)
+    if (!podeAcessar) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+  }
 
   const { id: analiseId } = await params
   const force = req.nextUrl.searchParams.get('force') === '1'
@@ -30,9 +49,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     .maybeSingle()
 
   if (!analise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
-
-  const podeAcessar = await canAccessAnalise(ctx, analise.user_id)
-  if (!podeAcessar) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
 
   // Idempotência: se já extraiu e não é force, devolve já
   if (analise.facts_extracted_at && !force) {
@@ -114,7 +130,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   void audit({
     event:    'fact.extracted',
-    userId:   user.id,
+    userId,
     targetId: analiseId,
     metadata: {
       facts_count: result.facts.length,

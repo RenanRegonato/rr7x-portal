@@ -4,6 +4,7 @@ import { processDocument } from '@/lib/ingestion/process-document'
 import { consolidateFactBank } from '@/lib/ingestion/consolidate-fact-bank'
 import { runMatching, runReverseMatching } from '@/lib/invest-match/matching-engine'
 import { notifyAssessorOfMatches } from '@/lib/invest-match/notify'
+import { runAnalysisPipeline } from '@/lib/analise/run-pipeline'
 
 // Cada step do Inngest é uma request HTTP serverless. Steps como extract-text
 // (com OCR Mistral em PDFs grandes) e embed-chunks (várias chamadas Voyage)
@@ -85,8 +86,26 @@ export const reverseMatchingFn = inngest.createFunction(
   },
 )
 
+// Função 5: orquestra o pipeline de análise multi-agente 100% server-side.
+// Substitui o antigo runPipeline() que rodava no navegador do dono. Cada agente
+// é um step.run() — durável e com retry. A página vira apenas viewer (polling).
+export const runAnalysisPipelineFn = inngest.createFunction(
+  {
+    id:          'run-analysis-pipeline',
+    name:        'Run multi-agent analysis pipeline server-side',
+    triggers:    [{ event: 'analise/pipeline.run_requested' }],
+    concurrency: { limit: 3 }, // até 3 análises simultâneas
+    retries:     2,
+  },
+  async ({ event, step, logger }) => {
+    const { analiseId } = event.data as { analiseId: string }
+    logger.info('Running analysis pipeline', { analiseId })
+    return await runAnalysisPipeline({ analiseId, step, logger })
+  },
+)
+
 // signingKey lido automaticamente de INNGEST_SIGNING_KEY env var
 export const { GET, POST, PUT } = serve({
   client:    inngest,
-  functions: [processDocumentFn, consolidateFactBankFn, runThesisMatchingFn, reverseMatchingFn],
+  functions: [processDocumentFn, consolidateFactBankFn, runThesisMatchingFn, reverseMatchingFn, runAnalysisPipelineFn],
 })

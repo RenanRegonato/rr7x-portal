@@ -23,6 +23,11 @@ export type Events = {
       analiseId: string
     }
   }
+  'analise/pipeline.run_requested': {
+    data: {
+      analiseId: string
+    }
+  }
   'invest-match/thesis.created': {
     data: {
       teseId:    string

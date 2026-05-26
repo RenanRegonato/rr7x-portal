@@ -1,6 +1,7 @@
 import { anthropic, MODEL as SONNET_MODEL } from '@/lib/anthropic'
 import { createAdminClient } from '@/lib/supabase-server'
 import { sendIngestionCompleteEmail } from '@/lib/email'
+import { inngest } from '@/lib/inngest'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Step = any
@@ -247,6 +248,14 @@ async function persistFactBank(
       console.error('[consolidate-fact-bank] resend failed:', err)
       return { status: 'failed', reason: 'resend_error', error: err.message, to: email, from: process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev' }
     }
+  })
+
+  // Dispara o pipeline de análise multi-agente server-side (Inngest). Antes isso
+  // era dirigido pelo navegador do dono; agora roda no servidor e qualquer viewer
+  // autorizado acompanha o progresso por polling.
+  await step.run('kickoff-analysis-pipeline', async () => {
+    await inngest.send({ name: 'analise/pipeline.run_requested', data: { analiseId } })
+    return { ok: true, analiseId }
   })
 
   return { ok: true, fact_bank: factBank }

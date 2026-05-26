@@ -10,6 +10,7 @@ import { getFactBankForAgent, formatFactBankForPrompt } from '@/lib/fact-bank-fo
 import { listBenchmarks, formatBenchmarksForPrompt } from '@/lib/benchmarks'
 import { parseClaims, persistClaims, CLAIMS_DIRECTIVE } from '@/lib/claims'
 import { isEarlyStage, EARLY_STAGE_DIRETRIZ_AGENTE, EARLY_STAGE_RESSALVA } from '@/lib/early-stage'
+import { isInternalCall } from '@/lib/internal-auth'
 
 // Steps que recebem extended thinking para raciocínio financeiro mais profundo
 const THINKING_STEPS = new Set(['diagnostico', 'analise_ma', 'estruturacao'])
@@ -707,9 +708,22 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const admin = createAdminClient()
   let step = 'desconhecido'
   try {
-    const supabase = await createServerSupabaseClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    // Chamada server-to-server do orquestrador Inngest (header x-internal-token):
+    // pula a autenticação de usuário e usa o admin client. Para chamadas normais
+    // de usuário, mantém o auth de dono OU admin como antes.
+    const internal = isInternalCall(req)
+
+    if (!internal) {
+      const supabase = await createServerSupabaseClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+
+      const { data: authAnalise } = await admin.from('analises').select('user_id').eq('id', id).single()
+      if (!authAnalise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
+      if (authAnalise.user_id !== user.id && user.email !== ADMIN_EMAIL) {
+        return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+      }
+    }
 
     const body = await req.json() as { step: string; regeneracao_id?: string }
     step = body.step
@@ -717,9 +731,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const { data: analise } = await admin.from('analises').select('*').eq('id', id).single()
     if (!analise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
-    if (analise.user_id !== user.id && user.email !== ADMIN_EMAIL) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
-    }
 
     const intake = analise.deal_intake as Record<string, string>
     const outputs = (analise.outputs ?? {}) as Record<string, string>

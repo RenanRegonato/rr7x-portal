@@ -4,6 +4,7 @@ import { canAccessAnalise, getUserContext } from '@/lib/get-role'
 import { detectarSindromes, type Sindrome } from '@/lib/agents/sentinela'
 import { getFacts, formatTruthLayer } from '@/lib/truth-layer'
 import { audit, extractIp } from '@/lib/audit'
+import { isInternalCall } from '@/lib/internal-auth'
 
 export const maxDuration = 300
 
@@ -38,12 +39,8 @@ function severidadeIssue(sev: Sindrome['severidade']): 'bloqueante' | 'alerta' |
 
 // POST /api/analise/[id]/risk-correlation
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
-
-  const ctx = await getUserContext()
-  if (!ctx) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+  // Chamada server-to-server do orquestrador Inngest pula auth de usuário.
+  const internal = isInternalCall(req)
 
   const { id: analiseId } = await params
   const admin = createAdminClient()
@@ -56,8 +53,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   if (!analise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
 
-  const podeAcessar = await canAccessAnalise(ctx, analise.user_id)
-  if (!podeAcessar) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+  let userId: string | null = null
+  if (!internal) {
+    const supabase = await createServerSupabaseClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    userId = user.id
+
+    const ctx = await getUserContext()
+    if (!ctx) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+
+    const podeAcessar = await canAccessAnalise(ctx, analise.user_id)
+    if (!podeAcessar) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+  }
 
   const outputs = (analise.outputs ?? {}) as Record<string, string>
   const intake  = (analise.deal_intake ?? {}) as Record<string, string>
@@ -119,7 +127,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   void audit({
     event:    'risk.correlation_run',
-    userId:   user.id,
+    userId,
     targetId: analiseId,
     metadata: {
       total: result.sindromes.length,

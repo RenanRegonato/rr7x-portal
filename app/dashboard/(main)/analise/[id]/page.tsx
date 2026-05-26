@@ -202,6 +202,7 @@ export default function AnalisePage() {
 
   const pipelineStarted  = useRef(false)
   const startTime        = useRef(Date.now())
+  const pollRef          = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Ingestão assíncrona (Fase 13): pipeline só inicia quando fact_bank está pronto.
   // Se a análise foi criada antes da Fase 13 (sem ingest disparado), status fica 'idle'
@@ -220,116 +221,6 @@ export default function AnalisePage() {
     const t = setInterval(() => setElapsed((e) => e + 1), 1000)
     return () => clearInterval(t)
   }, [status])
-
-  async function runConsistencyCheck(): Promise<void> {
-    addLog('Consistency Engine', 'Validando coerência entre agentes...')
-    try {
-      const r = await fetch(`/api/analise/${id}/consistency-check`, { method: 'POST' })
-      if (!r.ok) {
-        addLog('Consistency Engine', '⚠ Falha na checagem (prosseguindo)')
-        return
-      }
-      const d = await r.json()
-      const { bloqueante = 0, alerta = 0, info = 0 } = d.por_severidade ?? {}
-      if (bloqueante + alerta + info === 0) {
-        addLog('Consistency Engine', '✓ Nenhuma inconsistência detectada')
-      } else {
-        const parts = []
-        if (bloqueante > 0) parts.push(`${bloqueante} bloqueante${bloqueante === 1 ? '' : 's'}`)
-        if (alerta     > 0) parts.push(`${alerta} alerta${alerta === 1 ? '' : 's'}`)
-        if (info       > 0) parts.push(`${info} info`)
-        addLog('Consistency Engine', `⚠ ${parts.join(', ')} detectado${d.total === 1 ? '' : 's'} — ver aba Consistência`)
-      }
-    } catch (err) {
-      console.error('[consistency]', err)
-      addLog('Consistency Engine', '⚠ Erro na checagem')
-    }
-  }
-
-  async function runRiskCorrelation(): Promise<void> {
-    addLog('Sentinela de Riscos', 'Detectando síndromes cross-dimensionais...')
-    try {
-      const r = await fetch(`/api/analise/${id}/risk-correlation`, { method: 'POST' })
-      if (!r.ok) {
-        addLog('Sentinela de Riscos', '⚠ Falha (prosseguindo)')
-        return
-      }
-      const d = await r.json()
-      if ((d.total ?? 0) === 0) {
-        addLog('Sentinela de Riscos', '✓ Nenhuma síndrome cross-dimensional detectada')
-      } else {
-        addLog('Sentinela de Riscos', `⚠ ${d.total} síndrome${d.total === 1 ? '' : 's'} detectada${d.total === 1 ? '' : 's'} — ver aba Consistência`)
-      }
-    } catch (err) {
-      console.error('[risk-correlation]', err)
-    }
-  }
-
-  async function runCoverageCheck(): Promise<void> {
-    addLog('Coverage Validator', 'Validando cobertura da checklist obrigatória...')
-    try {
-      const r = await fetch(`/api/analise/${id}/coverage-check`, { method: 'POST' })
-      if (!r.ok) {
-        addLog('Coverage Validator', '⚠ Falha (prosseguindo)')
-        return
-      }
-      const d = await r.json()
-      const { coberto = 0, parcial = 0, nao_coberto = 0 } = d.coverage_check?.resumo ?? {}
-      const total = coberto + parcial + nao_coberto
-      if (nao_coberto === 0 && parcial === 0) {
-        addLog('Coverage Validator', `✓ Cobertura completa (${coberto}/${total} itens)`)
-      } else {
-        const parts = []
-        if (nao_coberto > 0) parts.push(`${nao_coberto} não coberto${nao_coberto === 1 ? '' : 's'}`)
-        if (parcial     > 0) parts.push(`${parcial} parcial${parcial === 1 ? 'l' : 'is'}`)
-        addLog('Coverage Validator', `⚠ ${parts.join(', ')} de ${total} itens — ver aba Cobertura`)
-      }
-    } catch (err) {
-      console.error('[coverage-check]', err)
-    }
-  }
-
-  async function runMesaRevisao(): Promise<void> {
-    addLog('Mesa Consolidadora', 'Revisor final institucional analisando...')
-    try {
-      const r = await fetch(`/api/analise/${id}/mesa-revisao`, { method: 'POST' })
-      if (!r.ok) {
-        addLog('Mesa Consolidadora', '⚠ Falha (prosseguindo sem veredito)')
-        return
-      }
-      const d = await r.json()
-      const ap = d.mesa_revisao?.aprovacao ?? 'desconhecido'
-      const map: Record<string, string> = {
-        aprovado:                '✓ APROVADO',
-        aprovado_com_ressalvas:  '⚠ APROVADO COM RESSALVAS',
-        revisao_necessaria:      '⛔ REVISÃO NECESSÁRIA',
-      }
-      addLog('Mesa Consolidadora', map[ap] ?? `veredito: ${ap}`)
-    } catch (err) {
-      console.error('[mesa-revisao]', err)
-    }
-  }
-
-  async function runFactExtraction(): Promise<void> {
-    addLog('Fact Extractor', 'Extraindo fatos consolidados da ingestão...')
-    try {
-      const r = await fetch(`/api/analise/${id}/fact-extract`, { method: 'POST' })
-      if (!r.ok) {
-        const d = await r.json().catch(() => ({}))
-        addLog('Fact Extractor', `⚠ Falhou: ${d.error ?? 'erro desconhecido'} (prosseguindo)`)
-        return
-      }
-      const d = await r.json()
-      if (d.ja_extraido) {
-        addLog('Fact Extractor', '↩ Fatos já extraídos previamente')
-      } else {
-        addLog('Fact Extractor', `✓ ${d.facts_count ?? 0} fato${d.facts_count === 1 ? '' : 's'} consolidados`)
-      }
-    } catch (err) {
-      console.error('[fact-extract]', err)
-      addLog('Fact Extractor', '⚠ Erro ao extrair fatos (prosseguindo sem truth layer)')
-    }
-  }
 
   async function runStep(step: string, regeneracaoId?: string): Promise<string> {
     setRunningSteps((prev) => new Set([...prev, step]))
@@ -372,77 +263,61 @@ export default function AnalisePage() {
     }
   }
 
-  async function runPipeline(startingOutputs: Record<string, string> = {}, objetivo?: string) {
-    if (pipelineStarted.current) return
+  // ── Pipeline agora roda 100% server-side (Inngest) ──────────────────────────
+  // Esta página apenas (a) garante que o pipeline server-side está rodando
+  // disparando /run UMA vez, e (b) faz polling de analise-status pra refletir
+  // status + outputs conforme cada agente conclui no servidor. Não dirige mais
+  // a sequência no navegador (não é mais frágil a F5/troca de aba), e o gestor
+  // também consegue acompanhar (sem 403).
+
+  // Garante o pipeline server-side rodando — dispara /run só uma vez por montagem.
+  async function ensureServerPipeline(mode: 'continuar' | 'reprocessar' = 'continuar') {
+    if (pipelineStarted.current && mode === 'continuar') return
     pipelineStarted.current = true
-
-    const runMA        = isMAActive(objetivo)
-    const runEstrutura = isEstruturaActive(objetivo)
-
-    async function maybeRun(step: string): Promise<string> {
-      if (startingOutputs[step]) {
-        const agent = [...AGENTS, INTAKE_AGENT].find((a) => a.key === step)
-        addLog(agent?.name ?? step, '↩ Retomando output anterior')
-        setActiveAgent(step)
-        return startingOutputs[step]
-      }
-      return runStep(step)
-    }
-
     try {
-      await maybeRun('drive_intake')
-      // Truth Layer (Fase 6): após ingestão, extrai fatos estruturados
-      // para que todos os agentes downstream consultem antes de afirmar
-      // disponibilidade documental ou citar números.
-      await runFactExtraction()
-      await maybeRun('orchestration')
-
-      // Wave 1: roda SEQUENCIAL (antes era Promise.all paralelo). Disparar os 4
-      // steps ao mesmo tempo gerava 4 chamadas /step simultâneas — cada uma com
-      // várias queries + chamada ao Claude — sobrecarregando o pool de conexões /
-      // limites do workspace e derrubando steps com 500 em deals grandes.
-      // Sequencial é mais lento, porém confiável.
-      await maybeRun('pesquisa')
-      await maybeRun('diagnostico')
-      await maybeRun('kyc')
-      await maybeRun('contratos')
-
-      // Wave 2: agentes que precisam ver outputs da Wave 1 (cross-reading via
-      // CROSS_READING_DEPS no /step). Também sequencial, após a Wave 1.
-      if (runMA)        await maybeRun('analise_ma')
-      if (runEstrutura) await maybeRun('estruturacao')
-      await maybeRun('originacao')
-
-      await maybeRun('maturidade')
-
-      // Consistency Engine (Fase 9): regras determinísticas
-      await runConsistencyCheck()
-
-      // Sentinela de Riscos (Fase 10): síndromes cross-dimensionais via IA
-      await runRiskCorrelation()
-
-      // Coverage Validator (Fase 11): valida checklist obrigatória por tipo de operação
-      await runCoverageCheck()
-
-      // Mesa Consolidadora (Fase 10): revisor final institucional
-      // — lê todos outputs + issues + síndromes + cobertura e emite veredito
-      await runMesaRevisao()
-
-      // Documentos de captação: sequencial (mesmo motivo das waves acima).
-      await maybeRun('blind_teaser')
-      await maybeRun('sell_side_pitchbook')
-
-      await maybeRun('relatorio_consolidado')
-
-      await fetch(`/api/analise-status?id=${id}&concluir=1`)
-      setStatus('concluido')
-      setActiveTab('relatorio_consolidado')
+      await fetch(`/api/analise/${id}/run`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ mode }),
+      })
+      addLog('Orquestrador', mode === 'reprocessar' ? 'Pipeline reiniciado no servidor...' : 'Pipeline em execução no servidor...')
     } catch (err) {
-      console.error(err)
-      await fetch(`/api/analise-status?id=${id}&erro=1`)
-      setStatus('erro')
+      console.error('[run pipeline]', err)
     }
   }
+
+  // Polling: refaz analise-status periodicamente enquanto 'processando'.
+  // Atualiza status + outputs pra re-renderizar o progresso. Para quando concluir/erro.
+  function startPolling() {
+    if (pollRef.current) return
+    pollRef.current = setInterval(async () => {
+      try {
+        const r = await fetch(`/api/analise-status?id=${id}`)
+        if (!r.ok) return
+        const d = await r.json()
+        if (!d) return
+        setAnalise(d)
+        const nextOutputs = (d.outputs ?? {}) as Record<string, string>
+        setOutputs(nextOutputs)
+        if (d.status && d.status !== 'processando') {
+          setStatus(d.status)
+          if (d.status === 'concluido') setActiveTab('relatorio_consolidado')
+          stopPolling()
+        }
+      } catch (err) {
+        console.error('[poll status]', err)
+      }
+    }, 5000)
+  }
+
+  function stopPolling() {
+    if (pollRef.current) {
+      clearInterval(pollRef.current)
+      pollRef.current = null
+    }
+  }
+
+  useEffect(() => () => stopPolling(), [])
 
   async function reprocessar() {
     pipelineStarted.current = false
@@ -450,20 +325,19 @@ export default function AnalisePage() {
     setLogLines([])
     setElapsed(0)
     setStatus('processando')
-    await fetch(`/api/analise-status?id=${id}&reprocessar=1`)
     startTime.current = Date.now()
-    runPipeline({}, analise?.deal_intake?.objetivo)
+    await ensureServerPipeline('reprocessar')
+    startPolling()
   }
 
   async function continuar() {
-    const currentOutputs = outputs
     pipelineStarted.current = false
     setLogLines([])
     setElapsed(0)
     setStatus('processando')
-    await fetch(`/api/analise-status?id=${id}&continuar=1`)
     startTime.current = Date.now()
-    runPipeline(currentOutputs, analise?.deal_intake?.objetivo)
+    await ensureServerPipeline('continuar')
+    startPolling()
   }
 
   async function reprocessStep(step: string) {
@@ -479,18 +353,18 @@ export default function AnalisePage() {
     let pollTimer: ReturnType<typeof setTimeout> | null = null
 
     async function checkIngestionAndMaybeRun(data: { status: string; deal_intake?: { objetivo?: string }; outputs?: Record<string, string> }) {
-      const existing = (data.outputs ?? {}) as Record<string, string>
-
-      // Retoma o pipeline ao abrir a página — inclusive a partir de 'erro'.
-      // O pipeline roda no navegador; se a aba foi interrompida (F5/fechou) ou
-      // um step falhou, a análise fica travada exigindo "Reprocessar" manual.
-      // Aqui ela CONTINUA sozinha de onde parou: steps já concluídos vêm de
-      // `outputs` (maybeRun os reaproveita) e só os faltantes rodam de novo.
+      // O pipeline roda 100% server-side (Inngest). Ao abrir a página:
+      // - 'processando': garante que o pipeline server-side está rodando (dispara
+      //   /run UMA vez — idempotente: o orquestrador pula steps já concluídos) e
+      //   começa o polling de status pra refletir o progresso. Resiliente a
+      //   F5/troca de aba e visível pro gestor (sem 403).
+      // - 'erro': NÃO auto-dispara; a tela de erro oferece os botões
+      //   Continuar/Reprocessar (que chamam /run explicitamente).
       function maybeResume() {
-        if (data.status === 'processando' || data.status === 'erro') {
-          if (data.status === 'erro') setStatus('processando')
+        if (data.status === 'processando') {
           startTime.current = Date.now()
-          runPipeline(existing, data.deal_intake?.objetivo)
+          void ensureServerPipeline('continuar')
+          startPolling()
         }
       }
 

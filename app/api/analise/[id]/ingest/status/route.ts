@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
+import { canAccessAnalise, getUserContext } from '@/lib/get-role'
 
 /**
  * Retorna o progresso da ingestão assíncrona pra polling no frontend.
@@ -14,6 +15,9 @@ export async function GET(
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+
+  const ctx = await getUserContext()
+  if (!ctx) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
   const admin = createAdminClient()
 
@@ -33,7 +37,11 @@ export async function GET(
     .single()
 
   if (!analise) return NextResponse.json({ error: 'Não encontrada' }, { status: 404 })
-  if (analise.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+  // Permite que viewers autorizados (dono, gestor do escritório, admin) acompanhem
+  // o progresso — necessário agora que o pipeline roda server-side e o gestor
+  // também faz polling. Antes era estritamente o dono (403 pro gestor).
+  const podeAcessar = await canAccessAnalise(ctx, analise.user_id)
+  if (!podeAcessar) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
 
   // Lista status individual dos docs (útil pra mostrar quais já terminaram)
   const { data: docs } = await admin

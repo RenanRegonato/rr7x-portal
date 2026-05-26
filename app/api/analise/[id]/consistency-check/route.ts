@@ -3,36 +3,44 @@ import { createAdminClient, createServerSupabaseClient } from '@/lib/supabase-se
 import { canAccessAnalise, getUserContext } from '@/lib/get-role'
 import { runConsistencyCheck } from '@/lib/consistency-engine'
 import { audit, extractIp } from '@/lib/audit'
+import { isInternalCall } from '@/lib/internal-auth'
 
 // POST /api/analise/[id]/consistency-check
 // Roda a engine de consistência e persiste issues.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
-
-  const ctx = await getUserContext()
-  if (!ctx) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+  // Chamada server-to-server do orquestrador Inngest pula auth de usuário.
+  const internal = isInternalCall(req)
 
   const { id: analiseId } = await params
   const admin = createAdminClient()
 
-  const { data: analise } = await admin
-    .from('analises')
-    .select('user_id')
-    .eq('id', analiseId)
-    .maybeSingle()
+  let userId: string | null = null
+  if (!internal) {
+    const supabase = await createServerSupabaseClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    userId = user.id
 
-  if (!analise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
+    const ctx = await getUserContext()
+    if (!ctx) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
-  const podeAcessar = await canAccessAnalise(ctx, analise.user_id)
-  if (!podeAcessar) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+    const { data: analise } = await admin
+      .from('analises')
+      .select('user_id')
+      .eq('id', analiseId)
+      .maybeSingle()
+
+    if (!analise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
+
+    const podeAcessar = await canAccessAnalise(ctx, analise.user_id)
+    if (!podeAcessar) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+  }
 
   const result = await runConsistencyCheck(analiseId)
 
   void audit({
     event:    'consistency.checked',
-    userId:   user.id,
+    userId,
     targetId: analiseId,
     metadata: {
       total:           result.total,
