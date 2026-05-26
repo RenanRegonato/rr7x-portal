@@ -395,15 +395,20 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
 
   // Benchmark Registry (Fase 7): parâmetros de mercado para validação quantitativa.
   // Cacheado globalmente (mesmos benchmarks pra todas análises) → cache hit alto.
+  // Sem cache_control próprio: a Anthropic limita a 4 blocos com cache_control no
+  // total. Este bloco ainda é cacheado por estar dentro do prefixo coberto pelo
+  // breakpoint do truth/prompt do agente. (humanizer mantém o seu p/ hit global.)
   const benchmarksBlk: SystemBlock | null = benchmarksBlock
-    ? { type: 'text', text: benchmarksBlock, cache_control: { type: 'ephemeral', ttl: '1h' } }
+    ? { type: 'text', text: benchmarksBlock }
     : null
 
   // CLAIMS_DIRECTIVE (Fase 8): instrução para o agente emitir claims estruturados
   // ao final do output (bloco invisível parseado pelo sistema).
   // Cacheado globalmente — diretiva idêntica para todos os agentes analíticos.
+  // Sem cache_control próprio (limite de 4 blocos da Anthropic). Diretiva pequena;
+  // segue cacheada dentro do prefixo do truth/prompt do agente.
   const claimsBlock: SystemBlock | null = CLAIM_AGENTS.has(step)
-    ? { type: 'text', text: CLAIMS_DIRECTIVE, cache_control: { type: 'ephemeral', ttl: '1h' } }
+    ? { type: 'text', text: CLAIMS_DIRECTIVE }
     : null
 
   // Ordem: humanizer → benchmarks → claims directive → truth (por análise) → prompt do agente
@@ -853,6 +858,27 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
     // Todos os outros steps
     const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock, feedbackBlock, bcbData, cvmCapital, cvmComps, intake, truthLayerBlock, benchmarksBlock)
     if (!args) return NextResponse.json({ error: 'Step inválido' }, { status: 400 })
+
+    // Trava de segurança: a Anthropic aceita no máximo 4 blocos com cache_control
+    // (system + messages somados). Mantém os 4 primeiros e remove o cache_control
+    // dos excedentes — evita de vez o 400 "A maximum of 4 blocks with cache_control".
+    {
+      let cc = 0
+      const capCacheControl = <T,>(b: T): T => {
+        const blk = b as { cache_control?: unknown }
+        if (blk && typeof blk === 'object' && blk.cache_control) {
+          cc++
+          if (cc > 4) {
+            const copy = { ...(blk as Record<string, unknown>) }
+            delete copy.cache_control
+            return copy as T
+          }
+        }
+        return b
+      }
+      if (Array.isArray(args.system)) args.system = args.system.map(capCacheControl) as typeof args.system
+      if (Array.isArray(args.user))   args.user   = args.user.map(capCacheControl)   as typeof args.user
+    }
 
     // Se houver regeneração executada para este step, injeta o briefing do
     // assessor como prefixo no user content. O Revisor já aprovou ou o
