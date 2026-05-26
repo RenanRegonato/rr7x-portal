@@ -237,11 +237,20 @@ async function maybeTriggerConsolidation(
   await step.run('maybe-trigger-consolidation', async () => {
     const { data: a } = await admin
       .from('analises')
-      .select('documents_completed, documents_failed, documents_total, fact_bank_consolidated_at')
+      .select('documents_total, fact_bank_consolidated_at')
       .eq('id', analiseId)
       .single()
     if (!a) return { triggered: false }
-    const done = (a.documents_completed ?? 0) + (a.documents_failed ?? 0)
+    // Conta os documentos REALMENTE terminados (completed/failed) em vez do
+    // contador incremental `documents_completed`, que sofria corrida (read-then-
+    // write) quando dois docs terminavam juntos — travava em N-1/N e impedia a
+    // consolidação automática de disparar. A contagem é determinística.
+    const { count: doneCount } = await admin
+      .from('analise_documents')
+      .select('*', { count: 'exact', head: true })
+      .eq('analise_id', analiseId)
+      .in('status', ['completed', 'failed'])
+    const done = doneCount ?? 0
     if (done >= (a.documents_total ?? 0) && !a.fact_bank_consolidated_at) {
       await inngest.send({
         name: 'analise/fact_bank.consolidate_requested',
