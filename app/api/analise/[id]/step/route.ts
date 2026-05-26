@@ -670,6 +670,33 @@ ${allForReport}${escritorioBlock}`,
   }
 }
 
+// DIAGNÓSTICO temporário: grava o erro do step em coverage_check (JSONB que só é
+// escrito pela etapa de coverage, lá no fim — logo, intocado quando a falha ocorre
+// na Wave 1, evitando o clobber das escritas paralelas em `outputs`). Remover depois.
+async function recordStepError(
+  admin: ReturnType<typeof createAdminClient>,
+  analiseId: string,
+  step: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  err: any,
+) {
+  try {
+    await admin.from('analises').update({
+      coverage_check: {
+        __diag_step_error__: {
+          step,
+          message: err?.message ?? String(err),
+          name:    err?.name ?? null,
+          status:  err?.status ?? err?.statusCode ?? null,
+          type:    err?.error?.type ?? err?.type ?? null,
+          stack:   String(err?.stack ?? '').slice(0, 1800),
+          at:      new Date().toISOString(),
+        },
+      },
+    }).eq('id', analiseId)
+  } catch { /* best effort */ }
+}
+
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const admin = createAdminClient()
@@ -805,6 +832,7 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
           })
 
           messageStream.on('error', (err: Error) => {
+            void recordStepError(admin, id, step, err)
             try {
               controller.enqueue(new TextEncoder().encode(`\x00ERROR:${err.message}`))
               controller.close()
@@ -922,6 +950,7 @@ ${regen.briefing_motivo}
         })
 
         messageStream.on('error', (err: Error) => {
+          void recordStepError(admin, id, step, err)
           controller.error(err)
         })
       },
@@ -936,6 +965,7 @@ ${regen.briefing_motivo}
     })
   } catch (err: any) {
     console.error('[step error]', err)
+    await recordStepError(admin, id, step, err)
     // Logs de runtime não são acessíveis via CLI — grava o erro real no banco
     // para diagnóstico. Ler depois em analises.outputs.__step_error__.
     try {
