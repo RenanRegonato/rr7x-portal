@@ -671,15 +671,17 @@ ${allForReport}${escritorioBlock}`,
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const admin = createAdminClient()
+  let step = 'desconhecido'
   try {
     const supabase = await createServerSupabaseClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-    const { id } = await params
-    const { step, regeneracao_id } = await req.json() as { step: string; regeneracao_id?: string }
-
-    const admin = createAdminClient()
+    const body = await req.json() as { step: string; regeneracao_id?: string }
+    step = body.step
+    const regeneracao_id = body.regeneracao_id
 
     const { data: analise } = await admin.from('analises').select('*').eq('id', id).single()
     if (!analise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
@@ -934,6 +936,24 @@ ${regen.briefing_motivo}
     })
   } catch (err: any) {
     console.error('[step error]', err)
+    // Logs de runtime não são acessíveis via CLI — grava o erro real no banco
+    // para diagnóstico. Ler depois em analises.outputs.__step_error__.
+    try {
+      const { data: cur } = await admin.from('analises').select('outputs').eq('id', id).single()
+      await admin.from('analises').update({
+        outputs: {
+          ...((cur?.outputs as Record<string, string>) ?? {}),
+          __step_error__: JSON.stringify({
+            step,
+            message: err?.message ?? String(err),
+            name:    err?.name ?? null,
+            status:  err?.status ?? err?.statusCode ?? null,
+            stack:   String(err?.stack ?? '').slice(0, 1500),
+            at:      new Date().toISOString(),
+          }),
+        },
+      }).eq('id', id)
+    } catch { /* best effort */ }
     return NextResponse.json({ error: err?.message ?? 'Erro interno no agente' }, { status: 500 })
   }
 }
