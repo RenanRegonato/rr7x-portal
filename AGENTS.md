@@ -14,9 +14,11 @@ memórias do usuário.
 1. Rode e mostre ao usuário: `git status` e `git log --oneline -12`.
    Sempre parta do commit MAIS RECENTE da branch de trabalho. Se uma tarefa parecer
    reverter trabalho recente (visível nos commits), avise o usuário antes de prosseguir.
-2. Consulte as memórias do projeto antes de mexer no que elas cobrem:
-   `project_analise_pipeline_fragil`, `reference_rr7x_portal_deploy`,
-   `project_invest_match_mandor`, `project_rr7x_portal_site_redesign`.
+2. Consulte as memórias do projeto antes de mexer no que elas cobrem. Elas ficam em
+   `/Users/renan/.claude/projects/-Users-renan-Desktop-SQUADEs/memory/` (leia o
+   `MEMORY.md` desse diretório). Principais: `project_analise_pipeline_fragil`,
+   `reference_rr7x_portal_deploy`, `project_invest_match_mandor`,
+   `project_rr7x_portal_site_redesign`.
 3. Fatos operacionais (confirme se ainda valem ao começar):
    - Produção: www.mandor.com.br (e rr7x-portal.vercel.app).
    - Deploy: SOMENTE `vercel --prod` (NÃO há git remote; `git push` não funciona).
