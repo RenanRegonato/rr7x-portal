@@ -79,13 +79,21 @@ async function runStepAgent(analiseId: string, stepKey: string): Promise<void> {
 // POST simples com token interno. Best-effort no browser (não falhava o pipeline),
 // mas aqui propagamos erro pra que o Inngest possa retentar.
 async function runCheckEndpoint(analiseId: string, path: string): Promise<void> {
-  const res = await fetch(`${baseUrl()}/api/analise/${analiseId}/${path}`, {
-    method:  'POST',
-    headers: internalHeaders(),
-  })
-  if (!res.ok) {
-    const detail = await res.text().catch(() => '')
-    throw new Error(`${path} falhou: HTTP ${res.status} ${detail.slice(0, 300)}`)
+  // BEST-EFFORT: validadores (consistency/risk/coverage/mesa/fact-extract) NÃO
+  // podem derrubar o pipeline. No navegador eles falhavam em silêncio e a análise
+  // seguia até o relatório. Um 429 transitório do Claude numa dessas chamadas não
+  // pode impedir a geração do relatório consolidado. Loga e prossegue.
+  try {
+    const res = await fetch(`${baseUrl()}/api/analise/${analiseId}/${path}`, {
+      method:  'POST',
+      headers: internalHeaders(),
+    })
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '')
+      console.warn(`[pipeline] ${path} HTTP ${res.status} (best-effort, prossegue): ${detail.slice(0, 200)}`)
+    }
+  } catch (e) {
+    console.warn(`[pipeline] ${path} falhou (best-effort, prossegue): ${(e as Error).message}`)
   }
 }
 
@@ -223,11 +231,20 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
   } catch (err) {
     const e = err as Error
     logger.error('Pipeline falhou', { analiseId, error: e.message })
-    // Marca erro de forma best-effort (não relança o erro de marcação).
+    // Marca erro + grava a mensagem no banco para diagnóstico (logs do Inngest
+    // não são acessíveis via CLI). Lê depois em analises.outputs.__pipeline_error__.
     await step.run('set-erro', async () => {
+      const { data: cur } = await admin.from('analises').select('outputs').eq('id', analiseId).single()
       await admin
         .from('analises')
-        .update({ status: 'erro', atualizado_em: new Date().toISOString() })
+        .update({
+          status: 'erro',
+          outputs: {
+            ...((cur?.outputs as Record<string, string>) ?? {}),
+            __pipeline_error__: JSON.stringify({ message: e.message, at: new Date().toISOString() }),
+          },
+          atualizado_em: new Date().toISOString(),
+        })
         .eq('id', analiseId)
       return { ok: true }
     })
