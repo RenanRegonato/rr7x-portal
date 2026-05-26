@@ -397,23 +397,21 @@ export default function AnalisePage() {
       await runFactExtraction()
       await maybeRun('orchestration')
 
-      // Wave 1 (Fase 9): agentes que NÃO dependem uns dos outros — rodam
-      // paralelos vendo apenas drive_intake + orchestration + truth_layer.
-      await Promise.all([
-        maybeRun('pesquisa'),
-        maybeRun('diagnostico'),
-        maybeRun('kyc'),
-        maybeRun('contratos'),
-      ])
+      // Wave 1: roda SEQUENCIAL (antes era Promise.all paralelo). Disparar os 4
+      // steps ao mesmo tempo gerava 4 chamadas /step simultâneas — cada uma com
+      // várias queries + chamada ao Claude — sobrecarregando o pool de conexões /
+      // limites do workspace e derrubando steps com 500 em deals grandes.
+      // Sequencial é mais lento, porém confiável.
+      await maybeRun('pesquisa')
+      await maybeRun('diagnostico')
+      await maybeRun('kyc')
+      await maybeRun('contratos')
 
-      // Wave 2: agentes que precisam ver outputs da Wave 1 para evitar
-      // contradições (cross-reading via CROSS_READING_DEPS no /step).
-      // Roda paralelo entre si, mas após Wave 1 completar.
-      await Promise.all([
-        ...(runMA        ? [maybeRun('analise_ma')]    : []),
-        ...(runEstrutura ? [maybeRun('estruturacao')]  : []),
-        maybeRun('originacao'),
-      ])
+      // Wave 2: agentes que precisam ver outputs da Wave 1 (cross-reading via
+      // CROSS_READING_DEPS no /step). Também sequencial, após a Wave 1.
+      if (runMA)        await maybeRun('analise_ma')
+      if (runEstrutura) await maybeRun('estruturacao')
+      await maybeRun('originacao')
 
       await maybeRun('maturidade')
 
@@ -430,10 +428,9 @@ export default function AnalisePage() {
       // — lê todos outputs + issues + síndromes + cobertura e emite veredito
       await runMesaRevisao()
 
-      await Promise.all([
-        maybeRun('blind_teaser'),
-        maybeRun('sell_side_pitchbook'),
-      ])
+      // Documentos de captação: sequencial (mesmo motivo das waves acima).
+      await maybeRun('blind_teaser')
+      await maybeRun('sell_side_pitchbook')
 
       await maybeRun('relatorio_consolidado')
 
