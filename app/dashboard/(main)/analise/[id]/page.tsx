@@ -483,15 +483,26 @@ export default function AnalisePage() {
 
     async function checkIngestionAndMaybeRun(data: { status: string; deal_intake?: { objetivo?: string }; outputs?: Record<string, string> }) {
       const existing = (data.outputs ?? {}) as Record<string, string>
+
+      // Retoma o pipeline ao abrir a página — inclusive a partir de 'erro'.
+      // O pipeline roda no navegador; se a aba foi interrompida (F5/fechou) ou
+      // um step falhou, a análise fica travada exigindo "Reprocessar" manual.
+      // Aqui ela CONTINUA sozinha de onde parou: steps já concluídos vêm de
+      // `outputs` (maybeRun os reaproveita) e só os faltantes rodam de novo.
+      function maybeResume() {
+        if (data.status === 'processando' || data.status === 'erro') {
+          if (data.status === 'erro') setStatus('processando')
+          startTime.current = Date.now()
+          runPipeline(existing, data.deal_intake?.objetivo)
+        }
+      }
+
       try {
         const r = await fetch(`/api/analise/${id}/ingest/status`)
         if (!r.ok) {
           // Endpoint pode não existir em ambientes antigos — fallback ao fluxo legado
           setIngestStatus('idle')
-          if (data.status === 'processando') {
-            startTime.current = Date.now()
-            runPipeline(existing, data.deal_intake?.objetivo)
-          }
+          maybeResume()
           return
         }
         const stat = await r.json() as {
@@ -511,17 +522,11 @@ export default function AnalisePage() {
 
         // idle (sem ingestão registrada — análise antiga) OU completed OU failed:
         // pipeline pode rodar. Se idle/failed: drive_intake usa fluxo legado (re-lê PDFs).
-        if (data.status === 'processando') {
-          startTime.current = Date.now()
-          runPipeline(existing, data.deal_intake?.objetivo)
-        }
+        maybeResume()
       } catch (e) {
         console.error('[ingest status]', e)
         setIngestStatus('idle')
-        if (data.status === 'processando') {
-          startTime.current = Date.now()
-          runPipeline(existing, data.deal_intake?.objetivo)
-        }
+        maybeResume()
       }
     }
 
