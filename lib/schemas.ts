@@ -19,7 +19,10 @@ export const AnaliseCreateSchema = z.object({
   passivos:              shortStr(500).optional(),
   informacoesAdicionais: shortStr(15000).optional(),
   resumoAtivo:           shortStr(15000).optional(),
-  linkDocumentos:        optUrl,
+  // linkDocumentos: REMOVIDO. Campo do antigo fluxo de Google Drive, não é mais
+  // coletado. Como o schema não é .strict(), se um cliente com JS em cache antigo
+  // ainda enviar esse campo, ele é simplesmente ignorado em vez de derrubar a
+  // requisição com "URL inválida".
   nomeProprietario:      shortStr(200).optional(),
   cpfCnpjProprietario:   shortStr(20).optional(),
   telefoneProprietario:  shortStr(20).optional(),
