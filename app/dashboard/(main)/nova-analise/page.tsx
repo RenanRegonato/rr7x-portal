@@ -802,7 +802,7 @@ function StepContent({
             {([
               { v: 'na',            t: 'Não incluir nesta análise',                 d: 'O diagnóstico tributário não será gerado.' },
               { v: 'possui',        t: 'Empresa já possui análise de adequação',    d: 'Marca como já adequada; sem novo diagnóstico.' },
-              { v: 'diagnosticar',  t: 'Ferrante realizará o diagnóstico',          d: 'Ativa o diagnóstico completo e as recomendações de adequação.' },
+              { v: 'diagnosticar',  t: 'Ativar o Módulo Reforma Tributária',        d: 'Diagnóstico completo de adequação à Reforma (EC 132/2023) e recomendações.' },
             ] as const).map(opt => (
               <button
                 key={opt.v}
