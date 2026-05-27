@@ -279,6 +279,54 @@ async function maybeTriggerConsolidation(
   })
 }
 
+/**
+ * Marca um documento como FALHO (estado terminal) quando o processamento esgotou
+ * os retries do Inngest, e em seguida reavalia a consolidação. Sem isto, um doc
+ * que trava fica para sempre num status transitório, o contador de documentos
+ * terminais nunca alcança documents_total e a consolidação do fact_bank nunca
+ * dispara, matando o deal inteiro por causa de um único documento. Idempotente:
+ * não mexe em docs já completed/failed. Chamado pelo onFailure de processDocumentFn.
+ */
+export async function failDocumentAndMaybeConsolidate(
+  { analiseId, documentId, error, step }:
+  { analiseId: string; documentId: string; error: string; step: Step },
+) {
+  const admin = createAdminClient()
+
+  await step.run('mark-document-failed', async () => {
+    const { data: d } = await admin
+      .from('analise_documents')
+      .select('status')
+      .eq('id', documentId)
+      .single()
+    if (d?.status === 'completed' || d?.status === 'failed') {
+      return { skipped: true, status: d.status }
+    }
+    await admin.from('analise_documents').update({
+      status:        'failed',
+      error_message: error.slice(0, 2000),
+      completed_at:  new Date().toISOString(),
+    }).eq('id', documentId)
+
+    // Contador observável no nível da análise (best-effort; o gate de
+    // consolidação conta os terminais direto de analise_documents, não daqui).
+    const { data: a } = await admin
+      .from('analises')
+      .select('documents_failed')
+      .eq('id', analiseId)
+      .single()
+    await admin
+      .from('analises')
+      .update({ documents_failed: (a?.documents_failed ?? 0) + 1 })
+      .eq('id', analiseId)
+    return { ok: true, documentId }
+  })
+
+  // Reavalia: se este era o último doc não-terminal, dispara a consolidação com
+  // os fatos dos documentos que deram certo (o deal segue sem o que falhou).
+  await maybeTriggerConsolidation(admin, analiseId, step)
+}
+
 type ExtractCategory = 'pdf' | 'image' | 'docx' | 'excel' | 'text' | 'unsupported'
 
 function mimeFromName(name: string): string {

@@ -1,6 +1,6 @@
 import { serve } from 'inngest/next'
 import { inngest } from '@/lib/inngest'
-import { processDocument } from '@/lib/ingestion/process-document'
+import { processDocument, failDocumentAndMaybeConsolidate } from '@/lib/ingestion/process-document'
 import { consolidateFactBank } from '@/lib/ingestion/consolidate-fact-bank'
 import { runMatching, runReverseMatching } from '@/lib/invest-match/matching-engine'
 import { notifyAssessorOfMatches } from '@/lib/invest-match/notify'
@@ -20,6 +20,18 @@ export const processDocumentFn = inngest.createFunction(
     triggers:    [{ event: 'analise/document.process_requested' }],
     concurrency: { limit: 4 }, // 4 docs simultâneos
     retries:     3,
+    // Rede de segurança: se o processamento esgotar os 3 retries, o doc ficaria
+    // preso num status transitório e a consolidação do fact_bank nunca dispararia
+    // (um doc travado mata o deal inteiro). Aqui marcamos o doc como failed
+    // (terminal) e reavaliamos a consolidação, para o deal seguir com os
+    // documentos que deram certo. event.data.event = evento original que falhou.
+    onFailure: async ({ event, error, step, logger }) => {
+      const { analiseId, documentId } = event.data.event.data as { analiseId: string; documentId: string }
+      logger.error('processDocument falhou após os retries; marcando doc como failed e reavaliando consolidação', {
+        analiseId, documentId, error: error.message,
+      })
+      await failDocumentAndMaybeConsolidate({ analiseId, documentId, error: error.message, step })
+    },
   },
   async ({ event, step, logger }) => {
     const { analiseId, documentId } = event.data as { analiseId: string; documentId: string }
