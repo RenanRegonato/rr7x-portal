@@ -109,6 +109,9 @@ function NovaAnaliseInner() {
   const [loadingLabel,  setLoadingLabel]  = useState('')
   const [error,         setError]         = useState('')
   const [objetivos,     setObjetivos]     = useState<string[]>([])
+  // Adequação à Reforma Tributária (Ferrante) — opt-in premium na abertura.
+  const [reformaTributaria, setReformaTributaria] = useState<'na' | 'possui' | 'diagnosticar'>('na')
+  const [rtUnlocked,    setRtUnlocked]    = useState(false)
   const [files,         setFiles]         = useState<File[]>([])
   const [dragging,      setDragging]      = useState(false)
   const [draftRestored,  setDraftRestored]  = useState(false)
@@ -154,6 +157,15 @@ function NovaAnaliseInner() {
     } catch {}
   }, [])
 
+  // Entitlement do módulo Reforma Tributária: libera o opt-in só p/ escritórios
+  // com o pacote (ou admin). Falha silenciosa = bloqueado (mostra upsell).
+  useEffect(() => {
+    fetch('/api/reforma-tributaria/entitlement')
+      .then(r => r.json())
+      .then(d => setRtUnlocked(d?.enabled === true))
+      .catch(() => setRtUnlocked(false))
+  }, [])
+
   function restoreDraft() {
     try {
       const raw = localStorage.getItem(DRAFT_KEY)
@@ -169,6 +181,7 @@ function NovaAnaliseInner() {
         return { ...prev, ...known }
       })
       if (d.objetivos) setObjetivos(d.objetivos)
+      if (d.reformaTributaria) setReformaTributaria(d.reformaTributaria)
       if (d.step != null) setStep(d.step)
       setDraftRestored(true)
       setDraftAvailable(false)
@@ -182,8 +195,8 @@ function NovaAnaliseInner() {
 
   useEffect(() => {
     if (!form.nomeAtivo) return
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ version: DRAFT_VERSION, form, objetivos, step }))
-  }, [form, objetivos, step])
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ version: DRAFT_VERSION, form, objetivos, reformaTributaria, step }))
+  }, [form, objetivos, reformaTributaria, step])
 
   function set(field: string, value: string) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -277,6 +290,9 @@ function NovaAnaliseInner() {
     const payload = {
       ...form,
       objetivo:              objetivos.join(', '),
+      // Só persiste o opt-in se o escritório tem o módulo liberado (defesa client-side;
+      // a gating real do motor acontece server-side na Fase 2).
+      reformaTributaria:     rtUnlocked ? reformaTributaria : 'na',
       localizacao:           `${form.cidade} – ${form.estado}, ${form.pais}`,
       informacoesAdicionais: form.resumoAtivo,
       lgpdConsentimento:     `Consentimento LGPD registrado em ${new Date().toISOString()} — dados processados por IA para análise de deal conforme LGPD art. 7º, inc. V (execução de contrato).`,
@@ -441,6 +457,9 @@ function NovaAnaliseInner() {
             set={set}
             objetivos={objetivos}
             toggleObjetivo={toggleObjetivo}
+            reformaTributaria={reformaTributaria}
+            setReformaTributaria={setReformaTributaria}
+            rtUnlocked={rtUnlocked}
             files={files}
             dragging={dragging}
             setDragging={setDragging}
@@ -534,6 +553,7 @@ export default function NovaAnalisePage() {
 
 function StepContent({
   step, form, set, objetivos, toggleObjetivo,
+  reformaTributaria, setReformaTributaria, rtUnlocked,
   files, dragging, setDragging, addFiles, removeFile,
   formatBytes, fileIcon, fileInputRef, accepted,
 }: {
@@ -542,6 +562,9 @@ function StepContent({
   set:            (field: string, value: string) => void
   objetivos:      string[]
   toggleObjetivo: (o: string) => void
+  reformaTributaria:    'na' | 'possui' | 'diagnosticar'
+  setReformaTributaria: (v: 'na' | 'possui' | 'diagnosticar') => void
+  rtUnlocked:           boolean
   files:          File[]
   dragging:       boolean
   setDragging:    (v: boolean) => void
@@ -762,6 +785,54 @@ function StepContent({
           {objetivos.length} selecionado(s): {objetivos.join(' · ')}
         </p>
       )}
+
+      {/* ── Módulo premium: Adequação à Reforma Tributária (Ferrante) ───────── */}
+      <div className="mt-7 pt-6 border-t border-border">
+        <div className="flex items-center gap-2 mb-1.5">
+          <p className="text-[13px] font-semibold text-ink">Adequação à Reforma Tributária</p>
+          <span className="text-[9px] font-semibold uppercase tracking-wide text-accent-strong border border-accent-strong/40 rounded px-1.5 py-0.5">Premium</span>
+        </div>
+        <p className="text-[12px] text-ink-3 mb-4 leading-relaxed">
+          Rastreio de conformidade tributária, riscos fiscais e impactos da Reforma (EC 132/2023)
+          sobre o ativo — para captação, M&A e due diligence.
+        </p>
+
+        {rtUnlocked ? (
+          <div className="grid gap-2">
+            {([
+              { v: 'na',            t: 'Não incluir nesta análise',                 d: 'O diagnóstico tributário não será gerado.' },
+              { v: 'possui',        t: 'Empresa já possui análise de adequação',    d: 'Marca como já adequada; sem novo diagnóstico.' },
+              { v: 'diagnosticar',  t: 'Ferrante realizará o diagnóstico',          d: 'Ativa o diagnóstico completo e as recomendações de adequação.' },
+            ] as const).map(opt => (
+              <button
+                key={opt.v}
+                type="button"
+                onClick={() => setReformaTributaria(opt.v)}
+                className={`text-left px-3.5 py-3 rounded-[10px] border text-[13px] transition-all ${
+                  reformaTributaria === opt.v
+                    ? 'border-accent-strong bg-accent-soft text-accent-ink font-medium'
+                    : 'border-border bg-surface text-ink-2 hover:border-border-strong'
+                }`}
+              >
+                <span className="flex items-center">
+                  {reformaTributaria === opt.v && <span className="text-accent-strong mr-1.5 font-bold">✓</span>}
+                  {opt.t}
+                </span>
+                <span className="block text-[11px] text-ink-3 mt-0.5 font-normal">{opt.d}</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-[10px] border border-border bg-surface-2 px-4 py-3.5 opacity-90">
+            <p className="text-[12px] text-ink-2">
+              🔒 Recurso disponível em planos avançados.{' '}
+              <a href="/dashboard/planos" className="text-accent-strong font-medium underline-offset-2 hover:underline">
+                Conheça os planos
+              </a>.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   )
 

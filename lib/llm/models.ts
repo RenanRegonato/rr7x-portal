@@ -44,6 +44,11 @@ export const ROUTING: Record<string, ModelChoice> = {
   sell_side_pitchbook:   sonnet(),
   relatorio_consolidado: sonnet(),
 
+  // ── Adequação à Reforma Tributária (Ferrante) — premium, opt-in ──
+  // Raciocínio jurídico-tributário complexo → Sonnet com thinking. O prompt
+  // analítico e a base de regras (PDF) entram na Fase 2.
+  reforma_tributaria:    sonnet(8000),
+
   // ── ingestão (non-streaming) ──
   chunk_fact_extract:    haiku(),
   consolidate_fact_bank: sonnet(),

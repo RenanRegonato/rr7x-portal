@@ -19,6 +19,7 @@ import ClaimsSection from '@/components/ClaimsSection'
 import ConsistencyPanel from '@/components/ConsistencyPanel'
 import MesaVerdictBanner from '@/components/MesaVerdictBanner'
 import CoveragePanel from '@/components/CoveragePanel'
+import { FERRANTE_PENDING_NOTE } from '@/lib/agents/ferrante'
 
 const MAX_REGENERACOES = 3
 
@@ -79,6 +80,7 @@ const DETAIL_TABS = [
   { key: 'originacao',            label: 'Originação'       },
   { key: 'estruturacao',          label: 'Estruturação'     },
   { key: 'maturidade',            label: 'Maturidade'       },
+  { key: 'reforma_tributaria',    label: 'Adequação Tributária' },
   { key: 'blind_teaser',          label: 'Blind Teaser'     },
   { key: 'sell_side_pitchbook',   label: 'Pitchbook'        },
 ]
@@ -849,6 +851,12 @@ function DealDetail({
     if (t.key === 'fatos')        return !!analise.facts_extracted_at
     if (t.key === 'consistencia') return !!analise.consistency_checked_at
     if (t.key === 'cobertura')    return !!analise.coverage_checked_at
+    // Adequação Tributária (Ferrante): aba visível só se o módulo foi ativado na
+    // abertura (opt-in), mesmo antes de existir output (mostra status/pendente).
+    if (t.key === 'reforma_tributaria') {
+      const rt = analise.deal_intake?.reformaTributaria
+      return rt === 'diagnosticar' || rt === 'possui'
+    }
     return !!outputs[t.key]
   })
   const slug = analise.nome_ativo?.replace(/\s+/g, '-') ?? 'analise'
@@ -1056,6 +1064,22 @@ function DealDetail({
               onReprocessStep(step)
             }}
           />
+        ) : activeTab === 'reforma_tributaria' ? (
+          <div className="bg-surface border border-border rounded-[14px] p-8 shadow-soft-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[15px] font-display font-medium text-ink">Ferrante · Adequação à Reforma Tributária</span>
+              <span className="text-[9px] font-semibold uppercase tracking-wide text-accent-strong border border-accent-strong/40 rounded px-1.5 py-0.5">Premium</span>
+            </div>
+            {analise.deal_intake?.reformaTributaria === 'possui' ? (
+              <p className="text-[13px] text-ink-2 leading-relaxed">
+                Este ativo foi marcado como <strong>já adequado</strong> à Reforma Tributária na abertura da análise. Nenhum diagnóstico foi gerado por Ferrante.
+              </p>
+            ) : (
+              // Fase 2 substitui esta nota pela renderização estruturada do output
+              // do Ferrante (score, mapa de risco, checklist, recomendações).
+              <p className="text-[13px] text-ink-3 leading-relaxed">{FERRANTE_PENDING_NOTE}</p>
+            )}
+          </div>
         ) : activeTab && outputs[activeTab] ? (
           <>
             {activeTab === 'relatorio_consolidado' && analise.mesa_revisao && (

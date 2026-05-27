@@ -17,6 +17,7 @@ type EscritorioSummary = {
   plano:          PlanoTipo | null
   plano_status:   PlanoStatus | null
   invest_match_enabled: boolean
+  reforma_tributaria_enabled: boolean
 }
 
 type UsuarioDetalhe = {
@@ -37,6 +38,7 @@ type EscritorioDetalhe = {
   plano_status?:         PlanoStatus | null
   plano_limite_analises?: number | null
   invest_match_enabled?: boolean
+  reforma_tributaria_enabled?: boolean
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -103,6 +105,11 @@ export default function EscritoriosPage() {
   const [salvandoIM, setSalvandoIM] = useState(false)
   const [msgIM,      setMsgIM]      = useState('')
 
+  // Adequação à Reforma Tributária (Ferrante)
+  const [rtEnabled,  setRtEnabled]  = useState(false)
+  const [salvandoRT, setSalvandoRT] = useState(false)
+  const [msgRT,      setMsgRT]      = useState('')
+
   // Convidar
   const [showConvite,    setShowConvite]    = useState(false)
   const [inviteEmail,    setInviteEmail]    = useState('')
@@ -146,6 +153,7 @@ export default function EscritoriosPage() {
     setEditPlanoStatus((e.plano_status ?? '') as PlanoStatus)
     setEditPlanoLimite(e.plano_limite_analises != null ? String(e.plano_limite_analises) : '')
     setImEnabled(e.invest_match_enabled === true)
+    setRtEnabled(e.reforma_tributaria_enabled === true)
     setDetLoading(false)
   }, [])
 
@@ -236,6 +244,30 @@ export default function EscritoriosPage() {
     } else {
       const d = await res.json()
       setMsgIM(d.error ?? 'Erro ao salvar.')
+    }
+  }
+
+  // ── Adequação à Reforma Tributária (Ferrante) ─────────────────────────────
+
+  async function toggleReformaTributaria() {
+    if (!selecionado || salvandoRT) return
+    const novo = !rtEnabled
+    setSalvandoRT(true)
+    setMsgRT('')
+    const res = await fetch('/api/admin/escritorios', {
+      method:  'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ id: selecionado, reforma_tributaria_enabled: novo }),
+    })
+    setSalvandoRT(false)
+    if (res.ok) {
+      setRtEnabled(novo)
+      setMsgRT(novo ? 'Adequação à Reforma Tributária habilitada para este escritório.' : 'Adequação à Reforma Tributária desabilitada.')
+      setEscritorios(prev => prev.map(e => e.id === selecionado ? { ...e, reforma_tributaria_enabled: novo } : e))
+      setDetalhe(prev => prev ? { ...prev, reforma_tributaria_enabled: novo } : null)
+    } else {
+      const d = await res.json()
+      setMsgRT(d.error ?? 'Erro ao salvar.')
     }
   }
 
@@ -442,6 +474,9 @@ export default function EscritoriosPage() {
                     {e.invest_match_enabled && (
                       <p className="text-[9px] font-semibold text-accent-strong mt-0.5 uppercase tracking-wide">IM Plus</p>
                     )}
+                    {e.reforma_tributaria_enabled && (
+                      <p className="text-[9px] font-semibold text-accent-strong mt-0.5 uppercase tracking-wide">RT</p>
+                    )}
                   </div>
                 </div>
               </button>
@@ -573,6 +608,51 @@ export default function EscritoriosPage() {
                 {msgIM && (
                   <p className={`text-[12px] mt-1.5 ${msgIM.includes('Erro') ? 'text-warn' : 'text-ok'}`}>
                     {msgIM}
+                  </p>
+                )}
+              </div>
+            </section>
+
+            {/* ── Seção: Adequação à Reforma Tributária (Ferrante) ─────────── */}
+            <section>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-3">
+                Adequação à Reforma Tributária <span className="text-accent-strong normal-case font-semibold">Premium</span>
+              </p>
+              <div className="bg-surface border border-border rounded-[12px] p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-medium text-ink">Módulo de adequação à Reforma Tributária (Ferrante)</p>
+                    <p className="text-[12px] text-ink-3 mt-1 leading-relaxed">
+                      Recurso premium opcional. Habilite apenas para escritórios que contrataram o upgrade.
+                      Quando desabilitado, a opção aparece bloqueada na abertura da análise.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={rtEnabled}
+                    onClick={toggleReformaTributaria}
+                    disabled={salvandoRT}
+                    className={`relative shrink-0 w-11 h-6 rounded-full transition-colors disabled:opacity-50 ${
+                      rtEnabled ? 'bg-accent-strong' : 'bg-surface-2 border border-border'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
+                        rtEnabled ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <span className={`text-[12px] font-medium ${rtEnabled ? 'text-ok' : 'text-ink-3'}`}>
+                    {rtEnabled ? 'Habilitado' : 'Desabilitado'}
+                  </span>
+                  {salvandoRT && <span className="text-[12px] text-ink-3">salvando…</span>}
+                </div>
+                {msgRT && (
+                  <p className={`text-[12px] mt-1.5 ${msgRT.includes('Erro') ? 'text-warn' : 'text-ok'}`}>
+                    {msgRT}
                   </p>
                 )}
               </div>

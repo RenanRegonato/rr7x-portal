@@ -47,6 +47,10 @@ const RELEVANT_TYPES: Record<string, ReadonlyArray<string>> = {
   maturidade:           ['*'],
   revisao:              ['*'],
 
+  // Adequação à Reforma Tributária (Ferrante): base de cálculo, estrutura
+  // societária (afeta regime), eventos (implicações fiscais), contratos e lacunas.
+  reforma_tributaria:   ['numero_financeiro', 'estrutura_societaria', 'evento_relevante', 'contrato', 'passivo', 'indicador_calculado', 'lacuna'],
+
   // Auxiliares
   sentinela:            ['*'],
   mesa_consolidadora:   ['*'],

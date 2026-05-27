@@ -11,6 +11,9 @@ export const AnaliseCreateSchema = z.object({
   tipoAtivo:             shortStr(100).min(1),
   estagio:               shortStr(100).min(1),
   objetivo:              shortStr(2000).min(1),
+  // Opt-in do módulo premium Adequação à Reforma Tributária (Ferrante).
+  // 'na' = não incluir; 'possui' = empresa já adequada; 'diagnosticar' = rodar Ferrante.
+  reformaTributaria:     z.enum(['na', 'possui', 'diagnosticar']).optional(),
   nivelInformacao:       shortStr(100).min(1),
   operacaoEmAndamento:   shortStr(120).optional(),
   localizacao:           shortStr(200).min(1),
