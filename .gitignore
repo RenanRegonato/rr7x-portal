@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# material-fonte da KB da reforma tributária (PDFs pesados, não usados em runtime)
+/reforma

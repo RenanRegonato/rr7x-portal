@@ -1,2 +1,5 @@
 # golden-set (dados reais de deals, não servir)
 eval/
+
+# material-fonte da KB da reforma tributária (PDFs pesados, não usados em runtime)
+reforma/
