@@ -85,7 +85,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       outputs_agentes,
       intake_resumo:    intakeResumo(intake),
       fatos_relevantes,
-    })
+    }, analiseId)
   } catch (e) {
     console.error('[risk-correlation] Sentinela falhou:', e)
     return NextResponse.json({ error: 'Falha ao detectar síndromes' }, { status: 502 })

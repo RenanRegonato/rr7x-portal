@@ -1,4 +1,4 @@
-import { anthropic, MODEL } from '@/lib/anthropic'
+import { callLLM } from '@/lib/llm/call'
 
 // Mesa Consolidadora (Fase 10) — revisor final institucional.
 // Roda DEPOIS de todos os agentes especialistas, do Consistency Engine
@@ -135,20 +135,18 @@ function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max) + '\n...[truncado]' : s
 }
 
-export async function revisarMesa(input: MesaRevisaoInput): Promise<MesaRevisaoOutput> {
-  const resp = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 5000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: buildUserPrompt(input) }],
+export async function revisarMesa(input: MesaRevisaoInput, analiseId?: string): Promise<MesaRevisaoOutput> {
+  const { text } = await callLLM({
+    task:      'mesa_revisao',
+    context:   'validators',
+    analiseId,
+    system:    SYSTEM_PROMPT,
+    messages:  [{ role: 'user', content: buildUserPrompt(input) }],
+    maxTokens: 5000,
   })
+  if (!text) throw new Error('Mesa não retornou texto')
 
-  const textBlock = resp.content.find((b) => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new Error('Mesa não retornou texto')
-  }
-
-  const raw = textBlock.text.trim()
+  const raw = text.trim()
   const jsonMatch = raw.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error('Mesa não retornou JSON válido')
 

@@ -1,4 +1,4 @@
-import { anthropic, HAIKU_MODEL } from '@/lib/anthropic'
+import { callLLM } from '@/lib/llm/call'
 import type { ChecklistItem, TipoOperacao } from '@/lib/coverage-checklists'
 
 // Coverage Validator (Fase 11) — agente que avalia se cada item da
@@ -113,21 +113,19 @@ function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max) + '\n...[truncado]' : s
 }
 
-export async function validarCoverage(input: CoverageInput): Promise<CoverageOutput> {
-  const resp = await anthropic.messages.create({
-    model:       HAIKU_MODEL,
-    max_tokens:  6000,
-    temperature: 0,
+export async function validarCoverage(input: CoverageInput, analiseId?: string): Promise<CoverageOutput> {
+  const { text } = await callLLM({
+    task:        'coverage_check',
+    context:     'validators',
+    analiseId,
     system:      SYSTEM_PROMPT,
     messages:    [{ role: 'user', content: buildUserPrompt(input) }],
+    maxTokens:   6000,
+    temperature: 0,
   })
+  if (!text) throw new Error('Coverage Validator não retornou texto')
 
-  const textBlock = resp.content.find((b) => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new Error('Coverage Validator não retornou texto')
-  }
-
-  const raw = textBlock.text.trim()
+  const raw = text.trim()
   const jsonMatch = raw.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error('Coverage Validator não retornou JSON válido')
 

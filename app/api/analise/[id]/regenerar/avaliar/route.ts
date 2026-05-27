@@ -140,7 +140,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       intake:            intakeResumo(intake),
       output_atual:      outputAtual,
       outputs_upstream:  outputsUpstream,
-    })
+    }, analiseId)
   } catch (e) {
     console.error('[regenerar/avaliar] Revisor falhou:', e)
     return NextResponse.json(

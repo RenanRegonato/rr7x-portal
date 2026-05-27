@@ -1,4 +1,4 @@
-import { anthropic, HAIKU_MODEL } from '@/lib/anthropic'
+import { callLLM } from '@/lib/llm/call'
 
 // Agente "Revisor Régis" — avalia pedidos de regeneração de step.
 // Não regenera nada; apenas analisa se o briefing faz sentido técnico.
@@ -88,21 +88,19 @@ function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max) + '\n...[truncado]' : s
 }
 
-export async function avaliarPedidoRegeneracao(input: RevisorInput): Promise<RevisorOutput> {
-  const resp = await anthropic.messages.create({
-    model:       HAIKU_MODEL,
-    max_tokens:  2000,
-    temperature: 0,
+export async function avaliarPedidoRegeneracao(input: RevisorInput, analiseId?: string): Promise<RevisorOutput> {
+  const { text } = await callLLM({
+    task:        'revisor_regeneracao',
+    context:     'validators',
+    analiseId,
     system:      SYSTEM_PROMPT,
     messages:    [{ role: 'user', content: buildUserPrompt(input) }],
+    maxTokens:   2000,
+    temperature: 0,
   })
+  if (!text) throw new Error('Revisor não retornou texto')
 
-  const textBlock = resp.content.find((b) => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new Error('Revisor não retornou texto')
-  }
-
-  const raw = textBlock.text.trim()
+  const raw = text.trim()
 
   // Tenta extrair JSON (mesmo se vier com cercas ou texto extra)
   const jsonMatch = raw.match(/\{[\s\S]*\}/)

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient, createServerSupabaseClient } from '@/lib/supabase-server'
 import { canAccessAnalise, getUserContext } from '@/lib/get-role'
 import { revisarMesa } from '@/lib/agents/mesa-consolidadora'
+import { routeFor } from '@/lib/llm/models'
 import { getFacts, formatTruthLayer } from '@/lib/truth-layer'
 import { audit, extractIp } from '@/lib/audit'
 import { isInternalCall } from '@/lib/internal-auth'
@@ -96,7 +97,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       fatos_relevantes,
       consistency_summary,
       sindromes_summary,
-    })
+    }, analiseId)
   } catch (e) {
     console.error('[mesa-revisao] Mesa falhou:', e)
     return NextResponse.json({ error: 'Falha na revisão da Mesa' }, { status: 502 })
@@ -130,7 +131,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   await admin
     .from('analises')
     .update({
-      mesa_revisao:     { ...result, model_id: 'claude-sonnet-4-6' },
+      mesa_revisao:     { ...result, model_id: routeFor('mesa_revisao').model },
       mesa_revisao_at:  now,
     })
     .eq('id', analiseId)

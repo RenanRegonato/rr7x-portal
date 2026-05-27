@@ -84,7 +84,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     result = await extractFacts({
       intake_resumo:       intakeResumo,
       drive_intake_output: driveIntakeOutput,
-    })
+    }, analiseId)
   } catch (e) {
     console.error('[fact-extract] failed:', e)
     return NextResponse.json(

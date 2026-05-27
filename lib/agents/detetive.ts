@@ -1,4 +1,4 @@
-import { anthropic, HAIKU_MODEL } from '@/lib/anthropic'
+import { callLLM } from '@/lib/llm/call'
 
 // Agente "Detetive Dependência" — após uma regeneração executada,
 // avalia quais OUTROS agentes da análise podem ter ficado inconsistentes
@@ -99,21 +99,19 @@ ${truncate(input.intake, 3000)}
 Avalie agora e retorne o JSON conforme instruído.`
 }
 
-export async function avaliarImpactoCascade(input: DetetiveInput): Promise<DetetiveOutput> {
-  const resp = await anthropic.messages.create({
-    model:       HAIKU_MODEL,
-    max_tokens:  3000,
-    temperature: 0,
+export async function avaliarImpactoCascade(input: DetetiveInput, analiseId?: string): Promise<DetetiveOutput> {
+  const { text } = await callLLM({
+    task:        'cascade_detect',
+    context:     'validators',
+    analiseId,
     system:      SYSTEM_PROMPT,
     messages:    [{ role: 'user', content: buildUserPrompt(input) }],
+    maxTokens:   3000,
+    temperature: 0,
   })
+  if (!text) throw new Error('Detetive não retornou texto')
 
-  const textBlock = resp.content.find((b) => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new Error('Detetive não retornou texto')
-  }
-
-  const raw = textBlock.text.trim()
+  const raw = text.trim()
   const jsonMatch = raw.match(/\{[\s\S]*\}/)
   if (!jsonMatch) {
     throw new Error('Detetive não retornou JSON válido: ' + raw.slice(0, 200))

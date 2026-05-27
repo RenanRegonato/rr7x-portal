@@ -128,7 +128,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       output_novo:            outputNovo,
       outputs_demais_agentes: demais,
       intake:                 intakeResumo(intake),
-    })
+    }, analiseId)
   } catch (e) {
     console.error('[regenerar/cascade] Detetive falhou:', e)
     return NextResponse.json(

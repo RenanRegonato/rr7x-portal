@@ -1,4 +1,4 @@
-import { anthropic, MODEL } from '@/lib/anthropic'
+import { callLLM } from '@/lib/llm/call'
 
 // Sentinela de Riscos (Fase 10) — agente especializado em detectar
 // SÍNDROMES cross-dimensionais. Não olha cada risco isolado; olha como
@@ -135,20 +135,18 @@ function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max) + '\n...[truncado]' : s
 }
 
-export async function detectarSindromes(input: SentinelaInput): Promise<SentinelaOutput> {
-  const resp = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 4000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: buildUserPrompt(input) }],
+export async function detectarSindromes(input: SentinelaInput, analiseId?: string): Promise<SentinelaOutput> {
+  const { text } = await callLLM({
+    task:      'risk_correlation',
+    context:   'validators',
+    analiseId,
+    system:    SYSTEM_PROMPT,
+    messages:  [{ role: 'user', content: buildUserPrompt(input) }],
+    maxTokens: 4000,
   })
+  if (!text) throw new Error('Sentinela não retornou texto')
 
-  const textBlock = resp.content.find((b) => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new Error('Sentinela não retornou texto')
-  }
-
-  const raw = textBlock.text.trim()
+  const raw = text.trim()
   const jsonMatch = raw.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error('Sentinela não retornou JSON válido')
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
-import { anthropic, MODEL, HAIKU_MODEL } from '@/lib/anthropic'
+import { anthropic } from '@/lib/anthropic'
+import { routeFor } from '@/lib/llm/models'
 import { readAnalyseDocs, DocReadSummary } from '@/lib/doc-reader'
 import { fetchBCBIndicators } from '@/lib/bcb-data'
 import { fetchCapitalMarketsData, fetchListedComparables, extractSectorKeywords } from '@/lib/cvm-data'
@@ -11,18 +12,16 @@ import { listBenchmarks, formatBenchmarksForPrompt } from '@/lib/benchmarks'
 import { parseClaims, persistClaims, CLAIMS_DIRECTIVE } from '@/lib/claims'
 import { isEarlyStage, EARLY_STAGE_DIRETRIZ_AGENTE, EARLY_STAGE_RESSALVA } from '@/lib/early-stage'
 import { isInternalCall } from '@/lib/internal-auth'
+import { logLlmUsage } from '@/lib/llm/usage-logger'
 
-// Steps que recebem extended thinking para raciocínio financeiro mais profundo
-const THINKING_STEPS = new Set(['diagnostico', 'analise_ma', 'estruturacao'])
-
-// Steps que rodam em Haiku 4.5 (3x mais barato que Sonnet). São tarefas estruturadas
-// ou de compressão sobre outputs já validados — não exigem raciocínio profundo.
-// Steps em Sonnet por padrão: drive_intake, pesquisa, kyc, contratos, diagnostico,
-// analise_ma, estruturacao, originacao, maturidade, revisao, sell_side_pitchbook,
-// relatorio_consolidado.
-const HAIKU_STEPS = new Set(['orchestration', 'blind_teaser'])
+// Roteamento de modelo e extended thinking por step agora vêm do registro central
+// (lib/llm/models.ts). Comportamento idêntico ao anterior: Haiku em orchestration e
+// blind_teaser; Sonnet no resto; thinking (8k) em diagnostico, analise_ma, estruturacao.
 function modelForStep(step: string): string {
-  return HAIKU_STEPS.has(step) ? HAIKU_MODEL : MODEL
+  return routeFor(step).model
+}
+function thinkingBudgetForStep(step: string): number | undefined {
+  return routeFor(step).thinkingBudget
 }
 
 // Steps que emitem claims estruturados (Fase 8). Excluímos:
@@ -810,7 +809,7 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
       const readable = new ReadableStream({
         start(controller) {
           const messageStream = anthropic.messages.stream({
-            model: MODEL,
+            model: modelForStep('drive_intake'),
             max_tokens: 10000,
             system: docIntakeSystem as any,
             messages: [{ role: 'user', content: userContent as any }],
@@ -834,13 +833,21 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
                 saveAuditLog(admin, {
                   analiseId:      id,
                   stepKey:        step,
-                  modelId:        MODEL,
+                  modelId:        modelForStep('drive_intake'),
                   inputTokens:    msg.usage?.input_tokens  ?? 0,
                   outputTokens:   msg.usage?.output_tokens ?? 0,
                   intakeSnapshot: intake,
                   contextSteps,
                   externalData,
                   startedAt:      stepStartedAt,
+                }),
+                logLlmUsage({
+                  analiseId: id,
+                  context:   'analise_pipeline',
+                  step,
+                  model:     modelForStep('drive_intake'),
+                  usage:     msg.usage,
+                  latencyMs: Date.now() - stepStartedAt,
                 }),
               ])
               controller.close()
@@ -929,7 +936,7 @@ ${regen.briefing_motivo}
       }
     }
 
-    const useThinking = THINKING_STEPS.has(step)
+    const useThinking = thinkingBudgetForStep(step) != null
 
     const readable = new ReadableStream({
       start(controller) {
@@ -941,7 +948,7 @@ ${regen.briefing_motivo}
           messages:   [{ role: 'user', content: args.user as any }],
         }
         if (useThinking) {
-          streamParams.thinking = { type: 'enabled', budget_tokens: 8000 }
+          streamParams.thinking = { type: 'enabled', budget_tokens: thinkingBudgetForStep(step) ?? 8000 }
         }
         const messageStream = anthropic.messages.stream(streamParams)
 
@@ -978,6 +985,15 @@ ${regen.briefing_motivo}
                 contextSteps,
                 externalData,
                 startedAt:      stepStartedAt,
+              }),
+              logLlmUsage({
+                analiseId: id,
+                context:   'analise_pipeline',
+                step,
+                model:     chosenModel,
+                usage:     msg.usage,
+                latencyMs: Date.now() - stepStartedAt,
+                thinking:  useThinking,
               }),
               // Persiste claims em tabela própria (apaga as anteriores deste step antes)
               claims.length > 0 ? persistClaims(id, step, claims) : Promise.resolve(),

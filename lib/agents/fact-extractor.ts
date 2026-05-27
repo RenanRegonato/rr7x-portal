@@ -1,4 +1,4 @@
-import { anthropic, HAIKU_MODEL } from '@/lib/anthropic'
+import { callLLM } from '@/lib/llm/call'
 import type { FactType } from '@/lib/truth-layer'
 
 // Fact Extractor — converte o output narrativo do drive_intake em fatos
@@ -180,21 +180,19 @@ ${input.drive_intake_output.length > 60000
 Extraia agora os fatos conforme instruído. Retorne SOMENTE o JSON.`
 }
 
-export async function extractFacts(input: ExtractorInput): Promise<ExtractorOutput> {
-  const resp = await anthropic.messages.create({
-    model:       HAIKU_MODEL,
-    max_tokens:  8000,
-    temperature: 0,
+export async function extractFacts(input: ExtractorInput, analiseId?: string): Promise<ExtractorOutput> {
+  const { text } = await callLLM({
+    task:        'fact_extract_post',
+    context:     'validators',
+    analiseId,
     system:      SYSTEM_PROMPT,
     messages:    [{ role: 'user', content: buildUserPrompt(input) }],
+    maxTokens:   8000,
+    temperature: 0,
   })
+  if (!text) throw new Error('Fact Extractor não retornou texto')
 
-  const textBlock = resp.content.find((b) => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new Error('Fact Extractor não retornou texto')
-  }
-
-  const raw = textBlock.text.trim()
+  const raw = text.trim()
   const jsonMatch = raw.match(/\{[\s\S]*\}/)
   if (!jsonMatch) {
     throw new Error('Fact Extractor não retornou JSON válido: ' + raw.slice(0, 300))

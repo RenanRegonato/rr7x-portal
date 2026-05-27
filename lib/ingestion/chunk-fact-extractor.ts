@@ -1,6 +1,5 @@
-import { anthropic } from '@/lib/anthropic'
-
-const MODEL = 'claude-haiku-4-5-20251001'
+import { callLLM } from '@/lib/llm/call'
+import { routeFor } from '@/lib/llm/models'
 
 export interface ChunkFact {
   fact_type:    string
@@ -16,6 +15,8 @@ interface ExtractArgs {
   chunkText:      string
   pageStartHint:  number | null
   pageEndHint:    number | null
+  analiseId?:     string   // para observabilidade de custo (best-effort)
+  documentId?:    string
 }
 
 const SYSTEM_PROMPT = `Você é o Extrator de Fatos da Mandor — converte trechos brutos de documentos financeiros em FATOS ESTRUTURADOS JSON.
@@ -78,18 +79,19 @@ export async function extractFactsFromChunk(args: ExtractArgs): Promise<ChunkFac
     args.pageStartHint != null ? `\nPágina aproximada: ${args.pageStartHint}${args.pageEndHint != null && args.pageEndHint !== args.pageStartHint ? `-${args.pageEndHint}` : ''}` : ''
   }\n\n## Chunk (conteúdo bruto)\n\n${args.chunkText}\n\n## Saída esperada\nJSON com array "facts" conforme o schema.`
 
-  const msg = await anthropic.messages.create({
-    model:       MODEL,
-    max_tokens:  4000,
-    temperature: 0,
+  const { text } = await callLLM({
+    task:        'chunk_fact_extract',
+    context:     'ingestion',
+    analiseId:   args.analiseId ?? null,
     system:      SYSTEM_PROMPT,
     messages:    [{ role: 'user', content: userBlock }],
+    maxTokens:   4000,
+    temperature: 0,
+    meta:        { document: args.documentName, document_id: args.documentId ?? null },
   })
+  if (!text) return []
 
-  const block = msg.content.find(b => b.type === 'text')
-  if (!block || block.type !== 'text') return []
-
-  const raw = block.text.trim()
+  const raw = text.trim()
   const json = stripJsonFence(raw)
 
   let parsed: { facts?: unknown[] }
@@ -126,7 +128,7 @@ export async function extractFactsFromChunk(args: ExtractArgs): Promise<ChunkFac
   return facts
 }
 
-export const FACT_EXTRACTOR_MODEL = MODEL
+export const FACT_EXTRACTOR_MODEL = routeFor('chunk_fact_extract').model
 
 function stripJsonFence(text: string): string {
   const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)

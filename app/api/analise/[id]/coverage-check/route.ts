@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient, createServerSupabaseClient } from '@/lib/supabase-server'
 import { canAccessAnalise, getUserContext } from '@/lib/get-role'
 import { validarCoverage, type CoverageItemResult, type CoverageOutput } from '@/lib/agents/coverage-validator'
+import { routeFor } from '@/lib/llm/models'
 import { detectarTipoOperacao, getChecklist, requerHistoricoOperacional } from '@/lib/coverage-checklists'
 import { isEarlyStage } from '@/lib/early-stage'
 import { audit, extractIp } from '@/lib/audit'
@@ -87,7 +88,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         checklist:       aValidar,
         outputs_agentes,
         intake_resumo:   intakeResumo(intake),
-      })
+      }, analiseId)
     } catch (e) {
       console.error('[coverage-check] failed:', e)
       return NextResponse.json({ error: 'Falha ao validar cobertura' }, { status: 502 })
@@ -123,7 +124,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     early_stage:   earlyStage,
     items,
     resumo,
-    model_id:      'claude-sonnet-4-6',
+    model_id:      routeFor('coverage_check').model,
   }
   const now = new Date().toISOString()
 
