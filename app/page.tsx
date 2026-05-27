@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import AuthErrorHandler from "@/components/AuthErrorHandler";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Mandor | Inteligência operacional para M&A, crédito estruturado e preparação de deals",
@@ -309,48 +311,7 @@ export default function LandingPage() {
       <AuthErrorHandler />
 
       {/* ── Navbar ─────────────────────────────────────────────────────────── */}
-      <header
-        className="sticky top-0 z-50 border-b border-lp-border"
-        style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)" }}
-      >
-        <nav
-          className="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between"
-          aria-label="Navegação principal"
-        >
-          <Link href="/" className="flex items-center">
-            <img src="/logo/mandor-horizontal.svg" alt="Mandor" height={32} width={104} className="h-8 w-auto" />
-          </Link>
-
-          <ul className="hidden md:flex items-center gap-1 text-[13.5px] text-lp-ink-2">
-            {[
-              { href: "#inteligencias",      label: "A rede"             },
-              { href: "#reforma-tributaria", label: "Reforma Tributária" },
-              { href: "#invest-match",       label: "Invest Match"       },
-              { href: "#planos",             label: "Planos"             },
-              { href: "/blog",               label: "Blog"               },
-            ].map((l) => (
-              <li key={l.label}>
-                <Link href={l.href} className="px-3 py-1.5 rounded-lg hover:bg-lp-fog transition-colors">
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          <div className="flex items-center gap-2">
-            <Link href="/auth/login" className="hidden sm:block text-[13px] text-lp-ink-2 hover:text-lp-ink px-4 py-2 transition-colors">
-              Entrar
-            </Link>
-            <Link
-              href="/auth/signup"
-              className="text-[13px] font-medium text-white px-4 py-2 rounded-[9px] transition-opacity hover:opacity-90"
-              style={{ background: "#1655E8" }}
-            >
-              Solicitar acesso
-            </Link>
-          </div>
-        </nav>
-      </header>
+      <SiteHeader />
 
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden lp-hero-bg">
@@ -577,6 +538,41 @@ export default function LandingPage() {
               </div>
             ))}
           </dl>
+        </div>
+      </section>
+
+      {/* ── Módulos em destaque ────────────────────────────────────────────── */}
+      <section className="max-w-[1280px] mx-auto px-6 pt-16 lg:pt-20">
+        <p className="lp-eyebrow mb-7">módulos em destaque</p>
+        <div className="grid md:grid-cols-2 gap-5">
+          {[
+            {
+              tag: "adequação tributária",
+              title: "Reforma Tributária",
+              desc: "Diagnóstico de adequação à EC 132/2023 e à LC 214/2025 dentro da própria análise: o risco fiscal que trava M&A, crédito e captação, ancorado em artigo de lei.",
+              href: "/reforma-tributaria",
+            },
+            {
+              tag: "originação",
+              title: "Invest Match",
+              desc: "Da análise à tese, da tese ao investidor certo: um motor de matching de cinco camadas que transforma originação em processo.",
+              href: "/invest-match",
+            },
+          ].map((m) => (
+            <Link
+              key={m.title}
+              href={m.href}
+              className="card-hover lp-doc-card rounded-[18px] p-6 lg:p-7 flex flex-col group"
+            >
+              <p className="lp-eyebrow mb-3">{m.tag}</p>
+              <h2 className="font-display text-[24px] sm:text-[27px] leading-tight text-lp-ink mb-2">{m.title}</h2>
+              <p className="text-[14px] text-lp-ink-2 leading-relaxed mb-5 flex-1">{m.desc}</p>
+              <span className="inline-flex items-center gap-1.5 text-[13px] font-medium" style={{ color: "#1655E8" }}>
+                Conhecer o módulo
+                <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
+              </span>
+            </Link>
+          ))}
         </div>
       </section>
 
@@ -1114,159 +1110,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Módulo: Reforma Tributária ─────────────────────────────────────── */}
-      <section id="reforma-tributaria" className="bg-lp-fog border-y border-lp-border scroll-mt-20">
-        <div className="max-w-[1280px] mx-auto px-6 py-20 lg:py-28">
-          <div className="grid lg:grid-cols-2 gap-14 items-center">
-            {/* copy */}
-            <div className="reveal-left">
-              <p className="lp-eyebrow mb-5">módulo · adequação tributária</p>
-              <h2 className="font-display text-[34px] sm:text-[44px] leading-[1.08] tracking-tight text-lp-ink mb-5">
-                Adequação à Reforma Tributária.
-                <br />
-                <em style={{ fontStyle: "italic" }}>O risco fiscal que decide o deal.</em>
-              </h2>
-              <p className="text-[15.5px] text-lp-ink-2 leading-relaxed mb-6">
-                A reforma (EC 132/2023 e LC 214/2025) muda a realidade fiscal de quase toda
-                empresa que será comprada, vendida ou financiada na transição de 2026 a 2033.
-                A Mandor diagnostica essa adequação dentro da própria análise: o que trava
-                captação, M&amp;A e crédito por motivo tributário, ancorado em artigo de lei
-                e com a ressalva auditável.
-              </p>
-              <ul className="space-y-2.5 mb-7">
-                {[
-                  "Dependência de benefícios de ICMS que se extinguem até 2033",
-                  "Exposição ao Imposto Seletivo (veículos, mineração, bebidas, fumo)",
-                  "Impacto do split payment no fluxo de caixa e nas garantias",
-                  "Empresa do Simples vendendo B2B e a perda de competitividade",
-                  "Crédito condicionado ao pagamento ao longo da cadeia",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-[13.5px] text-lp-ink-2">
-                    <span className="flex-shrink-0 mt-0.5 text-[11px] font-bold" style={{ color: "#1655E8" }}>→</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <span className="lp-stamp">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
-                Ancorado na LC 214/2025 · rastreável na due diligence
-              </span>
-            </div>
-
-            {/* mock diagnóstico */}
-            <div className="reveal-right" aria-hidden="true">
-              <div className="rounded-[20px] overflow-hidden lp-card-shadow bg-lp-canvas border border-lp-border">
-                <div className="flex items-center justify-between px-5 py-3.5 border-b border-lp-border">
-                  <div className="flex items-center gap-2.5">
-                    <span className="lp-seal" style={{ width: 36, height: 36, fontSize: 14 }}>M</span>
-                    <div>
-                      <p className="text-[12px] font-semibold text-lp-ink leading-tight">Diagnóstico de Adequação</p>
-                      <p className="text-[10px] text-lp-ink-3">Base normativa: LC 214/2025</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "#FEF3F2", color: "#B42318" }}>exposição alta</span>
-                </div>
-                <div className="px-5 py-4 border-b border-lp-border">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-medium text-lp-ink-3 uppercase tracking-widest">Score de conformidade</span>
-                    <span className="text-[11px] font-semibold" style={{ color: "#1655E8" }}>46 / 100</span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-lp-fog overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: "46%", background: "linear-gradient(90deg,#1655E8,#378ADD)" }} />
-                  </div>
-                </div>
-                <div className="px-5 py-4 space-y-2.5">
-                  {[
-                    { t: "Benefício de ICMS extinto até 2033", s: "crítico", c: "#B42318", b: "#FEF3F2" },
-                    { t: "Split payment na cessão de recebíveis", s: "alto", c: "#B54708", b: "#FFFAEB" },
-                    { t: "Contratos longos sem repactuação", s: "médio", c: "#175CD3", b: "#EFF4FF" },
-                  ].map((r) => (
-                    <div key={r.t} className="flex items-center justify-between gap-3">
-                      <p className="text-[12px] text-lp-ink leading-snug">{r.t}</p>
-                      <span className="flex-shrink-0 text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: r.b, color: r.c }}>{r.s}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="px-5 py-3 border-t border-lp-border">
-                  <span className="text-[10px] text-lp-ink-3">7 riscos · 6 pontos críticos de captação · checklist de 12 itens</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Módulo: Invest Match ───────────────────────────────────────────── */}
-      <section id="invest-match" className="max-w-[1280px] mx-auto px-6 py-20 lg:py-28 scroll-mt-20">
-        <div className="grid lg:grid-cols-2 gap-14 items-center">
-          {/* mock match */}
-          <div className="reveal-left order-2 lg:order-1" aria-hidden="true">
-            <div className="rounded-[20px] overflow-hidden lp-card-shadow bg-lp-canvas border border-lp-border">
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-lp-border">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#1655E8" }} />
-                  <span className="text-[11px] font-medium text-lp-ink-2 tracking-wide">Tese · Indústria Química · R$ 280M</span>
-                </div>
-                <span className="text-[10px] font-medium text-lp-ink-3">5 camadas</span>
-              </div>
-              <div className="px-5 py-4 space-y-2.5">
-                {[
-                  { n: "Fundo de Crédito Estruturado", t: "compatível com a tese", sc: 91, st: "aprovado", c: "#067647", b: "#ECFDF3" },
-                  { n: "Family Office · SP", t: "apetite e ticket aderentes", sc: 84, st: "curadoria", c: "#175CD3", b: "#EFF4FF" },
-                  { n: "Gestora de Special Sits", t: "perfil de risco aderente", sc: 76, st: "curadoria", c: "#175CD3", b: "#EFF4FF" },
-                ].map((m) => (
-                  <div key={m.n} className="flex items-center justify-between gap-3 rounded-[10px] border border-lp-border px-3 py-2.5">
-                    <div className="min-w-0">
-                      <p className="text-[12px] font-medium text-lp-ink leading-tight truncate">{m.n}</p>
-                      <p className="text-[10.5px] text-lp-ink-3 truncate">{m.t}</p>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className="font-display text-[18px] leading-none text-lp-ink">{m.sc}</span>
-                      <span className="text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: m.b, color: m.c }}>{m.st}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="px-5 py-3 border-t border-lp-border">
-                <span className="text-[10px] text-lp-ink-3">Compatibilidade · originação reversa disponível</span>
-              </div>
-            </div>
-          </div>
-
-          {/* copy */}
-          <div className="reveal-right order-1 lg:order-2">
-            <p className="lp-eyebrow mb-5">módulo · originação</p>
-            <h2 className="font-display text-[34px] sm:text-[44px] leading-[1.08] tracking-tight text-lp-ink mb-5">
-              Invest Match.
-              <br />
-              <em style={{ fontStyle: "italic" }}>Da análise à tese, da tese ao investidor certo.</em>
-            </h2>
-            <p className="text-[15.5px] text-lp-ink-2 leading-relaxed mb-6">
-              A partir da análise da Mandor, geramos a tese do ativo e acionamos um motor de
-              matching de cinco camadas que conecta o deal ao investidor ou comprador de perfil
-              compatível. Originação deixa de depender de agenda e vira processo.
-            </p>
-            <ul className="space-y-2.5 mb-7">
-              {[
-                "Tese de investimento gerada a partir da análise do ativo",
-                "Motor de matching de 5 camadas, com score de compatibilidade",
-                "Aprovação automática acima do corte, curadoria abaixo dele",
-                "Originação reversa: busca teses aderentes para um investidor",
-                "Pipeline de relacionamento por status, do lead ao fechamento",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-[13.5px] text-lp-ink-2">
-                  <span className="flex-shrink-0 mt-0.5 text-[11px] font-bold" style={{ color: "#1655E8" }}>→</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <a href="#planos" className="lp-btn-secondary inline-flex items-center justify-center text-[13.5px] font-medium text-lp-ink border border-lp-border-strong px-5 py-3 rounded-[10px] hover:bg-lp-fog">
-              Ver planos com originação
-            </a>
-          </div>
-        </div>
-      </section>
-
       {/* ── Mandor potencializa ──────────────────────────────────────────────── */}
       <section className="bg-lp-fog border-y border-lp-border">
         <div className="max-w-[1280px] mx-auto px-6 py-20 lg:py-28">
@@ -1644,98 +1487,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ─────────────────────────────────────────────────────────── */}
-      <footer className="border-t" style={{ background: "#040811", borderColor: "#1E2E4A" }}>
-        <div className="max-w-[1280px] mx-auto px-6 py-14">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
-            {/* Brand */}
-            <div className="col-span-2">
-              <div className="mb-3">
-                <img src="/logo/mandor-horizontal-dark.svg" alt="Mandor" className="h-7 w-auto" />
-              </div>
-              <p className="text-[12px] leading-relaxed mb-3 max-w-[240px]" style={{ color: "#4A6090" }}>
-                Inteligência operacional para M&amp;A, crédito estruturado e preparação de deals.
-              </p>
-              <a href="mailto:mandor@rr7x.com.br" className="text-[12px] hover:underline block" style={{ color: "#7A92BE" }}>
-                mandor@rr7x.com.br
-              </a>
-              <a
-                href="https://www.instagram.com/mandor.deals/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram da Mandor (@mandor.deals)"
-                className="inline-flex items-center gap-2 mt-4 text-[12px] hover:underline"
-                style={{ color: "#7A92BE" }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                </svg>
-                @mandor.deals
-              </a>
-            </div>
-
-            {/* Produto */}
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#4A6090" }}>Produto</p>
-              <ul className="space-y-2">
-                {[
-                  { label: "A rede cognitiva",   href: "#inteligencias"      },
-                  { label: "Reforma Tributária",  href: "#reforma-tributaria" },
-                  { label: "Invest Match",        href: "#invest-match"       },
-                  { label: "Como funciona",       href: "#como-funciona"      },
-                  { label: "Planos",              href: "#planos"             },
-                ].map((l) => (
-                  <li key={l.label}>
-                    <Link href={l.href} className="text-[13px] hover:underline" style={{ color: "#6B82A8" }}>{l.label}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Recursos */}
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#4A6090" }}>Recursos</p>
-              <ul className="space-y-2">
-                {[
-                  { label: "Blog",        href: "/blog"        },
-                  { label: "Entrar",      href: "/auth/login"  },
-                  { label: "Criar conta", href: "/auth/signup" },
-                ].map((l) => (
-                  <li key={l.label}>
-                    <Link href={l.href} className="text-[13px] hover:underline" style={{ color: "#6B82A8" }}>{l.label}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Legal */}
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#4A6090" }}>Legal</p>
-              <ul className="space-y-2">
-                {[
-                  { label: "Política de Privacidade", href: "/privacidade"    },
-                  { label: "Termos de Uso",           href: "/termos"         },
-                  { label: "Contato",                 href: "/contato"                           },
-                ].map((l) => (
-                  <li key={l.label}>
-                    <Link href={l.href} className="text-[13px] hover:underline" style={{ color: "#6B82A8" }}>{l.label}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-3" style={{ borderColor: "#1E2E4A" }}>
-            <p className="text-[12px]" style={{ color: "#334560" }}>
-              © {new Date().getFullYear()} RR7x Capital Hub. Todos os direitos reservados.
-            </p>
-            <p className="text-[11px] italic" style={{ color: "#334560" }}>
-              "O ativo certo, para o comprador certo, no timing certo."
-            </p>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
 
       <WhatsAppFloat />
     </div>
