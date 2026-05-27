@@ -53,7 +53,7 @@ export default function SiteFooter() {
                 @mandor.deals
               </a>
               <a
-                href="https://www.linkedin.com/company/109768337/"
+                href="https://www.linkedin.com/company/rr7x-capital-hub/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn da Mandor"
