@@ -374,9 +374,9 @@ export default function LandingPage() {
 
               {/* Subline */}
               <p className="animate-fade-up text-[15.5px] text-lp-ink-2 leading-relaxed max-w-[530px] mb-8" style={{ animationDelay: "280ms" }}>
-                Uma rede cognitiva de inteligências especialistas lê cada deal como uma
-                mesa de M&amp;A e crédito leria, e devolve uma análise institucional,
-                rastreável e auditável. Em até 90 minutos.
+                Uma rede cognitiva de inteligências especialistas lê cada deal com o
+                rigor de uma mesa de M&amp;A e crédito, e devolve uma análise
+                institucional, rastreável e auditável, em até 90 minutos.
               </p>
 
               {/* CTAs */}

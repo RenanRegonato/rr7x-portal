@@ -1,16 +1,21 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 // Cabeçalho institucional compartilhado pela home e pelas páginas de marketing
 // (/reforma-tributaria, /invest-match). Links absolutos a partir de "/" para
-// funcionarem de qualquer página. Os módulos apontam para as páginas dedicadas.
+// funcionarem de qualquer página. No mobile, abre um menu (hambúrguer).
+const LINKS = [
+  { href: "/#inteligencias",     label: "A rede"             },
+  { href: "/reforma-tributaria", label: "Reforma Tributária" },
+  { href: "/invest-match",       label: "Invest Match"       },
+  { href: "/#planos",            label: "Planos"             },
+  { href: "/blog",               label: "Blog"               },
+];
+
 export default function SiteHeader() {
-  const links = [
-    { href: "/#inteligencias",     label: "A rede"             },
-    { href: "/reforma-tributaria", label: "Reforma Tributária" },
-    { href: "/invest-match",       label: "Invest Match"       },
-    { href: "/#planos",            label: "Planos"             },
-    { href: "/blog",               label: "Blog"               },
-  ];
+  const [open, setOpen] = useState(false);
 
   return (
     <header
@@ -25,8 +30,9 @@ export default function SiteHeader() {
           <img src="/logo/mandor-horizontal.svg" alt="Mandor" height={32} width={104} className="h-8 w-auto" />
         </Link>
 
+        {/* Desktop nav */}
         <ul className="hidden md:flex items-center gap-1 text-[13.5px] text-lp-ink-2">
-          {links.map((l) => (
+          {LINKS.map((l) => (
             <li key={l.label}>
               <Link href={l.href} className="px-3 py-1.5 rounded-lg hover:bg-lp-fog transition-colors">
                 {l.label}
@@ -46,8 +52,62 @@ export default function SiteHeader() {
           >
             Solicitar acesso
           </Link>
+
+          {/* Hambúrguer (mobile) */}
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="md:hidden flex items-center justify-center w-10 h-10 -mr-2 rounded-lg text-lp-ink hover:bg-lp-fog transition-colors"
+            aria-label={open ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              {open ? (
+                <>
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </>
+              ) : (
+                <>
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </>
+              )}
+            </svg>
+          </button>
         </div>
       </nav>
+
+      {/* Menu mobile */}
+      {open && (
+        <div id="mobile-menu" className="md:hidden border-t border-lp-border bg-lp-canvas">
+          <ul className="px-6 py-3">
+            {LINKS.map((l) => (
+              <li key={l.label}>
+                <Link
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className="block py-3 text-[15px] text-lp-ink border-b border-lp-border-subtle last:border-0"
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link
+                href="/auth/login"
+                onClick={() => setOpen(false)}
+                className="block py-3 text-[15px] font-medium"
+                style={{ color: "#1655E8" }}
+              >
+                Entrar
+              </Link>
+            </li>
+          </ul>
+        </div>
+      )}
     </header>
   );
 }
