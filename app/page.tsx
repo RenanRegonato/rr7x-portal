@@ -6,7 +6,7 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 export const metadata: Metadata = {
   title: "Mandor | Inteligência operacional para M&A, crédito estruturado e preparação de deals",
   description:
-    "Analise operações de M&A, estruture crédito e prepare ativos para o mercado em até 90 minutos. 10 módulos especializados em paralelo. Material institucional pronto para o mercado.",
+    "Diagnóstico institucional de operações de M&A, crédito estruturado e preparação de ativos para o mercado: análise rastreável e auditável, ancorada em documento e fonte. Inclui adequação à Reforma Tributária e originação via Invest Match.",
   alternates: { canonical: "/" },
 };
 
@@ -25,7 +25,7 @@ const faqSchema = {
     },
     {
       "@type": "Question",
-      name: "A plataforma está em conformidade com a LGPD?",
+      name: "A Mandor está em conformidade com a LGPD?",
       acceptedAnswer: {
         "@type": "Answer",
         text: "Sim. Mandor opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para planos Institucional e Corporativo.",
@@ -33,7 +33,7 @@ const faqSchema = {
     },
     {
       "@type": "Question",
-      name: "Quanto tempo leva para ter a plataforma funcionando?",
+      name: "Quanto tempo leva para começar a operar com a Mandor?",
       acceptedAnswer: {
         "@type": "Answer",
         text: "O onboarding leva de 1 a 3 dias úteis para os planos Institucional e Corporativo. Para o plano Pontual, a primeira análise pode ser submetida no mesmo dia do contrato.",
@@ -272,11 +272,11 @@ const faqs = [
     a: "Mandor opera com criptografia em trânsito (TLS 1.3) e em repouso (AES-256). Nenhum dado é compartilhado entre escritórios. Cada análise fica isolada em ambiente dedicado ao escritório contratante.",
   },
   {
-    q: "A plataforma está em conformidade com a LGPD?",
+    q: "A Mandor está em conformidade com a LGPD?",
     a: "Sim. Mandor opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para planos Institucional e Corporativo.",
   },
   {
-    q: "Quanto tempo leva para ter a plataforma funcionando?",
+    q: "Quanto tempo leva para começar a operar com a Mandor?",
     a: "O onboarding leva de 1 a 3 dias úteis para os planos Institucional e Corporativo. Para o plano Pontual, a primeira análise pode ser submetida no mesmo dia do contrato.",
   },
   {
@@ -323,11 +323,11 @@ export default function LandingPage() {
 
           <ul className="hidden md:flex items-center gap-1 text-[13.5px] text-lp-ink-2">
             {[
-              { href: "#como-funciona", label: "Como funciona" },
-              { href: "#inteligencias", label: "Inteligências" },
-              { href: "#comparativo",   label: "Comparativo"   },
-              { href: "#planos",        label: "Planos"        },
-              { href: "/blog",          label: "Blog"          },
+              { href: "#inteligencias",      label: "A rede"             },
+              { href: "#reforma-tributaria", label: "Reforma Tributária" },
+              { href: "#invest-match",       label: "Invest Match"       },
+              { href: "#planos",             label: "Planos"             },
+              { href: "/blog",               label: "Blog"               },
             ].map((l) => (
               <li key={l.label}>
                 <Link href={l.href} className="px-3 py-1.5 rounded-lg hover:bg-lp-fog transition-colors">
@@ -390,7 +390,7 @@ export default function LandingPage() {
               {/* Badge */}
               <div className="animate-fade-up inline-flex items-center gap-2 border border-lp-border-strong bg-lp-canvas text-lp-ink-2 text-[11px] font-medium px-3.5 py-1.5 rounded-full mb-7 tracking-widest uppercase" style={{ animationDelay: "0ms" }}>
                 <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#1655E8" }} />
-                10 inteligências em paralelo · até 90 minutos
+                O padrão de análise para M&amp;A · Crédito · Captação
               </div>
 
               {/* Headline */}
@@ -412,9 +412,10 @@ export default function LandingPage() {
               </div>
 
               {/* Subline */}
-              <p className="animate-fade-up text-[15.5px] text-lp-ink-2 leading-relaxed max-w-[520px] mb-8" style={{ animationDelay: "280ms" }}>
-                Transforme semanas de análise em minutos com uma IA cognitiva desenvolvida
-                para escritórios, assessores e operações de M&amp;A.
+              <p className="animate-fade-up text-[15.5px] text-lp-ink-2 leading-relaxed max-w-[530px] mb-8" style={{ animationDelay: "280ms" }}>
+                Uma rede cognitiva de inteligências especialistas lê cada deal como uma
+                mesa de M&amp;A e crédito leria, e devolve uma análise institucional,
+                rastreável e auditável. Em até 90 minutos.
               </p>
 
               {/* CTAs */}
@@ -437,6 +438,16 @@ export default function LandingPage() {
               <p className="animate-fade-up text-[12px] text-lp-ink-3" style={{ animationDelay: "420ms" }}>
                 Reservamos uma conversa inicial para entender o contexto do escritório
               </p>
+              <div className="animate-fade-up mt-5 flex flex-wrap gap-2.5" style={{ animationDelay: "480ms" }}>
+                {["Ancorado em documento e fonte", "Rastreável em due diligence"].map((s) => (
+                  <span key={s} className="lp-stamp">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                    {s}
+                  </span>
+                ))}
+              </div>
             </div>
 
             {/* ── Right: product mockup ── */}
@@ -695,20 +706,21 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── A plataforma ───────────────────────────────────────────────────── */}
+      {/* ── O método ───────────────────────────────────────────────────────── */}
       <section className="bg-lp-fog border-y border-lp-border">
         <div className="max-w-[1280px] mx-auto px-6 py-20 lg:py-28">
           <div className="max-w-[640px] mb-14">
-            <p className="text-[11px] font-medium text-lp-accent uppercase tracking-widest mb-4">a plataforma</p>
+            <p className="lp-eyebrow mb-4">o método</p>
             <h2 className="font-display text-[36px] sm:text-[46px] leading-[1.08] tracking-tight text-lp-ink mb-5">
-              Uma central de inteligência
+              Uma rede cognitiva
               <br />
               que{" "}
-              <em style={{ fontStyle: "italic" }}>potencializa assessores.</em>
+              <em style={{ fontStyle: "italic" }}>potencializa quem decide.</em>
             </h2>
             <p className="text-[15.5px] text-lp-ink-2 leading-relaxed mb-5">
-              Mandor potencializa o trabalho do profissional. A plataforma estrutura informação,
-              cruza dados e entrega mais capacidade analítica para a equipe que toma as decisões.
+              A Mandor potencializa o trabalho do profissional: estrutura a informação,
+              cruza fontes e entrega mais capacidade analítica para a equipe que decide,
+              sempre com a trilha de auditoria de cada conclusão.
             </p>
             {/* 3 use cases */}
             <div className="flex flex-col gap-2 mb-5">
@@ -1071,15 +1083,15 @@ export default function LandingPage() {
       {/* ── Inteligências ──────────────────────────────────────────────────── */}
       <section id="inteligencias" className="max-w-[1280px] mx-auto px-6 py-20 lg:py-28">
         <div className="text-center max-w-[600px] mx-auto mb-14">
-          <p className="text-[11px] font-medium text-lp-accent uppercase tracking-widest mb-4">rede neural</p>
+          <p className="lp-eyebrow justify-center mb-4">a rede cognitiva</p>
           <h2 className="font-display text-[36px] sm:text-[46px] leading-[1.08] tracking-tight text-lp-ink mb-4">
-            Dez módulos em rede.
+            Dez inteligências em rede.
             <br />
             <em style={{ fontStyle: "italic" }}>Um único pipeline.</em>
           </h2>
           <p className="text-[15px] text-lp-ink-2 leading-relaxed">
-            Cada módulo processa o ativo no seu domínio específico. Os resultados são
-            consolidados em um único relatório técnico, coeso e pronto para o mercado.
+            Cada inteligência analisa o ativo no seu domínio. Os resultados são
+            consolidados em um único dossiê técnico, coeso, rastreável e pronto para o mercado.
           </p>
         </div>
 
@@ -1099,6 +1111,159 @@ export default function LandingPage() {
               </p>
             </article>
           ))}
+        </div>
+      </section>
+
+      {/* ── Módulo: Reforma Tributária ─────────────────────────────────────── */}
+      <section id="reforma-tributaria" className="bg-lp-fog border-y border-lp-border scroll-mt-20">
+        <div className="max-w-[1280px] mx-auto px-6 py-20 lg:py-28">
+          <div className="grid lg:grid-cols-2 gap-14 items-center">
+            {/* copy */}
+            <div className="reveal-left">
+              <p className="lp-eyebrow mb-5">módulo · adequação tributária</p>
+              <h2 className="font-display text-[34px] sm:text-[44px] leading-[1.08] tracking-tight text-lp-ink mb-5">
+                Adequação à Reforma Tributária.
+                <br />
+                <em style={{ fontStyle: "italic" }}>O risco fiscal que decide o deal.</em>
+              </h2>
+              <p className="text-[15.5px] text-lp-ink-2 leading-relaxed mb-6">
+                A reforma (EC 132/2023 e LC 214/2025) muda a realidade fiscal de quase toda
+                empresa que será comprada, vendida ou financiada na transição de 2026 a 2033.
+                A Mandor diagnostica essa adequação dentro da própria análise: o que trava
+                captação, M&amp;A e crédito por motivo tributário, ancorado em artigo de lei
+                e com a ressalva auditável.
+              </p>
+              <ul className="space-y-2.5 mb-7">
+                {[
+                  "Dependência de benefícios de ICMS que se extinguem até 2033",
+                  "Exposição ao Imposto Seletivo (veículos, mineração, bebidas, fumo)",
+                  "Impacto do split payment no fluxo de caixa e nas garantias",
+                  "Empresa do Simples vendendo B2B e a perda de competitividade",
+                  "Crédito condicionado ao pagamento ao longo da cadeia",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-[13.5px] text-lp-ink-2">
+                    <span className="flex-shrink-0 mt-0.5 text-[11px] font-bold" style={{ color: "#1655E8" }}>→</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <span className="lp-stamp">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+                Ancorado na LC 214/2025 · rastreável na due diligence
+              </span>
+            </div>
+
+            {/* mock diagnóstico */}
+            <div className="reveal-right" aria-hidden="true">
+              <div className="rounded-[20px] overflow-hidden lp-card-shadow bg-lp-canvas border border-lp-border">
+                <div className="flex items-center justify-between px-5 py-3.5 border-b border-lp-border">
+                  <div className="flex items-center gap-2.5">
+                    <span className="lp-seal" style={{ width: 36, height: 36, fontSize: 14 }}>M</span>
+                    <div>
+                      <p className="text-[12px] font-semibold text-lp-ink leading-tight">Diagnóstico de Adequação</p>
+                      <p className="text-[10px] text-lp-ink-3">Base normativa: LC 214/2025</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "#FEF3F2", color: "#B42318" }}>exposição alta</span>
+                </div>
+                <div className="px-5 py-4 border-b border-lp-border">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-medium text-lp-ink-3 uppercase tracking-widest">Score de conformidade</span>
+                    <span className="text-[11px] font-semibold" style={{ color: "#1655E8" }}>46 / 100</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-lp-fog overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: "46%", background: "linear-gradient(90deg,#1655E8,#378ADD)" }} />
+                  </div>
+                </div>
+                <div className="px-5 py-4 space-y-2.5">
+                  {[
+                    { t: "Benefício de ICMS extinto até 2033", s: "crítico", c: "#B42318", b: "#FEF3F2" },
+                    { t: "Split payment na cessão de recebíveis", s: "alto", c: "#B54708", b: "#FFFAEB" },
+                    { t: "Contratos longos sem repactuação", s: "médio", c: "#175CD3", b: "#EFF4FF" },
+                  ].map((r) => (
+                    <div key={r.t} className="flex items-center justify-between gap-3">
+                      <p className="text-[12px] text-lp-ink leading-snug">{r.t}</p>
+                      <span className="flex-shrink-0 text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: r.b, color: r.c }}>{r.s}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="px-5 py-3 border-t border-lp-border">
+                  <span className="text-[10px] text-lp-ink-3">7 riscos · 6 pontos críticos de captação · checklist de 12 itens</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Módulo: Invest Match ───────────────────────────────────────────── */}
+      <section id="invest-match" className="max-w-[1280px] mx-auto px-6 py-20 lg:py-28 scroll-mt-20">
+        <div className="grid lg:grid-cols-2 gap-14 items-center">
+          {/* mock match */}
+          <div className="reveal-left order-2 lg:order-1" aria-hidden="true">
+            <div className="rounded-[20px] overflow-hidden lp-card-shadow bg-lp-canvas border border-lp-border">
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-lp-border">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#1655E8" }} />
+                  <span className="text-[11px] font-medium text-lp-ink-2 tracking-wide">Tese · Indústria Química · R$ 280M</span>
+                </div>
+                <span className="text-[10px] font-medium text-lp-ink-3">5 camadas</span>
+              </div>
+              <div className="px-5 py-4 space-y-2.5">
+                {[
+                  { n: "Fundo de Crédito Estruturado", t: "compatível com a tese", sc: 91, st: "aprovado", c: "#067647", b: "#ECFDF3" },
+                  { n: "Family Office · SP", t: "apetite e ticket aderentes", sc: 84, st: "curadoria", c: "#175CD3", b: "#EFF4FF" },
+                  { n: "Gestora de Special Sits", t: "perfil de risco aderente", sc: 76, st: "curadoria", c: "#175CD3", b: "#EFF4FF" },
+                ].map((m) => (
+                  <div key={m.n} className="flex items-center justify-between gap-3 rounded-[10px] border border-lp-border px-3 py-2.5">
+                    <div className="min-w-0">
+                      <p className="text-[12px] font-medium text-lp-ink leading-tight truncate">{m.n}</p>
+                      <p className="text-[10.5px] text-lp-ink-3 truncate">{m.t}</p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="font-display text-[18px] leading-none text-lp-ink">{m.sc}</span>
+                      <span className="text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: m.b, color: m.c }}>{m.st}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="px-5 py-3 border-t border-lp-border">
+                <span className="text-[10px] text-lp-ink-3">Compatibilidade · originação reversa disponível</span>
+              </div>
+            </div>
+          </div>
+
+          {/* copy */}
+          <div className="reveal-right order-1 lg:order-2">
+            <p className="lp-eyebrow mb-5">módulo · originação</p>
+            <h2 className="font-display text-[34px] sm:text-[44px] leading-[1.08] tracking-tight text-lp-ink mb-5">
+              Invest Match.
+              <br />
+              <em style={{ fontStyle: "italic" }}>Da análise à tese, da tese ao investidor certo.</em>
+            </h2>
+            <p className="text-[15.5px] text-lp-ink-2 leading-relaxed mb-6">
+              A partir da análise da Mandor, geramos a tese do ativo e acionamos um motor de
+              matching de cinco camadas que conecta o deal ao investidor ou comprador de perfil
+              compatível. Originação deixa de depender de agenda e vira processo.
+            </p>
+            <ul className="space-y-2.5 mb-7">
+              {[
+                "Tese de investimento gerada a partir da análise do ativo",
+                "Motor de matching de 5 camadas, com score de compatibilidade",
+                "Aprovação automática acima do corte, curadoria abaixo dele",
+                "Originação reversa: busca teses aderentes para um investidor",
+                "Pipeline de relacionamento por status, do lead ao fechamento",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2.5 text-[13.5px] text-lp-ink-2">
+                  <span className="flex-shrink-0 mt-0.5 text-[11px] font-bold" style={{ color: "#1655E8" }}>→</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <a href="#planos" className="lp-btn-secondary inline-flex items-center justify-center text-[13.5px] font-medium text-lp-ink border border-lp-border-strong px-5 py-3 rounded-[10px] hover:bg-lp-fog">
+              Ver planos com originação
+            </a>
+          </div>
         </div>
       </section>
 
@@ -1515,10 +1680,11 @@ export default function LandingPage() {
               <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#4A6090" }}>Produto</p>
               <ul className="space-y-2">
                 {[
-                  { label: "Como funciona", href: "#como-funciona" },
-                  { label: "Comparativo",   href: "#comparativo"   },
-                  { label: "Inteligências", href: "#inteligencias" },
-                  { label: "Planos",        href: "#planos"        },
+                  { label: "A rede cognitiva",   href: "#inteligencias"      },
+                  { label: "Reforma Tributária",  href: "#reforma-tributaria" },
+                  { label: "Invest Match",        href: "#invest-match"       },
+                  { label: "Como funciona",       href: "#como-funciona"      },
+                  { label: "Planos",              href: "#planos"             },
                 ].map((l) => (
                   <li key={l.label}>
                     <Link href={l.href} className="text-[13px] hover:underline" style={{ color: "#6B82A8" }}>{l.label}</Link>

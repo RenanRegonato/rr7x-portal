@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "10 especialistas em IA executando em paralelo. Diagnóstico financeiro completo de ativos em até 90 minutos: DRS, DRE normalizada, EBITDA ajustado, valuation, análise de M&A, estruturação de crédito, contratos, blind teaser e pitchbook.",
+    "Inteligência institucional para M&A e crédito estruturado: diagnóstico financeiro completo, rastreável e auditável, em até 90 minutos. DRS, DRE normalizada, EBITDA ajustado, valuation, análise de M&A, estruturação de crédito, adequação à Reforma Tributária e material de originação.",
   keywords: [
     "M&A",
     "crédito estruturado",
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: `${SITE_NAME} · Deal Intelligence para M&A e Crédito Estruturado`,
     description:
-      "10 especialistas em IA em paralelo. Diagnóstico completo de ativos em até 90 minutos.",
+      "Inteligência institucional para M&A e crédito. Diagnóstico completo, rastreável e auditável, em até 90 minutos.",
     images: [
       {
         url: "/og-image.png",
