@@ -99,19 +99,20 @@ export default function InvestMatchPage() {
       <SiteHeader />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden lp-hero-bg border-b border-lp-border">
-        <div className="absolute inset-0 hero-grid pointer-events-none" aria-hidden="true" />
-        <div className="max-w-[1280px] mx-auto px-6 pt-16 pb-16 lg:pt-24 lg:pb-20 relative">
-          <nav aria-label="Trilha" className="text-[12px] text-lp-ink-3 mb-6">
+      <section className="relative overflow-hidden border-b border-lp-border">
+        <div aria-hidden className="absolute pointer-events-none animate-float-slow" style={{ top: "-24%", right: "-8%", width: 760, height: 760, borderRadius: "50%", background: "radial-gradient(circle, rgba(22,85,232,0.10) 0%, transparent 62%)", filter: "blur(30px)" }} />
+        <div aria-hidden className="absolute inset-0 hero-grid pointer-events-none" />
+        <div className="max-w-[1180px] mx-auto px-6 pt-16 pb-20 lg:pt-28 lg:pb-24 relative">
+          <nav aria-label="Trilha" className="animate-fade-up text-[12px] text-lp-ink-3 mb-6">
             <Link href="/" className="hover:text-lp-accent">Início</Link>
             <span className="mx-2">/</span>
             <span className="text-lp-ink-2">Invest Match</span>
           </nav>
-          <p className="lp-eyebrow mb-5">módulo · originação</p>
-          <h1 className="font-display text-[40px] sm:text-[52px] lg:text-[58px] leading-[1.05] tracking-tight text-lp-ink max-w-[860px] mb-6">
+          <p className="lp-eyebrow mb-5 animate-fade-up" style={{ animationDelay: "60ms" }}>módulo · originação</p>
+          <h1 className="animate-fade-up font-display tracking-tight text-lp-ink max-w-[900px] mb-6" style={{ fontSize: "clamp(40px, 6vw, 72px)", lineHeight: 1.04, animationDelay: "140ms" }}>
             Da análise à tese, da tese ao investidor certo.
           </h1>
-          <p className="text-[16px] text-lp-ink-2 leading-relaxed max-w-[640px] mb-8">
+          <p className="animate-fade-up text-[17px] text-lp-ink-2 leading-relaxed max-w-[640px] mb-8" style={{ animationDelay: "300ms" }}>
             O Invest Match é o módulo de originação da Mandor. A partir da análise do ativo,
             gera a tese e aciona um motor de matching de cinco camadas que conecta o deal ao
             investidor ou comprador de perfil compatível. Originação deixa de depender de agenda
@@ -134,13 +135,13 @@ export default function InvestMatchPage() {
 
       {/* ── Como funciona ─────────────────────────────────────────────────── */}
       <section className="max-w-[1280px] mx-auto px-6 py-20 lg:py-24">
-        <div className="max-w-[600px] mb-12">
+        <div className="reveal-blur max-w-[640px] mb-12">
           <p className="lp-eyebrow mb-4">como funciona</p>
-          <h2 className="font-display text-[34px] sm:text-[42px] leading-[1.1] tracking-tight text-lp-ink">
+          <h2 className="font-display tracking-tight text-lp-ink" style={{ fontSize: "clamp(28px, 3.8vw, 48px)", lineHeight: 1.1 }}>
             Do ativo analisado ao investidor certo.
           </h2>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="reveal grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {[
             { n: "01", t: "Tese a partir da análise", d: "A tese de investimento é construída sobre o diagnóstico do ativo, coerente com números e riscos já levantados." },
             { n: "02", t: "Matching de 5 camadas", d: "Mandato, apetite de risco, ticket, setor e estágio são cruzados com o perfil de cada investidor." },
@@ -160,8 +161,8 @@ export default function InvestMatchPage() {
       <section className="bg-lp-fog border-y border-lp-border">
         <div className="max-w-[1280px] mx-auto px-6 py-20 lg:py-24">
           <div className="grid lg:grid-cols-2 gap-14 items-center">
-            <div aria-hidden="true" className="order-2 lg:order-1">
-              <div className="rounded-[20px] overflow-hidden lp-card-shadow bg-lp-canvas border border-lp-border">
+            <div aria-hidden="true" className="reveal-blur order-2 lg:order-1">
+              <div className="rounded-[20px] overflow-hidden lp-card-shadow bg-lp-canvas border border-lp-border animate-float-slow">
                 <div className="flex items-center justify-between px-5 py-3.5 border-b border-lp-border">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#1655E8" }} />
@@ -192,9 +193,9 @@ export default function InvestMatchPage() {
                 </div>
               </div>
             </div>
-            <div className="order-1 lg:order-2">
+            <div className="reveal-left order-1 lg:order-2">
               <p className="lp-eyebrow mb-4">o que você recebe</p>
-              <h2 className="font-display text-[34px] sm:text-[42px] leading-[1.1] tracking-tight text-lp-ink mb-6">
+              <h2 className="font-display tracking-tight text-lp-ink mb-6" style={{ fontSize: "clamp(28px, 3.8vw, 46px)", lineHeight: 1.1 }}>
                 Deal flow qualificado, não lista de contatos.
               </h2>
               <ul className="space-y-3">
@@ -218,11 +219,11 @@ export default function InvestMatchPage() {
 
       {/* ── FAQ ───────────────────────────────────────────────────────────── */}
       <section className="max-w-[760px] mx-auto px-6 py-20 lg:py-24">
-        <p className="lp-eyebrow mb-4">dúvidas frequentes</p>
-        <h2 className="font-display text-[32px] sm:text-[40px] leading-[1.12] tracking-tight text-lp-ink mb-8">
+        <p className="lp-eyebrow mb-4 reveal">dúvidas frequentes</p>
+        <h2 className="reveal-blur font-display tracking-tight text-lp-ink mb-8" style={{ fontSize: "clamp(28px, 3.6vw, 44px)", lineHeight: 1.12 }}>
           Originação com o Invest Match.
         </h2>
-        <div className="divide-y divide-lp-border">
+        <div className="reveal divide-y divide-lp-border">
           {faqs.map((f) => (
             <details key={f.q} className="group py-5">
               <summary className="flex items-center justify-between gap-4 text-[15.5px] font-semibold text-lp-ink select-none list-none cursor-pointer">
@@ -238,7 +239,7 @@ export default function InvestMatchPage() {
       {/* ── CTA ───────────────────────────────────────────────────────────── */}
       <section className="lp-dark-section">
         <div className="max-w-[1280px] mx-auto px-6 py-20 lg:py-24 text-center">
-          <h2 className="font-display text-[36px] sm:text-[48px] leading-[1.06] tracking-tight mb-5" style={{ color: "#EEF3FF" }}>
+          <h2 className="reveal font-display tracking-tight mb-5" style={{ color: "#EEF3FF", fontSize: "clamp(32px, 4.6vw, 56px)", lineHeight: 1.06 }}>
             Transforme análise em deal flow.
           </h2>
           <p className="text-[15.5px] leading-relaxed max-w-[520px] mx-auto mb-9" style={{ color: "#7A92BE" }}>
