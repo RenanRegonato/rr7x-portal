@@ -1,0 +1,1368 @@
+{
+  "slug": "resort-campo-alegre",
+  "analise_id": "9e01516b-562f-4c9e-8e74-00b3f5dc993f",
+  "ativo": "Resort_v2",
+  "captured_at": "2026-05-26T17:27:38.638Z",
+  "facts": [
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "solicitante",
+      "value": {
+        "cnpj": "43.549.734/0001-37",
+        "empresa": "Castelo Campo Alegre Incorporadora e Adm. de Bens Ltda"
+      },
+      "confidence": 0.95,
+      "source_doc": "Avaliac_a_o_Matri_cula_49.609_RCA.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "solicitante_avaliacao",
+      "value": {
+        "cnpj": "43.549.734/0001-37",
+        "empresa": "Castelo Campo Alegre Incorporadora e Adm. de Bens Ltda"
+      },
+      "confidence": 0.95,
+      "source_doc": "Avaliac_a_o_Matri_cula_49608_Resort_Campo_Alegre.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "empresa_principal_phoenix",
+      "value": {
+        "cnpj": "13.518.624/0001-47",
+        "porte": "ME",
+        "razao_social": "PHOENIX LAUNDRY SYSTEMS DO BRASIL LTDA",
+        "nome_fantasia": "PHOENIX LAUNDRY SYSTEMS",
+        "natureza_juridica": "Sociedade Empresária Limitada"
+      },
+      "confidence": 0.95,
+      "source_doc": "CNPJ_Phoenix.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "empresa_principal_bhb",
+      "value": {
+        "cnpj": "01.074.424/0001-63",
+        "porte": "DEMAIS",
+        "nome_fantasia": "BHB PARTICIPACOES E INVESTIMENTOS",
+        "nome_empresarial": "BHB PARTICIPACOES LTDA",
+        "natureza_juridica": "Sociedade Empresária Limitada"
+      },
+      "confidence": 0.95,
+      "source_doc": "CNPJ_BHB_10.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "empresa_principal_futura",
+      "value": {
+        "cnpj": "16.870.491/0001-61",
+        "porte": "EPP",
+        "nome_fantasia": "FUTURA PRODUTOS",
+        "nome_empresarial": "FUTURA INDUSTRIAL E COMERCIAL LTDA",
+        "natureza_juridica": "Sociedade Empresária Limitada"
+      },
+      "confidence": 0.95,
+      "source_doc": "CNPJ_futura.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "declarante_pessoa_fisica",
+      "value": {
+        "cpf": "934.113.677-68",
+        "nome": "HILDEMAR ALVES DA MOTTA",
+        "tipo": "Pessoa Física"
+      },
+      "confidence": 0.95,
+      "source_doc": "5.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "empresa_cnpj_43549734000137",
+      "value": {
+        "cnpj": "43.549.734/0001-37",
+        "capital_social": {
+          "unit": "BRL",
+          "amount": 108100000
+        },
+        "nome_empresarial": "CASTELO CAMPO ALEGRE INCORPORADORA E ADMINISTRADORA DE BENS LTDA"
+      },
+      "confidence": 0.95,
+      "source_doc": "8.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "socio_hildemar_alves_da_motta_administrador",
+      "value": {
+        "socio": "HILDEMAR ALVES DA MOTTA",
+        "qualificacao": "05-Administrador",
+        "tipo_participacao": "Administrador"
+      },
+      "confidence": 0.95,
+      "source_doc": "8.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "socio_hildemar_alves",
+      "value": {
+        "socio": "HILDEMAR ALVES DA MOTTA",
+        "qualificacao": "49-Sócio-Administrador",
+        "tipo_participacao": "Sócio-Administrador"
+      },
+      "confidence": 0.95,
+      "source_doc": "QSA_BHB_10.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "socio_bhb_participacoes_ltda",
+      "value": {
+        "socio": "BHB PARTICIPACOES LTDA",
+        "qualificacao": "22-Sócio",
+        "tipo_participacao": "Sócio",
+        "representante_legal": "HILDEMAR ALVES DA MOTTA"
+      },
+      "confidence": 0.95,
+      "source_doc": "8.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "responsavel_tecnico",
+      "value": {
+        "nome": "Filipe Gonçalves da Silva",
+        "registro": "CREA/SC 211025-3",
+        "profissao": "Engenheiro Sanitarista"
+      },
+      "confidence": 0.95,
+      "source_doc": "Parecer_Saneamento_PMCA.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "proprietario_principal",
+      "value": {
+        "rg": "979.078-SESP/SC",
+        "cpf": "712.848.189-34",
+        "email": "carlosaraucariaflorestas@gmail.com; taismuehlbauer@gmail.com",
+        "idade": 52,
+        "socio": "CARLOS RODOLFO HANTSCHEL",
+        "conjuge": "TAÍS MUEHLBAUER HANTSCHEL",
+        "endereco": "rua Ewaldo Antonio Buschle, n.º 130, bairro Centro, São Bento do Sul-SC",
+        "profissao": "empresário",
+        "rg_conjuge": "3.264.639-SESP/SC",
+        "cpf_conjuge": "035.786.529-46",
+        "idade_conjuge": 38,
+        "data_nascimento": "1969-11-10",
+        "profissao_conjuge": "corretora de imóveis",
+        "regime_matrimonial": "separação total de bens",
+        "data_nascimento_conjuge": "1983-07-25"
+      },
+      "confidence": 0.99,
+      "source_doc": "Certida_o_17112025_Matri_cula_49.608_Resort_Fase_I.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "titular_imovel",
+      "value": {
+        "cpf": "712.848.189-34",
+        "socio": "Carlos Rodolfo Hantschel",
+        "percentual": 100,
+        "tipo_participacao": "Proprietário Ou Posseiro Individual"
+      },
+      "confidence": 0.99,
+      "source_doc": "CCIR62817284249_Matrciula_49608.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "empresa_avaliadora",
+      "value": {
+        "cnai": "29.510",
+        "cnpj": "54.337.121/0001-52",
+        "creci": "9.271",
+        "empresa": "TÍNEL IMÓVEIS LTDA"
+      },
+      "confidence": 0.95,
+      "source_doc": "Avaliac_a_o_Matri_cula_49608_Resort_Campo_Alegre.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "socio_arildo_de_jesus_malosti",
+      "value": {
+        "cpf": "817.921.589-04",
+        "socio": "Arildo de Jesus Malosti",
+        "quotas": 153000,
+        "observacao": "Administrador isoladamente e conjuntamente com Matheus Ulbrich Malosti",
+        "percentual": 51,
+        "valor_quotas": 153000,
+        "data_nascimento": "1971-03-08",
+        "tipo_participacao": "Sócio"
+      },
+      "confidence": 0.99,
+      "source_doc": "2.pdf"
+    },
+    {
+      "fact_type": "estrutura_societaria",
+      "key": "socio_matheus_ulbrich_malosti",
+      "value": {
+        "cpf": "103.825.339-09",
+        "socio": "Matheus Ulbrich Malosti",
+        "quotas": 147000,
+        "observacao": "Admitido neste ato. Administrador conjuntamente com Arildo de Jesus Malosti",
+        "percentual": 49,
+        "valor_quotas": 147000,
+        "data_nascimento": "1996-12-13",
+        "tipo_participacao": "Sócio"
+      },
+      "confidence": 0.99,
+      "source_doc": "2.pdf"
+    },
+    {
+      "fact_type": "lacuna",
+      "key": "conteudo_nao_extraivel",
+      "value": {
+        "impacto": "Impossível extrair fatos financeiros, estruturais ou contratuais. Chunk contém apenas referências a 32 imagens (img-0.jpeg até img-31.jpeg) sem OCR ou descrição textual.",
+        "o_que_falta": "Texto legível do documento",
+        "recomendacao": "Reprocessar com OCR ou obter versão em texto do documento"
+      },
+      "confidence": 0.95,
+      "source_doc": "01_-_MAPA_DE_IMPLANTAC_A_O_TOTAL.pdf"
+    },
+    {
+      "fact_type": "lacuna",
+      "key": "percentual_participacao_incompleto",
+      "value": {
+        "impacto": "Não é possível determinar a participação acionária exata dos sócios mencionados",
+        "o_que_falta": "Percentual de participação dos sócios no capital social",
+        "sócios_afetados": [
+          "ARILDO DE JESUS MALOSTI (QSA_Futura.pdf)",
+          "HILDEMAR ALVES DA MOTTA (QSA_BHB_10.pdf)"
+        ]
+      },
+      "confidence": 0.85,
+      "source_doc": "QSA_Futura.pdf"
+    },
+    {
+      "fact_type": "lacuna",
+      "key": "percentual_participacao_nao_informado",
+      "value": {
+        "impacto": "Não é possível determinar a proporção de participação de cada sócio",
+        "o_que_falta": "Percentual de participação dos sócios no capital social",
+        "documentos_afetados": [
+          "7.pdf",
+          "QSA_Phoenix.pdf"
+        ]
+      },
+      "confidence": 0.9,
+      "source_doc": "7.pdf"
+    },
+    {
+      "fact_type": "lacuna",
+      "key": "conteudo_incompleto",
+      "value": {
+        "impacto": "Documento apresenta estrutura de seções (VISÃO ANÁLISE, DÉLIMENO, DÉLIMENTO, DAS DÍVIDA) mas sem conteúdo substantivo preenchido - apenas placeholders genéricos (1A) ANÁLISE",
+        "o_que_falta": "Detalhes específicos das análises, distribuições, delimitações e dívidas listadas"
+      },
+      "confidence": 0.85,
+      "source_doc": "02_-_MAPA_DE_IMPLANTAC_A_O_MATRICULA.pdf"
+    },
+    {
+      "fact_type": "lacuna",
+      "key": "infraestrutura_deficiente",
+      "value": {
+        "impacto": "Imóvel rural sem infraestrutura básica",
+        "o_que_falta": "Rede de água tratada, energia elétrica, telefonia, iluminação pública, coleta de lixo, entrega postal"
+      },
+      "confidence": 0.95,
+      "source_doc": "Avaliac_a_o_Matri_cula_49.609_RCA.pdf"
+    },
+    {
+      "fact_type": "passivo",
+      "key": "financiamento_veiculo_quitado",
+      "value": {
+        "tipo": "Financiamento de Veículo",
+        "status": "Quitado",
+        "unidade": "BRL",
+        "descricao": "Financiamento Veículo Nissan Livina - Banco Santander",
+        "valor_2023": 48000,
+        "valor_2024": 0,
+        "credor_origem": "BANCO SANTANDER",
+        "valor_pago_2024": 48000
+      },
+      "confidence": 0.99,
+      "source_doc": "4.pdf"
+    },
+    {
+      "fact_type": "passivo",
+      "key": "emprestimo_pessoal_quitado",
+      "value": {
+        "tipo": "Empréstimo Pessoal",
+        "status": "Quitado",
+        "unidade": "BRL",
+        "descricao": "Empréstimo Pessoal",
+        "valor_2023": 100000,
+        "valor_2024": 0,
+        "valor_pago_2024": 100000
+      },
+      "confidence": 0.99,
+      "source_doc": "4.pdf"
+    },
+    {
+      "fact_type": "evento_relevante",
+      "key": "matricula_imovel",
+      "value": {
+        "icra": "8103.014.008.010-7",
+        "matricula": "49.608"
+      },
+      "confidence": 0.95,
+      "source_doc": "Avaliac_a_o_Matri_cula_49608_Resort_Campo_Alegre.pdf"
+    },
+    {
+      "fact_type": "evento_relevante",
+      "key": "perspectivas_mercado",
+      "value": {
+        "condicao_atual": "estabilidade",
+        "oferta_procura": "equilíbrio",
+        "perspectivas_medio_prazo": "boas"
+      },
+      "confidence": 0.9,
+      "source_doc": "Avaliac_a_o_Matri_cula_49608_Resort_Campo_Alegre.pdf"
+    },
+    {
+      "fact_type": "evento_relevante",
+      "key": "avaliador_responsavel",
+      "value": {
+        "cnai": "29.510",
+        "nome": "ROSIRENE DA SILVA TÍNEL",
+        "creci": "37.536-F",
+        "profissao": "Corretora de imóveis",
+        "data_inscricao_cnai": "23/12/2019"
+      },
+      "confidence": 0.95,
+      "source_doc": "Avaliac_a_o_Matri_cula_49608_Resort_Campo_Alegre.pdf"
+    },
+    {
+      "fact_type": "evento_relevante",
+      "key": "mudanca_nome_empresarial",
+      "value": {
+        "data": "2023-05-24",
+        "tipo": "Alteração de Nome Empresarial",
+        "nome_novo": "Phoenix Laundry Systems do Brasil Ltda",
+        "nome_anterior": "Duettos Indústria Comércio Importação e Exportação Ltda"
+      },
+      "confidence": 0.99,
+      "source_doc": "2.pdf"
+    },
+    {
+      "fact_type": "evento_relevante",
+      "key": "mudanca_endereco_sede",
+      "value": {
+        "tipo": "Alteração de Endereço",
+        "endereco_novo": "Rua Araponguinhas, 3630, Galpão 03 B, Acesso R: Frei Bruno, 137, Dos Estados, Timbó/SC, CEP 89.120-000",
+        "endereco_anterior": "Rua Três Corações - Até 898/899, 715, Galpão, Benedito Indaial, SC, CEP 89084565"
+      },
+      "confidence": 0.99,
+      "source_doc": "2.pdf"
+    },
+    {
+      "fact_type": "evento_relevante",
+      "key": "inicio_atividades",
+      "value": {
+        "data": "2011-04-14",
+        "tipo": "Data de Início de Atividades",
+        "prazo_duracao": "Indeterminado"
+      },
+      "confidence": 0.99,
+      "source_doc": "2.pdf"
+    },
+    {
+      "fact_type": "evento_relevante",
+      "key": "imovel_rural_identificacao",
+      "value": {
+        "tipo": "Identificação de Imóvel Rural",
+        "codigo": "803.014.008.010-7",
+        "estado": "SC",
+        "municipio": "CAMPO ALEGRE",
+        "denominacao": "FAZENDA MIRANTES DA SERRA",
+        "localizacao": "ESTR.DONA FRANCISCA-FUNDOS-RIO DOS BUGRES-SAO MIGUEL"
+      },
+      "confidence": 0.99,
+      "source_doc": "CCIR62817284249_Matrciula_49608.pdf"
+    },
+    {
+      "fact_type": "evento_relevante",
+      "key": "data_ultima_declaracao",
+      "value": {
+        "data": "17/09/2022",
+        "tipo": "Processamento de Declaração",
+        "descricao": "Data do processamento da última declaração"
+      },
+      "confidence": 0.99,
+      "source_doc": "CCIR62817284249_Matrciula_49608.pdf"
+    },
+    {
+      "fact_type": "evento_relevante",
+      "key": "registros_cartoriais",
+      "value": {
+        "tipo": "Registros Cartoriais",
+        "cartorio": "SC/SÃO BENTO DO SUL",
+        "matriculas": [
+          "49603",
+          "49604",
+          "49607",
+          "49608",
+          "49609"
+        ],
+        "data_registro": "21/02/2022",
+        "total_area_registrada": 198.2301
+      },
+      "confidence": 0.95,
+      "source_doc": "CCIR62817284249_Matrciula_49608.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "clausula_administracao",
+      "value": {
+        "tipo": "Administração da Sociedade",
+        "poderes": "Gerir e administrar negócios, representar ativa e passivamente, judicial e extrajudicialmente",
+        "administrador": "NAYARA DO PRADO QUIZINI",
+        "clausula_numero": "SÉTIMA"
+      },
+      "confidence": 0.95,
+      "source_doc": "TECKEN_SOLUC_O_ES_-_Contrato_Social.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "clausula_indivisibilidade_quotas",
+      "value": {
+        "tipo": "Restrição de Transferência",
+        "descricao": "Quotas indivisíveis e não podem ser cedidas ou transferidas sem consentimento da sócia",
+        "clausula_numero": "SEXTA"
+      },
+      "confidence": 0.95,
+      "source_doc": "TECKEN_SOLUC_O_ES_-_Contrato_Social.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "objeto_social",
+      "value": {
+        "variantes": [
+          {
+            "doc": "TECKEN_SOLUC_O_ES_-_Contrato_Social.pdf",
+            "tipo": "Objeto Social",
+            "atividades": [
+              "Comércio varejista de materiais de construção",
+              "Construção de Edifícios",
+              "Serviços de operação e fornecimento de equipamentos para transporte e elevação de cargas e pessoas",
+              "Serviços especializados para a construção civil",
+              "Incorporadora de empreendimentos imobiliários",
+              "Fabricação de estruturas pré-moldadas de concreto armado",
+              "Fabricação de artefatos e produtos de concreto, cimento, fibrocimento, gesso"
+            ],
+            "clausula_numero": "SEGUNDA"
+          },
+          {
+            "doc": "Quinta_Alterac_a_o_e_Consolidac_a_o_do_Contrato_Social_Precog.pdf",
+            "tipo": "Objeto Social",
+            "descricao": "Atividades técnicas relacionadas à engenharia e arquitetura: projetos técnicos e estudos arquitetônicos, executivos, civis, elétricos, hidráulicos, rodoviários, ferroviários, metroviários, portuários, aeroportuários, mecânicos, aeroespaciais, navais, mecatrônicos. Construção de edifícios; instalação e manutenção elétrica."
+          },
+          {
+            "doc": "3.pdf",
+            "atividades": [
+              "Gestão personalizada do patrimônio financeiro de terceiros (Gerenciamento de Investimentos)",
+              "Sociedade de Participação, exceto Holdings (Administração de participações em outras sociedades)"
+            ]
+          },
+          {
+            "doc": "2.pdf",
+            "tipo": "Objeto Social",
+            "atividades": [
+              "Fabricação de máquinas e equipamentos para indústrias do vestuário, couro e calçados",
+              "Comércio atacadista de máquinas, equipamentos, vestuário, calçados e ferragens",
+              "Comércio varejista de vestuário, calçados e ferragens",
+              "Manutenção e reparação de máquinas para indústria têxtil, vestuário, couro e calçados"
+            ]
+          }
+        ],
+        "conflict_note": "Três documentos distintos descrevem objetos sociais diferentes, indicando empresas diferentes"
+      },
+      "confidence": 0.95,
+      "source_doc": "TECKEN_SOLUC_O_ES_-_Contrato_Social.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "cessao_quotas_elimar_reis",
+      "value": {
+        "tipo": "Cessão e Transferência de Quotas",
+        "moeda": "BRL",
+        "cedente": "ELIMAR REIS",
+        "cessionario": "BHB PARTICIPAÇÕES LTDA",
+        "valor_total": 20000,
+        "quantidade_quotas": 20000,
+        "valor_nominal_quota": 1
+      },
+      "confidence": 0.95,
+      "source_doc": "Quinta_Alterac_a_o_e_Consolidac_a_o_do_Contrato_Social_Precog.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "cessao_quotas_hildemar_motta",
+      "value": {
+        "tipo": "Cessão e Transferência de Quotas - Saída de Sócio",
+        "moeda": "BRL",
+        "cedente": "HILDEMAR ALVES DA MOTTA",
+        "observacao": "Sócio retirante",
+        "cessionario": "BHB PARTICIPAÇÕES LTDA",
+        "valor_total": 25000,
+        "quantidade_quotas": 25000,
+        "valor_nominal_quota": 1
+      },
+      "confidence": 0.95,
+      "source_doc": "Quinta_Alterac_a_o_e_Consolidac_a_o_do_Contrato_Social_Precog.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "administracao_sociedade",
+      "value": {
+        "variantes": [
+          {
+            "cpf": "934.113.677-68",
+            "doc": "Quinta_Alterac_a_o_e_Consolidac_a_o_do_Contrato_Social_Precog.pdf",
+            "tipo": "Cláusula de Administração",
+            "poderes": "representação ativa e passiva na sociedade, judicial e extrajudicialmente, podendo praticar todos os atos compreendidos no objeto social",
+            "restricoes": "vedado fazer em atividades estranhas ao interesse social ou assumir obrigações em favor de cotistas ou terceiros, bem como onerar ou alienar bens imóveis sem autorização do outro sócio",
+            "administrador": "HILDEMAR ALVES DA MOTTA",
+            "representante_legal_de": "BHB PARTICIPAÇÕES LTDA"
+          },
+          {
+            "doc": "3.pdf",
+            "tipo": "Administração",
+            "cargo": "Diretor Executivo",
+            "poderes": "representação ativa e passiva, judicial e extrajudicialmente, todos os atos do objeto social",
+            "restricoes": "vedado onerar ou alienar bens imóveis sem autorização de outro sócio",
+            "administrador": "HILDEMAR ALVES DA MOTTA"
+          }
+        ],
+        "conflict_note": "Dois documentos distintos descrevem administradores diferentes para sociedades diferentes"
+      },
+      "confidence": 0.95,
+      "source_doc": "Quinta_Alterac_a_o_e_Consolidac_a_o_do_Contrato_Social_Precog.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "prazo_duracao_sociedade",
+      "value": {
+        "tipo": "Prazo de Duração",
+        "prazo": "Indeterminado"
+      },
+      "confidence": 0.95,
+      "source_doc": "Quinta_Alterac_a_o_e_Consolidac_a_o_do_Contrato_Social_Precog.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "exercicio_social",
+      "value": {
+        "tipo": "Exercício Social",
+        "procedimentos": "Elaboração de inventário, balanço patrimonial e resultado econômico",
+        "data_encerramento": "31/12 de cada ano"
+      },
+      "confidence": 0.95,
+      "source_doc": "Quinta_Alterac_a_o_e_Consolidac_a_o_do_Contrato_Social_Precog.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "cessao_transferencia_quotas",
+      "value": {
+        "variantes": [
+          {
+            "doc": "3.pdf",
+            "tipo": "Cessão e Transferência de Quotas",
+            "moeda": "BRL",
+            "cedente": "CARLOS EDUARDO BARCELOS AMARAL",
+            "cessionario": "HILDEMAR ALVES DA MOTTA",
+            "valor_total": 52000,
+            "quotas_transferidas": 52000
+          },
+          {
+            "doc": "2.pdf",
+            "tipo": "Cessão e Transferência de Quotas",
+            "moeda": "BRL",
+            "cedente": "Arildo de Jesus Malosti",
+            "cessionario": "Matheus Ulbrich Malosti",
+            "valor_total": 147000,
+            "quotas_transferidas": 147000
+          }
+        ],
+        "conflict_note": "Dois documentos distintos descrevem cessões de quotas diferentes (cedentes e valores distintos)"
+      },
+      "confidence": 0.99,
+      "source_doc": "3.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "sede_social",
+      "value": {
+        "foro": "Joinville, SC",
+        "endereco": "Rua Otto Eduardo Lepper, 190 – Sala 01 – Saguçu – 89221-027 – Joinville-SC"
+      },
+      "confidence": 0.99,
+      "source_doc": "3.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "restricao_cessao_quotas",
+      "value": {
+        "tipo": "Restrição à Cessão de Quotas",
+        "descricao": "Vedadas cessões totais ou parciais de quotas sem acordo prévio expresso de quotistas representando totalidade do capital social"
+      },
+      "confidence": 0.99,
+      "source_doc": "3.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "cessao_quotas",
+      "value": {
+        "tipo": "Cessão onerosa de quotas",
+        "valor": 108000000,
+        "cedente": "BHB PARTICIPACOES LTDA.",
+        "observacao": "Cessão realizada pelo valor contábil, não gerando ganho de capital",
+        "cessionaria": "CASTELO CAMPO ALEGRE INCORPORADORA E ADMINISTRADORA DE BENS LTDA.",
+        "valor_nominal": 1,
+        "quotas_transferidas": 108000000
+      },
+      "confidence": 0.95,
+      "source_doc": "1__Alterac_a_o_de_Contrato_LPC_-_Registrada.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "numero_recibo_declaracao",
+      "value": {
+        "tipo": "Número de Recibo de Declaração",
+        "numero": "31.57.28.45.52 - 01",
+        "observacao": "Número de uso pessoal, obrigatório para retificar a declaração",
+        "data_apresentacao": "30/05/2025"
+      },
+      "confidence": 0.95,
+      "source_doc": "5.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "condicoes_licenciamento",
+      "value": {
+        "tipo": "Condições de Licenciamento",
+        "clausulas_chave": [
+          "Qualquer mudança no empreendimento que altere a condição original do projeto e cause interferências deverá ser previamente informada e aprovada pela Prefeitura Municipal de Campo Alegre",
+          "Parecer Técnico não dispensa nem substitui alvarás, certidões ou licenças de qualquer natureza exigidos pela legislação federal, estadual ou municipal"
+        ]
+      },
+      "confidence": 0.95,
+      "source_doc": "Parecer_Saneamento_PMCA.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "administracao_poderes",
+      "value": {
+        "tipo": "Cláusula de Administração",
+        "poderes": "Representação ativa e passiva, judicial e extrajudicial, praticar atos do objeto social",
+        "restricoes": "Vedado fazer em atividades estranhas ao interesse social, assumir obrigações em favor de cotistas ou terceiros, onerar ou alienar bens imóveis sem autorização do outro sócio",
+        "administradores": [
+          "Arildo de Jesus Malosti",
+          "Matheus Ulbrich Malosti"
+        ],
+        "forma_administracao": "Isoladamente (Arildo) e Conjuntamente (Matheus com Arildo)"
+      },
+      "confidence": 0.99,
+      "source_doc": "2.pdf"
+    },
+    {
+      "fact_type": "contrato",
+      "key": "foro_competente",
+      "value": {
+        "foro": "Timbó, Santa Catarina",
+        "tipo": "Cláusula de Foro",
+        "descricao": "Foro para exercício e cumprimento de direitos e obrigações do contrato social"
+      },
+      "confidence": 0.99,
+      "source_doc": "2.pdf"
+    },
+    {
+      "fact_type": "garantia",
+      "key": "servidao_passagem_37056",
+      "value": {
+        "tipo": "Servidão de Passagem",
+        "ativo": "Terreno matriculado sob n° 37.056 do livro n° 2, Registro Geral",
+        "protocolo": "143.191",
+        "beneficiario": "Matrícula 49.608",
+        "caracteristica": "Acesso dominante",
+        "data_protocolo": "2022-01-19"
+      },
+      "confidence": 0.95,
+      "source_doc": "Certida_o_17112025_Matri_cula_49.608_Resort_Fase_I.pdf"
+    },
+    {
+      "fact_type": "garantia",
+      "key": "servidao_passagem_37057",
+      "value": {
+        "tipo": "Servidão de Passagem",
+        "ativo": "Terreno matriculado sob n° 37.057 do livro n° 2, Registro Geral",
+        "area_m2": 1902.76,
+        "protocolo": "143.191",
+        "beneficiario": "Matrícula 49.608",
+        "caracteristica": "Acesso dominante",
+        "data_protocolo": "2022-01-19"
+      },
+      "confidence": 0.95,
+      "source_doc": "Certida_o_17112025_Matri_cula_49.608_Resort_Fase_I.pdf"
+    },
+    {
+      "fact_type": "garantia",
+      "key": "servidao_passagem_40718",
+      "value": {
+        "tipo": "Servidão de Passagem",
+        "ativo": "Terreno matriculado sob n° 40.718 do livro n° 2, Registro Geral",
+        "area_m2": 815.87,
+        "protocolo": "143.191",
+        "beneficiario": "Matrícula 49.608",
+        "caracteristica": "Acesso dominante",
+        "data_protocolo": "2022-01-19"
+      },
+      "confidence": 0.95,
+      "source_doc": "Certida_o_17112025_Matri_cula_49.608_Resort_Fase_I.pdf"
+    },
+    {
+      "fact_type": "garantia",
+      "key": "servidao_passagem_44545_49609",
+      "value": {
+        "tipo": "Servidão de Passagem",
+        "area_m2": 18360.99,
+        "protocolo": "143.191",
+        "beneficiario": "Matrícula 44.545 em conjunto com matrícula 49.609",
+        "data_protocolo": "2022-01-19"
+      },
+      "confidence": 0.95,
+      "source_doc": "Certida_o_17112025_Matri_cula_49.608_Resort_Fase_I.pdf"
+    },
+    {
+      "fact_type": "garantia",
+      "key": "servidao_ambiental",
+      "value": {
+        "tipo": "Servidão Ambiental",
+        "protocolo": "143.191",
+        "beneficiario": "Terreno matriculado sob nº 44.545 do livro nº 2, Registro Geral",
+        "area_total_m2": 28280,
+        "data_protocolo": "2022-01-19",
+        "area_parcela_a_m2": 19000,
+        "area_parcela_b_m2": 9280
+      },
+      "confidence": 0.95,
+      "source_doc": "Certida_o_17112025_Matri_cula_49.608_Resort_Fase_I.pdf"
+    },
+    {
+      "fact_type": "garantia",
+      "key": "servidao_linha_transmissao_copel",
+      "value": {
+        "tipo": "Servidão Perpétua de Passagem para Linha de Transmissão de Energia Elétrica",
+        "descricao": "LT 525 kV Blumenau - Curitiba Leste",
+        "protocolo": "143.191",
+        "publicacao": "Diário Oficial da União",
+        "localizacao": "Parcialmente nesta matrícula",
+        "beneficiario": "COPEL GERAÇÃO E TRANSMISSÃO S/A",
+        "data_protocolo": "2022-01-19",
+        "data_resolucao": "2018-03-06",
+        "resolucao_aneel": "6.892"
+      },
+      "confidence": 0.95,
+      "source_doc": "Certida_o_17112025_Matri_cula_49.608_Resort_Fase_I.pdf"
+    }
+  ],
+  "key_numbers": [],
+  "claims": [
+    {
+      "step_key": "pesquisa",
+      "claim_type": "numero",
+      "assertion": "TAM de hospedagem premium no Brasil estimado em R$ 17B–R$ 22B/ano, com base em share de 8–10% da receita total de turismo de R$ 218B (MTur/FIPE 2024)",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.62
+    },
+    {
+      "step_key": "pesquisa",
+      "claim_type": "numero",
+      "assertion": "SOM operacional estimado do projeto em R$ 25M–R$ 40M/ano em operação plena (88 UHs, ocupação 55–65%, ADR R$ 1.200–R$ 1.500/noite), distinto da receita de venda de quotas de R$ 220M",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.58
+    },
+    {
+      "step_key": "pesquisa",
+      "claim_type": "avaliacao",
+      "assertion": "O mercado está neutro para captação de dívida estruturada e levemente favorável para venda de quotas imobiliárias — a restrição ao deal é interna (maturidade documental), não externa",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.78
+    },
+    {
+      "step_key": "pesquisa",
+      "claim_type": "numero",
+      "assertion": "Custo de construção por UH estimado em R$ 720K–R$ 1,2M (base R$ 12K–R$ 15K/m² × 60–80 m² úteis por unidade), implicando margem bruta do desenvolvedor de 50–70% ao preço de venda de R$ 2,5M–R$ 3M/UH",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.55
+    },
+    {
+      "step_key": "pesquisa",
+      "claim_type": "numero",
+      "assertion": "Valor por UH para aquisição de hotel/resort 4–5 estrelas no Brasil em R$ 400K–R$ 900K, conforme JLL Hotels Brasil 2024 — benchmark de comparação para precificação das quotas do projeto",
+      "fact_ids": [],
+      "benchmark_ids": [
+        "B:M_A_MEDIO:multiplo_ebitda_min"
+      ],
+      "confidence": 0.65
+    },
+    {
+      "step_key": "pesquisa",
+      "claim_type": "risco",
+      "assertion": "LAP 2765/2025 não foi lida pelo sistema — condicionantes, validade e restrições operacionais são desconhecidos; qualquer afirmação sobre eliminação de risco regulatório é parcial",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.95
+    },
+    {
+      "step_key": "pesquisa",
+      "claim_type": "risco",
+      "assertion": "SELIC equivalente a 13,75% a.a. eleva TIR mínima requerida por investidor de condo-hotel para 14–18% a.a., pressionando velocidade de vendas das 88 UHs a R$ 2,5M–R$ 3M/unidade",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.72
+    },
+    {
+      "step_key": "pesquisa",
+      "claim_type": "avaliacao",
+      "assertion": "A oferta competitiva de resorts de ecoturismo premium em SC serrana é escassa (menos de 5 empreendimentos no perfil em raio de 150 km), o que é positivo para a tese de diferenciação do projeto",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.65
+    },
+    {
+      "step_key": "pesquisa",
+      "claim_type": "risco",
+      "assertion": "Servidão perpétua da LT 525 kV COPEL averbada nas matrículas 49.608 e 49.609 pode impactar experiência visual do hóspede de alto padrão — risco operacional não mapeado nos documentos disponíveis",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.8
+    },
+    {
+      "step_key": "diagnostico",
+      "claim_type": "numero",
+      "assertion": "Faturamento bruto consolidado BHB em 2024 foi R$ 17.366.643, com margem bruta de 44% e lucro antes IR de R$ 3.812.089",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.65
+    },
+    {
+      "step_key": "diagnostico",
+      "claim_type": "numero",
+      "assertion": "Caixa próprio da BHB é zero em todos os períodos analisados (2022–out/2025), indicando holding sem liquidez própria",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.9
+    },
+    {
+      "step_key": "diagnostico",
+      "claim_type": "numero",
+      "assertion": "Valor total avaliado das matrículas 49.608 e 49.609 soma R$ 56.330.000, gerando LTV de 26,6% sobre ticket de R$ 15M",
+      "fact_ids": [
+        "F:evento_relevante:matricula_imovel"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.75
+    },
+    {
+      "step_key": "diagnostico",
+      "claim_type": "risco",
+      "assertion": "As matrículas 49.608 e 49.609 estão registradas em nome de Carlos Rodolfo Hantschel, não do grupo BHB — nenhum instrumento de transferência foi apresentado, impedindo hipoteca pelo grupo",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.98
+    },
+    {
+      "step_key": "diagnostico",
+      "claim_type": "risco",
+      "assertion": "Margem bruta consolidada do grupo caiu de 68% (2022) para 37% (jan–out/2025), com EBITDA proxy anualizado de 2025 (~R$ 880K) insuficiente para cobrir serviço de dívida de R$ 15M a CDI+4%",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.8
+    },
+    {
+      "step_key": "diagnostico",
+      "claim_type": "risco",
+      "assertion": "Os demonstrativos financeiros (DRE e balanço) foram assinados pelo próprio sócio-administrador como contador, sem auditoria independente — nenhum credor institucional aceita esses demonstrativos sem validação externa",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.95
+    },
+    {
+      "step_key": "diagnostico",
+      "claim_type": "avaliacao",
+      "assertion": "O DSCR implícito com EBITDA de 2024 seria 1,81x (adequado), mas com EBITDA anualizado de 2025 cai para 0,42x (inviável) — há risco real de capacidade de pagamento insuficiente se a deterioração de margem se consolidar",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.7
+    },
+    {
+      "step_key": "diagnostico",
+      "claim_type": "fato",
+      "assertion": "Capital a integralizar na Castelo Campo Alegre e no Hotel Le Petit Château soma R$ 213,84M, com prazo até 31/12/2028, representando quotas cedidas intragrupo sem aporte financeiro externo",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.92
+    },
+    {
+      "step_key": "diagnostico",
+      "claim_type": "recomendacao",
+      "assertion": "Estrutura de FIDC imobiliário com hipoteca de primeiro grau (após regularização de propriedade), cota subordinada de 15–20% e DSCR mínimo de 1,25x é a estrutura mais adequada para ticket de R$ 15M neste perfil de ativo",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.78
+    },
+    {
+      "step_key": "diagnostico",
+      "claim_type": "risco",
+      "assertion": "A licença ambiental LAP 2765/2025 — principal ativo regulatório do deal — não pôde ser lida; condicionantes, validade e restrições operacionais são desconhecidos e podem impactar materialmente a viabilidade do projeto",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.98
+    },
+    {
+      "step_key": "diagnostico",
+      "claim_type": "avaliacao",
+      "assertion": "Não há estudo de viabilidade econômica, orçamento de obra ou cronograma de pré-vendas; a projeção de R$ 220M em receita futura declarada no intake não tem suporte documental e não pode ser utilizada em DCF confiável",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.97
+    },
+    {
+      "step_key": "contratos",
+      "claim_type": "risco",
+      "assertion": "As matrículas 49.608 e 49.609 estão registradas em nome de Carlos Rodolfo Hantschel, não em nome do grupo BHB/Castelo/Hotel, sem instrumento de transferência identificado no dataroom — bloqueador de desembolso",
+      "fact_ids": [
+        "F:garantia:servidao_passagem_37056",
+        "F:evento_relevante:matricula_imovel"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.98
+    },
+    {
+      "step_key": "contratos",
+      "claim_type": "risco",
+      "assertion": "Protestos e restrições de crédito vinculados ao grupo e ao sócio foram apontados por casa de crédito anterior; nenhuma certidão negativa de protesto foi apresentada no dataroom",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.9
+    },
+    {
+      "step_key": "contratos",
+      "claim_type": "risco",
+      "assertion": "Hildemar Alves da Motta assina os demonstrativos financeiros (DRE e balanço consolidado) simultaneamente como sócio-administrador e como contador (CRC 1SP150472/O-6), eliminando independência contábil",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.97
+    },
+    {
+      "step_key": "contratos",
+      "claim_type": "risco",
+      "assertion": "A LAP 2765/2025 é apenas a Licença Ambiental Prévia — primeira fase de licenciamento trifásico (LAP→LAI→LAO); LAI e LAO ainda não obtidas, e o conteúdo da LAP não foi lido por ausência de camada de texto",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.95
+    },
+    {
+      "step_key": "contratos",
+      "claim_type": "risco",
+      "assertion": "Servidão perpétua da LT 525 kV COPEL está averbada nas matrículas 49.608 e 49.609 como ônus real existente, com impacto sobre área útil do resort ainda não quantificado por parecer de engenharia",
+      "fact_ids": [
+        "F:garantia:servidao_linha_transmissao_copel"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.97
+    },
+    {
+      "step_key": "contratos",
+      "claim_type": "numero",
+      "assertion": "Total avaliado nas matrículas 49.608 (R$ 29.980.000) e 49.609 (R$ 26.350.000) soma R$ 56.330.000, implicando LTV de aproximadamente 26% para o ticket de R$ 15M",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.9
+    },
+    {
+      "step_key": "contratos",
+      "claim_type": "fato",
+      "assertion": "Capital a integralizar na Castelo Campo Alegre (R$ 106.920.000) e no Hotel Le Petit Château (R$ 106.920.000) representa cessão de quotas intragrupo, sem entrada de recursos financeiros externos",
+      "fact_ids": [
+        "F:contrato:cessao_quotas"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.95
+    },
+    {
+      "step_key": "contratos",
+      "claim_type": "recomendacao",
+      "assertion": "Regularização da titularidade das matrículas 49.608 e 49.609 em nome da SPE deve ser condição suspensiva expressa de desembolso no Term Sheet",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.98
+    },
+    {
+      "step_key": "contratos",
+      "claim_type": "recomendacao",
+      "assertion": "Auditoria independente dos demonstrativos financeiros consolidados da BHB (2022–2025) é condição de pré-desembolso para qualquer investidor institucional (FIDC, securitizadora ou fundo)",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.97
+    },
+    {
+      "step_key": "contratos",
+      "claim_type": "avaliacao",
+      "assertion": "O deal não está pronto para desembolso ou estruturação de crédito real no estágio atual; os três bloqueadores críticos (titularidade das garantias, ausência de certidões de protestos e falta de demonstrativos auditados) precisam ser resolvidos antes de qualquer apresentação a investidor institucional",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.95
+    },
+    {
+      "step_key": "analise_ma",
+      "claim_type": "numero",
+      "assertion": "As matrículas 49.608 e 49.609, que somam R$56.330.000 em avaliações mercadológicas, estão registradas em nome de Carlos Rodolfo Hantschel, não do grupo BHB ou das SPEs do projeto",
+      "fact_ids": [
+        "F:garantia:matricula_49608",
+        "F:garantia:matricula_49609",
+        "F:estrutura_societaria:titular_imovel"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.97
+    },
+    {
+      "step_key": "analise_ma",
+      "claim_type": "risco",
+      "assertion": "A ausência de instrumento jurídico vinculante transferindo as matrículas 49.608 e 49.609 para o grupo BHB/SPE constitui bloqueador de desembolso para qualquer operação de crédito garantido por hipoteca",
+      "fact_ids": [
+        "F:lacuna:conteudo_nao_extraivel"
+      ],
+      "benchmark_ids": [
+        "B:CRI:loan_to_value_maximo_pct"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "step_key": "analise_ma",
+      "claim_type": "numero",
+      "assertion": "O EBITDA proxy do grupo BHB (lucro antes IR) foi de R$3.812.089 em 2024, sem auditoria independente, e caiu para equivalente anualizado de aproximadamente R$880.000 em janeiro-outubro de 2025",
+      "fact_ids": [
+        "F:contrato:exercicio_social"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.72
+    },
+    {
+      "step_key": "analise_ma",
+      "claim_type": "risco",
+      "assertion": "Os demonstrativos financeiros da BHB são assinados pelo próprio Hildemar Alves da Motta simultaneamente como sócio-administrador e contador (CRC 1SP150472/O-6), eliminando independência contábil e inviabilizando apresentação a investidores institucionais sem reapresentação auditada",
+      "fact_ids": [
+        "F:estrutura_societaria:socio_hildemar_alves"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.97
+    },
+    {
+      "step_key": "analise_ma",
+      "claim_type": "avaliacao",
+      "assertion": "O LTV implícito de 26,6% (R$15M de crédito sobre R$56,33M de garantia avaliada) é tecnicamente confortável, mas irrelevante enquanto as garantias estiverem registradas em nome de terceiro",
+      "fact_ids": [
+        "F:garantia:matricula_49608",
+        "F:garantia:matricula_49609"
+      ],
+      "benchmark_ids": [
+        "B:CRI:loan_to_value_maximo_pct"
+      ],
+      "confidence": 0.9
+    },
+    {
+      "step_key": "analise_ma",
+      "claim_type": "risco",
+      "assertion": "A LAP 2765/2025 é apenas a primeira fase de licenciamento trifásico (LAP → LAI → LAO), não a eliminação definitiva do risco regulatório ambiental como posicionado no intake; o conteúdo da licença não pôde ser lido",
+      "fact_ids": [
+        "F:lacuna:conteudo_nao_extraivel"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.92
+    },
+    {
+      "step_key": "analise_ma",
+      "claim_type": "recomendacao",
+      "assertion": "A estrutura de transação recomendada combina venda de 20-30% das quotas do Hotel Le Petit Château via SPA+SHA (Camada 1) com FIDC imobiliário de R$10M-R$15M com hipoteca de primeiro grau (Camada 2), condicionada à regularização das matrículas e auditoria dos demonstrativos",
+      "fact_ids": [
+        "F:estrutura_societaria:empresa_principal_bhb"
+      ],
+      "benchmark_ids": [
+        "B:FIDC:ticket_minimo",
+        "B:FIDC:spread_senior_pct_cdi",
+        "B:CRI:loan_to_value_maximo_pct"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "step_key": "analise_ma",
+      "claim_type": "avaliacao",
+      "assertion": "O processo de captação não está pronto para abordagem a compradores ou credores institucionais; o data room tem aproximadamente 30% do conteúdo mínimo exigido e nenhuma das sete condições precedentes está satisfeita",
+      "fact_ids": [
+        "F:lacuna:conteudo_nao_extraivel",
+        "F:lacuna:infraestrutura_deficiente"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.93
+    },
+    {
+      "step_key": "analise_ma",
+      "claim_type": "risco",
+      "assertion": "O intake declara que restrições de crédito e protestos vinculados ao grupo e ao sócio foram identificados por casa de crédito especializada, mas nenhuma certidão negativa foi apresentada no dataroom",
+      "fact_ids": [
+        "F:lacuna:conteudo_incompleto"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.88
+    },
+    {
+      "step_key": "analise_ma",
+      "claim_type": "numero",
+      "assertion": "O capital subscrito mas não integralizado nas SPEs totalizava R$106.920.000 na Castelo Campo Alegre e R$106.920.000 no Hotel Le Petit Château, ambos com prazo de integralização até 31/12/2028, representando quotas cedidas intragrupo sem entrada de recursos financeiros externos",
+      "fact_ids": [
+        "F:contrato:cessao_quotas"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.95
+    },
+    {
+      "step_key": "estruturacao",
+      "claim_type": "numero",
+      "assertion": "LTV de 26,6% sobre garantias imobiliárias documentadas de R$ 56,33M para ticket de R$ 15M",
+      "fact_ids": [
+        "F:garantia:servidao_passagem_37056",
+        "F:evento_relevante:matricula_imovel"
+      ],
+      "benchmark_ids": [
+        "B:CRI:loan_to_value_maximo_pct"
+      ],
+      "confidence": 0.85
+    },
+    {
+      "step_key": "estruturacao",
+      "claim_type": "risco",
+      "assertion": "Matrículas 49.608 e 49.609 registradas em nome de Carlos Rodolfo Hantschel, não do grupo BHB — garantias reais não podem ser hipotecadas até regularização",
+      "fact_ids": [
+        "F:estrutura_societaria:titular_imovel",
+        "F:estrutura_societaria:proprietario_principal"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.99
+    },
+    {
+      "step_key": "estruturacao",
+      "claim_type": "numero",
+      "assertion": "DSCR implícito de 1,41x com EBITDA proxy 2024 (R$ 3,81M) versus serviço de dívida estimado de R$ 2,7M para R$ 15M a 18% a.a. — cai para 0,33x com EBITDA 2025 anualizado de R$ 880K",
+      "fact_ids": [],
+      "benchmark_ids": [
+        "B:CCB:prazo_maximo_meses"
+      ],
+      "confidence": 0.7
+    },
+    {
+      "step_key": "estruturacao",
+      "claim_type": "risco",
+      "assertion": "LAP 2765/2025 — documento central do projeto — não foi lido pelo sistema; condicionantes, prazo de validade e restrições operacionais são desconhecidos",
+      "fact_ids": [
+        "F:lacuna:conteudo_nao_extraivel"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.99
+    },
+    {
+      "step_key": "estruturacao",
+      "claim_type": "risco",
+      "assertion": "Caixa próprio da BHB é zero em todos os períodos (2022-2025); grupo não tem capacidade de cofinanciar construção sem crédito externo ou equity de parceiro",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.95
+    },
+    {
+      "step_key": "estruturacao",
+      "claim_type": "recomendacao",
+      "assertion": "Instrumento recomendado para Fase 1: CCB com alienação fiduciária das matrículas 49.608 e 49.609, ticket R$ 12M-15M, 48 meses, CDI + 5,0% a 6,5% — condicionado à regularização de propriedade",
+      "fact_ids": [],
+      "benchmark_ids": [
+        "B:CCB:ticket_minimo",
+        "B:CCB:prazo_maximo_meses",
+        "B:CREDITO_BANCARIO:spread_pct_cdi"
+      ],
+      "confidence": 0.75
+    },
+    {
+      "step_key": "estruturacao",
+      "claim_type": "recomendacao",
+      "assertion": "Instrumento recomendado para Fase 2: FIDC Imobiliário de R$ 20M-35M com cota sênior (CDI + 3,5%) e subordinada (CDI + 7%) — viável após início de pré-vendas de unidades",
+      "fact_ids": [],
+      "benchmark_ids": [
+        "B:FIDC:ticket_minimo",
+        "B:FIDC:spread_senior_pct_cdi",
+        "B:FIDC:spread_subordinado_pct_cdi",
+        "B:FIDC:prazo_tipico_meses"
+      ],
+      "confidence": 0.7
+    },
+    {
+      "step_key": "estruturacao",
+      "claim_type": "avaliacao",
+      "assertion": "Emissão de Debêntures Incentivadas (Lei 12.431) é inviável para o ticket atual de R$ 15M; mínimo prático de R$ 100M-200M descarta este instrumento para o estágio presente",
+      "fact_ids": [],
+      "benchmark_ids": [
+        "B:DEBENTURE_INCENTIVADA:ticket_minimo"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "step_key": "estruturacao",
+      "claim_type": "numero",
+      "assertion": "Capital a integralizar de R$ 106,92M na Castelo Campo Alegre e R$ 106,92M no Hotel Le Petit Château (prazo 31/12/2028) representa cessão intragrupo de quotas, sem entrada real de caixa",
+      "fact_ids": [
+        "F:contrato:cessao_quotas"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.95
+    },
+    {
+      "step_key": "estruturacao",
+      "claim_type": "risco",
+      "assertion": "Protestos e restrições de crédito contra o grupo e o sócio foram identificados pela casa de crédito anterior — nenhuma CND foi entregue no dataroom; risco de rejeição imediata em due diligence institucional",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.9
+    },
+    {
+      "step_key": "estruturacao",
+      "claim_type": "avaliacao",
+      "assertion": "Prazo realista para primeiro desembolso (CCB Fase 1) é de 90 a 150 dias a partir da data atual, condicionado à conclusão da Fase 0 sem surpresas jurídicas ou fiscais graves",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.65
+    },
+    {
+      "step_key": "maturidade",
+      "claim_type": "avaliacao",
+      "assertion": "Veredicto de Maturidade: Não apto no momento — os cinco bloqueantes críticos (garantias em nome de terceiro, LAP não lida, protestos não documentados, demonstrativos sem auditoria e ausência de feasibility study) impedem qualquer apresentação ao mercado institucional",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.95
+    },
+    {
+      "step_key": "maturidade",
+      "claim_type": "numero",
+      "assertion": "Score de Maturidade Geral: 2/5 — deal com tese real mas execução bloqueada, abaixo do limiar para processo competitivo ou pitch institucional",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.92
+    },
+    {
+      "step_key": "maturidade",
+      "claim_type": "risco",
+      "assertion": "As matrículas 49.608 (R$ 29,98M) e 49.609 (R$ 26,35M) permanecem registradas em nome de Carlos Rodolfo Hantschel sem instrumento de transferência documentado, inviabilizando constituição de hipoteca ou alienação fiduciária pela SPE",
+      "fact_ids": [
+        "F:estrutura_societaria:titular_imovel",
+        "F:evento_relevante:matricula_imovel"
+      ],
+      "benchmark_ids": [
+        "B:CRI:loan_to_value_maximo_pct"
+      ],
+      "confidence": 0.99
+    },
+    {
+      "step_key": "maturidade",
+      "claim_type": "risco",
+      "assertion": "Queda de EBITDA proxy de R$ 3,81M em 2024 para ~R$ 880K anualizado em 2025 (queda de 77%) compromete capacidade de serviço de dívida pelas operações correntes; DSCR calculado sobre EBITDA 2025 seria 0,33x — abaixo do mínimo aceitável de 1,25x",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.85
+    },
+    {
+      "step_key": "maturidade",
+      "claim_type": "recomendacao",
+      "assertion": "Postura recomendada: aguardar resolução dos cinco bloqueantes antes de qualquer abordagem institucional; iniciar preparação imediatamente com prazo de 60–90 dias para habilitar o deal para roadshow",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.93
+    },
+    {
+      "step_key": "maturidade",
+      "claim_type": "recomendacao",
+      "assertion": "A primeira ação imediata e de maior impacto é confirmar presencialmente no Cartório de Campo Alegre a natureza do protocolo 164.425 de 04/11/2025 — esse dado define se o bloqueante de garantias é resolvível em 30 ou em 90 dias",
+      "fact_ids": [
+        "F:garantia:servidao_passagem_37056"
+      ],
+      "benchmark_ids": [],
+      "confidence": 0.97
+    },
+    {
+      "step_key": "maturidade",
+      "claim_type": "avaliacao",
+      "assertion": "O custo de preparação para habilitar o deal (auditor, advogado ambiental, consultora de hotelaria, advogado imobiliário) é estimado em R$ 300K–R$ 500K — investimento necessário para acessar captação de R$ 15M–R$ 50M",
+      "fact_ids": [],
+      "benchmark_ids": [
+        "B:FIDC:custo_estruturacao_pct"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "step_key": "maturidade",
+      "claim_type": "risco",
+      "assertion": "O posicionamento atual de que a LAP 'eliminou o risco regulatório' é tecnicamente impreciso — a LAP é fase 1 de licenciamento trifásico (LAP→LAI→LAO) e seus condicionantes permanecem desconhecidos, podendo alterar materialmente o modelo de negócio",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.96
+    },
+    {
+      "step_key": "maturidade",
+      "claim_type": "fato",
+      "assertion": "O deal foi apresentado ao mercado anteriormente e rejeitado por casa de crédito especializada, que identificou protestos e restrições de crédito — os mesmos problemas confirmados por este diagnóstico",
+      "fact_ids": [],
+      "benchmark_ids": [],
+      "confidence": 0.9
+    },
+    {
+      "step_key": "maturidade",
+      "claim_type": "avaliacao",
+      "assertion": "Com resolução positiva dos cinco bloqueantes, o DRS estimado sobe de 43/100 para 60–70/100, tornando o deal apto para processo estruturado de captação com perfil FIDC + equity parcial",
+      "fact_ids": [],
+      "benchmark_ids": [
+        "B:FIDC:ticket_minimo",
+        "B:FIDC:spread_senior_pct_cdi"
+      ],
+      "confidence": 0.78
+    }
+  ],
+  "consistency": {
+    "bloqueante": 12,
+    "alerta": 8,
+    "info": 0,
+    "by_tipo": {
+      "recomendacao_sem_fonte": 4,
+      "numero_inter_agente": 2,
+      "benchmark_violado": 6,
+      "sindrome_sistemica": 4,
+      "contradicao_semantica": 4
+    }
+  },
+  "coverage": {
+    "coberto": 0,
+    "parcial": 6,
+    "nao_coberto": 1,
+    "nao_aplicavel": 1,
+    "score": 0.4286
+  },
+  "hallucination_rate": 0.5435,
+  "stats": {
+    "n_facts": 54,
+    "n_claims": 61
+  }
+}
