@@ -33,15 +33,15 @@ const RELEVANT_TYPES: Record<string, ReadonlyArray<string>> = {
   orchestration:        ['*'],
 
   // Wave 1
-  pesquisa:             ['evento_relevante', 'estrutura_societaria', 'numero_financeiro'],
-  diagnostico:          ['numero_financeiro', 'passivo', 'evento_relevante', 'lacuna'],
+  pesquisa:             ['evento_relevante', 'estrutura_societaria', 'numero_financeiro', 'indicador_calculado'],
+  diagnostico:          ['numero_financeiro', 'passivo', 'evento_relevante', 'lacuna', 'indicador_calculado', 'risco_quantitativo'],
   kyc:                  ['estrutura_societaria', 'evento_relevante', 'passivo', 'documento_disponivel'],
   contratos:            ['contrato', 'garantia', 'evento_relevante'],
 
   // Wave 2 — núcleo analítico, recebe TUDO (importante pra valuation/estruturação)
   analise_ma:           ['*'],
   estruturacao:         ['*'],
-  originacao:           ['numero_financeiro', 'estrutura_societaria', 'evento_relevante', 'contrato'],
+  originacao:           ['numero_financeiro', 'estrutura_societaria', 'evento_relevante', 'contrato', 'indicador_calculado', 'risco_quantitativo'],
 
   // Síntese
   maturidade:           ['*'],
@@ -53,7 +53,7 @@ const RELEVANT_TYPES: Record<string, ReadonlyArray<string>> = {
   coverage_validator:   ['*'],
 
   // Documentos de captação
-  blind_teaser:         ['numero_financeiro', 'estrutura_societaria', 'evento_relevante'],
+  blind_teaser:         ['numero_financeiro', 'estrutura_societaria', 'evento_relevante', 'indicador_calculado'],
   sell_side_pitchbook:  ['*'],
   relatorio_consolidado:['*'],
 }

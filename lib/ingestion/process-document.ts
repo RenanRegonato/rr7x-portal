@@ -4,6 +4,7 @@ import { ocrPdf, ocrImage } from '@/lib/ingestion/mistral-ocr'
 import { chunkText } from '@/lib/ingestion/chunker'
 import { embedDocuments } from '@/lib/ingestion/voyage-embeddings'
 import { extractFactsFromChunk, FACT_EXTRACTOR_MODEL } from '@/lib/ingestion/chunk-fact-extractor'
+import { extractDeterministicFacts } from '@/lib/extract/deterministic-facts'
 
 // step e logger vêm do Inngest SDK; tipo `any` no boundary porque o SDK envolve retornos
 // em Jsonify<T> e isso não casa com generics manuais. Type safety preservada DENTRO de
@@ -167,29 +168,45 @@ export async function processDocument({ analiseId, documentId, step, logger }: P
         .single()
       if (!chunk) return { facts: 0 }
 
-      const facts = await extractFactsFromChunk({
+      // Extração híbrida: determinística (rules) + IA (Haiku). Em colisão de
+      // (fact_type, key), o determinístico VENCE — é validado (CNPJ/CPF) ou
+      // ancorado em parser, mais confiável e auditável que o palpite do modelo.
+      // model_id='deterministic' permite medir a cobertura via llm_usage_log/facts.
+      const detFacts = extractDeterministicFacts(chunk.chunk_text)
+      const aiFacts = await extractFactsFromChunk({
         documentName:  doc.file_name,
         chunkText:     chunk.chunk_text,
         pageStartHint: null,
         pageEndHint:   null,
+        analiseId,
+        documentId,
       })
 
-      if (facts.length === 0) return { facts: 0 }
+      type FactRow = {
+        fact_type: string; fact_key: string; fact_value: string
+        source_quote: string | null; source_page: number | null
+        confidence: number; model_id: string
+      }
+      const byKey = new Map<string, FactRow>()
+      for (const f of aiFacts)  byKey.set(`${f.fact_type}::${f.fact_key}`, { ...f, model_id: FACT_EXTRACTOR_MODEL })
+      for (const f of detFacts) byKey.set(`${f.fact_type}::${f.fact_key}`, { ...f, model_id: 'deterministic' })
 
-      const rows = facts.map(f => ({
+      if (byKey.size === 0) return { facts: 0 }
+
+      const rows = [...byKey.values()].map(r => ({
         analise_id:   analiseId,
         document_id:  documentId,
         chunk_id:     cr.id,
-        fact_type:    f.fact_type,
-        fact_key:     f.fact_key,
-        fact_value:   f.fact_value,
-        source_quote: f.source_quote,
-        source_page:  f.source_page,
-        confidence:   f.confidence,
-        model_id:     FACT_EXTRACTOR_MODEL,
+        fact_type:    r.fact_type,
+        fact_key:     r.fact_key,
+        fact_value:   r.fact_value,
+        source_quote: r.source_quote,
+        source_page:  r.source_page,
+        confidence:   r.confidence,
+        model_id:     r.model_id,
       }))
       await admin.from('document_facts').insert(rows)
-      return { facts: rows.length }
+      return { facts: rows.length, deterministic: detFacts.length, ai: aiFacts.length }
     })
 
     await step.run(`bump-chunks-completed-${cr.idx}`, async () => {

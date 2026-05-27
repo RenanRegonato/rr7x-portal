@@ -1,4 +1,7 @@
-import { anthropic, MODEL as SONNET_MODEL } from '@/lib/anthropic'
+import { callLLM } from '@/lib/llm/call'
+import { routeFor } from '@/lib/llm/models'
+import { computeFinancials, metricsToConsolidatedFacts } from '@/lib/extract/financial-engine'
+import { evaluateRisk, triggersToFacts } from '@/lib/extract/risk-engine'
 import { createAdminClient } from '@/lib/supabase-server'
 import { sendIngestionCompleteEmail } from '@/lib/email'
 import { inngest } from '@/lib/inngest'
@@ -151,27 +154,28 @@ export async function consolidateFactBank({ analiseId, step, logger }: Consolida
 
         const userPrompt = `## Batch (apenas fatos do tipo "${factType}", parte ${bi + 1} de ${batches.length})\n\n${JSON.stringify(factsForPrompt, null, 2)}\n\n## Sua tarefa\nProduza o fact_bank parcial deste batch. JSON puro.`
 
-        const msg = await anthropic.messages.create({
-          model:       SONNET_MODEL,
-          max_tokens:  MAX_TOKENS_PER_BATCH,
-          temperature: 0,
-          // System prompt é idêntico em todos os batches → cache TTL 1h.
-          // Primeira chamada paga write (1.25x input), demais leem a 0.1x.
+        // System prompt é idêntico em todos os batches → cache TTL 1h.
+        // Primeira chamada paga write (1.25x input), demais leem a 0.1x.
+        const { text } = await callLLM({
+          task:        'consolidate_fact_bank',
+          context:     'ingestion',
+          analiseId,
           system: [
             { type: 'text', text: CONSOLIDATOR_SYSTEM, cache_control: { type: 'ephemeral', ttl: '1h' } },
           ],
           messages:    [{ role: 'user', content: userPrompt }],
+          maxTokens:   MAX_TOKENS_PER_BATCH,
+          temperature: 0,
+          meta:        { fact_type: factType, batch: bi },
         })
-
-        const block = msg.content.find(b => b.type === 'text')
-        if (!block || block.type !== 'text') {
+        if (!text) {
           return {
             facts: [] as ConsolidatedFact[],
             stats: { total_facts_in: batch.length, total_facts_out: 0, conflicts: 0, duplicates_merged: 0 },
             parse_error: true,
           }
         }
-        return parseJsonOrEmpty(block.text)
+        return parseJsonOrEmpty(text)
       }) as { facts?: ConsolidatedFact[]; stats?: { conflicts?: number; duplicates_merged?: number }; parse_error?: boolean }
 
       if (Array.isArray(result.facts)) allFacts.push(...result.facts)
@@ -179,6 +183,17 @@ export async function consolidateFactBank({ analiseId, step, logger }: Consolida
       totalDuplicatesMerged += result.stats?.duplicates_merged ?? 0
     }
   }
+
+  // 3.5) Indicadores financeiros + gatilhos de risco calculados por fórmula
+  // (determinístico, conf 1.0, auditável). Entram no fact_bank para os agentes
+  // receberem DSCR/alavancagem/margens e os riscos quantitativos prontos — sem
+  // recalcular (menos tokens, zero erro aritmético). A sentinela INTERPRETA a
+  // combinação dos gatilhos; o cálculo é do código (#8). Só dispara com insumo.
+  const metricas = computeFinancials(allFacts)
+  const indicadores = metricsToConsolidatedFacts(metricas)
+  const riscos = triggersToFacts(evaluateRisk(metricas))
+  if (indicadores.length) allFacts.push(...indicadores)
+  if (riscos.length)      allFacts.push(...riscos)
 
   // 4) Persiste
   return await persistFactBank(admin, analiseId, step, {
@@ -189,7 +204,7 @@ export async function consolidateFactBank({ analiseId, step, logger }: Consolida
       conflicts:         totalConflicts,
       duplicates_merged: totalDuplicatesMerged,
     },
-    consolidation_model: SONNET_MODEL,
+    consolidation_model: routeFor('consolidate_fact_bank').model,
   })
 }
 
