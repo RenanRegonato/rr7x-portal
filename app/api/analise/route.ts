@@ -4,6 +4,7 @@ import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { AnaliseCreateSchema } from '@/lib/schemas'
 import { audit, extractIp } from '@/lib/audit'
 import { encryptSensitiveFields } from '@/lib/crypto'
+import { gateReformaTributaria } from '@/lib/reforma-tributaria/auth-helpers'
 
 export const maxDuration = 300
 
@@ -25,6 +26,15 @@ export async function POST(req: NextRequest) {
     )
   }
   const intake = parsed.data
+
+  // Gate comercial do módulo premium: o opt-in da Reforma Tributária ('possui' ou
+  // 'diagnosticar') só é aceito se o escritório do criador tiver o módulo habilitado
+  // (admin da Mandor bypassa). Espelha o bloqueio da UI e fecha o atalho de POST
+  // direto na API que setaria o opt-in sem entitlement.
+  if (intake.reformaTributaria && intake.reformaTributaria !== 'na') {
+    const gate = await gateReformaTributaria(user.id)
+    if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status })
+  }
 
   const admin = createAdminClient()
 

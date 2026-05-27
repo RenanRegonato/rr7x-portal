@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient, createServerSupabaseClient } from '@/lib/supabase-server'
 import { canAccessAnalise, getUserContext } from '@/lib/get-role'
 import { isInternalCall } from '@/lib/internal-auth'
+import { resolveEscritorioId, isReformaTributariaEnabled } from '@/lib/reforma-tributaria/auth-helpers'
 import { getFactBankForAgent, formatFactBankForPrompt } from '@/lib/fact-bank-for-agent'
 import { avaliarReformaTributaria, FERRANTE, type FerranteInput } from '@/lib/agents/ferrante'
 
@@ -61,6 +62,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!ctx) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
     if (!(await canAccessAnalise(ctx, analise.user_id))) {
       return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+    }
+    // Gate comercial: o escritório DONO do deal precisa ter o módulo habilitado
+    // (o gestor master da Mandor, role=admin, bypassa). Fecha o consumo do premium
+    // por chamada de usuário de escritório sem entitlement (ex.: opt-in setado antes
+    // de um downgrade). O caminho interno (x-internal-token) segue confiando no token:
+    // o orquestrador já decide rodar/pular pelo entitlement em run-pipeline.ts.
+    if (ctx.role !== 'admin') {
+      const escritorioId = await resolveEscritorioId(analise.user_id)
+      if (!(await isReformaTributariaEnabled(escritorioId))) {
+        return NextResponse.json(
+          { error: 'Módulo Adequação à Reforma Tributária não habilitado para este escritório.' },
+          { status: 403 },
+        )
+      }
     }
   }
 

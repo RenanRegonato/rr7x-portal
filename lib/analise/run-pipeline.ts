@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase-server'
 import { INTERNAL_PIPELINE_TOKEN_HEADER } from '@/lib/internal-auth'
 import { sendCompletionEmail } from '@/lib/email'
+import { resolveEscritorioId, isReformaTributariaEnabled } from '@/lib/reforma-tributaria/auth-helpers'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Step = any
@@ -123,8 +124,16 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
   const objetivo            = (analise.deal_intake ?? {}).objetivo
   const runMA               = isMAActive(objetivo)
   const runEstrutura        = isEstruturaActive(objetivo)
-  // Módulo premium opt-in: roda o Ferrante só se ativado na abertura da análise.
-  const runReformaTributaria = (analise.deal_intake ?? {}).reformaTributaria === 'diagnosticar'
+  // Módulo premium: roda o Ferrante só se ativado na abertura (opt-in) E se o
+  // escritório dono do deal AINDA tiver o módulo habilitado. O segundo teste fecha
+  // o caso de downgrade (opt-in setado quando havia entitlement, escritório depois
+  // perdeu o módulo) e o de opt-in setado por atalho fora da UI gateada.
+  const optInReformaTributaria = (analise.deal_intake ?? {}).reformaTributaria === 'diagnosticar'
+  const runReformaTributaria = optInReformaTributaria
+    && (await isReformaTributariaEnabled(await resolveEscritorioId(analise.user_id)))
+  if (optInReformaTributaria && !runReformaTributaria) {
+    logger.info('Reforma Tributária: opt-in ativo mas escritório sem entitlement; pulando Ferrante', { analiseId })
+  }
 
   logger.info('Pipeline start', { analiseId, runMA, runEstrutura, runReformaTributaria })
 
