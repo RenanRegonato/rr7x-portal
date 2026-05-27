@@ -5,6 +5,7 @@ import { consolidateFactBank } from '@/lib/ingestion/consolidate-fact-bank'
 import { runMatching, runReverseMatching } from '@/lib/invest-match/matching-engine'
 import { notifyAssessorOfMatches } from '@/lib/invest-match/notify'
 import { runAnalysisPipeline } from '@/lib/analise/run-pipeline'
+import { recoverStuckIngestions } from '@/lib/ingestion/watchdog'
 
 // Cada step do Inngest é uma request HTTP serverless. Steps como extract-text
 // (com OCR Mistral em PDFs grandes) e embed-chunks (várias chamadas Voyage)
@@ -116,8 +117,25 @@ export const runAnalysisPipelineFn = inngest.createFunction(
   },
 )
 
+// Função 6: watchdog (cron) — backstop da ingestão. Recupera análises cuja
+// ingestão começou mas nunca consolidou porque um doc ficou preso sem esgotar
+// retries (evento perdido, doc em 'pending', etc.), que o onFailure não alcança.
+// Conservador: só age após GRACE_MIN (default 60min), depois do ciclo de retries.
+export const ingestionWatchdogFn = inngest.createFunction(
+  {
+    id:       'ingestion-watchdog',
+    name:     'Watchdog: recupera ingestões travadas (backstop do onFailure)',
+    triggers: [{ cron: '*/15 * * * *' }], // a cada 15 minutos
+    retries:  1,
+  },
+  async ({ step, logger }) => {
+    logger.info('watchdog: varrendo ingestões travadas')
+    return await recoverStuckIngestions({ step, logger })
+  },
+)
+
 // signingKey lido automaticamente de INNGEST_SIGNING_KEY env var
 export const { GET, POST, PUT } = serve({
   client:    inngest,
-  functions: [processDocumentFn, consolidateFactBankFn, runThesisMatchingFn, reverseMatchingFn, runAnalysisPipelineFn],
+  functions: [processDocumentFn, consolidateFactBankFn, runThesisMatchingFn, reverseMatchingFn, runAnalysisPipelineFn, ingestionWatchdogFn],
 })
