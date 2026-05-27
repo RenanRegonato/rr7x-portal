@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef, useMemo } from 'react'
+import { useEffect, useState, useRef, useMemo, type ReactNode } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Topbar from '@/components/Topbar'
 import AgentRow, { type AgentDef } from '@/components/AgentRow'
@@ -19,7 +19,7 @@ import ClaimsSection from '@/components/ClaimsSection'
 import ConsistencyPanel from '@/components/ConsistencyPanel'
 import MesaVerdictBanner from '@/components/MesaVerdictBanner'
 import CoveragePanel from '@/components/CoveragePanel'
-import { FERRANTE_PENDING_NOTE } from '@/lib/agents/ferrante'
+import { FERRANTE_PENDING_NOTE, parseFerranteResult, type FerranteResult, type Severidade } from '@/lib/reforma-tributaria/result'
 
 const MAX_REGENERACOES = 3
 
@@ -1065,21 +1065,10 @@ function DealDetail({
             }}
           />
         ) : activeTab === 'reforma_tributaria' ? (
-          <div className="bg-surface border border-border rounded-[14px] p-8 shadow-soft-sm">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-[15px] font-display font-medium text-ink">Adequação à Reforma Tributária</span>
-              <span className="text-[9px] font-semibold uppercase tracking-wide text-accent-strong border border-accent-strong/40 rounded px-1.5 py-0.5">Premium</span>
-            </div>
-            {analise.deal_intake?.reformaTributaria === 'possui' ? (
-              <p className="text-[13px] text-ink-2 leading-relaxed">
-                Este ativo foi marcado como <strong>já adequado</strong> à Reforma Tributária na abertura da análise. Nenhum diagnóstico foi gerado por Ferrante.
-              </p>
-            ) : (
-              // Fase 2 substitui esta nota pela renderização estruturada do output
-              // do Ferrante (score, mapa de risco, checklist, recomendações).
-              <p className="text-[13px] text-ink-3 leading-relaxed">{FERRANTE_PENDING_NOTE}</p>
-            )}
-          </div>
+          <ReformaTributariaTab
+            estado={analise.deal_intake?.reformaTributaria}
+            output={outputs.reforma_tributaria}
+          />
         ) : activeTab && outputs[activeTab] ? (
           <>
             {activeTab === 'relatorio_consolidado' && analise.mesa_revisao && (
@@ -1119,6 +1108,150 @@ function DealDetail({
           )}
         </aside>
       </div>
+    </div>
+  )
+}
+
+// ─── Adequação à Reforma Tributária (Ferrante) ──────────────────────────────────
+
+function rtSevCls(sev: Severidade): string {
+  if (sev === 'critico' || sev === 'alto') return 'text-warn border-warn/40 bg-warn/5'
+  if (sev === 'medio')                      return 'text-accent-strong border-accent-strong/30 bg-accent-soft'
+  return 'text-ink-3 border-border bg-surface-2'
+}
+const RT_SEV_LABEL: Record<Severidade, string> = { critico: 'Crítico', alto: 'Alto', medio: 'Médio', baixo: 'Baixo' }
+function rtScoreCls(score: number): string {
+  if (score >= 70) return 'text-ok'
+  if (score >= 40) return 'text-accent-strong'
+  return 'text-warn'
+}
+
+function RtBadge({ sev }: { sev: Severidade }) {
+  return <span className={`text-[10px] font-semibold uppercase tracking-wide border rounded px-1.5 py-0.5 shrink-0 ${rtSevCls(sev)}`}>{RT_SEV_LABEL[sev] ?? sev}</span>
+}
+function RtSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="bg-surface border border-border rounded-[14px] p-6 shadow-soft-sm">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-3">{title}</p>
+      {children}
+    </div>
+  )
+}
+
+function ReformaTributariaTab({ estado, output }: { estado?: string; output?: string }) {
+  const header = (
+    <div className="flex items-center gap-2 mb-4">
+      <span className="text-[15px] font-display font-medium text-ink">Adequação à Reforma Tributária</span>
+      <span className="text-[9px] font-semibold uppercase tracking-wide text-accent-strong border border-accent-strong/40 rounded px-1.5 py-0.5">Premium</span>
+    </div>
+  )
+
+  if (estado === 'possui') return (
+    <div className="bg-surface border border-border rounded-[14px] p-8 shadow-soft-sm">
+      {header}
+      <p className="text-[13px] text-ink-2 leading-relaxed">
+        Este ativo foi marcado como <strong>já adequado</strong> à Reforma Tributária na abertura da análise. Nenhum diagnóstico foi gerado.
+      </p>
+    </div>
+  )
+
+  if (!output) return (
+    <div className="bg-surface border border-border rounded-[14px] p-8 shadow-soft-sm">
+      {header}
+      <p className="text-[13px] text-ink-3 leading-relaxed">{FERRANTE_PENDING_NOTE}</p>
+    </div>
+  )
+
+  const r = parseFerranteResult(output)
+  if (!r) return (
+    <div className="bg-surface border border-border rounded-[14px] p-8 shadow-soft-sm">
+      {header}
+      <p className="text-[13px] text-warn mb-3">Não foi possível estruturar o diagnóstico. Conteúdo bruto abaixo.</p>
+      <pre className="text-[12px] text-ink-2 whitespace-pre-wrap bg-surface-2 rounded-[10px] p-4 overflow-auto">{output}</pre>
+    </div>
+  )
+
+  return (
+    <div className="space-y-5">
+      <div className="bg-surface border border-border rounded-[14px] p-8 shadow-soft-sm">
+        {header}
+        <div className="flex items-baseline gap-3 mb-4">
+          <span className={`text-[40px] font-display font-semibold leading-none ${rtScoreCls(r.conformidade_score)}`}>{r.conformidade_score}</span>
+          <span className="text-[13px] text-ink-3">/ 100 · conformidade tributária (preliminar)</span>
+        </div>
+        {r.resumo_executivo && <p className="text-[13px] text-ink-2 leading-relaxed">{r.resumo_executivo}</p>}
+      </div>
+
+      {r.riscos.length > 0 && (
+        <RtSection title="Riscos fiscais">
+          <ul className="space-y-2.5">
+            {r.riscos.map((risco, i) => (
+              <li key={i} className="border border-border rounded-[10px] p-3.5">
+                <div className="flex items-center gap-2 mb-1">
+                  <RtBadge sev={risco.severidade}/>
+                  <span className="text-[13px] font-medium text-ink">{risco.titulo}</span>
+                </div>
+                <p className="text-[12px] text-ink-2 leading-relaxed">{risco.descricao}</p>
+                {risco.fundamento && <p className="text-[11px] text-ink-3 mt-1">Fundamento: {risco.fundamento}</p>}
+              </li>
+            ))}
+          </ul>
+        </RtSection>
+      )}
+
+      {r.pontos_criticos_captacao.length > 0 && (
+        <RtSection title="Pontos críticos para captação / M&A / crédito">
+          <ul className="list-disc pl-5 space-y-1.5">
+            {r.pontos_criticos_captacao.map((p, i) => <li key={i} className="text-[13px] text-ink-2 leading-relaxed">{p}</li>)}
+          </ul>
+        </RtSection>
+      )}
+
+      {r.impactos_operacionais.length > 0 && (
+        <RtSection title="Impactos no modelo operacional">
+          <ul className="list-disc pl-5 space-y-1.5">
+            {r.impactos_operacionais.map((p, i) => <li key={i} className="text-[13px] text-ink-2 leading-relaxed">{p}</li>)}
+          </ul>
+        </RtSection>
+      )}
+
+      {r.oportunidades.length > 0 && (
+        <RtSection title="Oportunidades">
+          <ul className="list-disc pl-5 space-y-1.5">
+            {r.oportunidades.map((p, i) => <li key={i} className="text-[13px] text-ink-2 leading-relaxed">{p}</li>)}
+          </ul>
+        </RtSection>
+      )}
+
+      {r.recomendacoes.length > 0 && (
+        <RtSection title="Recomendações">
+          <ul className="space-y-2">
+            {r.recomendacoes.map((rec, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <RtBadge sev={rec.prioridade}/>
+                <span className="text-[13px] text-ink-2 leading-relaxed"><strong className="text-ink">{rec.titulo}.</strong> {rec.acao}</span>
+              </li>
+            ))}
+          </ul>
+        </RtSection>
+      )}
+
+      {r.checklist_adequacao.length > 0 && (
+        <RtSection title="Checklist de adequação">
+          <ul className="space-y-1.5">
+            {r.checklist_adequacao.map((c, i) => (
+              <li key={i} className="flex items-start gap-2 text-[13px]">
+                <span className="shrink-0">{c.status === 'ok' ? '✅' : c.status === 'pendente' ? '⛔' : '➖'}</span>
+                <span className="text-ink-2 leading-relaxed">{c.item}{c.observacao ? <span className="text-ink-3"> — {c.observacao}</span> : null}</span>
+              </li>
+            ))}
+          </ul>
+        </RtSection>
+      )}
+
+      <p className="text-[11px] text-ink-3 leading-relaxed border-t border-border pt-3">
+        Diagnóstico preliminar gerado por IA com base na EC 132/2023. A Reforma depende de leis complementares ainda em regulamentação; não constitui parecer jurídico-tributário.
+      </p>
     </div>
   )
 }

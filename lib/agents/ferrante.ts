@@ -1,84 +1,84 @@
 // Ferrante — agente de Adequação à Reforma Tributária (módulo premium, opt-in).
 //
-// ESQUELETO (Fase 1): define a PERSONA, o CONTRATO de saída estruturada e o parser.
-// O prompt analítico de verdade e a BASE DE REGRAS (PDF técnico da Reforma, EC
-// 132/2023) entram na Fase 2 — só então o agente é conectado ao pipeline
-// (run-pipeline.ts), ganha um case no step route e passa a rodar de fato.
-// Hoje este módulo NÃO é invocado em lugar nenhum: sem a base de regras, não há
-// veredito de conformidade.
+// Este arquivo é SERVER-ONLY (importa callLLM → SDK Anthropic). O contrato puro
+// (tipos, parser, persona, nota) vive em lib/reforma-tributaria/result.ts e é
+// reexportado aqui por conveniência. Componentes client devem importar o contrato
+// DE result.ts, nunca deste arquivo.
+//
+// Base de regras (v1): e-book do CFC sobre a EC 132/2023
+// (lib/reforma-tributaria/base-conhecimento.ts), injetada no system prompt.
+// Rodado pelo endpoint /api/analise/[id]/reforma-tributaria, disparado pelo
+// orquestrador (run-pipeline) quando deal_intake.reformaTributaria === 'diagnosticar'.
 
-export const FERRANTE = {
-  key:  'reforma_tributaria',
-  name: 'Ferrante',
-  role: 'Auditor de Adequação à Reforma Tributária',
-} as const
+import { callLLM } from '@/lib/llm/call'
+import { REFORMA_TRIBUTARIA_KB, REFORMA_TRIBUTARIA_KB_VERSION } from '@/lib/reforma-tributaria/base-conhecimento'
+import { FERRANTE, parseFerranteResult, type FerranteInput, type FerranteResult } from '@/lib/reforma-tributaria/result'
 
-export type Severidade = 'critico' | 'alto' | 'medio' | 'baixo'
+// Reexporta o contrato puro (FERRANTE, tipos, parser, FERRANTE_PENDING_NOTE).
+export * from '@/lib/reforma-tributaria/result'
 
-export interface RiscoFiscal {
-  titulo:      string
-  severidade:  Severidade
-  descricao:   string
-  fundamento?: string   // dispositivo/regra que embasa (preenchido pela base de regras na Fase 2)
+const SYSTEM_PROMPT = `Você é **Ferrante**, ${FERRANTE.role} da Mandor — especialista que avalia a ADEQUAÇÃO de uma empresa/ativo à Reforma Tributária brasileira (EC 132/2023).
+
+Sua missão NÃO é explicar a reforma, e sim diagnosticar a EXPOSIÇÃO e a PREPARAÇÃO da empresa analisada: o que já está adequado, quais riscos fiscais/societários a reforma cria ou agrava, como ela afeta o modelo operacional, o que pode travar captação/valuation/M&A/crédito, e o que fazer.
+
+## Base de regras (use como referência factual)
+${REFORMA_TRIBUTARIA_KB}
+
+## Diretrizes
+- Raciocine SOBRE OS DADOS DA EMPRESA fornecidos (intake, fatos consolidados e diagnósticos dos outros agentes). NÃO invente números nem premissas: se faltar dado essencial (regime tributário, setor, perfil de clientes, dependência de créditos/benefícios), registre como LACUNA e reduza a confiança/score proporcionalmente.
+- O \`conformidade_score\` (0–100) mede a PREPARAÇÃO/ADEQUAÇÃO da empresa à reforma: 100 = plenamente adequada e baixa exposição não endereçada; 0 = despreparada, alta exposição e pontos críticos abertos. Calibre com base nos riscos identificados e nas lacunas de informação.
+- Severidade dos riscos: 'critico' (pode inviabilizar captação/operação), 'alto', 'medio', 'baixo'.
+- Seja específico ao caso (ex.: empresa do Simples que vende para Lucro Real → risco de perda de competitividade pela redução de créditos do adquirente; dependência de benefícios de ICMS que serão extintos; contratos longos que cruzam a transição 2026–2033 sem cláusula de repactuação tributária; setor de serviços e o efeito da alíquota IVA ~27,5%).
+- TODA conclusão é PRELIMINAR (a reforma depende de leis complementares em regulamentação). NÃO é parecer jurídico-tributário. Deixe isso explícito no \`resumo_executivo\`.
+
+## Saída
+Responda APENAS com um objeto JSON (sem texto fora do JSON, sem cercas de código) neste schema:
+{
+  "conformidade_score": number,            // 0-100
+  "resumo_executivo": string,              // 3-6 frases; comece sinalizando que é diagnóstico preliminar
+  "riscos": [{ "titulo": string, "severidade": "critico"|"alto"|"medio"|"baixo", "descricao": string, "fundamento": string }],
+  "impactos_operacionais": [string],
+  "pontos_criticos_captacao": [string],    // o que pode travar valuation / M&A / entrada de investidor / crédito / DD
+  "oportunidades": [string],
+  "recomendacoes": [{ "titulo": string, "prioridade": "critico"|"alto"|"medio"|"baixo", "acao": string }],
+  "checklist_adequacao": [{ "item": string, "status": "ok"|"pendente"|"nao_aplicavel", "observacao": string }]
+}`
+
+function buildUserPrompt(input: FerranteInput): string {
+  const partes: string[] = [
+    '## Empresa/ativo analisado',
+    input.intakeResumo || '(intake não informado)',
+  ]
+  if (input.factBank?.trim()) {
+    partes.push('\n## Fatos consolidados (fact bank)', input.factBank)
+  }
+  if (input.outputsRelevantes?.trim()) {
+    partes.push('\n## Diagnósticos dos outros agentes (resumo)', input.outputsRelevantes)
+  }
+  partes.push('\n## Sua tarefa\nProduza o diagnóstico de adequação à Reforma Tributária no schema JSON especificado. JSON puro.')
+  return partes.join('\n')
 }
 
-export interface RecomendacaoTributaria {
-  titulo:     string
-  prioridade: Severidade
-  acao:       string
+export interface FerranteRunResult {
+  result:    FerranteResult | null   // null se o modelo não retornou JSON válido
+  raw:       string                  // texto bruto (para auditoria/debug)
+  kbVersion: string
 }
-
-export interface ChecklistItem {
-  item:        string
-  status:      'ok' | 'pendente' | 'nao_aplicavel'
-  observacao?: string
-}
-
-/** Saída estruturada do Ferrante — alimenta score, mapa de risco, checklist e relatório. */
-export interface FerranteResult {
-  conformidade_score:        number   // 0-100
-  resumo_executivo:          string
-  riscos:                    RiscoFiscal[]
-  impactos_operacionais:     string[]
-  pontos_criticos_captacao:  string[]   // o que pode travar valuation / M&A / crédito
-  oportunidades:             string[]
-  recomendacoes:             RecomendacaoTributaria[]
-  checklist_adequacao:       ChecklistItem[]
-}
-
-/** Insumos que o pipeline montará para o Ferrante na Fase 2. */
-export interface FerranteInput {
-  intakeResumo:       string
-  factBank:           string
-  outputsRelevantes:  string   // diagnostico/estruturacao já gerados
-  baseRegras:         string   // trechos da base de conhecimento tributário (PDF)
-}
-
-/** Nota exibida na UI enquanto o motor (Fase 2) não está ligado. */
-export const FERRANTE_PENDING_NOTE =
-  'Módulo ativado. O diagnóstico de adequação tributária será gerado quando a base de regras da Reforma estiver configurada.'
 
 /**
- * Parser tolerante da saída JSON do agente (usado na Fase 2). Retorna null se a
- * estrutura mínima (conformidade_score) não estiver presente.
+ * Roda o Ferrante: dado o contexto da empresa + a base de regras, devolve o
+ * diagnóstico estruturado. Não persiste nada (quem chama grava o output).
  */
-export function parseFerranteResult(raw: string): FerranteResult | null {
-  try {
-    const match = raw.match(/\{[\s\S]*\}/)
-    if (!match) return null
-    const obj = JSON.parse(match[0]) as Partial<FerranteResult>
-    if (typeof obj.conformidade_score !== 'number') return null
-    return {
-      conformidade_score:       obj.conformidade_score,
-      resumo_executivo:         obj.resumo_executivo ?? '',
-      riscos:                   Array.isArray(obj.riscos) ? obj.riscos : [],
-      impactos_operacionais:    Array.isArray(obj.impactos_operacionais) ? obj.impactos_operacionais : [],
-      pontos_criticos_captacao: Array.isArray(obj.pontos_criticos_captacao) ? obj.pontos_criticos_captacao : [],
-      oportunidades:            Array.isArray(obj.oportunidades) ? obj.oportunidades : [],
-      recomendacoes:            Array.isArray(obj.recomendacoes) ? obj.recomendacoes : [],
-      checklist_adequacao:      Array.isArray(obj.checklist_adequacao) ? obj.checklist_adequacao : [],
-    }
-  } catch {
-    return null
-  }
+export async function avaliarReformaTributaria(input: FerranteInput, analiseId?: string): Promise<FerranteRunResult> {
+  const { text } = await callLLM({
+    task:      FERRANTE.key,
+    context:   'analise_pipeline',
+    analiseId: analiseId ?? null,
+    system:    [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
+    messages:  [{ role: 'user', content: buildUserPrompt(input) }],
+    maxTokens: 12000,     // > thinkingBudget (8000) — extended thinking exige folga
+    thinking:  true,
+    meta:      { kb_version: REFORMA_TRIBUTARIA_KB_VERSION },
+  })
+  return { result: parseFerranteResult(text ?? ''), raw: text ?? '', kbVersion: REFORMA_TRIBUTARIA_KB_VERSION }
 }

@@ -120,11 +120,13 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
     return data
   }) as { id: string; user_id: string; status: string; deal_intake: Record<string, string> | null; outputs: Record<string, string> | null }
 
-  const objetivo     = (analise.deal_intake ?? {}).objetivo
-  const runMA        = isMAActive(objetivo)
-  const runEstrutura = isEstruturaActive(objetivo)
+  const objetivo            = (analise.deal_intake ?? {}).objetivo
+  const runMA               = isMAActive(objetivo)
+  const runEstrutura        = isEstruturaActive(objetivo)
+  // Módulo premium opt-in: roda o Ferrante só se ativado na abertura da análise.
+  const runReformaTributaria = (analise.deal_intake ?? {}).reformaTributaria === 'diagnosticar'
 
-  logger.info('Pipeline start', { analiseId, runMA, runEstrutura })
+  logger.info('Pipeline start', { analiseId, runMA, runEstrutura, runReformaTributaria })
 
   // Marca processando logo no início.
   await step.run('set-processando', async () => {
@@ -172,6 +174,16 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
     if (runMA)        await maybeRunAgent('analise_ma')
     if (runEstrutura) await maybeRunAgent('estruturacao')
     await maybeRunAgent('originacao')
+
+    // Adequação à Reforma Tributária (Ferrante) — módulo premium, best-effort:
+    // lê diagnóstico/estruturação/originação + fact bank. Uma falha aqui não
+    // pode derrubar o relatório principal.
+    if (runReformaTributaria) {
+      await step.run('reforma-tributaria', async () => {
+        await runCheckEndpoint(analiseId, 'reforma-tributaria')
+        return { ok: true }
+      })
+    }
 
     await maybeRunAgent('maturidade')
 
