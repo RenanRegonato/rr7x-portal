@@ -1067,7 +1067,7 @@ function DealDetail({
         ) : activeTab === 'reforma_tributaria' ? (
           <div className="bg-surface border border-border rounded-[14px] p-8 shadow-soft-sm">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-[15px] font-display font-medium text-ink">Ferrante · Adequação à Reforma Tributária</span>
+              <span className="text-[15px] font-display font-medium text-ink">Adequação à Reforma Tributária</span>
               <span className="text-[9px] font-semibold uppercase tracking-wide text-accent-strong border border-accent-strong/40 rounded px-1.5 py-0.5">Premium</span>
             </div>
             {analise.deal_intake?.reformaTributaria === 'possui' ? (
