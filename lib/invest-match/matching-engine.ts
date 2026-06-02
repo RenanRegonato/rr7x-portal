@@ -161,7 +161,7 @@ export async function runMatching(params: RunMatchingParams): Promise<RunMatchin
           const inv = invById.get(cand.investidor_id)
           if (!inv) return null
           const judgeInput = buildJudgeInput(inv, tese, cand.score_estruturado, cand.sem_score ?? 0)
-          const verdict = await judgeMatch(judgeInput)
+          const verdict = await judgeMatch(judgeInput, { analiseId: tese.analise_id ?? null })
           return { cand, verdict }
         })
       )
@@ -365,7 +365,7 @@ export async function runReverseMatching(params: {
           const tese = teseById.get(cand.tese_id)
           if (!tese) return null
           const judgeInput = buildJudgeInput(inv, tese, cand.score_estruturado, cand.sem_score ?? 0)
-          const verdict = await judgeMatch(judgeInput)
+          const verdict = await judgeMatch(judgeInput, { analiseId: tese.analise_id ?? null })
           return { tese_id: cand.tese_id, sem_score: cand.sem_score, estruturado: cand.score_estruturado, breakdown: cand.breakdown, verdict }
         })
       )

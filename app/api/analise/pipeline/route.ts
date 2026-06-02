@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
-
-const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
+import { isAdminViewer } from '@/lib/get-role'
 
 const STAGE_ORDER = ['originacao', 'analise', 'compliance', 'comite', 'aprovado'] as const
 type Stage = typeof STAGE_ORDER[number] | 'rejeitado'
 
-async function canAccess(analiseId: string, userId: string, adminEmail: string, userEmail: string): Promise<boolean> {
+async function canAccess(analiseId: string, userId: string): Promise<boolean> {
   const admin = createAdminClient()
   const { data } = await admin.from('analises').select('user_id').eq('id', analiseId).single()
   if (!data) return false
-  if (data.user_id === userId || userEmail === adminEmail) return true
+  if (data.user_id === userId) return true
+  if (await isAdminViewer(userId)) return true
   const { data: member } = await admin
     .from('deal_members')
     .select('id')
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'ID obrigatório' }, { status: 400 })
 
-  const ok = await canAccess(id, user.id, ADMIN_EMAIL, user.email ?? '')
+  const ok = await canAccess(id, user.id)
   if (!ok) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
   const admin = createAdminClient()
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
 
   if (!analise_id || !action) return NextResponse.json({ error: 'Campos obrigatórios ausentes' }, { status: 400 })
 
-  const ok = await canAccess(analise_id, user.id, ADMIN_EMAIL, user.email ?? '')
+  const ok = await canAccess(analise_id, user.id)
   if (!ok) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
   const admin = createAdminClient()

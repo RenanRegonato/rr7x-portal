@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient, createServerSupabaseClient } from "@/lib/supabase-server";
 import { createClient as createBrowserClient } from "@/lib/supabase";
+import { isAdminViewer } from "@/lib/get-role";
 
 function slugify(text: string): string {
   return text
@@ -25,12 +26,7 @@ async function requireAdmin(req: NextRequest): Promise<boolean> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return false;
-
-  const adminEmails = (process.env.ADMIN_EMAILS ?? "gestor@renanregonato.com.br")
-    .split(",")
-    .map((e) => e.trim());
-
-  return adminEmails.includes(user.email ?? "");
+  return isAdminViewer(user.id);
 }
 
 /* ── GET /api/admin/blog — list all posts (admin) ── */

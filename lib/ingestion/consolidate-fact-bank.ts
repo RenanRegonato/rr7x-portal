@@ -1,5 +1,6 @@
 import { callLLM } from '@/lib/llm/call'
 import { routeFor } from '@/lib/llm/models'
+import { PROMPT_INJECTION_GUARD } from '@/lib/llm/prompt-safety'
 import { computeFinancials, metricsToConsolidatedFacts } from '@/lib/extract/financial-engine'
 import { evaluateRisk, triggersToFacts } from '@/lib/extract/risk-engine'
 import { createAdminClient } from '@/lib/supabase-server'
@@ -73,7 +74,9 @@ Você recebe um BATCH de fatos extraídos. Esse batch é apenas uma fração de 
   }
 }
 
-Nada além do JSON. Sem \`\`\`json\`\`\`.`
+Nada além do JSON. Sem \`\`\`json\`\`\`.
+
+${PROMPT_INJECTION_GUARD}`
 
 const BATCH_SIZE      = 40       // 40 facts por chamada Sonnet
 const MAX_TOKENS_PER_BATCH = 8000 // safe vs limite de 8192 do Sonnet 4.6 standard

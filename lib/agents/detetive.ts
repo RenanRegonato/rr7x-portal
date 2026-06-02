@@ -1,4 +1,5 @@
 import { callLLM } from '@/lib/llm/call'
+import { PROMPT_INJECTION_GUARD } from '@/lib/llm/prompt-safety'
 
 // Agente "Detetive Dependência" — após uma regeneração executada,
 // avalia quais OUTROS agentes da análise podem ter ficado inconsistentes
@@ -59,7 +60,9 @@ Formato de resposta: SEMPRE retorne JSON puro válido neste schema exato, sem ma
   ]
 }
 
-Se nenhum agente foi afetado significativamente, retorne {"impactos": []}.`
+Se nenhum agente foi afetado significativamente, retorne {"impactos": []}.
+
+${PROMPT_INJECTION_GUARD}`
 
 function truncate(s: string, max: number): string {
   if (!s) return '(vazio)'
@@ -104,7 +107,9 @@ export async function avaliarImpactoCascade(input: DetetiveInput, analiseId?: st
     task:        'cascade_detect',
     context:     'validators',
     analiseId,
-    system:      SYSTEM_PROMPT,
+    system: [
+      { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral', ttl: '1h' } },
+    ],
     messages:    [{ role: 'user', content: buildUserPrompt(input) }],
     maxTokens:   3000,
     temperature: 0,

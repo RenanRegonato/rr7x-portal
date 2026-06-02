@@ -1,4 +1,5 @@
 import { callLLM } from '@/lib/llm/call'
+import { PROMPT_INJECTION_GUARD } from '@/lib/llm/prompt-safety'
 
 // Agente "Revisor Régis" — avalia pedidos de regeneração de step.
 // Não regenera nada; apenas analisa se o briefing faz sentido técnico.
@@ -46,7 +47,9 @@ Formato de resposta: SEMPRE retorne JSON puro válido neste schema exato, sem ma
   "riscos": ["risco 1", "risco 2"]
 }
 
-O campo "riscos" pode ser vazio ([]) se você aprovou sem ressalvas.`
+O campo "riscos" pode ser vazio ([]) se você aprovou sem ressalvas.
+
+${PROMPT_INJECTION_GUARD}`
 
 function buildUserPrompt(input: RevisorInput): string {
   const upstream = input.outputs_upstream && Object.keys(input.outputs_upstream).length > 0
@@ -93,7 +96,9 @@ export async function avaliarPedidoRegeneracao(input: RevisorInput, analiseId?: 
     task:        'revisor_regeneracao',
     context:     'validators',
     analiseId,
-    system:      SYSTEM_PROMPT,
+    system: [
+      { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral', ttl: '1h' } },
+    ],
     messages:    [{ role: 'user', content: buildUserPrompt(input) }],
     maxTokens:   2000,
     temperature: 0,

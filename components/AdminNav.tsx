@@ -9,6 +9,7 @@ const NAV = [
   { href: '/dashboard/admin/escritorios',  label: 'Escritórios',  Icon: IconBuilding },
   { href: '/dashboard/admin/pacotes',      label: 'Pacotes',      Icon: IconFolder   },
   { href: '/dashboard/admin/benchmarks',   label: 'Benchmarks',   Icon: IconFileText },
+  { href: '/dashboard/admin/uso-llm',      label: 'Uso LLM',      Icon: IconSquad    },
   { href: '/dashboard/admin/auditoria',    label: 'Auditoria',    Icon: IconClock    },
   { href: '/dashboard/admin/agentes',      label: 'Agentes',      Icon: IconSettings },
   { href: '/dashboard/admin/aprendizados', label: 'Aprendizados', Icon: IconDoc      },

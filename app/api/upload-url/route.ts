@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
 import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { UploadUrlSchema } from '@/lib/schemas'
+import { isAllowedDocExtension, ALLOWED_DOC_EXTENSIONS_LIST } from '@/lib/upload-validation'
 
 export async function POST(req: NextRequest) {
   const supabase = await createServerSupabaseClient()
@@ -21,6 +22,15 @@ export async function POST(req: NextRequest) {
     )
   }
   const { analiseId, files } = parsed.data
+
+  // Whitelist de extensões — impede que o cliente requisite signed URL para
+  // arquivos executáveis ou HTML que poderiam virar XSS via subdomínio Supabase.
+  const rejeitados = files.filter(f => !isAllowedDocExtension(f.name)).map(f => f.name)
+  if (rejeitados.length > 0) {
+    return NextResponse.json({
+      error: `Tipo de arquivo não permitido: ${rejeitados.join(', ')}. Aceitos: ${ALLOWED_DOC_EXTENSIONS_LIST.join(', ')}.`,
+    }, { status: 400 })
+  }
 
   const admin = createAdminClient()
   const { data: analise } = await admin

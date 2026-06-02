@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { sendContactEmail } from '@/lib/email'
+import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { extractIp } from '@/lib/audit'
 
 const ContatoSchema = z.object({
   nome:       z.string().trim().min(1, 'Nome obrigatório').max(120),
@@ -13,6 +15,14 @@ const ContatoSchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  // Endpoint público (formulário do site). Rate limit por IP — anti-spam/flood.
+  // 5 envios/hora por IP é compatível com uso legítimo (form submetido várias
+  // vezes em caso de revisão, mas não centenas como spam automatizado).
+  // Honeypot abaixo já barra bots simples; rate limit barra bots mais espertos.
+  const ip = extractIp(req.headers) ?? 'unknown'
+  const rl = await checkRateLimit(`contato:${ip}`, 5, 3600)
+  if (!rl.allowed) return rateLimitResponse(rl.resetIn)
+
   let body: unknown
   try {
     body = await req.json()

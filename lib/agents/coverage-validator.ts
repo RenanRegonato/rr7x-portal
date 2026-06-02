@@ -1,4 +1,5 @@
 import { callLLM } from '@/lib/llm/call'
+import { PROMPT_INJECTION_GUARD } from '@/lib/llm/prompt-safety'
 import type { ChecklistItem, TipoOperacao } from '@/lib/coverage-checklists'
 
 // Coverage Validator (Fase 11) — agente que avalia se cada item da
@@ -70,7 +71,9 @@ Retorne SOMENTE JSON puro, sem markdown, sem cercas:
   ]
 }
 
-A lista DEVE conter exatamente um item para cada checklist key recebida (na mesma ordem).`
+A lista DEVE conter exatamente um item para cada checklist key recebida (na mesma ordem).
+
+${PROMPT_INJECTION_GUARD}`
 
 function buildUserPrompt(input: CoverageInput): string {
   const outputs = Object.entries(input.outputs_agentes)
@@ -118,7 +121,9 @@ export async function validarCoverage(input: CoverageInput, analiseId?: string):
     task:        'coverage_check',
     context:     'validators',
     analiseId,
-    system:      SYSTEM_PROMPT,
+    system: [
+      { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral', ttl: '1h' } },
+    ],
     messages:    [{ role: 'user', content: buildUserPrompt(input) }],
     maxTokens:   6000,
     temperature: 0,

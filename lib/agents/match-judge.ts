@@ -1,4 +1,5 @@
-import { anthropic, MODEL as SONNET_MODEL } from '@/lib/anthropic'
+import { callLLM } from '@/lib/llm/call'
+import { PROMPT_INJECTION_GUARD } from '@/lib/llm/prompt-safety'
 
 // Match Judge — Camada 4 do motor de matching v2.
 //
@@ -148,7 +149,9 @@ JSON puro, sem markdown, sem cercas:
   "talking_points": ["..."],
   "close_probability": 0-100,
   "recommendation": "strong_match" | "review" | "skip"
-}`
+}
+
+${PROMPT_INJECTION_GUARD}`
 
 
 function fmtBRL(v: number | null): string {
@@ -236,10 +239,15 @@ Avalie agora o match conforme instruído. Retorne SOMENTE o JSON.`
 const VALID_REC: MatchRecommendation[] = ['strong_match', 'review', 'skip']
 
 
-export async function judgeMatch(input: MatchJudgeInput): Promise<MatchJudgeOutput> {
-  const resp = await anthropic.messages.create({
-    model:       SONNET_MODEL,
-    max_tokens:  2000,
+export async function judgeMatch(
+  input: MatchJudgeInput,
+  opts?: { analiseId?: string | null },
+): Promise<MatchJudgeOutput> {
+  const { text: raw0 } = await callLLM({
+    task:        'match_judge',
+    context:     'invest_match',
+    analiseId:   opts?.analiseId ?? null,
+    maxTokens:   2000,
     temperature: 0.2,
     system: [
       // Cache 1h — system prompt idêntico em todas chamadas do batch (20 chamadas
@@ -247,14 +255,17 @@ export async function judgeMatch(input: MatchJudgeInput): Promise<MatchJudgeOutp
       { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral', ttl: '1h' } },
     ],
     messages: [{ role: 'user', content: buildUserPrompt(input) }],
+    meta: {
+      investidor:   input.investidor.nome,
+      tese_empresa: input.tese.empresa_nome,
+    },
   })
 
-  const textBlock = resp.content.find(b => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
+  if (!raw0) {
     throw new Error('[match-judge] resposta sem texto')
   }
 
-  const raw = textBlock.text.trim()
+  const raw = raw0.trim()
   const fenced = raw.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)
   const candidate = fenced ? fenced[1] : raw
   const first = candidate.indexOf('{')

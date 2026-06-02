@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient, createServerSupabaseClient } from "@/lib/supabase-server";
+import { isAdminViewer } from "@/lib/get-role";
 
 function estimateReadingTime(content: string): number {
   const words = content.trim().split(/\s+/).length;
@@ -12,12 +13,7 @@ async function requireAdmin(req: NextRequest): Promise<boolean> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return false;
-
-  const adminEmails = (process.env.ADMIN_EMAILS ?? "gestor@renanregonato.com.br")
-    .split(",")
-    .map((e) => e.trim());
-
-  return adminEmails.includes(user.email ?? "");
+  return isAdminViewer(user.id);
 }
 
 /* ── GET /api/admin/blog/[id] — get single post ── */

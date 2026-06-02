@@ -107,6 +107,7 @@ export async function buildThesisFromAnalise(input: BuildThesisInput): Promise<B
 
   // 5) Chama o agente Sonnet pra preencher os campos qualitativos
   const llmOutput = await buildThesisLlm({
+    analiseId:          ctx.id,
     nome_ativo:         ctx.nome_ativo,
     intake_resumo:      summarizeIntake(ctx.deal_intake),
     mesa_revisao_json:  JSON.stringify(ctx.mesa_revisao, null, 2),

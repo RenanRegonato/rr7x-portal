@@ -13,6 +13,7 @@ import { parseClaims, persistClaims, CLAIMS_DIRECTIVE } from '@/lib/claims'
 import { isEarlyStage, EARLY_STAGE_DIRETRIZ_AGENTE, EARLY_STAGE_RESSALVA } from '@/lib/early-stage'
 import { isInternalCall } from '@/lib/internal-auth'
 import { logLlmUsage } from '@/lib/llm/usage-logger'
+import { getUserContext } from '@/lib/get-role'
 
 // Roteamento de modelo e extended thinking por step agora vêm do registro central
 // (lib/llm/models.ts). Comportamento idêntico ao anterior: Haiku em orchestration e
@@ -46,8 +47,6 @@ const CROSS_READING_DEPS: Record<string, string[]> = {
 }
 
 export const maxDuration = 300
-
-const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
 
 const HUMANIZER_DIRECTIVE = `
 
@@ -686,13 +685,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const internal = isInternalCall(req)
 
     if (!internal) {
-      const supabase = await createServerSupabaseClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+      const ctx = await getUserContext()
+      if (!ctx) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
       const { data: authAnalise } = await admin.from('analises').select('user_id').eq('id', id).single()
       if (!authAnalise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
-      if (authAnalise.user_id !== user.id && user.email !== ADMIN_EMAIL) {
+
+      // Preserva a semântica original: dono OU role 'admin' (antes era email hardcoded).
+      if (authAnalise.user_id !== ctx.userId && ctx.role !== 'admin') {
         return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
       }
     }

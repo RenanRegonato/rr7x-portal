@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
 import { inngest } from '@/lib/inngest'
-
-const ADMIN_EMAIL = process.env.ADMIN_EMAILS?.split(',')[0]?.trim() ?? 'gestor@renanregonato.com.br'
+import { isAdminViewer } from '@/lib/get-role'
 
 /**
  * Re-dispara o consolidator de fact_bank pra uma análise.
@@ -15,7 +14,7 @@ export async function POST(req: NextRequest) {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
-  if (user.email !== ADMIN_EMAIL) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+  if (!(await isAdminViewer(user.id))) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
 
   const analiseId = req.nextUrl.searchParams.get('id')
   if (!analiseId) return NextResponse.json({ error: 'Falta query param id' }, { status: 400 })

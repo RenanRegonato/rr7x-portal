@@ -52,6 +52,18 @@ export async function getTeamUserIds(ctx: UserContext): Promise<string[] | null>
   return [ctx.userId]
 }
 
+// Cheap role check by user_id — útil em endpoints onde já temos `user.id`
+// e não precisamos do resto do contexto.
+export async function isAdminViewer(userId: string): Promise<boolean> {
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from('perfis')
+    .select('role')
+    .eq('user_id', userId)
+    .maybeSingle()
+  return data?.role === 'admin'
+}
+
 // Check whether `viewerId` can access an analise owned by `ownerId`.
 export async function canAccessAnalise(viewerCtx: UserContext, ownerId: string): Promise<boolean> {
   if (viewerCtx.role === 'admin') return true

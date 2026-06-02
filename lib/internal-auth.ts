@@ -12,11 +12,21 @@
  * Safe default: if `INTERNAL_PIPELINE_TOKEN` is unset/empty, this always
  * returns false, so normal user authentication still applies.
  */
+import { timingSafeEqual } from 'node:crypto'
+
 export const INTERNAL_PIPELINE_TOKEN_HEADER = 'x-internal-token'
 
 export function isInternalCall(req: Request): boolean {
   const expected = process.env.INTERNAL_PIPELINE_TOKEN
   if (!expected) return false
   const provided = req.headers.get(INTERNAL_PIPELINE_TOKEN_HEADER)
-  return !!provided && provided === expected
+  if (!provided) return false
+
+  // Constant-time compare: length-check first (timingSafeEqual exige buffers
+  // do mesmo tamanho), depois timingSafeEqual. Sem o length-check vazaria o
+  // tamanho do token. timingSafeEqual fecha o canal de timing pro conteúdo.
+  const a = Buffer.from(provided, 'utf8')
+  const b = Buffer.from(expected, 'utf8')
+  if (a.length !== b.length) return false
+  return timingSafeEqual(a, b)
 }

@@ -3,8 +3,7 @@ import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-se
 import { buildAnaliseWorkbook } from '@/lib/excel-export'
 import { parseFinancialData, buildFinancialModelSheet } from '@/lib/financial-model-excel'
 import * as XLSX from 'xlsx'
-
-const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
+import { isAdminViewer } from '@/lib/get-role'
 
 export async function GET(req: NextRequest) {
   const supabase = await createServerSupabaseClient()
@@ -22,7 +21,7 @@ export async function GET(req: NextRequest) {
     .single()
 
   if (!analise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
-  if (analise.user_id !== user.id && user.email !== ADMIN_EMAIL) {
+  if (analise.user_id !== user.id && !(await isAdminViewer(user.id))) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
   }
 

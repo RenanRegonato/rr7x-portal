@@ -1,4 +1,5 @@
 import { callLLM } from '@/lib/llm/call'
+import { PROMPT_INJECTION_GUARD } from '@/lib/llm/prompt-safety'
 
 // Sentinela de Riscos (Fase 10) — agente especializado em detectar
 // SÍNDROMES cross-dimensionais. Não olha cada risco isolado; olha como
@@ -100,7 +101,9 @@ Retorne SOMENTE JSON puro, sem markdown, sem cercas, sem texto antes/depois:
   ]
 }
 
-Se nada relevante: {"sindromes": []}.`
+Se nada relevante: {"sindromes": []}.
+
+${PROMPT_INJECTION_GUARD}`
 
 function buildUserPrompt(input: SentinelaInput): string {
   const outputs = Object.entries(input.outputs_agentes)
@@ -140,7 +143,9 @@ export async function detectarSindromes(input: SentinelaInput, analiseId?: strin
     task:      'risk_correlation',
     context:   'validators',
     analiseId,
-    system:    SYSTEM_PROMPT,
+    system: [
+      { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral', ttl: '1h' } },
+    ],
     messages:  [{ role: 'user', content: buildUserPrompt(input) }],
     maxTokens: 4000,
   })

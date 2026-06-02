@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
-
-const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
+import { isAdminViewer } from '@/lib/get-role'
 
 const ATTESTATION_STATEMENT =
   'Declaro que li, revisei e assumo responsabilidade pelo conteúdo deste relatório gerado com auxílio de IA, conforme ICVM 598/2018 e Código ANBIMA para M&A.'
@@ -21,7 +20,7 @@ export async function GET(req: NextRequest) {
   // Verifica acesso
   const { data: analise } = await admin.from('analises').select('user_id').eq('id', analiseId).single()
   if (!analise) return NextResponse.json({ error: 'Não encontrada' }, { status: 404 })
-  if (analise.user_id !== user.id && user.email !== ADMIN_EMAIL) {
+  if (analise.user_id !== user.id && !(await isAdminViewer(user.id))) {
     const { data: member } = await admin.from('deal_members').select('id').eq('analise_id', analiseId).eq('user_id', user.id).maybeSingle()
     if (!member) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
   }
@@ -67,7 +66,7 @@ export async function POST(req: NextRequest) {
 
   const { data: analise } = await admin.from('analises').select('user_id').eq('id', analiseId).single()
   if (!analise) return NextResponse.json({ error: 'Não encontrada' }, { status: 404 })
-  if (analise.user_id !== user.id && user.email !== ADMIN_EMAIL) {
+  if (analise.user_id !== user.id && !(await isAdminViewer(user.id))) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
   }
 

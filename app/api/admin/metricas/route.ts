@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
-
-const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
+import { isAdminViewer } from '@/lib/get-role'
 
 export async function GET() {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.email !== ADMIN_EMAIL) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+  if (!user || !(await isAdminViewer(user.id))) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
   const admin = createAdminClient()
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
 import { Resend } from 'resend'
+import { isAdminViewer } from '@/lib/get-role'
 
 // Cliente Resend lazy — instanciado só no envio, não no carregamento do módulo,
 // para o `next build` não quebrar quando RESEND_API_KEY falta (ex.: preview).
@@ -10,7 +11,6 @@ function getResend(): Resend {
   return _resend
 }
 const FROM     = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
-const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
 
 function extractNdaSection(contratosOutput: string): string {
   const ndaMatch = contratosOutput.match(/##?\s*(?:NDA|Acordo de Confidencialidade|Non-Disclosure)[^\n]*([\s\S]+?)(?=^##|\Z)/im)
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (!analise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
-  if (analise.user_id !== user.id && user.email !== ADMIN_EMAIL) {
+  if (analise.user_id !== user.id && !(await isAdminViewer(user.id))) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
   }
 

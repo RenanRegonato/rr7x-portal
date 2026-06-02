@@ -1,4 +1,5 @@
 import { callLLM } from '@/lib/llm/call'
+import { PROMPT_INJECTION_GUARD, truncateField } from '@/lib/llm/prompt-safety'
 import type { FactType } from '@/lib/truth-layer'
 
 // Fact Extractor — converte o output narrativo do drive_intake em fatos
@@ -162,7 +163,9 @@ CRÍTICO: registre o que NÃO foi encontrado mas seria esperado para uma anális
 
 ## Output
 
-Retorne um JSON único: \`{ "facts": [...] }\`. Lista vazia é aceitável se nada foi extraído.`
+Retorne um JSON único: \`{ "facts": [...] }\`. Lista vazia é aceitável se nada foi extraído.
+
+${PROMPT_INJECTION_GUARD}`
 
 function buildUserPrompt(input: ExtractorInput): string {
   return `# Contexto do deal
@@ -185,7 +188,9 @@ export async function extractFacts(input: ExtractorInput, analiseId?: string): P
     task:        'fact_extract_post',
     context:     'validators',
     analiseId,
-    system:      SYSTEM_PROMPT,
+    system: [
+      { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral', ttl: '1h' } },
+    ],
     messages:    [{ role: 'user', content: buildUserPrompt(input) }],
     maxTokens:   8000,
     temperature: 0,
@@ -216,23 +221,35 @@ export async function extractFacts(input: ExtractorInput, analiseId?: string): P
   ]
 
   const valid: ExtractedFact[] = []
+  // Anti-DoS: cap no nº de facts. Cliente malicioso pode tentar retornar
+  // 100k facts inflando contexto downstream e custo.
+  const MAX_FACTS = 500
   for (const item of obj.facts) {
+    if (valid.length >= MAX_FACTS) break
     if (!item || typeof item !== 'object') continue
     const it = item as Partial<ExtractedFact>
     if (typeof it.fact_type !== 'string' || !VALID_TYPES.includes(it.fact_type as FactType)) continue
-    if (typeof it.key !== 'string' || it.key.length === 0) continue
+    if (typeof it.key !== 'string' || it.key.length === 0 || it.key.length > 200) continue
     if (!it.value || (typeof it.value !== 'object')) continue
     if (typeof it.confidence !== 'number' || it.confidence < 0 || it.confidence > 1) continue
+
+    // Anti-DoS: trunca valores grandes vindos do LLM (que vieram de doc do cliente).
+    // value é JSON; truncamos o string serializado e parseamos de volta como string-fallback
+    // se exceder. source_quote/notes são strings simples.
+    const valueStr = JSON.stringify(it.value)
+    const valueSafe: Record<string, unknown> | unknown[] = valueStr.length > 2000
+      ? { _truncated: true, preview: valueStr.slice(0, 1500) }
+      : it.value as Record<string, unknown> | unknown[]
 
     valid.push({
       fact_type:    it.fact_type as FactType,
       key:          it.key,
-      value:        it.value as Record<string, unknown> | unknown[],
-      source_doc:   typeof it.source_doc === 'string' ? it.source_doc : null,
+      value:        valueSafe,
+      source_doc:   typeof it.source_doc === 'string' ? truncateField(it.source_doc, 300) : null,
       source_page:  typeof it.source_page === 'number' ? it.source_page : null,
-      source_quote: typeof it.source_quote === 'string' ? it.source_quote : null,
+      source_quote: typeof it.source_quote === 'string' ? truncateField(it.source_quote, 500) : null,
       confidence:   it.confidence,
-      notes:        typeof it.notes === 'string' ? it.notes : null,
+      notes:        typeof it.notes === 'string' ? truncateField(it.notes, 1000) : null,
     })
   }
 

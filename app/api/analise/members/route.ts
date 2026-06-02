@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
+import { isAdminViewer } from '@/lib/get-role'
 
-const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
-
-async function isOwner(analiseId: string, userId: string, userEmail: string): Promise<boolean> {
+async function isOwner(analiseId: string, userId: string): Promise<boolean> {
   const admin = createAdminClient()
   const { data } = await admin.from('analises').select('user_id').eq('id', analiseId).single()
-  return data?.user_id === userId || userEmail === ADMIN_EMAIL
+  if (data?.user_id === userId) return true
+  return isAdminViewer(userId)
 }
 
 // GET /api/analise/members?id=X
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
   if (!analise_id || !email || !role) return NextResponse.json({ error: 'Campos obrigatórios ausentes' }, { status: 400 })
 
-  const ownerOk = await isOwner(analise_id, user.id, user.email ?? '')
+  const ownerOk = await isOwner(analise_id, user.id)
   if (!ownerOk) return NextResponse.json({ error: 'Apenas o dono do deal pode adicionar membros' }, { status: 403 })
 
   const admin = createAdminClient()
@@ -78,7 +78,7 @@ export async function DELETE(req: NextRequest) {
 
   const { analise_id, user_id } = await req.json() as { analise_id: string; user_id: string }
 
-  const ownerOk = await isOwner(analise_id, user.id, user.email ?? '')
+  const ownerOk = await isOwner(analise_id, user.id)
   if (!ownerOk) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
   const admin = createAdminClient()

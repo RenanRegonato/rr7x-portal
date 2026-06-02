@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
-
-const ADMIN_EMAIL = 'gestor@renanregonato.com.br'
+import { isAdminViewer } from '@/lib/get-role'
 
 async function verificarAdmin() {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.email !== ADMIN_EMAIL) return null
+  if (!user) return null
+  if (!(await isAdminViewer(user.id))) return null
   return user
 }
 
