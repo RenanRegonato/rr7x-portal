@@ -102,7 +102,7 @@ export default function ReformaTributariaPage() {
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-b border-lp-border">
-        <div aria-hidden className="absolute pointer-events-none animate-float-slow" style={{ top: "-24%", right: "-8%", width: 760, height: 760, borderRadius: "50%", background: "radial-gradient(circle, rgba(22,85,232,0.10) 0%, transparent 62%)", filter: "blur(30px)" }} />
+        <div aria-hidden className="absolute pointer-events-none animate-float-slow" style={{ top: "-24%", right: "-8%", width: 760, height: 760, borderRadius: "50%", background: "radial-gradient(circle, rgba(140,111,69,0.10) 0%, transparent 62%)", filter: "blur(30px)" }} />
         <div aria-hidden className="absolute inset-0 hero-grid pointer-events-none" />
         <div className="max-w-[1180px] mx-auto px-6 pt-16 pb-20 lg:pt-28 lg:pb-24 relative">
           <nav aria-label="Trilha" className="animate-fade-up text-[12px] text-lp-ink-3 mb-6">
@@ -121,7 +121,7 @@ export default function ReformaTributariaPage() {
             trava valuation, due diligence e crédito por motivo tributário, ancorado em artigo de lei.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
-            <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-6 py-3.5 rounded-[10px]" style={{ background: "#1655E8" }}>
+            <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-6 py-3.5 rounded-[10px]" style={{ background: "#8C6F45" }}>
               Solicitar acesso <span aria-hidden>→</span>
             </Link>
             <Link href="/#planos" className="lp-btn-secondary inline-flex items-center justify-center text-[14px] font-medium text-lp-ink border border-lp-border-strong px-6 py-3.5 rounded-[10px] hover:bg-lp-fog">
@@ -179,7 +179,7 @@ export default function ReformaTributariaPage() {
                   "Ressalva institucional sobre regulamentação em evolução",
                 ].map((i) => (
                   <li key={i} className="flex items-start gap-2.5 text-[14.5px] text-lp-ink-2">
-                    <span className="flex-shrink-0 mt-0.5 text-[12px] font-bold" style={{ color: "#1655E8" }}>✓</span>
+                    <span className="flex-shrink-0 mt-0.5 text-[12px] font-bold" style={{ color: "#8C6F45" }}>✓</span>
                     {i}
                   </li>
                 ))}
@@ -200,17 +200,17 @@ export default function ReformaTributariaPage() {
                 <div className="px-5 py-4 border-b border-lp-border">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-medium text-lp-ink-3 uppercase tracking-widest">Score de conformidade</span>
-                    <span className="text-[11px] font-semibold" style={{ color: "#1655E8" }}>46 / 100</span>
+                    <span className="text-[11px] font-semibold" style={{ color: "#8C6F45" }}>46 / 100</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-lp-fog overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: "46%", background: "linear-gradient(90deg,#1655E8,#378ADD)" }} />
+                    <div className="h-full rounded-full" style={{ width: "46%", background: "linear-gradient(90deg,#8C6F45,#A88A65)" }} />
                   </div>
                 </div>
                 <div className="px-5 py-4 space-y-2.5">
                   {[
                     { t: "Benefício de ICMS extinto até 2033", s: "crítico", c: "#B42318", b: "#FEF3F2" },
                     { t: "Split payment na cessão de recebíveis", s: "alto", c: "#B54708", b: "#FFFAEB" },
-                    { t: "Contratos longos sem repactuação", s: "médio", c: "#175CD3", b: "#EFF4FF" },
+                    { t: "Contratos longos sem repactuação", s: "médio", c: "#65502E", b: "#E8E2D6" },
                   ].map((r) => (
                     <div key={r.t} className="flex items-center justify-between gap-3">
                       <p className="text-[12px] text-lp-ink leading-snug">{r.t}</p>
@@ -249,15 +249,15 @@ export default function ReformaTributariaPage() {
       {/* ── CTA ───────────────────────────────────────────────────────────── */}
       <section className="lp-dark-section">
         <div className="max-w-[1280px] mx-auto px-6 py-20 lg:py-24 text-center">
-          <h2 className="reveal font-display tracking-tight mb-5" style={{ color: "#EEF3FF", fontSize: "clamp(32px, 4.6vw, 56px)", lineHeight: 1.06 }}>
+          <h2 className="reveal font-display tracking-tight mb-5" style={{ color: "#EDE9E5", fontSize: "clamp(32px, 4.6vw, 56px)", lineHeight: 1.06 }}>
             Descubra a exposição do seu deal.
           </h2>
-          <p className="text-[15.5px] leading-relaxed max-w-[520px] mx-auto mb-9" style={{ color: "#7A92BE" }}>
+          <p className="text-[15.5px] leading-relaxed max-w-[520px] mx-auto mb-9" style={{ color: "#B5B0A6" }}>
             Solicite acesso e reservamos uma conversa inicial para entender o contexto do escritório
             e do ativo.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-7 py-3.5 rounded-[11px]" style={{ background: "#1655E8" }}>
+            <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-7 py-3.5 rounded-[11px]" style={{ background: "#8C6F45" }}>
               Solicitar acesso <span aria-hidden>→</span>
             </Link>
             <Link href="/invest-match" className="inline-flex items-center justify-center text-[14px] font-medium px-7 py-3.5 rounded-[11px] lp-dark-btn">

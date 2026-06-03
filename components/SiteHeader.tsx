@@ -48,7 +48,7 @@ export default function SiteHeader() {
           <Link
             href="/auth/signup"
             className="text-[13px] font-medium text-white px-4 py-2 rounded-[9px] transition-opacity hover:opacity-90"
-            style={{ background: "#1655E8" }}
+            style={{ background: "#8C6F45" }}
           >
             Solicitar acesso
           </Link>
@@ -100,7 +100,7 @@ export default function SiteHeader() {
                 href="/auth/login"
                 onClick={() => setOpen(false)}
                 className="block py-3 text-[15px] font-medium"
-                style={{ color: "#1655E8" }}
+                style={{ color: "#8C6F45" }}
               >
                 Entrar
               </Link>

@@ -22,7 +22,7 @@ export default function SiteFooter() {
   ];
 
   return (
-    <footer className="border-t" style={{ background: "#040811", borderColor: "#1E2E4A" }}>
+    <footer className="border-t" style={{ background: "#1A1815", borderColor: "#38342D" }}>
       <div className="max-w-[1280px] mx-auto px-6 py-14">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           {/* Brand */}
@@ -30,10 +30,10 @@ export default function SiteFooter() {
             <div className="mb-3">
               <img src="/logo/mandor-horizontal-dark.svg" alt="Mandor" className="h-7 w-auto" />
             </div>
-            <p className="text-[12px] leading-relaxed mb-3 max-w-[240px]" style={{ color: "#4A6090" }}>
+            <p className="text-[12px] leading-relaxed mb-3 max-w-[240px]" style={{ color: "#7C7A74" }}>
               Inteligência institucional para M&amp;A, crédito estruturado e preparação de deals.
             </p>
-            <a href="mailto:mandor@rr7x.com.br" className="text-[12px] hover:underline block" style={{ color: "#7A92BE" }}>
+            <a href="mailto:mandor@rr7x.com.br" className="text-[12px] hover:underline block" style={{ color: "#B5B0A6" }}>
               mandor@rr7x.com.br
             </a>
             <div className="flex flex-col gap-2 mt-4">
@@ -43,7 +43,7 @@ export default function SiteFooter() {
                 rel="noopener noreferrer"
                 aria-label="Instagram da Mandor (@mandor.deals)"
                 className="inline-flex items-center gap-2 text-[12px] hover:underline"
-                style={{ color: "#7A92BE" }}
+                style={{ color: "#B5B0A6" }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
@@ -58,7 +58,7 @@ export default function SiteFooter() {
                 rel="noopener noreferrer"
                 aria-label="LinkedIn da Mandor"
                 className="inline-flex items-center gap-2 text-[12px] hover:underline"
-                style={{ color: "#7A92BE" }}
+                style={{ color: "#B5B0A6" }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
@@ -72,11 +72,11 @@ export default function SiteFooter() {
 
           {/* Produto */}
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#4A6090" }}>Produto</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#7C7A74" }}>Produto</p>
             <ul className="space-y-2">
               {produto.map((l) => (
                 <li key={l.label}>
-                  <Link href={l.href} className="text-[13px] hover:underline" style={{ color: "#6B82A8" }}>{l.label}</Link>
+                  <Link href={l.href} className="text-[13px] hover:underline" style={{ color: "#B5B0A6" }}>{l.label}</Link>
                 </li>
               ))}
             </ul>
@@ -84,11 +84,11 @@ export default function SiteFooter() {
 
           {/* Recursos */}
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#4A6090" }}>Recursos</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#7C7A74" }}>Recursos</p>
             <ul className="space-y-2">
               {recursos.map((l) => (
                 <li key={l.label}>
-                  <Link href={l.href} className="text-[13px] hover:underline" style={{ color: "#6B82A8" }}>{l.label}</Link>
+                  <Link href={l.href} className="text-[13px] hover:underline" style={{ color: "#B5B0A6" }}>{l.label}</Link>
                 </li>
               ))}
             </ul>
@@ -96,22 +96,22 @@ export default function SiteFooter() {
 
           {/* Legal */}
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#4A6090" }}>Legal</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#7C7A74" }}>Legal</p>
             <ul className="space-y-2">
               {legal.map((l) => (
                 <li key={l.label}>
-                  <Link href={l.href} className="text-[13px] hover:underline" style={{ color: "#6B82A8" }}>{l.label}</Link>
+                  <Link href={l.href} className="text-[13px] hover:underline" style={{ color: "#B5B0A6" }}>{l.label}</Link>
                 </li>
               ))}
             </ul>
           </div>
         </div>
 
-        <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-3" style={{ borderColor: "#1E2E4A" }}>
-          <p className="text-[12px]" style={{ color: "#334560" }}>
-            © {new Date().getFullYear()} RR7x Capital Hub. Todos os direitos reservados.
+        <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-3" style={{ borderColor: "#38342D" }}>
+          <p className="text-[12px]" style={{ color: "#7C7A74" }}>
+            © {new Date().getFullYear()} Mandor. Todos os direitos reservados.
           </p>
-          <p className="text-[11px] italic" style={{ color: "#334560" }}>
+          <p className="text-[11px] italic" style={{ color: "#7C7A74" }}>
             &ldquo;O ativo certo, para o comprador certo, no timing certo.&rdquo;
           </p>
         </div>

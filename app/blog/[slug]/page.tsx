@@ -176,7 +176,7 @@ export default async function BlogPostPage({
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/blog" className="text-[13px] text-lp-ink-2 hover:text-lp-ink transition-colors">← Blog</Link>
-            <Link href="/auth/signup" className="text-[13px] font-medium text-white px-4 py-2 rounded-[9px] hover:opacity-90" style={{ background: "#1655E8" }}>
+            <Link href="/auth/signup" className="text-[13px] font-medium text-white px-4 py-2 rounded-[9px] hover:opacity-90" style={{ background: "#8C6F45" }}>
               Começar grátis
             </Link>
           </div>
@@ -285,18 +285,18 @@ export default async function BlogPostPage({
       {/* CTA */}
       <section className="lp-dark-section">
         <div className="max-w-[720px] mx-auto px-6 py-14 text-center">
-          <h2 className="font-display text-[28px] sm:text-[36px] leading-[1.1] tracking-tight mb-4" style={{ color: "#EEF3FF" }}>
+          <h2 className="font-display text-[28px] sm:text-[36px] leading-[1.1] tracking-tight mb-4" style={{ color: "#EDE9E5" }}>
             Pronto para diagnosticar
             <br />
             <em style={{ fontStyle: "italic", color: "#93B4F8" }}>seu próximo deal?</em>
           </h2>
-          <p className="text-[14px] mb-7" style={{ color: "#7A92BE" }}>
+          <p className="text-[14px] mb-7" style={{ color: "#B5B0A6" }}>
             Primeira análise gratuita. 10 especialistas em IA em paralelo. Resultado em até 90 minutos.
           </p>
           <Link
             href="/auth/signup"
             className="inline-flex items-center gap-2 text-[13.5px] font-medium text-white px-6 py-3 rounded-[10px] hover:opacity-90"
-            style={{ background: "#1655E8" }}
+            style={{ background: "#8C6F45" }}
           >
             Começar agora <span aria-hidden>→</span>
           </Link>

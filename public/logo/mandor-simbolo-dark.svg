@@ -1,8 +1,6 @@
-<svg width="60" height="64" viewBox="0 0 60 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mandor símbolo">
-  <g transform="translate(11,12)">
-    <rect x="0" y="0" width="7" height="40" rx="2" fill="#FFFFFF"/>
-    <rect x="10.3" y="8.6" width="7" height="31.4" rx="2" fill="#FFFFFF"/>
-    <rect x="20.6" y="8.6" width="7" height="31.4" rx="2" fill="#FFFFFF"/>
-    <rect x="31" y="0" width="7" height="40" rx="2" fill="#5BA3E8"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 50" fill="#EDE9E5" role="img" aria-label="Mandor monograma">
+  <!-- Mandor Brand Book v1 — Monograma I/I (reverso, Archive Ivory sobre Graphite). -->
+  <rect x="0"  y="0" width="10" height="50"/>
+  <polygon points="25.4,0 35.4,0 22,50 12,50"/>
+  <rect x="37.4" y="0" width="10" height="50"/>
 </svg>

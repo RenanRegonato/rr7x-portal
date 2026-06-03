@@ -108,7 +108,7 @@ export default async function BlogPage({
             <Link href="/auth/login" className="hidden sm:block text-[13px] text-lp-ink-2 hover:text-lp-ink px-4 py-2 transition-colors">
               Entrar
             </Link>
-            <Link href="/auth/signup" className="text-[13px] font-medium text-white px-4 py-2 rounded-[9px] hover:opacity-90" style={{ background: "#1655E8" }}>
+            <Link href="/auth/signup" className="text-[13px] font-medium text-white px-4 py-2 rounded-[9px] hover:opacity-90" style={{ background: "#8C6F45" }}>
               Começar grátis
             </Link>
           </div>
@@ -142,7 +142,7 @@ export default async function BlogPage({
                   ? "border-lp-accent text-white"
                   : "border-lp-border text-lp-ink-2 hover:border-lp-border-strong"
               }`}
-              style={!categoria ? { background: "#1655E8" } : {}}
+              style={!categoria ? { background: "#8C6F45" } : {}}
             >
               Todos
             </Link>
@@ -155,7 +155,7 @@ export default async function BlogPage({
                     ? "border-lp-accent text-white"
                     : "border-lp-border text-lp-ink-2 hover:border-lp-border-strong"
                 }`}
-                style={categoria === cat ? { background: "#1655E8" } : {}}
+                style={categoria === cat ? { background: "#8C6F45" } : {}}
               >
                 {cat}
               </Link>

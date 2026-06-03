@@ -100,7 +100,7 @@ export default function InvestMatchPage() {
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-b border-lp-border">
-        <div aria-hidden className="absolute pointer-events-none animate-float-slow" style={{ top: "-24%", right: "-8%", width: 760, height: 760, borderRadius: "50%", background: "radial-gradient(circle, rgba(22,85,232,0.10) 0%, transparent 62%)", filter: "blur(30px)" }} />
+        <div aria-hidden className="absolute pointer-events-none animate-float-slow" style={{ top: "-24%", right: "-8%", width: 760, height: 760, borderRadius: "50%", background: "radial-gradient(circle, rgba(140,111,69,0.10) 0%, transparent 62%)", filter: "blur(30px)" }} />
         <div aria-hidden className="absolute inset-0 hero-grid pointer-events-none" />
         <div className="max-w-[1180px] mx-auto px-6 pt-16 pb-20 lg:pt-28 lg:pb-24 relative">
           <nav aria-label="Trilha" className="animate-fade-up text-[12px] text-lp-ink-3 mb-6">
@@ -119,7 +119,7 @@ export default function InvestMatchPage() {
             e vira processo.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
-            <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-6 py-3.5 rounded-[10px]" style={{ background: "#1655E8" }}>
+            <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-6 py-3.5 rounded-[10px]" style={{ background: "#8C6F45" }}>
               Solicitar acesso <span aria-hidden>→</span>
             </Link>
             <Link href="/#planos" className="lp-btn-secondary inline-flex items-center justify-center text-[14px] font-medium text-lp-ink border border-lp-border-strong px-6 py-3.5 rounded-[10px] hover:bg-lp-fog">
@@ -165,7 +165,7 @@ export default function InvestMatchPage() {
               <div className="rounded-[20px] overflow-hidden lp-card-shadow bg-lp-canvas border border-lp-border animate-float-slow">
                 <div className="flex items-center justify-between px-5 py-3.5 border-b border-lp-border">
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#1655E8" }} />
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#8C6F45" }} />
                     <span className="text-[11px] font-medium text-lp-ink-2 tracking-wide">Tese · Indústria Química · R$ 280M</span>
                   </div>
                   <span className="text-[10px] font-medium text-lp-ink-3">5 camadas</span>
@@ -173,8 +173,8 @@ export default function InvestMatchPage() {
                 <div className="px-5 py-4 space-y-2.5">
                   {[
                     { n: "Fundo de Crédito Estruturado", t: "compatível com a tese", sc: 91, st: "aprovado", c: "#067647", b: "#ECFDF3" },
-                    { n: "Family Office · SP", t: "apetite e ticket aderentes", sc: 84, st: "curadoria", c: "#175CD3", b: "#EFF4FF" },
-                    { n: "Gestora de Special Sits", t: "perfil de risco aderente", sc: 76, st: "curadoria", c: "#175CD3", b: "#EFF4FF" },
+                    { n: "Family Office · SP", t: "apetite e ticket aderentes", sc: 84, st: "curadoria", c: "#65502E", b: "#E8E2D6" },
+                    { n: "Gestora de Special Sits", t: "perfil de risco aderente", sc: 76, st: "curadoria", c: "#65502E", b: "#E8E2D6" },
                   ].map((m) => (
                     <div key={m.n} className="flex items-center justify-between gap-3 rounded-[10px] border border-lp-border px-3 py-2.5">
                       <div className="min-w-0">
@@ -207,7 +207,7 @@ export default function InvestMatchPage() {
                   "Pipeline de relacionamento por status, do lead ao fechamento",
                 ].map((i) => (
                   <li key={i} className="flex items-start gap-2.5 text-[14.5px] text-lp-ink-2">
-                    <span className="flex-shrink-0 mt-0.5 text-[12px] font-bold" style={{ color: "#1655E8" }}>✓</span>
+                    <span className="flex-shrink-0 mt-0.5 text-[12px] font-bold" style={{ color: "#8C6F45" }}>✓</span>
                     {i}
                   </li>
                 ))}
@@ -239,15 +239,15 @@ export default function InvestMatchPage() {
       {/* ── CTA ───────────────────────────────────────────────────────────── */}
       <section className="lp-dark-section">
         <div className="max-w-[1280px] mx-auto px-6 py-20 lg:py-24 text-center">
-          <h2 className="reveal font-display tracking-tight mb-5" style={{ color: "#EEF3FF", fontSize: "clamp(32px, 4.6vw, 56px)", lineHeight: 1.06 }}>
+          <h2 className="reveal font-display tracking-tight mb-5" style={{ color: "#EDE9E5", fontSize: "clamp(32px, 4.6vw, 56px)", lineHeight: 1.06 }}>
             Transforme análise em deal flow.
           </h2>
-          <p className="text-[15.5px] leading-relaxed max-w-[520px] mx-auto mb-9" style={{ color: "#7A92BE" }}>
+          <p className="text-[15.5px] leading-relaxed max-w-[520px] mx-auto mb-9" style={{ color: "#B5B0A6" }}>
             Solicite acesso e veja como a originação vira processo, do ativo analisado ao
             investidor certo.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-7 py-3.5 rounded-[11px]" style={{ background: "#1655E8" }}>
+            <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[14px] font-medium text-white px-7 py-3.5 rounded-[11px]" style={{ background: "#8C6F45" }}>
               Solicitar acesso <span aria-hidden>→</span>
             </Link>
             <Link href="/reforma-tributaria" className="inline-flex items-center justify-center text-[14px] font-medium px-7 py-3.5 rounded-[11px] lp-dark-btn">

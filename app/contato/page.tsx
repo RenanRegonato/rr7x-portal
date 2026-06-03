@@ -52,7 +52,7 @@ export default function ContatoPage() {
             <Link href="/auth/login" className="hidden sm:block text-[13px] text-lp-ink-2 hover:text-lp-ink px-4 py-2 transition-colors">
               Entrar
             </Link>
-            <Link href="/auth/signup" className="text-[13px] font-medium text-white px-4 py-2 rounded-[9px] hover:opacity-90" style={{ background: "#1655E8" }}>
+            <Link href="/auth/signup" className="text-[13px] font-medium text-white px-4 py-2 rounded-[9px] hover:opacity-90" style={{ background: "#8C6F45" }}>
               Solicitar acesso
             </Link>
           </div>
@@ -152,7 +152,7 @@ export default function ContatoPage() {
                   type="submit"
                   disabled={enviando}
                   className="w-full text-[13px] font-semibold text-white py-3 rounded-[10px] hover:opacity-90 transition disabled:opacity-60"
-                  style={{ background: "#1655E8" }}
+                  style={{ background: "#8C6F45" }}
                 >
                   {enviando ? "Enviando…" : "Enviar mensagem →"}
                 </button>

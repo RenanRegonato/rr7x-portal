@@ -2,9 +2,10 @@
 
 /* next/font injects these CSS variables at runtime — keep as references */
 @theme inline {
-  --font-display: var(--dm-serif-display);
-  --font-sans: var(--inter);
-  --font-mono: var(--jetbrains-mono);
+  --font-display: var(--newsreader);
+  --font-serif:   var(--newsreader);
+  --font-sans:    var(--hanken);
+  --font-mono:    var(--courier);
 }
 
 /* Mandor Design Tokens */
@@ -55,39 +56,40 @@
   /* Animations */
   --animate-pulse-ring: pulse-ring 1.4s ease-out infinite;
 
-  /* ─── Public site & blog design system ───────────────────────────────────── */
-  /* Institutional finance palette: white canvas + deep navy + electric blue   */
+  /* ─── Public site — Mandor Brand Book v1 (paper of record) ──────────────── */
+  /* Paleta: Archive Ivory + Editorial Ink + Graphite + Oxidized Bronze ≤5%.   */
+  /* Sistema 70/25/5: superfície 70%, tipografia 25%, acento ≤5%.             */
 
-  /* Surfaces */
-  --color-lp-canvas:         #FFFFFF;
-  --color-lp-fog:            #F5F8FC;
-  --color-lp-mist:           #EBF1FC;
+  /* Superfícies (Archive Ivory family — ~70%) */
+  --color-lp-canvas:         #EDE9E5;  /* Archive Ivory — superfície principal */
+  --color-lp-fog:            #E5E0D9;  /* Ivory um tom mais opaco — blocos */
+  --color-lp-mist:           #DDD7CD;  /* Ivory pra cards e banners */
 
-  /* Text hierarchy */
-  --color-lp-ink:            #0A0F20;
-  --color-lp-ink-2:          #374A6E;
-  --color-lp-ink-3:          #6E82A8;
-  --color-lp-ink-4:          #9AAAC5;
+  /* Tipografia (~25%) */
+  --color-lp-ink:            #211F1A;  /* Editorial Ink — texto primário */
+  --color-lp-ink-2:          #4A4843;  /* Mineral Ash — texto secundário */
+  --color-lp-ink-3:          #7C7A74;  /* Regulatory Grey — metadados, rodapés */
+  --color-lp-ink-4:          #9E9C97;  /* Cinza claro — placeholders */
 
-  /* Borders */
-  --color-lp-border:         #D5E1F2;
-  --color-lp-border-strong:  #B5C8E4;
-  --color-lp-border-subtle:  #EAF0FA;
+  /* Bordas (Pebble Line family) */
+  --color-lp-border:         #D8D3CB;  /* Pebble Line — divisor padrão */
+  --color-lp-border-strong:  #C2BDB4;  /* Pebble escurecido */
+  --color-lp-border-subtle:  #E5E0D9;  /* Quase invisível */
 
-  /* Accent — institutional electric blue */
-  --color-lp-accent:         #1655E8;
-  --color-lp-accent-soft:    #ECF1FE;
-  --color-lp-accent-hover:   #1348CF;
-  --color-lp-accent-strong:  #1040C2;
-  --color-lp-accent-ink:     #0B2460;
+  /* Acento institucional — Oxidized Bronze (≤5% da superfície, idealmente ≤2%) */
+  --color-lp-accent:         #8C6F45;  /* Oxidized Bronze */
+  --color-lp-accent-soft:    #E8E2D6;  /* Bronze diluído em ivory */
+  --color-lp-accent-hover:   #7A6038;  /* Bronze hover */
+  --color-lp-accent-strong:  #65502E;  /* Bronze escurecido */
+  --color-lp-accent-ink:     #211F1A;  /* Texto sobre bronze = Editorial Ink */
 
-  /* Dark sections (CTA, footer) */
-  --color-lp-dark:           #080E1D;
-  --color-lp-dark-2:         #0F1829;
-  --color-lp-dark-3:         #1A2640;
-  --color-lp-dark-text:      #C8D4EC;
-  --color-lp-dark-text-2:    #7A92BE;
-  --color-lp-dark-border:    #1E2E4A;
+  /* Superfícies escuras (Graphite — clímax raro) */
+  --color-lp-dark:           #1A1815;  /* Graphite Deep — clímax escuro raríssimo */
+  --color-lp-dark-2:         #22201C;  /* Graphite Field — superfície escura primária */
+  --color-lp-dark-3:         #2E2B26;  /* Graphite com matiz pra cards em dark */
+  --color-lp-dark-text:      #EDE9E5;  /* Archive Ivory sobre escuro */
+  --color-lp-dark-text-2:    #B5B0A6;  /* Texto secundário sobre escuro */
+  --color-lp-dark-border:    #38342D;  /* Borda sutil sobre escuro */
 }
 
 @keyframes pulse-ring {
@@ -214,8 +216,8 @@ body {
 /* ─── Hero visual: grid pattern ──────────────────────────────────────────── */
 .hero-grid {
   background-image:
-    linear-gradient(rgba(22,85,232,0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(22,85,232,0.045) 1px, transparent 1px);
+    linear-gradient(rgba(140,111,69,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(140,111,69,0.045) 1px, transparent 1px);
   background-size: 44px 44px;
   mask-image: radial-gradient(ellipse 130% 90% at 65% 25%, black 0%, transparent 62%);
   -webkit-mask-image: radial-gradient(ellipse 130% 90% at 65% 25%, black 0%, transparent 62%);
@@ -226,7 +228,7 @@ body {
   transition: box-shadow 0.25s ease, transform 0.2s cubic-bezier(0.22,1,0.36,1) !important;
 }
 .lp-btn-primary:hover {
-  box-shadow: 0 0 28px rgba(22,85,232,0.38), 0 4px 16px rgba(22,85,232,0.18) !important;
+  box-shadow: 0 0 28px rgba(140,111,69,0.38), 0 4px 16px rgba(140,111,69,0.18) !important;
   transform: translateY(-1.5px) !important;
 }
 
@@ -246,8 +248,8 @@ body {
 }
 .card-hover:hover {
   transform: translateY(-3px);
-  box-shadow: 0 16px 40px rgba(22,85,232,0.07), 0 3px 10px rgba(0,0,0,0.05);
-  border-color: rgba(22,85,232,0.18) !important;
+  box-shadow: 0 16px 40px rgba(140,111,69,0.07), 0 3px 10px rgba(0,0,0,0.05);
+  border-color: rgba(140,111,69,0.18) !important;
 }
 
 /* ─── Input focus glow ────────────────────────────────────────────────────── */
@@ -256,14 +258,14 @@ input[type="text"]:focus,
 input[type="password"]:focus,
 textarea:focus {
   outline: none;
-  border-color: rgba(22,85,232,0.45) !important;
-  box-shadow: 0 0 0 3px rgba(22,85,232,0.1) !important;
+  border-color: rgba(140,111,69,0.45) !important;
+  box-shadow: 0 0 0 3px rgba(140,111,69,0.1) !important;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* ─── Shimmer gradient text ───────────────────────────────────────────────── */
 .text-shimmer {
-  background: linear-gradient(120deg, #1655E8 0%, #378ADD 40%, #1655E8 80%);
+  background: linear-gradient(120deg, #8C6F45 0%, #A88A65 40%, #8C6F45 80%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -278,12 +280,12 @@ textarea:focus {
   --color-surface-hover: #1C2238;
   --color-border:        rgba(255,255,255,0.07);
   --color-border-strong: rgba(255,255,255,0.12);
-  --color-ink:           #EEF3FF;
+  --color-ink:           #EDE9E5;
   --color-ink-2:         #8BA3C7;
-  --color-ink-3:         #4A6090;
-  --color-accent-soft:   rgba(22,85,232,0.18);
+  --color-ink-3:         #7C7A74;
+  --color-accent-soft:   rgba(140,111,69,0.18);
   --color-accent-ink:    #93B4F8;
-  --color-accent:        #1655E8;
+  --color-accent:        #8C6F45;
   --shadow-soft-sm:      0 1px 2px rgba(0,0,0,0.3);
 }
 
@@ -312,7 +314,7 @@ textarea:focus {
 
 /* Dark section gradient for footer/CTA */
 .lp-dark-section {
-  background: linear-gradient(160deg, #080E1D 0%, #0D1829 100%);
+  background: linear-gradient(160deg, #1A1815 0%, #22201C 100%);
 }
 
 /* ─── Blog article prose styles ───────────────────────────────────────────── */
@@ -334,12 +336,12 @@ textarea:focus {
 .lp-prose h4 { font-size: 18px; }
 .lp-prose p  { margin-bottom: 1.4em; }
 .lp-prose strong { color: var(--color-lp-ink); font-weight: 600; }
-.lp-prose a  { color: #1655E8; text-decoration: underline; text-decoration-color: rgba(22,85,232,0.3); }
-.lp-prose a:hover { text-decoration-color: #1655E8; }
+.lp-prose a  { color: #8C6F45; text-decoration: underline; text-decoration-color: rgba(140,111,69,0.3); }
+.lp-prose a:hover { text-decoration-color: #8C6F45; }
 .lp-prose ul,.lp-prose ol { padding-left: 1.5em; margin-bottom: 1.4em; }
 .lp-prose li { margin-bottom: 0.4em; }
 .lp-prose blockquote {
-  border-left: 3px solid #1655E8;
+  border-left: 3px solid #8C6F45;
   padding-left: 1.25em;
   margin: 1.75em 0;
   color: var(--color-lp-ink-3);
@@ -399,8 +401,8 @@ textarea:focus {
 
 /* Dark CTA button hover (used in Server Components — no JS event handlers) */
 .lp-dark-btn {
-  color: #C8D4EC;
-  border: 1px solid #1E2E4A;
+  color: #EDE9E5;
+  border: 1px solid #38342D;
   transition: background-color 0.15s ease;
 }
 .lp-dark-btn:hover { background-color: #1A2640; }

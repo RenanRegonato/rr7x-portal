@@ -1,23 +1,30 @@
 import type { Metadata } from "next";
-import { Inter, DM_Serif_Display, JetBrains_Mono } from "next/font/google";
+import { Newsreader, Hanken_Grotesk, Courier_Prime } from "next/font/google";
 import "./globals.css";
 import ScrollObserver from "@/components/ScrollObserver";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--inter",
-});
-
-const dmSerifDisplay = DM_Serif_Display({
-  weight: ["400"],
+// Mandor Brand Book v1 — sistema tipográfico.
+// Newsreader: serifa editorial (manchetes, corpo, pull quotes).
+// Hanken Grotesk: sans funcional (CTAs, labels, navegação).
+// Courier Prime: monospace documental (eyebrows, metadados, IDs, timestamps).
+const newsreader = Newsreader({
+  weight: ["300", "400", "500", "600"],
   style: ["normal", "italic"],
   subsets: ["latin"],
-  variable: "--dm-serif-display",
+  variable: "--newsreader",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const hanken = Hanken_Grotesk({
+  weight: ["400", "500", "600"],
   subsets: ["latin"],
-  variable: "--jetbrains-mono",
+  variable: "--hanken",
+});
+
+const courierPrime = Courier_Prime({
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+  variable: "--courier",
 });
 
 const SITE_URL = "https://www.mandor.com.br";
@@ -46,9 +53,9 @@ export const metadata: Metadata = {
     "capital hub",
     "private equity",
   ],
-  authors: [{ name: "RR7x Capital Hub" }],
-  creator: "RR7x Capital Hub",
-  publisher: "RR7x Capital Hub",
+  authors: [{ name: "Mandor" }],
+  creator: "Mandor",
+  publisher: "Mandor",
   openGraph: {
     type: "website",
     locale: "pt_BR",
@@ -98,7 +105,7 @@ const schemaOrg = {
       "@type": "Organization",
       "@id": `${SITE_URL}/#organization`,
       name: "Mandor",
-      legalName: "RR7x Capital Hub",
+      legalName: "Mandor",
       url: SITE_URL,
       logo: {
         "@type": "ImageObject",
@@ -117,10 +124,6 @@ const schemaOrg = {
       founder: {
         "@type": "Person",
         name: "Renan Regonato",
-      },
-      parentOrganization: {
-        "@type": "Organization",
-        name: "RR7x Capital Hub",
       },
       contactPoint: {
         "@type": "ContactPoint",
@@ -235,7 +238,7 @@ fbq('track', 'PageView');`,
         />
       </head>
       <body
-        className={`${inter.variable} ${dmSerifDisplay.variable} ${jetbrainsMono.variable} min-h-full bg-bg text-ink font-sans antialiased`}
+        className={`${newsreader.variable} ${hanken.variable} ${courierPrime.variable} min-h-full bg-bg text-ink font-sans antialiased`}
       >
         {/* Google Tag Manager (noscript) */}
         <noscript>

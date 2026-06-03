@@ -229,8 +229,8 @@ export default function LandingPage() {
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
-        <div aria-hidden className="absolute pointer-events-none animate-float-slow" style={{ top: "-22%", right: "-8%", width: 820, height: 820, borderRadius: "50%", background: "radial-gradient(circle, rgba(22,85,232,0.10) 0%, transparent 62%)", filter: "blur(30px)" }} />
-        <div aria-hidden className="absolute pointer-events-none animate-glow-breathe" style={{ bottom: "-30%", left: "-10%", width: 640, height: 640, borderRadius: "50%", background: "radial-gradient(circle, rgba(55,138,221,0.08) 0%, transparent 66%)", filter: "blur(40px)" }} />
+        <div aria-hidden className="absolute pointer-events-none animate-float-slow" style={{ top: "-22%", right: "-8%", width: 820, height: 820, borderRadius: "50%", background: "radial-gradient(circle, rgba(140,111,69,0.10) 0%, transparent 62%)", filter: "blur(30px)" }} />
+        <div aria-hidden className="absolute pointer-events-none animate-glow-breathe" style={{ bottom: "-30%", left: "-10%", width: 640, height: 640, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,138,101,0.08) 0%, transparent 66%)", filter: "blur(40px)" }} />
         <div aria-hidden className="absolute inset-0 hero-grid pointer-events-none" />
 
         <div className="relative max-w-[1180px] mx-auto px-6 pt-24 pb-20 lg:pt-36 lg:pb-28">
@@ -247,7 +247,7 @@ export default function LandingPage() {
             parecer institucional, rastreável e auditável. Em até 90 minutos.
           </p>
           <div className="animate-fade-up flex flex-col sm:flex-row items-start sm:items-center gap-5 mt-11" style={{ animationDelay: "640ms" }}>
-            <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center gap-2 text-[15px] font-medium text-white px-7 py-4 rounded-full" style={{ background: "#1655E8" }}>
+            <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center gap-2 text-[15px] font-medium text-white px-7 py-4 rounded-full" style={{ background: "#8C6F45" }}>
               Solicitar acesso <span aria-hidden>→</span>
             </Link>
             <a href="#comparativo" className="group inline-flex items-center gap-2 text-[15px] font-medium text-lp-ink">
@@ -304,7 +304,7 @@ export default function LandingPage() {
                   <h3 className="font-display tracking-tight text-lp-ink mb-4" style={{ fontSize: "clamp(28px, 3.6vw, 44px)", lineHeight: 1.08 }}>{m.t}</h3>
                   <p className="text-[16px] text-lp-ink-2 leading-relaxed max-w-[640px]">{m.d}</p>
                 </div>
-                <span className="inline-flex items-center gap-2 text-[14px] font-medium" style={{ color: "#1655E8" }}>
+                <span className="inline-flex items-center gap-2 text-[14px] font-medium" style={{ color: "#8C6F45" }}>
                   Conhecer
                   <span aria-hidden className="transition-transform group-hover:translate-x-1.5">→</span>
                 </span>
@@ -352,7 +352,7 @@ export default function LandingPage() {
               <ul className="space-y-3 text-[14.5px] text-lp-ink-2">
                 {["Deal Readiness Score calculado automaticamente", "Cada conclusão ancorada em fonte e página", "Saída em PDF, Word ou template do escritório"].map((i) => (
                   <li key={i} className="flex items-start gap-2.5">
-                    <span className="flex-shrink-0 mt-0.5 text-[12px] font-bold" style={{ color: "#1655E8" }}>✓</span>{i}
+                    <span className="flex-shrink-0 mt-0.5 text-[12px] font-bold" style={{ color: "#8C6F45" }}>✓</span>{i}
                   </li>
                 ))}
               </ul>
@@ -361,7 +361,7 @@ export default function LandingPage() {
               <div className="rounded-[18px] overflow-hidden border border-lp-border lp-card-shadow bg-lp-canvas animate-float-slow">
                 <div className="flex items-center justify-between px-5 py-3.5 border-b border-lp-border">
                   <span className="text-[11px] font-medium text-lp-ink-2 tracking-wide">Dossiê · Grupo Meridian S.A.</span>
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "#EFF4FF", color: "#175CD3" }}>concluído</span>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "#E8E2D6", color: "#65502E" }}>concluído</span>
                 </div>
                 <div className="px-5 py-5">
                   <div className="flex items-center justify-between mb-2">
@@ -369,12 +369,12 @@ export default function LandingPage() {
                     <span className="font-display text-[20px] text-lp-ink">8.2</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-lp-fog overflow-hidden mb-5">
-                    <div className="h-full rounded-full" style={{ width: "82%", background: "linear-gradient(90deg,#1655E8,#378ADD)" }} />
+                    <div className="h-full rounded-full" style={{ width: "82%", background: "linear-gradient(90deg,#8C6F45,#A88A65)" }} />
                   </div>
                   {["Diagnóstico financeiro", "Tese e valuation", "Estruturação de crédito", "Adequação tributária"].map((r) => (
                     <div key={r} className="flex items-center justify-between py-2 border-t border-lp-border-subtle text-[13px]">
                       <span className="text-lp-ink">{r}</span>
-                      <span className="text-[11px]" style={{ color: "#175CD3" }}>pronto</span>
+                      <span className="text-[11px]" style={{ color: "#65502E" }}>pronto</span>
                     </div>
                   ))}
                 </div>
@@ -395,7 +395,7 @@ export default function LandingPage() {
             <div key={row.dim} className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr_1fr] gap-2 md:gap-6 border-t border-lp-border py-5 items-baseline">
               <span className="text-[14px] text-lp-ink font-medium">{row.dim}</span>
               <span className="text-[13.5px] text-lp-ink-3">{row.trad}</span>
-              <span className="text-[13.5px] font-medium" style={{ color: "#1655E8" }}>{row.otto}</span>
+              <span className="text-[13.5px] font-medium" style={{ color: "#8C6F45" }}>{row.otto}</span>
             </div>
           ))}
         </div>
@@ -428,7 +428,7 @@ export default function LandingPage() {
             <h2 className="font-display tracking-tight text-lp-ink" style={{ fontSize: "clamp(26px, 3.2vw, 40px)", lineHeight: 1.12 }}>
               Seus dados de deal, <span style={{ fontStyle: "italic" }}>isolados e seus.</span>
             </h2>
-            <Link href="/privacidade" className="inline-flex items-center gap-2 text-[14px] font-medium mt-6" style={{ color: "#1655E8" }}>
+            <Link href="/privacidade" className="inline-flex items-center gap-2 text-[14px] font-medium mt-6" style={{ color: "#8C6F45" }}>
               Política de Privacidade <span aria-hidden>→</span>
             </Link>
           </div>
@@ -457,7 +457,7 @@ export default function LandingPage() {
           </h2>
           <div className="reveal grid md:grid-cols-3 gap-5">
             {planos.map((p) => (
-              <div key={p.nome} className={`rounded-[18px] p-7 flex flex-col bg-lp-canvas ${p.destaque ? "border-2 lp-card-shadow" : "border border-lp-border"}`} style={p.destaque ? { borderColor: "#1655E8" } : {}}>
+              <div key={p.nome} className={`rounded-[18px] p-7 flex flex-col bg-lp-canvas ${p.destaque ? "border-2 lp-card-shadow" : "border border-lp-border"}`} style={p.destaque ? { borderColor: "#8C6F45" } : {}}>
                 <p className="text-[10px] font-medium text-lp-ink-4 uppercase tracking-widest mb-2">{p.tag}</p>
                 <p className="text-[15px] font-semibold text-lp-ink mb-1">{p.nome}</p>
                 <div className="flex items-baseline gap-1 mb-2">
@@ -465,15 +465,15 @@ export default function LandingPage() {
                   {p.complemento && <span className="text-[12px] text-lp-ink-3">{p.complemento}</span>}
                 </div>
                 <p className="text-[12.5px] text-lp-ink-3 leading-relaxed mb-1">{p.desc}</p>
-                {p.roi && <p className="text-[11px] font-medium mb-2" style={{ color: "#175CD3" }}>{p.roi}</p>}
+                {p.roi && <p className="text-[11px] font-medium mb-2" style={{ color: "#65502E" }}>{p.roi}</p>}
                 <ul className="space-y-2.5 flex-1 my-6">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-start gap-2.5 text-[13px] text-lp-ink-2">
-                      <span className="flex-shrink-0 mt-0.5 text-[11px] font-bold" style={{ color: "#1655E8" }}>✓</span>{f}
+                      <span className="flex-shrink-0 mt-0.5 text-[11px] font-bold" style={{ color: "#8C6F45" }}>✓</span>{f}
                     </li>
                   ))}
                 </ul>
-                <Link href={p.href} className={`w-full text-center py-3 rounded-[10px] text-[13px] font-medium transition ${p.destaque ? "text-white hover:opacity-90" : "border border-lp-border-strong text-lp-ink hover:bg-lp-fog"}`} style={p.destaque ? { background: "#1655E8" } : {}}>
+                <Link href={p.href} className={`w-full text-center py-3 rounded-[10px] text-[13px] font-medium transition ${p.destaque ? "text-white hover:opacity-90" : "border border-lp-border-strong text-lp-ink hover:bg-lp-fog"}`} style={p.destaque ? { background: "#8C6F45" } : {}}>
                   {p.cta}
                 </Link>
               </div>
@@ -504,15 +504,15 @@ export default function LandingPage() {
       {/* ── Fecho ────────────────────────────────────────────────────────── */}
       <section className="lp-dark-section">
         <div className="max-w-[1180px] mx-auto px-6 py-32 lg:py-44 text-center">
-          <h2 className="reveal font-display tracking-tight" style={{ fontSize: "clamp(34px, 5.4vw, 68px)", lineHeight: 1.05, color: "#EEF3FF" }}>
+          <h2 className="reveal font-display tracking-tight" style={{ fontSize: "clamp(34px, 5.4vw, 68px)", lineHeight: 1.05, color: "#EDE9E5" }}>
             O ativo certo, no <span className="text-shimmer">timing certo.</span>
           </h2>
-          <p className="reveal text-[16px] leading-relaxed max-w-[520px] mx-auto mt-7" style={{ color: "#7A92BE", transitionDelay: "80ms" }}>
+          <p className="reveal text-[16px] leading-relaxed max-w-[520px] mx-auto mt-7" style={{ color: "#B5B0A6", transitionDelay: "80ms" }}>
             M&amp;A, crédito estruturado ou preparação para o mercado: solicite acesso e
             reservamos uma conversa inicial para entender o contexto do escritório.
           </p>
           <div className="reveal mt-11 flex flex-col sm:flex-row gap-3 justify-center" style={{ transitionDelay: "160ms" }}>
-            <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[15px] font-medium text-white px-8 py-4 rounded-full" style={{ background: "#1655E8" }}>
+            <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[15px] font-medium text-white px-8 py-4 rounded-full" style={{ background: "#8C6F45" }}>
               Solicitar acesso <span aria-hidden>→</span>
             </Link>
             <a href="mailto:mandor@rr7x.com.br?subject=Quero%20conhecer%20Mandor" className="inline-flex items-center justify-center text-[15px] font-medium px-8 py-4 rounded-full lp-dark-btn">
