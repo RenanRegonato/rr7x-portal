@@ -31,12 +31,15 @@ export type AuditEvent =
   | 'coverage.checked'
   | 'tese.created'
   | 'tese.updated'
+  | 'tese.deleted'
   | 'investidor.created'
   | 'investidor.updated'
   | 'investidor.archived'
+  | 'investidor.deleted'
   | 'match.status_changed'
   | 'match.tag_toggled'
   | 'match.feedback'
+  | 'match.deleted'
   | 'tese.rematch_requested'
 
 interface AuditParams {

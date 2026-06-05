@@ -178,7 +178,7 @@ export function buildFinancialModelSheet(fd: FinancialData): XLSX.WorkSheet {
 
   rows.push(HR())
   rows.push(R('* Modelo com premissas estimadas — ajustar com dados auditados'))
-  rows.push(R('* Fonte das premissas: análise Davi Diagnóstico (Otto Intelligence)'))
+  rows.push(R('* Fonte das premissas: análise Diagnóstico Financeiro (Otto Intelligence)'))
 
   const ws = XLSX.utils.aoa_to_sheet(rows)
   ws['!cols'] = [

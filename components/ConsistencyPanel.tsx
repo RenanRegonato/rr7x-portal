@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { formatDateTimeBR } from '@/lib/format-date'
 
 type Severidade = 'bloqueante' | 'alerta' | 'info'
 
@@ -109,7 +110,7 @@ export default function ConsistencyPanel({ analiseId }: ConsistencyPanelProps) {
           </h2>
           <p className="text-[11px] text-ink-3 mt-0.5">
             {checkedAt
-              ? `Última verificação: ${new Date(checkedAt).toLocaleString('pt-BR')}`
+              ? `Última verificação: ${formatDateTimeBR(checkedAt, { second: '2-digit' })}`
               : 'Ainda não verificada — clique em Re-validar'}
             {totalNaoResolvido > 0 && ` · ${totalNaoResolvido} pendente${totalNaoResolvido === 1 ? '' : 's'}`}
           </p>

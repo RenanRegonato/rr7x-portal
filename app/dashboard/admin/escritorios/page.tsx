@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { formatDateBR } from '@/lib/format-date'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -68,7 +69,7 @@ const ROLE_CONFIG: Record<string, { label: string; cls: string }> = {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const fmt = (d: string | null) =>
-  d ? new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—'
+  d ? formatDateBR(d, { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—'
 
 function PlanoStatusBadge({ status }: { status: PlanoStatus | null | undefined }) {
   const cfg = STATUS_OPTIONS.find(s => s.value === (status ?? '')) ?? STATUS_OPTIONS[0]
@@ -621,7 +622,7 @@ export default function EscritoriosPage() {
               <div className="bg-surface border border-border rounded-[12px] p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="text-[13px] font-medium text-ink">Módulo de adequação à Reforma Tributária (Ferrante)</p>
+                    <p className="text-[13px] font-medium text-ink">Módulo de adequação à Reforma Tributária</p>
                     <p className="text-[12px] text-ink-3 mt-1 leading-relaxed">
                       Recurso premium opcional. Habilite apenas para escritórios que contrataram o upgrade.
                       Quando desabilitado, a opção aparece bloqueada na abertura da análise.

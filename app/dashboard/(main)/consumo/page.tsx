@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { formatDateBR } from '@/lib/format-date'
 import Link from 'next/link'
 import { getUserContext } from '@/lib/get-role'
 import { createAdminClient } from '@/lib/supabase-server'
@@ -47,7 +48,7 @@ const STATUS_ANALISE: Record<string, { label: string; cls: string }> = {
 }
 
 function fmtData(iso: string): string {
-  try { return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) }
+  try { return formatDateBR(iso, { day: '2-digit', month: '2-digit', year: 'numeric' }) }
   catch { return '—' }
 }
 

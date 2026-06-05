@@ -12,6 +12,7 @@ import MatchActions from '@/components/invest-match/MatchActions'
 import ScoreBreakdown from '@/components/invest-match/ScoreBreakdown'
 import RematchButton from '@/components/invest-match/RematchButton'
 import FeedbackForm from '@/components/invest-match/FeedbackForm'
+import DeleteButton from '@/components/invest-match/DeleteButton'
 import type { StatusMatch } from '@/lib/invest-match/types'
 
 export const dynamic = 'force-dynamic'
@@ -57,7 +58,17 @@ export default async function TeseDetailPage({ params }: PageProps) {
             </p>
           </div>
         </div>
-        <RematchButton teseId={id}/>
+        <div className="flex items-center gap-2 shrink-0">
+          <RematchButton teseId={id}/>
+          <DeleteButton
+            endpoint={`/api/invest-match/teses/${id}`}
+            entityLabel="tese"
+            name={nome}
+            cascadeNote="Os matches gerados a partir desta tese e seus históricos de feedback também serão removidos em definitivo."
+            redirectTo="/dashboard/invest-match/teses"
+            confirmWord="EXCLUIR"
+          />
+        </div>
       </div>
 
       {/* Resumo da tese */}

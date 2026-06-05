@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { formatTimeBR } from '@/lib/format-date'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -177,7 +178,7 @@ export default function UsoLlmPage() {
 
   useEffect(() => { void carregar() }, [carregar])
 
-  const fmtTime = (d: Date) => d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  const fmtTime = (d: Date) => formatTimeBR(d, { hour: '2-digit', minute: '2-digit' })
 
   if (loading && !data) return <div className="p-8 text-ink-3 text-[13px]">Carregando...</div>
 

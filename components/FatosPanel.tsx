@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { formatDateTimeBR } from '@/lib/format-date'
 
 interface Fact {
   id:            string
@@ -125,7 +126,7 @@ export default function FatosPanel({ analiseId, factsExtractedAt, onReextract }:
           <h2 className="font-display text-[18px] font-medium">Fatos consolidados (Truth Layer)</h2>
           <p className="text-[11px] text-ink-3 mt-0.5">
             {facts.length} fato{facts.length === 1 ? '' : 's'} extraído{facts.length === 1 ? '' : 's'} da ingestão documental
-            {factsExtractedAt && ` · última extração em ${new Date(factsExtractedAt).toLocaleString('pt-BR')}`}
+            {factsExtractedAt && ` · última extração em ${formatDateTimeBR(factsExtractedAt, { second: '2-digit' })}`}
           </p>
         </div>
         <button

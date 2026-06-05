@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { formatDateBR } from '@/lib/format-date'
 
 type UserRole = 'admin' | 'gerente' | 'assessor'
 
@@ -141,7 +142,7 @@ export default function UsuariosPage() {
   }
 
   const fmt = (d: string | null) => d
-    ? new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+    ? formatDateBR(d, { day: '2-digit', month: '2-digit', year: '2-digit' })
     : '—'
 
   const filtrados = usuarios.filter(u => u.email?.toLowerCase().includes(busca.toLowerCase()))

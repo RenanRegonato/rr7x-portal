@@ -4,7 +4,8 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { resolveEscritorioId } from '@/lib/invest-match/auth-helpers'
 import { listTeses } from '@/lib/invest-match/match-service'
 import { ESTAGIO_LABEL, STATUS_TESE_LABEL, formatBRL } from '@/lib/invest-match/labels'
-import { IconArrowLeft, IconBuilding, IconSparkle } from '@/components/Icons'
+import { IconArrowLeft, IconBuilding, IconSparkle, IconPlus } from '@/components/Icons'
+import DeleteButton from '@/components/invest-match/DeleteButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,12 +31,20 @@ export default async function TesesListPage() {
             <p className="text-ink-3 text-xs mt-0.5">{total} teses estruturadas</p>
           </div>
         </div>
-        <Link
-          href="/dashboard/invest-match/teses/nova"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-strong text-white text-sm font-medium hover:opacity-90"
-        >
-          <IconSparkle size={16}/> Gerar tese de análise
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/invest-match/teses/nova/manual"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface border border-border text-sm font-medium text-ink hover:border-accent-strong/40 hover:text-accent-strong transition"
+          >
+            <IconPlus size={16}/> Cadastro manual
+          </Link>
+          <Link
+            href="/dashboard/invest-match/teses/nova"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-strong text-white text-sm font-medium hover:opacity-90"
+          >
+            <IconSparkle size={16}/> Gerar tese de análise
+          </Link>
+        </div>
       </div>
 
       {rows.length === 0 ? (
@@ -92,7 +101,17 @@ export default async function TesesListPage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Link href={`/dashboard/invest-match/teses/${t.id}`} className="text-ink-3 hover:text-accent-strong text-xs">→</Link>
+                    <div className="flex items-center justify-end gap-2">
+                      <DeleteButton
+                        endpoint={`/api/invest-match/teses/${t.id}`}
+                        entityLabel="tese"
+                        name={t.empresa_nome}
+                        cascadeNote="Os matches gerados a partir desta tese e seus históricos de feedback também serão removidos em definitivo."
+                        confirmWord="EXCLUIR"
+                        variant="icon"
+                      />
+                      <Link href={`/dashboard/invest-match/teses/${t.id}`} className="text-ink-3 hover:text-accent-strong text-xs">→</Link>
+                    </div>
                   </td>
                 </tr>
               ))}

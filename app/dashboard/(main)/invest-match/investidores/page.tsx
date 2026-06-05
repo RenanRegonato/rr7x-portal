@@ -6,6 +6,7 @@ import { listInvestidores } from '@/lib/invest-match/investidor-service'
 import {
   IconArrowLeft, IconPlus, IconUsers, IconSparkle,
 } from '@/components/Icons'
+import DeleteButton from '@/components/invest-match/DeleteButton'
 import type { Investidor } from '@/lib/invest-match/types'
 
 export const dynamic = 'force-dynamic'
@@ -165,12 +166,22 @@ function InvestidoresTable({ rows }: { rows: Investidor[] }) {
                 </span>
               </td>
               <td className="px-4 py-3">
-                <Link
-                  href={`/dashboard/invest-match/investidores/${inv.id}`}
-                  className="text-ink-3 hover:text-accent-strong text-xs"
-                >
-                  →
-                </Link>
+                <div className="flex items-center justify-end gap-2">
+                  <DeleteButton
+                    endpoint={`/api/invest-match/investidores/${inv.id}`}
+                    entityLabel="investidor"
+                    name={inv.nome}
+                    cascadeNote="Os matches deste investidor e seus históricos de feedback também serão removidos em definitivo."
+                    confirmWord="EXCLUIR"
+                    variant="icon"
+                  />
+                  <Link
+                    href={`/dashboard/invest-match/investidores/${inv.id}`}
+                    className="text-ink-3 hover:text-accent-strong text-xs"
+                  >
+                    →
+                  </Link>
+                </div>
               </td>
             </tr>
           ))}

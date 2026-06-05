@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { formatDateTimeBR } from '@/lib/format-date'
 
 type Status = 'coberto' | 'parcial' | 'nao_coberto' | 'nao_aplicavel'
 
@@ -28,15 +29,15 @@ const STATUS_CFG: Record<Status, { label: string; icon: string; cls: string }> =
 }
 
 const STEP_LABELS: Record<string, string> = {
-  orchestration: 'Mandor Orquestra',
-  pesquisa:      'Pedro Panorama',
-  diagnostico:   'Davi Diagnóstico',
-  analise_ma:    'Arthur Aquisição',
-  kyc:           'Carmen Compliance',
-  contratos:     'Clara Cláusula',
-  originacao:    'Victor Valor',
-  estruturacao:  'Estela Estrutura',
-  maturidade:    'Paulo Preparo',
+  orchestration: 'Orquestração do Mandato',
+  pesquisa:      'Inteligência de Mercado',
+  diagnostico:   'Diagnóstico Financeiro',
+  analise_ma:    'Estruturação de M&A',
+  kyc:           'KYC & Compliance',
+  contratos:     'Due Diligence Jurídica',
+  originacao:    'Originação',
+  estruturacao:  'Estruturação de Crédito',
+  maturidade:    'Validação de Oportunidades',
 }
 
 interface CoveragePanelProps {
@@ -117,7 +118,7 @@ export default function CoveragePanel({ analiseId, onSolicitarAgente }: Coverage
             {' '}/ <span className="text-warn">{resumo.nao_coberto} não cobertos</span>
             {naoAplicavel > 0 && <>{' '}/ <span className="text-ink-3">{naoAplicavel} não aplicáveis</span></>}
             {' '}de {total}
-            {checkedAt && ` · ${new Date(checkedAt).toLocaleString('pt-BR')}`}
+            {checkedAt && ` · ${formatDateTimeBR(checkedAt, { second: '2-digit' })}`}
           </p>
         </div>
         <button

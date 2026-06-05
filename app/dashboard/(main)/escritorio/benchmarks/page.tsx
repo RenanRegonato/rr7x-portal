@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Topbar from '@/components/Topbar'
+import { formatDateBR } from '@/lib/format-date'
 
 // Types
 
@@ -163,7 +164,7 @@ export default function EscritorioBenchmarksPage() {
             value_max:  editMax,
             unit:       row.unit,
             descricao:  editDesc || row.global?.descricao || undefined,
-            source:     `Override do escritório — ajustado em ${new Date().toLocaleDateString('pt-BR')}`,
+            source:     `Override do escritório — ajustado em ${formatDateBR(new Date())}`,
           }),
         })
         const d = await r.json()

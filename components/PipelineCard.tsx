@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { formatDateBR } from '@/lib/format-date'
 import Pill from './Pill'
 import { IconTrash } from './Icons'
 
@@ -43,7 +44,7 @@ export default function PipelineCard({ analise, onClick, onDelete }: {
   const thumb  = THUMB_BY_TYPE[tipo] ?? 'bg-surface-2'
   const st     = STATUS_MAP[analise.status] ?? { label: analise.status, kind: 'draft' as const }
   const glyph  = analise.nome_ativo?.[0]?.toUpperCase() ?? '?'
-  const date   = new Date(analise.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+  const date   = formatDateBR(analise.criado_em, { day: '2-digit', month: 'short' })
 
   function handleDeleteClick(e: React.MouseEvent) {
     e.stopPropagation()

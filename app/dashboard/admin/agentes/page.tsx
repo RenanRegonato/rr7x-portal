@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { formatDateBR } from '@/lib/format-date'
 
 type Agente = { id: string; nome: string; descricao: string; system_prompt: string; atualizado_em: string; ordem: number }
 
@@ -115,7 +116,7 @@ export default function AgentesPage() {
                 </div>
                 <p className="text-[13px] text-ink-2">{selecionado.descricao}</p>
                 <p className="text-[11px] text-ink-3 mt-1">
-                  Salvo em {new Date(selecionado.atualizado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  Salvo em {formatDateBR(selecionado.atualizado_em, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">

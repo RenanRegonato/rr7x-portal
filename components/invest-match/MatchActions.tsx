@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { StatusMatch } from '@/lib/invest-match/types'
+import DeleteButton from './DeleteButton'
 
 // Ações de curadoria/pipeline de um match. Renderiza botões contextuais ao
 // status atual e chama PATCH /api/invest-match/matches/[id].
@@ -83,7 +84,6 @@ export default function MatchActions({
   const [error, setError] = useState<string | null>(null)
 
   const actions = actionsFor(status)
-  if (actions.length === 0) return null
 
   function run(action: Action) {
     setError(null)
@@ -122,6 +122,11 @@ export default function MatchActions({
           {a.label}
         </button>
       ))}
+      <DeleteButton
+        endpoint={`/api/invest-match/matches/${matchId}`}
+        entityLabel="match"
+        variant="icon"
+      />
       {error && <span className="text-[11px] text-warn">{error}</span>}
     </div>
   )

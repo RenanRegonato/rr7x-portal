@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { formatTimeBR } from '@/lib/format-date'
 
 type Metricas = {
   totalClientes: number
@@ -94,7 +95,7 @@ export default function AdminOverview() {
 
   if (!m) return <div className="p-8 text-ink-3 text-[13px]">Carregando...</div>
 
-  const fmtTime = (d: Date) => d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  const fmtTime = (d: Date) => formatTimeBR(d, { hour: '2-digit', minute: '2-digit' })
 
   return (
     <div className="p-8 max-w-4xl">

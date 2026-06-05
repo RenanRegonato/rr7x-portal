@@ -1,6 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useState, useCallback } from 'react'
+import { formatDateBR } from '@/lib/format-date'
 import { useSearchParams } from 'next/navigation'
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -44,7 +45,7 @@ const STATUS_CLS: Record<StatusPacote, string> = {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const fmt = (d: string) =>
-  new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+  formatDateBR(d, { day: '2-digit', month: '2-digit', year: '2-digit' })
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 

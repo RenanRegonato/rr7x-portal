@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { audit, extractIp } from '@/lib/audit'
 import { gateInvestMatch } from '@/lib/invest-match/auth-helpers'
-import { getMatch, updateMatchStatus } from '@/lib/invest-match/match-service'
+import { getMatch, updateMatchStatus, deleteMatch } from '@/lib/invest-match/match-service'
 import type { StatusMatch } from '@/lib/invest-match/types'
 
 interface RouteContext { params: Promise<{ id: string }> }
@@ -83,6 +83,39 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
     const err = e as Error
     console.error('[matches.[id].PATCH]', err)
     const status = /inválida|não encontrado/i.test(err.message) ? 422 : 500
+    return NextResponse.json({ error: err.message }, { status })
+  }
+}
+
+// DELETE /api/invest-match/matches/[id]
+// Hard delete — remove o match do banco (e seus feedbacks em cascata). Irreversível.
+export async function DELETE(req: NextRequest, { params }: RouteContext) {
+  const { id } = await params
+  const supabase = await createServerSupabaseClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+
+  const gate = await gateInvestMatch(user.id)
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status })
+  const escritorioId = gate.escritorioId
+
+  try {
+    await deleteMatch(id, escritorioId)
+
+    void audit({
+      event:    'match.deleted',
+      userId:   user.id,
+      targetId: id,
+      metadata: { escritorio_id: escritorioId },
+      ip:        extractIp(req.headers),
+      userAgent: req.headers.get('user-agent'),
+    })
+
+    return NextResponse.json({ ok: true })
+  } catch (e) {
+    const err = e as Error
+    console.error('[matches.[id].DELETE]', err)
+    const status = /não encontrado/i.test(err.message) ? 404 : 500
     return NextResponse.json({ error: err.message }, { status })
   }
 }

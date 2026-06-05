@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase-server'
+import { formatDateBR } from '@/lib/format-date'
 import { getUserContext } from '@/lib/get-role'
 import { redirect } from 'next/navigation'
 import Topbar from '@/components/Topbar'
@@ -35,7 +36,7 @@ export default async function EquipePage() {
     : { data: [] }
 
   const fmt = (d: string | null) => d
-    ? new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+    ? formatDateBR(d, { day: '2-digit', month: '2-digit', year: '2-digit' })
     : '—'
 
   return (

@@ -1,5 +1,7 @@
 'use client'
 
+import { formatDateTimeBR } from '@/lib/format-date'
+
 interface MesaRevisao {
   aprovacao:                 'aprovado' | 'aprovado_com_ressalvas' | 'revisao_necessaria'
   diagnostico_final:         string
@@ -49,7 +51,7 @@ export default function MesaVerdictBanner({ mesa, checkedAt }: MesaVerdictBanner
         </div>
         {checkedAt && (
           <span className="text-[11px] opacity-70 shrink-0">
-            Mesa em {new Date(checkedAt).toLocaleString('pt-BR')}
+            Mesa em {formatDateTimeBR(checkedAt, { second: '2-digit' })}
           </span>
         )}
       </div>

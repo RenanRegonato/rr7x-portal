@@ -316,6 +316,38 @@ export async function listAnalisesElegiveis(escritorioId: string): Promise<Anali
   })
 }
 
+// ============================================================
+// DELETE (hard delete) — tese e match
+// ============================================================
+// Remove a linha do banco. Excluir uma tese arrasta seus matches (e feedbacks)
+// em cascata via FK (matches.tese_id ON DELETE CASCADE). Irreversível.
+// Escopo por escritorio_id.
+export async function deleteTese(teseId: string, escritorioId: string): Promise<void> {
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('teses')
+    .delete()
+    .eq('id', teseId)
+    .eq('escritorio_id', escritorioId)
+    .select('id')
+  if (error) throw new Error(`deleteTese: ${error.message}`)
+  if (!data || data.length === 0) throw new Error('Tese não encontrada')
+}
+
+// Remove um match. Seus feedbacks somem em cascata (match_feedback.match_id
+// ON DELETE CASCADE). Irreversível. Escopo por escritorio_id.
+export async function deleteMatch(matchId: string, escritorioId: string): Promise<void> {
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('matches')
+    .delete()
+    .eq('id', matchId)
+    .eq('escritorio_id', escritorioId)
+    .select('id')
+  if (error) throw new Error(`deleteMatch: ${error.message}`)
+  if (!data || data.length === 0) throw new Error('Match não encontrado')
+}
+
 export async function getTese(teseId: string, escritorioId: string): Promise<StructuredThesis | null> {
   const admin = createAdminClient()
   const { data, error } = await admin

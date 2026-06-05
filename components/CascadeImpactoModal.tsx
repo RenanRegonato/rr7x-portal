@@ -78,7 +78,7 @@ export default function CascadeImpactoModal({
           <div>
             <h2 className="font-display text-[20px] font-medium tracking-tight">Impacto da regeneração</h2>
             <p className="text-[12px] text-ink-3 mt-0.5">
-              Detetive Dependência analisou os efeitos da nova versão de{' '}
+              A Análise de Impacto avaliou os efeitos da nova versão de{' '}
               <span className="font-medium text-ink-2">{stepOrigemLabel}</span> nos demais agentes.
             </p>
           </div>
@@ -88,7 +88,7 @@ export default function CascadeImpactoModal({
         <div className="px-6 py-5">
           {loading && (
             <div className="py-10 text-center text-[13px] text-ink-3 animate-pulse">
-              Detetive analisando dependências... (pode levar até 30 segundos)
+              Analisando dependências... (pode levar até 30 segundos)
             </div>
           )}
 
@@ -98,7 +98,7 @@ export default function CascadeImpactoModal({
                 <span className="text-ok font-medium">✓ Nenhum impacto detectado</span>
               </div>
               <p className="text-ink-2">
-                O Detetive avaliou os demais agentes e não identificou inconsistências
+                A Análise de Impacto avaliou os demais agentes e não identificou inconsistências
                 significativas que justifiquem reprocessamento. Os outputs atuais
                 permanecem coerentes com a nova versão.
               </p>

@@ -142,15 +142,15 @@ export async function buildPptx(input: PptxInput): Promise<Buffer> {
 
   // ── Slides por agente ─────────────────────────────────────────────────
   const agentSlides: { key: string; title: string; subtitle: string }[] = [
-    { key: 'orchestration',         title: 'Orquestração — DRS',               subtitle: 'Otto Orquestra' },
-    { key: 'pesquisa',              title: 'Inteligência de Mercado',           subtitle: 'Pedro Panorama' },
-    { key: 'diagnostico',           title: 'Diagnóstico Financeiro',           subtitle: 'Davi Diagnóstico' },
-    { key: 'kyc',                   title: 'Compliance & KYC',                 subtitle: 'Carmen Compliance' },
-    { key: 'analise_ma',            title: 'Análise de M&A',                   subtitle: 'Arthur Aquisição' },
-    { key: 'contratos',             title: 'Análise Contratual',               subtitle: 'Clara Cláusula' },
-    { key: 'originacao',            title: 'Estratégia de Originação',         subtitle: 'Victor Valor' },
-    { key: 'estruturacao',          title: 'Estruturação de Capital',          subtitle: 'Estela Estrutura' },
-    { key: 'maturidade',            title: 'Veredicto de Maturidade',          subtitle: 'Paulo Preparo' },
+    { key: 'orchestration',         title: 'Orquestração — DRS',               subtitle: 'Orquestração do Mandato' },
+    { key: 'pesquisa',              title: 'Inteligência de Mercado',           subtitle: 'Inteligência de Mercado' },
+    { key: 'diagnostico',           title: 'Diagnóstico Financeiro',           subtitle: 'Diagnóstico Financeiro' },
+    { key: 'kyc',                   title: 'Compliance & KYC',                 subtitle: 'KYC & Compliance' },
+    { key: 'analise_ma',            title: 'Análise de M&A',                   subtitle: 'Estruturação de M&A' },
+    { key: 'contratos',             title: 'Análise Contratual',               subtitle: 'Due Diligence Jurídica' },
+    { key: 'originacao',            title: 'Estratégia de Originação',         subtitle: 'Originação' },
+    { key: 'estruturacao',          title: 'Estruturação de Capital',          subtitle: 'Estruturação de Crédito' },
+    { key: 'maturidade',            title: 'Veredicto de Maturidade',          subtitle: 'Validação de Oportunidades' },
     { key: 'relatorio_consolidado', title: 'Resumo Executivo',                 subtitle: 'Chief Intelligence Analyst' },
   ]
 

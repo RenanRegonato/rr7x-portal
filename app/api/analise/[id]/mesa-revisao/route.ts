@@ -10,15 +10,15 @@ import { isInternalCall } from '@/lib/internal-auth'
 export const maxDuration = 300
 
 const STEP_LABELS: Record<string, string> = {
-  orchestration: 'Mandor Orquestra',
-  pesquisa:      'Pedro Panorama',
-  diagnostico:   'Davi Diagnóstico',
-  analise_ma:    'Arthur Aquisição',
-  kyc:           'Carmen Compliance',
-  contratos:     'Clara Cláusula',
-  originacao:    'Victor Valor',
-  estruturacao:  'Estela Estrutura',
-  maturidade:    'Paulo Preparo',
+  orchestration: 'Orquestração do Mandato',
+  pesquisa:      'Inteligência de Mercado',
+  diagnostico:   'Diagnóstico Financeiro',
+  analise_ma:    'Estruturação de M&A',
+  kyc:           'KYC & Compliance',
+  contratos:     'Due Diligence Jurídica',
+  originacao:    'Originação',
+  estruturacao:  'Estruturação de Crédito',
+  maturidade:    'Validação de Oportunidades',
 }
 
 function intakeResumo(intake: Record<string, string>): string {

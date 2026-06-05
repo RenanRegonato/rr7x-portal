@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { formatDateBR } from '@/lib/format-date'
 import Pill from '@/components/Pill'
 
 type Assinatura = { plano: string; status: string; analises_restantes: number | null } | null
@@ -91,7 +92,7 @@ export default function ClientesPage() {
   const filtrados  = clientes.filter(c => c.email?.toLowerCase().includes(busca.toLowerCase()))
   const totalPages = Math.ceil(filtrados.length / PAGE_SIZE)
   const paginated  = filtrados.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
-  const fmt        = (d: string | null) => d ? new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—'
+  const fmt        = (d: string | null) => d ? formatDateBR(d, { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—'
 
   // Reset page when search changes
   useEffect(() => { setPage(0) }, [busca])

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { formatDateBR } from '@/lib/format-date'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -302,7 +303,7 @@ export default function BenchmarksAdminPage() {
                             <button onClick={() => arquivar(b.id)} className="text-warn hover:underline">Arquivar</button>
                           )}
                           {!b.ativo && (
-                            <span className="text-ink-3">arquivado em {b.valid_to ? new Date(b.valid_to).toLocaleDateString('pt-BR') : '—'}</span>
+                            <span className="text-ink-3">arquivado em {b.valid_to ? formatDateBR(b.valid_to) : '—'}</span>
                           )}
                         </div>
                       </div>

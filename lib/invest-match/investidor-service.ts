@@ -211,16 +211,21 @@ export async function updateInvestidor(
 
 
 // ============================================================
-// ARCHIVE (soft delete)
+// DELETE (hard delete)
 // ============================================================
-export async function archiveInvestidor(ctx: UpdateContext): Promise<void> {
+// Remove a linha do banco. Os matches do investidor (e seus feedbacks) somem
+// em cascata via FK (matches.investidor_id ON DELETE CASCADE). Irreversível.
+// Escopo por escritorio_id (não apaga registro de outro escritório).
+export async function deleteInvestidor(ctx: UpdateContext): Promise<void> {
   const admin = createAdminClient()
-  const { error } = await admin
+  const { data, error } = await admin
     .from('investidores')
-    .update({ status: 'arquivado', atualizado_em: new Date().toISOString() })
+    .delete()
     .eq('id', ctx.investidorId)
     .eq('escritorio_id', ctx.escritorioId)
-  if (error) throw new Error(`Falha ao arquivar investidor: ${error.message}`)
+    .select('id')
+  if (error) throw new Error(`Falha ao excluir investidor: ${error.message}`)
+  if (!data || data.length === 0) throw new Error('Investidor não encontrado')
 }
 
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { formatDateBR } from '@/lib/format-date'
 import Link from 'next/link'
 
 type Usuario = { id: string; email: string; criado_em: string }
@@ -103,7 +104,7 @@ export default function AdminPage() {
             <div>
               <p className="text-xs text-gray-500 mb-1">Cliente</p>
               <p className="font-semibold">{usuario.email}</p>
-              <p className="text-xs text-gray-500 mt-0.5">Cadastrado em {new Date(usuario.criado_em).toLocaleDateString('pt-BR')}</p>
+              <p className="text-xs text-gray-500 mt-0.5">Cadastrado em {formatDateBR(usuario.criado_em)}</p>
             </div>
 
             <div>

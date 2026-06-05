@@ -73,6 +73,7 @@ export default function Sidebar({
         {workspaceItems.map(item => (
           <NavItemComp key={item.id} {...item} active={isActive(item.href)}/>
         ))}
+        <AjudaButton/>
       </NavSection>
 
       {/* Equipe — gerentes only */}
@@ -138,11 +139,12 @@ function NavSection({ label, children }: { label: string; children: React.ReactN
   )
 }
 
-function NavItemComp({ icon, label, count, active, href }: NavItem & { active: boolean }) {
+function NavItemComp({ id, icon, label, count, active, href }: NavItem & { active: boolean }) {
   const Ico = ICONS_BY_NAME[icon]
   return (
     <Link
       href={href}
+      data-tour={id}
       className={`flex items-center gap-2.5 px-2.5 py-[7px] rounded-md text-[13px] font-medium transition-colors
         ${active ? 'bg-surface-2 text-ink' : 'text-ink-2 hover:bg-surface-hover hover:text-ink'}`}
     >
@@ -152,5 +154,21 @@ function NavItemComp({ icon, label, count, active, href }: NavItem & { active: b
         <span className="text-[11px] text-ink-3 tabular-nums">{count}</span>
       )}
     </Link>
+  )
+}
+
+// Botão "Ajuda" — reabre o tour guiado (escutado por OnboardingTour).
+function AjudaButton() {
+  const Ico = ICONS_BY_NAME['sparkle']
+  return (
+    <button
+      type="button"
+      data-tour="ajuda"
+      onClick={() => window.dispatchEvent(new CustomEvent('mandor:open-onboarding'))}
+      className="flex items-center gap-2.5 px-2.5 py-[7px] rounded-md text-[13px] font-medium text-ink-2 hover:bg-surface-hover hover:text-ink transition-colors w-full text-left"
+    >
+      {Ico && <Ico size={15}/>}
+      <span className="flex-1">Ajuda / Tour</span>
+    </button>
   )
 }

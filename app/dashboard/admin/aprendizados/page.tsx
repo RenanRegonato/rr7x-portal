@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { formatDateBR } from '@/lib/format-date'
 
 type Feedback = { id: string; texto: string; ativo: boolean; criado_em: string }
 
@@ -115,7 +116,7 @@ export default function AprendizadosPage() {
             >
               <div className="flex items-start justify-between gap-3 mb-2">
                 <span className="text-[11px] text-ink-3 font-mono">
-                  {new Date(fb.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  {formatDateBR(fb.criado_em, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </span>
                 <div className="flex items-center gap-2 shrink-0">
                   <button

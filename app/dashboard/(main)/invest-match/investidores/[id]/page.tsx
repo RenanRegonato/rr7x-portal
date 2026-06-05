@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { formatDateBR } from '@/lib/format-date'
 import { notFound, redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { resolveEscritorioId } from '@/lib/invest-match/auth-helpers'
@@ -7,6 +8,7 @@ import { listMatches } from '@/lib/invest-match/match-service'
 import { STATUS_MATCH, scoreBg } from '@/lib/invest-match/labels'
 import InvestidorForm from '@/components/invest-match/InvestidorForm'
 import BuscarOportunidadesButton from '@/components/invest-match/BuscarOportunidadesButton'
+import DeleteButton from '@/components/invest-match/DeleteButton'
 import { IconArrowLeft, IconSparkle } from '@/components/Icons'
 import type { StatusMatch } from '@/lib/invest-match/types'
 
@@ -39,7 +41,7 @@ export default async function EditInvestidorPage({ params }: PageProps) {
           <div>
             <h1 className="text-2xl font-semibold text-ink">{inv.nome}</h1>
             <div className="flex items-center gap-3 text-[11px] text-ink-3 mt-0.5">
-              <span>Cadastrado em {inv.criado_em ? new Date(inv.criado_em).toLocaleDateString('pt-BR') : '—'}</span>
+              <span>Cadastrado em {inv.criado_em ? formatDateBR(inv.criado_em) : '—'}</span>
               {inv.tese_embedding_at && (
                 <span className="inline-flex items-center gap-1 text-accent-strong">
                   <IconSparkle size={11}/> tese indexada (voyage-3-large)
@@ -48,7 +50,17 @@ export default async function EditInvestidorPage({ params }: PageProps) {
             </div>
           </div>
         </div>
-        <BuscarOportunidadesButton investidorId={id}/>
+        <div className="flex items-center gap-2 shrink-0">
+          <BuscarOportunidadesButton investidorId={id}/>
+          <DeleteButton
+            endpoint={`/api/invest-match/investidores/${id}`}
+            entityLabel="investidor"
+            name={inv.nome}
+            cascadeNote="Os matches deste investidor e seus históricos de feedback também serão removidos em definitivo."
+            redirectTo="/dashboard/invest-match/investidores"
+            confirmWord="EXCLUIR"
+          />
+        </div>
       </div>
 
       {/* Oportunidades (originação reversa) */}

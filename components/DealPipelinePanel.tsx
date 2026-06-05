@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { formatDateTimeBR } from '@/lib/format-date'
 
 export type PipelineStage = 'originacao' | 'analise' | 'compliance' | 'comite' | 'aprovado' | 'rejeitado'
 
@@ -52,7 +53,7 @@ const TIPO_LABEL: Record<string, string> = {
 }
 
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+  return formatDateTimeBR(iso, { day: '2-digit', month: 'short', year: undefined, hour: '2-digit', minute: '2-digit' })
 }
 
 function StageBar({ stage }: { stage: PipelineStage }) {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { formatDateTimeBR, brDateToInstantISO } from '@/lib/format-date'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -46,7 +47,7 @@ const EVENT_LABELS: Record<string, string> = {
   'regeneracao.avaliada':             'Revisor IA avaliou',
   'regeneracao.executada':            'Regeneração executada',
   'regeneracao.cancelada':            'Regeneração cancelada',
-  'regeneracao.cascade_avaliada':     'Detetive avaliou cascade',
+  'regeneracao.cascade_avaliada':     'Análise de Impacto avaliou cascade',
   'regeneracao.cascade_step_executado': 'Step recalculado via cascade',
 }
 
@@ -62,10 +63,7 @@ const CATEGORY_CLS: Record<string, string> = {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtTs(s: string): string {
-  return new Date(s).toLocaleString('pt-BR', {
-    day:    '2-digit', month: '2-digit', year:   '2-digit',
-    hour:   '2-digit', minute: '2-digit', second: '2-digit',
-  })
+  return formatDateTimeBR(s, { year: '2-digit', second: '2-digit' })
 }
 
 function categoria(event: string): string {
@@ -74,12 +72,6 @@ function categoria(event: string): string {
 
 function eventoLabel(event: string): string {
   return EVENT_LABELS[event] ?? event
-}
-
-// Constrói data ISO no fuso local
-function toISO(date: string, end = false): string {
-  if (!date) return ''
-  return end ? `${date}T23:59:59.999Z` : `${date}T00:00:00.000Z`
 }
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -107,8 +99,8 @@ export default function AuditoriaPage() {
     try {
       const sp = new URLSearchParams()
       if (filtroEvento)   sp.set('event',     filtroEvento)
-      if (filtroFrom)     sp.set('from',      toISO(filtroFrom))
-      if (filtroTo)       sp.set('to',        toISO(filtroTo, true))
+      if (filtroFrom)     sp.set('from',      brDateToInstantISO(filtroFrom))
+      if (filtroTo)       sp.set('to',        brDateToInstantISO(filtroTo, true))
       if (filtroTargetId) sp.set('target_id', filtroTargetId)
       sp.set('limit',  String(limit))
       sp.set('offset', String(offset))

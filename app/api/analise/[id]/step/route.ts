@@ -252,16 +252,16 @@ function buildAllOutputs(outputs: Record<string, string>): string {
 function buildAllOutputsForReport(outputs: Record<string, string>): string {
   const all = [
     { key: 'drive_intake',   label: 'INGESTÃO DE DADOS — Diagnóstico Documental' },
-    { key: 'orchestration',  label: 'ORQUESTRAÇÃO — Mandor Orquestra (Deal Orchestrator)' },
-    { key: 'pesquisa',       label: 'PESQUISA MERCADOLÓGICA — Pedro Panorama (Market Intelligence)' },
-    { key: 'diagnostico',    label: 'DIAGNÓSTICO FINANCEIRO — Davi Diagnóstico (Financial Diagnostician)' },
-    { key: 'kyc',            label: 'COMPLIANCE KYC — Carmen Compliance (KYC & Compliance Analyst)' },
-    { key: 'analise_ma',     label: 'ANÁLISE DE M&A — Arthur Aquisição (M&A Architect)' },
-    { key: 'contratos',      label: 'ANÁLISE CONTRATUAL — Clara Cláusula (Contracts Specialist)' },
-    { key: 'originacao',     label: 'VENDA & ORIGINAÇÃO — Victor Valor (Deal Originator)' },
-    { key: 'estruturacao',   label: 'ESTRUTURAÇÃO OPERACIONAL — Estela Estrutura (Operations Advisor)' },
-    { key: 'maturidade',     label: 'VEREDICTO DE MATURIDADE — Paulo Preparo (Deal Readiness Coach)' },
-    { key: 'revisao',        label: 'REVISÃO FINAL — Rodrigo Relatório (Quality Reviewer)' },
+    { key: 'orchestration',  label: 'ORQUESTRAÇÃO — Orquestração do Mandato (Deal Orchestrator)' },
+    { key: 'pesquisa',       label: 'PESQUISA MERCADOLÓGICA — Inteligência de Mercado (Market Intelligence)' },
+    { key: 'diagnostico',    label: 'DIAGNÓSTICO FINANCEIRO — Diagnóstico Financeiro (Financial Diagnostician)' },
+    { key: 'kyc',            label: 'COMPLIANCE KYC — KYC & Compliance (KYC & Compliance Analyst)' },
+    { key: 'analise_ma',     label: 'ANÁLISE DE M&A — Estruturação de M&A (M&A Architect)' },
+    { key: 'contratos',      label: 'ANÁLISE CONTRATUAL — Due Diligence Jurídica (Contracts Specialist)' },
+    { key: 'originacao',     label: 'VENDA & ORIGINAÇÃO — Originação (Deal Originator)' },
+    { key: 'estruturacao',   label: 'ESTRUTURAÇÃO OPERACIONAL — Estruturação de Crédito (Operations Advisor)' },
+    { key: 'maturidade',     label: 'VEREDICTO DE MATURIDADE — Validação de Oportunidades (Deal Readiness Coach)' },
+    { key: 'revisao',        label: 'REVISÃO FINAL — Auditoria de Qualidade (Quality Reviewer)' },
   ]
   const available = all.filter(({ key }) => outputs[key])
   const missing   = all.filter(({ key }) => !outputs[key])
@@ -468,57 +468,57 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
   switch (step) {
     case 'orchestration':
       return {
-        system: sysBlocks(prompts['orquestrador'] || 'Você é Mandor Orquestra, Deal Orchestrator da RR7x Capital Hub. Calcule o DRS, mapeie riscos e defina o próximo passo estratégico.'),
+        system: sysBlocks(prompts['orquestrador'] || 'Você é Orquestração do Mandato, Deal Orchestrator da RR7x Capital Hub. Calcule o DRS, mapeie riscos e defina o próximo passo estratégico.'),
         user: outputs['drive_intake']
           ? `Analise este deal intake e produza o diagnóstico completo:\n\n${intakeStr}\n\n---\nINGESTÃO DE DOCUMENTOS:\n${outputs['drive_intake']}`
           : `Analise este deal intake e produza o diagnóstico completo:\n\n${intakeStr}`,
       }
     case 'pesquisa':
       return {
-        system: sysBlocks(prompts['pesquisador'] || 'Você é Pedro Panorama, Market Intelligence Analyst da RR7x Capital Hub. Produza inteligência de mercado rigorosa: mapeamento setorial, benchmarks, múltiplos de transação e posição de mercado para a operação proposta. Não emita veredicto de aptidão sobre o deal — isso cabe ao Orchestrator (DRS) e ao Deal Readiness Coach (Maturidade). Sua função é dados externos e contexto setorial.'),
+        system: sysBlocks(prompts['pesquisador'] || 'Você é Inteligência de Mercado, Market Intelligence Analyst da RR7x Capital Hub. Produza inteligência de mercado rigorosa: mapeamento setorial, benchmarks, múltiplos de transação e posição de mercado para a operação proposta. Não emita veredicto de aptidão sobre o deal — isso cabe ao Orchestrator (DRS) e ao Deal Readiness Coach (Maturidade). Sua função é dados externos e contexto setorial.'),
         user: parallelUser(`Produza a pesquisa mercadológica completa para este ativo.${bcbData}${cvmComps}`),
       }
     case 'kyc': {
       const cadeCheck   = checkCADE(intake)
       const cadeContext = formatCADEForPrompt(cadeCheck)
       return {
-        system: sysBlocks(prompts['kyc'] || 'Você é Carmen Compliance, KYC & Compliance Analyst da RR7x Capital Hub. Realize o screening de conformidade, KYC e red flags regulatórios do deal.'),
+        system: sysBlocks(prompts['kyc'] || 'Você é KYC & Compliance, KYC & Compliance Analyst da RR7x Capital Hub. Realize o screening de conformidade, KYC e red flags regulatórios do deal.'),
         user: parallelUser(`Realize o screening de compliance e KYC completo para este deal.${cadeContext}`),
       }
     }
     case 'diagnostico':
       return {
-        system: sysBlocks(prompts['diagnosticador'] || 'Você é Davi Diagnóstico, Financial Diagnostician da RR7x Capital Hub. Diagnostique a saúde financeira e recomende a estrutura de operação.'),
+        system: sysBlocks(prompts['diagnosticador'] || 'Você é Diagnóstico Financeiro, Financial Diagnostician da RR7x Capital Hub. Diagnostique a saúde financeira e recomende a estrutura de operação.'),
         user: parallelUser('Produza o diagnóstico financeiro completo para este ativo.'),
       }
     case 'analise_ma':
       return {
-        system: sysBlocks(prompts['arquiteto_ma'] || 'Você é Arthur Aquisição, M&A Architect da RR7x Capital Hub. Construa o valuation, articule a tese e defina a estratégia de negociação.'),
+        system: sysBlocks(prompts['arquiteto_ma'] || 'Você é Estruturação de M&A, M&A Architect da RR7x Capital Hub. Construa o valuation, articule a tese e defina a estratégia de negociação.'),
         user: parallelUser('Produza a análise de M&A completa para este ativo.'),
       }
     case 'contratos':
       return {
-        system: sysBlocks(prompts['contratualista'] || 'Você é Clara Cláusula, Contracts Specialist da RR7x Capital Hub. Mapeie riscos jurídicos e recomende a documentação necessária.'),
+        system: sysBlocks(prompts['contratualista'] || 'Você é Due Diligence Jurídica, Contracts Specialist da RR7x Capital Hub. Mapeie riscos jurídicos e recomende a documentação necessária.'),
         user: parallelUser('Produza a análise contratual completa para este ativo.'),
       }
     case 'originacao':
       return {
-        system: sysBlocks(prompts['originador'] || 'Você é Victor Valor, Deal Originator da RR7x Capital Hub. Estruture o posicionamento comercial, o perfil de compradores-alvo e o pipeline de originação. Sua entrega é estratégia e inteligência comercial — os documentos finais (Blind Teaser, Pitchbook) são produzidos por agentes dedicados que usam seu output como insumo.'),
+        system: sysBlocks(prompts['originador'] || 'Você é Originação, Deal Originator da RR7x Capital Hub. Estruture o posicionamento comercial, o perfil de compradores-alvo e o pipeline de originação. Sua entrega é estratégia e inteligência comercial — os documentos finais (Blind Teaser, Pitchbook) são produzidos por agentes dedicados que usam seu output como insumo.'),
         user: parallelUser('Produza a estratégia de venda e originação para este ativo.'),
       }
     case 'estruturacao':
       return {
-        system: sysBlocks(prompts['estruturador'] || 'Você é Estela Estrutura, Operation Structure Advisor da RR7x Capital Hub. Mapeie as operações financeiras e prescreva as melhores.'),
+        system: sysBlocks(prompts['estruturador'] || 'Você é Estruturação de Crédito, Operation Structure Advisor da RR7x Capital Hub. Mapeie as operações financeiras e prescreva as melhores.'),
         user: parallelUser(`Produza a estruturação operacional completa para este ativo.${bcbData}${cvmCapital}`),
       }
     case 'maturidade':
       return {
-        system: sysBlocks(prompts['preparador'] || 'Você é Paulo Preparo, Deal Readiness Coach da RR7x Capital Hub. Emita o Veredicto de Maturidade definitivo e o plano de preparação.'),
+        system: sysBlocks(prompts['preparador'] || 'Você é Validação de Oportunidades, Deal Readiness Coach da RR7x Capital Hub. Emita o Veredicto de Maturidade definitivo e o plano de preparação.'),
         user: `Com base em todos os outputs dos especialistas abaixo, emita o Veredicto de Maturidade:\n\n${allOutputs}`,
       }
     case 'revisao':
       return {
-        system: sysBlocks(prompts['revisor'] || 'Você é Rodrigo Relatório, Quality Reviewer da RR7x Capital Hub. Verifique coerência, completude e consistência entre todos os outputs.'),
+        system: sysBlocks(prompts['revisor'] || 'Você é Auditoria de Qualidade, Quality Reviewer da RR7x Capital Hub. Verifique coerência, completude e consistência entre todos os outputs.'),
         user: `Revise a coerência e qualidade de todos os outputs:\n\n${allOutputs}`,
       }
     case 'blind_teaser':
@@ -607,7 +607,7 @@ Incorpore esses achados aqui e na Seção 3.
 Escreva:
 - Caracterização objetiva do ativo e da operação proposta (1 parágrafo factual — sem floreio)
 - Síntese cross-dimensional: como os achados financeiros, mercadológicos, jurídicos e estratégicos se conectam e se afetam mutuamente — não liste agentes, cruze dimensões
-- Veredicto de Maturidade: extraia e cite o veredicto exato do Paulo Preparo (se disponível) com a justificativa central — não o recalcule
+- Veredicto de Maturidade: extraia e cite o veredicto exato do Validação de Oportunidades (se disponível) com a justificativa central — não o recalcule
 - Os 3-4 fatores determinantes para o sucesso ou fracasso desta operação específica
 
 ## 2. DIAGNÓSTICO POR DIMENSÃO
@@ -616,11 +616,11 @@ Para cada dimensão: 3-5 bullets com dado concreto + implicação direta para a 
 NÃO resuma o relatório do agente — extraia os achados que o assessor precisa saber para decidir.
 Formato: [dado ou achado] → [implicação para a operação]
 
-**Dimensão financeira** (Davi Diagnóstico + Ingestão de Dados)
-**Dimensão mercadológica** (Pedro Panorama)
-**Dimensão jurídico-contratual** (Clara Cláusula)
-**Dimensão estratégica** (Arthur Aquisição + Estela Estrutura)
-**Dimensão comercial** (Victor Valor)
+**Dimensão financeira** (Diagnóstico Financeiro + Ingestão de Dados)
+**Dimensão mercadológica** (Inteligência de Mercado)
+**Dimensão jurídico-contratual** (Due Diligence Jurídica)
+**Dimensão estratégica** (Estruturação de M&A + Estruturação de Crédito)
+**Dimensão comercial** (Originação)
 
 Se uma dimensão não tem dados disponíveis: declare "Sem dados disponíveis — risco de avaliação incompleta nesta dimensão."
 
@@ -637,7 +637,7 @@ Se não há contradições materiais: declare explicitamente. Não invente confl
 
 ## 4. PRIORIZAÇÃO EXECUTIVA
 
-Com base no Veredicto de Maturidade (Paulo Preparo) e nos achados das seções anteriores:
+Com base no Veredicto de Maturidade (Validação de Oportunidades) e nos achados das seções anteriores:
 
 **Bloqueantes imediatos** (o que impede a operação de avançar hoje):
 Para cada item: O que é | Por que bloqueia | Quem resolve | Prazo realista
@@ -650,7 +650,7 @@ Riscos que emergem somente da visão cruzada — que nenhum agente identificou i
 
 ## 5. DIAGNÓSTICO DE RISCO EXECUTIVO
 
-NÃO recalcule score. O DRS já foi calculado pelo Orchestrator (Mandor Orquestra).
+NÃO recalcule score. O DRS já foi calculado pelo Orchestrator (Orquestração do Mandato).
 
 **Deal Readiness Score (DRS):** extraia o valor exato do relatório de Orquestração. Se não disponível: declare ausência.
 

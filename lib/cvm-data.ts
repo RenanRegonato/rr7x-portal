@@ -84,7 +84,7 @@ export function extractSectorKeywords(tipoAtivo: string, resumo: string): string
   return [...new Set([...keywords, ...resumoWords])]
 }
 
-// Dados para Estela Estrutura: emissões recentes de debentures, CRI, CRA
+// Dados para Estruturação de Crédito: emissões recentes de debentures, CRI, CRA
 export async function fetchCapitalMarketsData(keywords: string[]): Promise<string> {
   const [debRaw, criRaw, craRaw] = await Promise.allSettled([
     fetchCVMCsv(URLS.debentures),
@@ -149,7 +149,7 @@ export async function fetchCapitalMarketsData(keywords: string[]): Promise<strin
   return `\n\n---\nMERCADO DE CAPITAIS — Base CVM (dados atualizados diariamente, cache 24h):\n${sections.join('\n\n')}\n---`
 }
 
-// Dados para Pedro Panorama: empresas abertas comparáveis no setor
+// Dados para Inteligência de Mercado: empresas abertas comparáveis no setor
 export async function fetchListedComparables(keywords: string[]): Promise<string> {
   const raw = await fetchCVMCsv(URLS.empresas)
   if (!raw) return ''

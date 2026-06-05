@@ -9,6 +9,7 @@ import PhaseLabel from '@/components/PhaseLabel'
 import LiveLog, { type LogLine } from '@/components/LiveLog'
 import Pill from '@/components/Pill'
 import { IconDownload, IconCheck, IconClock, IconArrowRight } from '@/components/Icons'
+import { formatDateTimeBR } from '@/lib/format-date'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import DealPipelinePanel from '@/components/DealPipelinePanel'
@@ -24,15 +25,15 @@ import { FERRANTE_PENDING_NOTE, parseFerranteResult, type FerranteResult, type S
 const MAX_REGENERACOES = 3
 
 const STEP_LABELS_MAP: Record<string, string> = {
-  orchestration:         'Mandor Orquestra',
-  pesquisa:              'Pedro Panorama',
-  diagnostico:           'Davi Diagnóstico',
-  analise_ma:            'Arthur Aquisição',
-  kyc:                   'Carmen Compliance',
-  contratos:             'Clara Cláusula',
-  originacao:            'Victor Valor',
-  estruturacao:          'Estela Estrutura',
-  maturidade:            'Paulo Preparo',
+  orchestration:         'Orquestração do Mandato',
+  pesquisa:              'Inteligência de Mercado',
+  diagnostico:           'Diagnóstico Financeiro',
+  analise_ma:            'Estruturação de M&A',
+  kyc:                   'KYC & Compliance',
+  contratos:             'Due Diligence Jurídica',
+  originacao:            'Originação',
+  estruturacao:          'Estruturação de Crédito',
+  maturidade:            'Validação de Oportunidades',
   relatorio_consolidado: 'Relatório Consolidado',
   blind_teaser:          'Blind Teaser',
   sell_side_pitchbook:   'Sell-Side Pitchbook',
@@ -49,20 +50,20 @@ function isEstruturaActive(objetivo?: string) { return ESTRUTURA_OBJECTIVES.some
 // ─── Agent definitions ────────────────────────────────────────────────────────
 
 const AGENTS: AgentDef[] = [
-  { key: 'orchestration', name: 'Mandor Orquestra', role: 'Deal Orchestrator',           color: 'peach', initial: 'M', deliverable: 'Deal Readiness Score + ativação dos especialistas' },
-  { key: 'pesquisa',      name: 'Pedro Panorama',   role: 'Market Researcher',            color: 'sky',   initial: 'P', deliverable: 'Pesquisa mercadológica e benchmarks' },
-  { key: 'diagnostico',   name: 'Davi Diagnóstico', role: 'Financial Diagnostician',      color: 'sage',  initial: 'D', deliverable: 'DRE, fluxo de caixa, valuation, EBITDA normalizado' },
-  { key: 'analise_ma',    name: 'Arthur Aquisição', role: 'M&A Architect',                color: 'sand',  initial: 'A', deliverable: 'Tese de M&A e estrutura da transação' },
-  { key: 'contratos',     name: 'Clara Cláusula',   role: 'Contractualist',               color: 'lilac', initial: 'C', deliverable: 'NDA, SHA, LOI, passivos jurídicos' },
-  { key: 'originacao',    name: 'Victor Valor',      role: 'Deal Originator',              color: 'cream', initial: 'V', deliverable: 'Estratégia de posicionamento, perfil de compradores e pipeline de originação' },
-  { key: 'estruturacao',  name: 'Estela Estrutura',  role: 'Operation Structure Advisor',  color: 'sage',  initial: 'E', deliverable: 'Ranking de operações de crédito estruturado' },
-  { key: 'kyc',           name: 'Carmen Compliance', role: 'KYC & Compliance Analyst',     color: 'peach', initial: 'K', deliverable: 'Screening KYC, PEP, red flags regulatórios e compliance documental' },
-  { key: 'maturidade',    name: 'Paulo Preparo',     role: 'Deal Readiness Coach',         color: 'sand',  initial: 'P', deliverable: 'Veredicto de Maturidade único + roadmap de preparação' },
+  { key: 'orchestration', name: 'Orquestração do Mandato',   role: 'Deal Orchestrator',           color: 'peach', initial: 'OM', deliverable: 'Deal Readiness Score + ativação dos especialistas' },
+  { key: 'pesquisa',      name: 'Inteligência de Mercado',   role: 'Market Intelligence',          color: 'sky',   initial: 'IM', deliverable: 'Pesquisa mercadológica e benchmarks' },
+  { key: 'diagnostico',   name: 'Diagnóstico Financeiro',    role: 'Financial Diligence',          color: 'sage',  initial: 'DF', deliverable: 'DRE, fluxo de caixa, valuation, EBITDA normalizado' },
+  { key: 'analise_ma',    name: 'Estruturação de M&A',       role: 'M&A Advisory',                 color: 'sand',  initial: 'MA', deliverable: 'Tese de M&A e estrutura da transação' },
+  { key: 'contratos',     name: 'Due Diligence Jurídica',    role: 'Legal & Contracts',            color: 'lilac', initial: 'DD', deliverable: 'NDA, SHA, LOI, passivos jurídicos' },
+  { key: 'originacao',    name: 'Originação',                role: 'Deal Origination',             color: 'cream', initial: 'OR', deliverable: 'Estratégia de posicionamento, perfil de compradores e pipeline de originação' },
+  { key: 'estruturacao',  name: 'Estruturação de Crédito',   role: 'Structured Credit',            color: 'sage',  initial: 'EC', deliverable: 'Ranking de operações de crédito estruturado' },
+  { key: 'kyc',           name: 'KYC & Compliance',          role: 'KYC & Compliance',             color: 'peach', initial: 'KC', deliverable: 'Screening KYC, PEP, red flags regulatórios e compliance documental' },
+  { key: 'maturidade',    name: 'Validação de Oportunidades', role: 'Deal Readiness',              color: 'sand',  initial: 'VO', deliverable: 'Veredicto de Maturidade único + roadmap de preparação' },
 ]
 
 const INTAKE_AGENT: AgentDef = {
-  key: 'drive_intake', name: 'Ingestão de Dados', role: 'Document Processor',
-  color: 'sand', initial: 'I', deliverable: 'Leitura e diagnóstico dos documentos enviados',
+  key: 'drive_intake', name: 'Ingestão & Triagem Documental', role: 'Document Intake',
+  color: 'sand', initial: 'IT', deliverable: 'Leitura e diagnóstico dos documentos enviados',
 }
 
 const DETAIL_TABS = [
@@ -1491,7 +1492,7 @@ function OutputPanel({
               </div>
             ) : (
               <>
-                <p className="text-[13px] text-ink-2 mb-4">O NDA extraído da análise da Clara Cláusula será enviado ao destinatário abaixo.</p>
+                <p className="text-[13px] text-ink-2 mb-4">O NDA extraído da análise da Due Diligence Jurídica será enviado ao destinatário abaixo.</p>
                 <div className="space-y-3 mb-4">
                   <div>
                     <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-3 mb-1.5">Email do destinatário *</label>
@@ -1581,7 +1582,7 @@ function OutputPanel({
                     <p className="text-[11.5px] text-ink-2 mt-0.5">{attestData.attestation.statement}</p>
                     <p className="text-[11px] text-ink-3 mt-1.5">
                       Por <strong>{attestData.attestation.attested_email}</strong> em{' '}
-                      {new Date(attestData.attestation.attested_at).toLocaleString('pt-BR')}
+                      {formatDateTimeBR(attestData.attestation.attested_at, { second: '2-digit' })}
                       {' '} · v{attestData.attestation.version_num}
                     </p>
                   </div>
@@ -1614,7 +1615,7 @@ function OutputPanel({
                       <div key={log.id} className="bg-surface border border-border rounded-[8px] px-3 py-2.5 text-[11px] text-ink-2">
                         <div className="flex items-center justify-between mb-1">
                           <span className="font-mono text-[10px] text-ink-3">{log.model_id}</span>
-                          <span className="text-ink-3">{new Date(log.ran_at).toLocaleString('pt-BR')}</span>
+                          <span className="text-ink-3">{formatDateTimeBR(log.ran_at, { second: '2-digit' })}</span>
                         </div>
                         <div className="flex gap-4 text-[11px]">
                           <span>Entrada: <strong>{(log.input_tokens ?? 0).toLocaleString()}</strong> tokens</span>
@@ -1676,7 +1677,7 @@ function OutputPanel({
                   }}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-border rounded-[8px] text-[12px] text-ink-2 hover:bg-surface-2 hover:text-ink transition disabled:opacity-40"
                 >
-                  v{v.version_num} — {new Date(v.criado_em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                  v{v.version_num} — {formatDateTimeBR(v.criado_em, { year: undefined, hour: '2-digit', minute: '2-digit' })}
                   {restoringVersion === v.id && ' (restaurando...)'}
                 </button>
               ))}

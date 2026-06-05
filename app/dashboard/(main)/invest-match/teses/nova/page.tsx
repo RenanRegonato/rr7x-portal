@@ -1,9 +1,10 @@
 import Link from 'next/link'
+import { formatDateBR } from '@/lib/format-date'
 import { redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { resolveEscritorioId } from '@/lib/invest-match/auth-helpers'
 import { listAnalisesElegiveis } from '@/lib/invest-match/match-service'
-import { IconArrowLeft, IconCheck, IconClock } from '@/components/Icons'
+import { IconArrowLeft, IconCheck, IconClock, IconPlus } from '@/components/Icons'
 import GerarTeseButton from '@/components/invest-match/GerarTeseButton'
 
 export const dynamic = 'force-dynamic'
@@ -31,6 +32,22 @@ export default async function NovaTesePage() {
         a tese de investimento e buscamos os investidores compatíveis.
       </p>
 
+      {/* Atalho: cadastro manual (sem análise) */}
+      <div className="flex items-center justify-between gap-4 bg-surface border border-border rounded-xl p-4 mb-6">
+        <div className="min-w-0">
+          <div className="text-sm font-semibold text-ink">Prefere cadastrar do zero?</div>
+          <p className="text-xs text-ink-3 mt-0.5">
+            Inclua uma oportunidade manualmente, sem depender de uma análise da Mandor.
+          </p>
+        </div>
+        <Link
+          href="/dashboard/invest-match/teses/nova/manual"
+          className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface border border-border text-sm font-medium text-ink hover:border-accent-strong/40 hover:text-accent-strong transition"
+        >
+          <IconPlus size={16}/> Cadastro manual
+        </Link>
+      </div>
+
       {analises.length === 0 ? (
         <div className="bg-surface border border-border rounded-xl p-10 text-center">
           <p className="text-sm text-ink-2">
@@ -50,7 +67,7 @@ export default async function NovaTesePage() {
                 <div className="flex items-center gap-3 text-[11px] text-ink-3 mt-0.5">
                   {a.setor && <span>{a.setor}</span>}
                   {a.ticket && <span>· {a.ticket}</span>}
-                  <span>· {new Date(a.criado_em).toLocaleDateString('pt-BR')}</span>
+                  <span>· {formatDateBR(a.criado_em)}</span>
                   {a.tem_mesa ? (
                     <span className="inline-flex items-center gap-1 text-ok">
                       <IconCheck size={11}/> análise revisada

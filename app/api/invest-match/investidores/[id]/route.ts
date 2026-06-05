@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { audit, extractIp } from '@/lib/audit'
 import { InvestidorUpdateSchema } from '@/lib/invest-match/schemas'
 import {
-  getInvestidor, updateInvestidor, archiveInvestidor,
+  getInvestidor, updateInvestidor, deleteInvestidor,
 } from '@/lib/invest-match/investidor-service'
 import { gateInvestMatch } from '@/lib/invest-match/auth-helpers'
 
@@ -93,8 +93,8 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
 
 // DELETE /api/invest-match/investidores/[id]
-// Soft delete — marca status='arquivado'. Não remove a linha pra preservar
-// histórico de matches/feedback. Hard delete só via Supabase direto se preciso.
+// Hard delete — remove a linha do banco. Os matches do investidor (e seus
+// feedbacks) somem em cascata via FK. Irreversível.
 export async function DELETE(req: NextRequest, { params }: RouteContext) {
   const { id } = await params
   const supabase = await createServerSupabaseClient()
@@ -106,10 +106,10 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
   const escritorioId = gate.escritorioId
 
   try {
-    await archiveInvestidor({ investidorId: id, escritorioId })
+    await deleteInvestidor({ investidorId: id, escritorioId })
 
     void audit({
-      event:    'investidor.archived',
+      event:    'investidor.deleted',
       userId:   user.id,
       targetId: id,
       metadata: { escritorio_id: escritorioId },
@@ -121,6 +121,7 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
   } catch (e) {
     const err = e as Error
     console.error('[investidores.[id].DELETE]', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    const status = /n[ãa]o encontrado/i.test(err.message) ? 404 : 500
+    return NextResponse.json({ error: err.message }, { status })
   }
 }

@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
 
   const contratosOutput = outputs['contratos'] ?? ''
   if (!contratosOutput) {
-    return NextResponse.json({ error: 'Análise contratual (Clara Cláusula) ainda não foi gerada' }, { status: 400 })
+    return NextResponse.json({ error: 'Análise contratual (Due Diligence Jurídica) ainda não foi gerada' }, { status: 400 })
   }
 
   const { data: escritorioData } = await admin

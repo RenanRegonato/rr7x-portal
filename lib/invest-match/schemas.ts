@@ -163,3 +163,94 @@ export const InvestidorListQuerySchema = z.object({
 })
 
 export type InvestidorListQuery = z.infer<typeof InvestidorListQuerySchema>
+
+
+// ============================================================
+// Vocabulários adicionais (tese)
+// ============================================================
+const URGENCIAS        = ['baixa', 'media', 'alta'] as const
+const NIVEIS_COMPLIANCE = ['basico', 'intermediario', 'avancado'] as const
+const STATUS_TESE = [
+  'lead', 'atendimento', 'matches', 'negociacao', 'realizado', 'suspenso', 'arquivado',
+] as const
+
+const optBrl   = optBigInt(0, 100_000_000_000)
+const optFloat = (min: number, max: number) =>
+  z.number().min(min).max(max).optional().nullable()
+
+
+// ============================================================
+// CREATE — POST /api/invest-match/teses (cadastro manual de tese)
+// ============================================================
+// Espelha os campos inseríveis da tabela `teses` (StructuredThesis), com tudo
+// opcional exceto o núcleo que o matching precisa (nome, setor, estágio,
+// capital buscado). origem/analise_id/embedding NÃO entram aqui — o service
+// cuida deles. Defaults seguem o builder (status 'lead', urgência 'media').
+export const TeseCreateSchema = z.object({
+  // === Núcleo (obrigatório) ===
+  empresa_nome:        trimString(200).min(2, 'Nome da empresa/projeto obrigatório'),
+  setor_primario:      trimString(120).min(2, 'Setor obrigatório'),
+  estagio:             z.enum(ESTAGIOS),
+  capital_buscado_brl: z.number().int().min(0).max(100_000_000_000),
+
+  // === Identidade ===
+  empresa_descricao_curta: optTrim(500),
+
+  // === Setorial ===
+  sub_setores:      arrStr(20),
+  modelos_negocio:  arrStr(10),
+  vertical_tags:    arrStr(20, 60),
+
+  // === Estágio / qualidade (scores 0-100) ===
+  maturity_score:     optInt(0, 100),
+  governance_score:   optInt(0, 100),
+  operational_score:  optInt(0, 100),
+  risk_overall_score: optInt(0, 100),
+  documentacao_score: optInt(0, 100),
+  anos_operacao:      optInt(0, 200),
+  team_size:          optInt(0, 1_000_000),
+
+  // === Financeiro ===
+  receita_anual_brl:         optBrl,
+  ebitda_brl:                optBigInt(-100_000_000_000, 100_000_000_000),
+  margem_ebitda_pct:         optFloat(-1000, 1000),
+  crescimento_yoy_pct:       optFloat(-1000, 100000),
+  capital_minimo_ticket_brl: optBrl,
+  valuation_pre_money_brl:   optBrl,
+  equity_oferecido_pct:      optPct,
+
+  // === Governança / risco ===
+  tem_conselho:    z.boolean().optional().nullable(),
+  tem_auditoria:   z.boolean().optional().nullable(),
+  nivel_compliance: z.enum(NIVEIS_COMPLIANCE).optional().nullable(),
+  risk_factors:    arrStr(20, 200),
+  key_dependencies: arrStr(20, 200),
+
+  // === Geografia ===
+  hq_estado:        optTrim(4),
+  hq_cidade:        optTrim(120),
+  regioes_operacao: arrStr(30, 40),
+
+  // === Deal ===
+  tipo_deal:            z.enum(TIPOS_DEAL).optional().nullable(),
+  controle_oferecido:   z.enum(CONTROLES).optional().nullable(),
+  horizonte_saida_anos: optInt(0, 30),
+  urgencia:             z.enum(URGENCIAS).optional().default('media'),
+
+  // === Documentação / exclusões ===
+  pronto_para_dd:             z.boolean().optional().default(false),
+  tipos_investidor_excluidos: arrEnum(TIPO_INVESTIDOR),
+  esg_compliant:              z.boolean().optional().default(false),
+
+  // === Narrativa (alimenta o embedding) ===
+  tese_investimento: optTrim(8000),
+  value_proposition: optTrim(4000),
+  competitive_moat:  optTrim(4000),
+  risk_narrative:    optTrim(4000),
+  exit_story:        optTrim(4000),
+
+  // === Estado ===
+  status: z.enum(STATUS_TESE).optional().default('lead'),
+})
+
+export type TeseCreateInput = z.infer<typeof TeseCreateSchema>
