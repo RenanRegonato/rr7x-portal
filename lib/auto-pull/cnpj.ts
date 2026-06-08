@@ -26,6 +26,8 @@ const BRASILAPI_CNPJ = 'https://brasilapi.com.br/api/cnpj/v1'
 const TIMEOUT_MS = 15000   // endpoint de CNPJ é lento em 1º acesso (não-cacheado)
 const MAX_TRIES = 2        // 1 retry em timeout/429/5xx; 404 não re-tenta
 const MAX_SOCIOS = 12
+// O UA default do runtime da Vercel leva 403 na BrasilAPI; um UA explícito passa.
+const USER_AGENT = 'Mandor/1.0 (+https://www.mandor.com.br)'
 
 // Chaves do deal_intake onde um CNPJ pode aparecer, em ordem de prioridade.
 const CNPJ_KEYS = [
@@ -124,7 +126,7 @@ async function fetchCNPJOnce(cnpj: string): Promise<FetchOnce> {
   try {
     const res = await fetch(`${BRASILAPI_CNPJ}/${cnpj}`, {
       signal: ctrl.signal,
-      headers: { Accept: 'application/json' },
+      headers: { Accept: 'application/json', 'User-Agent': USER_AGENT },
     })
     if (res.status === 404) return { notFound: true }
     if (!res.ok) return { retry: true }          // 429, 5xx
