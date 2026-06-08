@@ -13,6 +13,14 @@
 //
 // Próximo passo (não neste arquivo): plugar CBRdoc/Docket para certidões
 // pagas (negativas, matrícula, ônus) atrás da MESMA interface de provider.
+//
+// IMPORTANTE: o campo cpfCnpjProprietario é PII criptografada em repouso
+// (lib/crypto.ts). Decifra-se o intake aqui dentro antes de extrair o CNPJ;
+// o resto do pipeline segue recebendo o intake como está. Só CNPJ (14 díg.,
+// dado público de empresa) é consultado externamente — CPF (11 díg.) nunca.
+
+import { decryptSensitiveFields } from '@/lib/crypto'
+import type { DealIntake } from '@/lib/types'
 
 const BRASILAPI_CNPJ = 'https://brasilapi.com.br/api/cnpj/v1'
 const TIMEOUT_MS = 8000
@@ -66,6 +74,17 @@ function isValidCNPJ(digits: string): boolean {
   return d1 === parseInt(digits[12], 10) && d2 === parseInt(digits[13], 10)
 }
 
+// Decifra os campos PII do intake (incl. cpfCnpjProprietario) antes da
+// extração. Se ENCRYPTION_KEY não estiver setada, devolve o intake como veio
+// (graceful) — campos legados em texto puro também passam intactos.
+function intakeDecrypted(intake: Record<string, string>): Record<string, string> {
+  try {
+    return decryptSensitiveFields(intake as unknown as DealIntake) as unknown as Record<string, string>
+  } catch {
+    return intake
+  }
+}
+
 // Extrai o primeiro CNPJ válido do intake: testa as chaves conhecidas e,
 // como fallback, varre todos os valores em busca de um padrão de CNPJ.
 export function extractCNPJ(intake: Record<string, string>): string | null {
@@ -116,18 +135,28 @@ export interface CNPJSnapshot {
   razao_social: string
 }
 
-// Versão estruturada (não-prompt) usada pelo monitoramento contínuo: só os
-// campos necessários para detectar mudança de situação cadastral ao longo do
-// tempo. Best-effort: retorna null se não há CNPJ ou a consulta falha.
-export async function getCNPJSnapshot(intake: Record<string, string>): Promise<CNPJSnapshot | null> {
-  const cnpj = extractCNPJ(intake)
-  if (!cnpj) return null
+// Resultado do monitor, discriminado para diagnóstico: distingue "não há
+// CNPJ no deal" de "há CNPJ mas a consulta falhou" (antes ambos viravam o
+// mesmo 'skip', escondendo o motivo real).
+export type CNPJMonitorResult =
+  | { status: 'no_cnpj' }
+  | { status: 'fetch_failed'; cnpj: string }
+  | { status: 'ok'; snapshot: CNPJSnapshot }
+
+// Versão estruturada usada pelo monitoramento contínuo. Decifra o intake,
+// extrai o CNPJ e consulta a situação cadastral atual.
+export async function getCNPJMonitor(intake: Record<string, string>): Promise<CNPJMonitorResult> {
+  const cnpj = extractCNPJ(intakeDecrypted(intake))
+  if (!cnpj) return { status: 'no_cnpj' }
   const data = await fetchCNPJ(cnpj)
-  if (!data || !data.razao_social) return null
+  if (!data || !data.razao_social) return { status: 'fetch_failed', cnpj }
   return {
-    cnpj,
-    situacao:     (data.descricao_situacao_cadastral ?? 'DESCONHECIDA').toUpperCase(),
-    razao_social: data.razao_social,
+    status: 'ok',
+    snapshot: {
+      cnpj,
+      situacao:     (data.descricao_situacao_cadastral ?? 'DESCONHECIDA').toUpperCase(),
+      razao_social: data.razao_social,
+    },
   }
 }
 
@@ -135,7 +164,7 @@ export async function getCNPJSnapshot(intake: Record<string, string>): Promise<C
 // texto pronto para concatenar no user prompt do agente de KYC. Best-effort:
 // sempre retorna string (nunca lança), com nota explícita quando não há dado.
 export async function pullCNPJEnrichment(intake: Record<string, string>): Promise<string> {
-  const cnpj = extractCNPJ(intake)
+  const cnpj = extractCNPJ(intakeDecrypted(intake))
   if (!cnpj) {
     return `
 ---
