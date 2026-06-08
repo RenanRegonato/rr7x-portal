@@ -23,7 +23,8 @@ import { decryptSensitiveFields } from '@/lib/crypto'
 import type { DealIntake } from '@/lib/types'
 
 const BRASILAPI_CNPJ = 'https://brasilapi.com.br/api/cnpj/v1'
-const TIMEOUT_MS = 8000
+const TIMEOUT_MS = 15000   // endpoint de CNPJ é lento em 1º acesso (não-cacheado)
+const MAX_TRIES = 2        // 1 retry em timeout/429/5xx; 404 não re-tenta
 const MAX_SOCIOS = 12
 
 // Chaves do deal_intake onde um CNPJ pode aparecer, em ordem de prioridade.
@@ -112,7 +113,12 @@ function formatBRL(n?: number): string {
   return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
 }
 
-async function fetchCNPJ(cnpj: string): Promise<CNPJResponse | null> {
+type FetchOnce =
+  | { ok: CNPJResponse }
+  | { notFound: true }   // 404 — CNPJ não existe na base: não re-tentar
+  | { retry: true }      // timeout/429/5xx/rede: vale re-tentar
+
+async function fetchCNPJOnce(cnpj: string): Promise<FetchOnce> {
   const ctrl = new AbortController()
   const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
   try {
@@ -120,13 +126,24 @@ async function fetchCNPJ(cnpj: string): Promise<CNPJResponse | null> {
       signal: ctrl.signal,
       headers: { Accept: 'application/json' },
     })
-    if (!res.ok) return null
-    return (await res.json()) as CNPJResponse
+    if (res.status === 404) return { notFound: true }
+    if (!res.ok) return { retry: true }          // 429, 5xx
+    return { ok: (await res.json()) as CNPJResponse }
   } catch {
-    return null
+    return { retry: true }                        // timeout/rede
   } finally {
     clearTimeout(t)
   }
+}
+
+async function fetchCNPJ(cnpj: string): Promise<CNPJResponse | null> {
+  for (let i = 0; i < MAX_TRIES; i++) {
+    const r = await fetchCNPJOnce(cnpj)
+    if ('ok' in r) return r.ok
+    if ('notFound' in r) return null
+    // 'retry': tenta de novo (se ainda há tentativa)
+  }
+  return null
 }
 
 export interface CNPJSnapshot {
