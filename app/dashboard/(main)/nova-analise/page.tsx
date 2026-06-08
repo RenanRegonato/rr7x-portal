@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase'
 import Topbar from '@/components/Topbar'
 import { OttoInput, OttoTextarea, OttoSelect, Field } from '@/components/form-primitives'
 import { IconArrowRight, IconSparkle } from '@/components/Icons'
+import SaldoPacoteAviso from '@/components/SaldoPacoteAviso'
 import { AnaliseCreateSchema } from '@/lib/schemas'
 import { z } from 'zod'
 
@@ -502,7 +503,9 @@ function NovaAnaliseInner() {
             </div>
           )}
 
-          <div className="flex gap-3 mt-8 justify-end">
+          {isLast && <div className="mt-8"><SaldoPacoteAviso/></div>}
+
+          <div className={`flex gap-3 justify-end ${isLast ? 'mt-4' : 'mt-8'}`}>
             {step > 0 && !loading && (
               <button
                 onClick={handleBack}
