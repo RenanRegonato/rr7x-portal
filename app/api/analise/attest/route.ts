@@ -16,11 +16,12 @@ export async function GET(req: NextRequest) {
   if (!analiseId || !stepKey) return NextResponse.json({ error: 'Params obrigatórios' }, { status: 400 })
 
   const admin = createAdminClient()
+  const isAdmin = await isAdminViewer(user.id)
 
   // Verifica acesso
   const { data: analise } = await admin.from('analises').select('user_id').eq('id', analiseId).single()
   if (!analise) return NextResponse.json({ error: 'Não encontrada' }, { status: 404 })
-  if (analise.user_id !== user.id && !(await isAdminViewer(user.id))) {
+  if (analise.user_id !== user.id && !isAdmin) {
     const { data: member } = await admin.from('deal_members').select('id').eq('analise_id', analiseId).eq('user_id', user.id).maybeSingle()
     if (!member) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
   }
@@ -35,18 +36,29 @@ export async function GET(req: NextRequest) {
     .limit(1)
     .maybeSingle()
 
-  // Audit logs desse step
-  const { data: auditLogs } = await admin
-    .from('deal_step_audit_logs')
-    .select('id, model_id, input_tokens, output_tokens, context_steps, external_data, ran_at, duration_ms')
-    .eq('analise_id', analiseId)
-    .eq('step_key', stepKey)
-    .order('ran_at', { ascending: false })
-    .limit(5)
+  // Histórico de execuções da IA (tokens/duração) revela o CUSTO/COGS interno
+  // do Mandor. SOMENTE admin do Mandor vê. Escritório (dono/assessor/membro)
+  // NÃO pode saber quanto/quando se gastou — retorna lista vazia, e a UI
+  // (que só renderiza se length > 0) some sozinha.
+  type AuditLog = {
+    id: string; model_id: string; input_tokens: number; output_tokens: number
+    context_steps: string[]; external_data: Record<string, boolean>; ran_at: string; duration_ms: number
+  }
+  let auditLogs: AuditLog[] = []
+  if (isAdmin) {
+    const { data } = await admin
+      .from('deal_step_audit_logs')
+      .select('id, model_id, input_tokens, output_tokens, context_steps, external_data, ran_at, duration_ms')
+      .eq('analise_id', analiseId)
+      .eq('step_key', stepKey)
+      .order('ran_at', { ascending: false })
+      .limit(5)
+    auditLogs = (data ?? []) as AuditLog[]
+  }
 
   return NextResponse.json({
     attestation: attestation ?? null,
-    auditLogs:   auditLogs  ?? [],
+    auditLogs,
     statement:   ATTESTATION_STATEMENT,
   })
 }
