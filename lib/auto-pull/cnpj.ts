@@ -110,6 +110,27 @@ async function fetchCNPJ(cnpj: string): Promise<CNPJResponse | null> {
   }
 }
 
+export interface CNPJSnapshot {
+  cnpj:         string
+  situacao:     string   // descrição da situação cadastral, em maiúsculas
+  razao_social: string
+}
+
+// Versão estruturada (não-prompt) usada pelo monitoramento contínuo: só os
+// campos necessários para detectar mudança de situação cadastral ao longo do
+// tempo. Best-effort: retorna null se não há CNPJ ou a consulta falha.
+export async function getCNPJSnapshot(intake: Record<string, string>): Promise<CNPJSnapshot | null> {
+  const cnpj = extractCNPJ(intake)
+  if (!cnpj) return null
+  const data = await fetchCNPJ(cnpj)
+  if (!data || !data.razao_social) return null
+  return {
+    cnpj,
+    situacao:     (data.descricao_situacao_cadastral ?? 'DESCONHECIDA').toUpperCase(),
+    razao_social: data.razao_social,
+  }
+}
+
 // Ponto de entrada usado pelo pipeline (step route). Retorna um bloco de
 // texto pronto para concatenar no user prompt do agente de KYC. Best-effort:
 // sempre retorna string (nunca lança), com nota explícita quando não há dado.

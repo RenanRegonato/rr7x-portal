@@ -6,6 +6,7 @@ import { runMatching, runReverseMatching } from '@/lib/invest-match/matching-eng
 import { notifyAssessorOfMatches } from '@/lib/invest-match/notify'
 import { runAnalysisPipeline } from '@/lib/analise/run-pipeline'
 import { recoverStuckIngestions } from '@/lib/ingestion/watchdog'
+import { runDealMonitor } from '@/lib/monitoring/deal-monitor'
 
 // Cada step do Inngest é uma request HTTP serverless. Steps como extract-text
 // (com OCR Mistral em PDFs grandes) e embed-chunks (várias chamadas Voyage)
@@ -134,8 +135,26 @@ export const ingestionWatchdogFn = inngest.createFunction(
   },
 )
 
+// Função 7: monitoramento contínuo de deals (cron diário + disparo manual).
+// Re-checa a situação cadastral do CNPJ dos deals concluídos e gera alertas.
+export const dealMonitorFn = inngest.createFunction(
+  {
+    id:       'deal-monitor',
+    name:     'Monitoramento contínuo de deals (situação cadastral)',
+    triggers: [
+      { cron: '0 9 * * *' },                  // todo dia às 09:00 UTC
+      { event: 'deal/monitor.run_requested' }, // disparo manual (admin)
+    ],
+    retries:  1,
+  },
+  async ({ logger }) => {
+    logger.info('deal-monitor: varrendo deals concluídos')
+    return await runDealMonitor()
+  },
+)
+
 // signingKey lido automaticamente de INNGEST_SIGNING_KEY env var
 export const { GET, POST, PUT } = serve({
   client:    inngest,
-  functions: [processDocumentFn, consolidateFactBankFn, runThesisMatchingFn, reverseMatchingFn, runAnalysisPipelineFn, ingestionWatchdogFn],
+  functions: [processDocumentFn, consolidateFactBankFn, runThesisMatchingFn, reverseMatchingFn, runAnalysisPipelineFn, ingestionWatchdogFn, dealMonitorFn],
 })

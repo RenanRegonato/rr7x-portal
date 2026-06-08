@@ -20,6 +20,7 @@ import ClaimsSection from '@/components/ClaimsSection'
 import ConsistencyPanel from '@/components/ConsistencyPanel'
 import MesaVerdictBanner from '@/components/MesaVerdictBanner'
 import AnaliseCustoCard from '@/components/AnaliseCustoCard'
+import DealAlertas from '@/components/DealAlertas'
 import CoveragePanel from '@/components/CoveragePanel'
 import { FERRANTE_PENDING_NOTE, parseFerranteResult, type FerranteResult, type Severidade } from '@/lib/reforma-tributaria/result'
 
@@ -1050,6 +1051,7 @@ function DealDetail({
 
       <div className="flex flex-1 min-h-0">
         <div className="flex-1 p-8 overflow-y-auto">
+        <DealAlertas analiseId={analise.id}/>
         <AnaliseCustoCard analiseId={analise.id}/>
         {activeTab === 'fatos' ? (
           <FatosPanel

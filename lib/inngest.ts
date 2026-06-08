@@ -41,4 +41,9 @@ export type Events = {
       userId:       string       // pra auditoria
     }
   }
+  'deal/monitor.run_requested': {
+    data: {
+      manual?: boolean           // disparo manual (admin) vs cron
+    }
+  }
 }
