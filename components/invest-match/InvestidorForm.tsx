@@ -47,8 +47,8 @@ const TIPOS_DEAL = [
   { v: 'equity',              l: 'Equity' },
   { v: 'debt',                l: 'Dívida' },
   { v: 'convertible',         l: 'Conversível' },
-  { v: 'm_and_a_sale',        l: 'M&A — Venda' },
-  { v: 'm_and_a_acquisition', l: 'M&A — Aquisição' },
+  { v: 'm_and_a_sale',        l: 'M&A: Venda' },
+  { v: 'm_and_a_acquisition', l: 'M&A: Aquisição' },
   { v: 'earn_out',            l: 'Earn-out' },
   { v: 'growth_equity',       l: 'Growth equity' },
   { v: 'special_situations',  l: 'Special situations' },
@@ -256,8 +256,8 @@ export default function InvestidorForm({ mode, initial = {} }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Money label="Ticket mínimo (BRL)" value={ticketMin} onChange={setTicketMin}/>
           <Money label="Ticket máximo (BRL)" value={ticketMax} onChange={setTicketMax}/>
-          <Money label="Receita alvo — mín. (BRL)" value={receitaMin} onChange={setReceitaMin}/>
-          <Money label="Receita alvo — máx. (BRL)" value={receitaMax} onChange={setReceitaMax}/>
+          <Money label="Receita alvo: mín. (BRL)" value={receitaMin} onChange={setReceitaMin}/>
+          <Money label="Receita alvo: máx. (BRL)" value={receitaMax} onChange={setReceitaMax}/>
         </div>
       </Section>
 
@@ -280,7 +280,7 @@ export default function InvestidorForm({ mode, initial = {} }: Props) {
       {/* === Geografia === */}
       <Section title="Geografia" hint='Use siglas de UF ("SP","RJ"). "NACIONAL" aceita qualquer estado.'>
         <TagInput label="Geografias aceitas" hint="ex: SP, RJ, MG ou NACIONAL" values={geografiasAceitas} onChange={setGeografiasAceitas}/>
-        <TagInput label="Geografias excluídas" hint="opcional — bloqueia matches dessas regiões" values={geografiasExcluidas} onChange={setGeografiasExcluidas}/>
+        <TagInput label="Geografias excluídas" hint="opcional: bloqueia matches dessas regiões" values={geografiasExcluidas} onChange={setGeografiasExcluidas}/>
       </Section>
 
       {/* === Exclusões / requisitos === */}

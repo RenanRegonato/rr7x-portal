@@ -41,7 +41,7 @@ export default function SiteFooter() {
                 href="https://www.instagram.com/mandor.deals/"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Instagram da Mandor (@mandor.deals)"
+                aria-label="Instagram do Mandor (@mandor.deals)"
                 className="inline-flex items-center gap-2 text-[12px] hover:underline"
                 style={{ color: "#B5B0A6" }}
               >
@@ -56,7 +56,7 @@ export default function SiteFooter() {
                 href="https://www.linkedin.com/company/rr7x-capital-hub/"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="LinkedIn da Mandor"
+                aria-label="LinkedIn do Mandor"
                 className="inline-flex items-center gap-2 text-[12px] hover:underline"
                 style={{ color: "#B5B0A6" }}
               >

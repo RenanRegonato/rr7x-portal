@@ -39,7 +39,7 @@ interface ConsolidatedFact {
   conflicting_values?: Array<{ value: unknown; doc_id: string; doc_name: string; page: number | null }>
 }
 
-const CONSOLIDATOR_SYSTEM = `Você é o Consolidador da Mandor — agrupa fatos extraídos de múltiplos chunks/documentos numa única "verdade" da análise (fact_bank).
+const CONSOLIDATOR_SYSTEM = `Você é o Consolidador do Mandor — agrupa fatos extraídos de múltiplos chunks/documentos numa única "verdade" da análise (fact_bank).
 
 Você recebe um BATCH de fatos extraídos. Esse batch é apenas uma fração de TODOS os fatos da análise. Foque em deduplicar e consolidar dentro deste batch.
 

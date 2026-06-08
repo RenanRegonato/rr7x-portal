@@ -205,7 +205,7 @@ export default function BenchmarksAdminPage() {
             <p className="font-semibold text-warn mb-1">Estes valores são propagados a TODOS os escritórios como base.</p>
             <p>
               Alterações aqui afetam o comportamento dos agentes em todas as análises. Mantenha citações regulatórias
-              (CVM, ANBIMA, Lei) quando aplicável. Escritórios podem sobrescrever parâmetros individualmente; a Mandor não se
+              (CVM, ANBIMA, Lei) quando aplicável. Escritórios podem sobrescrever parâmetros individualmente; o Mandor não se
               responsabiliza por recomendações em análises onde os benchmarks foram sobrescritos pelo escritório.
             </p>
           </div>

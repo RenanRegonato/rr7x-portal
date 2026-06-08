@@ -33,7 +33,7 @@ export async function resolveEscritorioId(userId: string): Promise<string | null
 
 /**
  * O escritório contratou o módulo Invest Match (Plus)?
- * Flag controlada exclusivamente pelo gestor master da Mandor (admin).
+ * Flag controlada exclusivamente pelo gestor master do Mandor (admin).
  */
 export async function isInvestMatchEnabled(escritorioId: string | null): Promise<boolean> {
   if (!escritorioId) return false
@@ -53,7 +53,7 @@ export type InvestMatchGate =
 /**
  * Gate único para as rotas de API do Invest Match.
  * Resolve o escritório do usuário e verifica o entitlement Plus.
- * - Gestor master da Mandor (role=admin): acesso irrestrito ao módulo.
+ * - Gestor master do Mandor (role=admin): acesso irrestrito ao módulo.
  * - Demais usuários: só passam se o escritório tiver o Plus habilitado.
  */
 export async function gateInvestMatch(userId: string): Promise<InvestMatchGate> {

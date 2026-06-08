@@ -48,7 +48,7 @@ export default async function MatchesBoardPage() {
           </div>
           <h2 className="text-base font-semibold text-ink mb-2">Nenhum match ainda</h2>
           <p className="text-sm text-ink-2 max-w-md mx-auto">
-            Gere uma tese a partir de uma análise da Mandor (ou rode o matching de uma tese existente).
+            Gere uma tese a partir de uma análise do Mandor (ou rode o matching de uma tese existente).
             Os matches aparecem aqui agrupados por etapa.
           </p>
         </div>

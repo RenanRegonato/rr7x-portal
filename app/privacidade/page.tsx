@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Política de Privacidade | Mandor",
   description:
-    "Saiba como a Mandor coleta, usa e protege seus dados pessoais e corporativos em conformidade com a LGPD.",
+    "Saiba como o Mandor coleta, usa e protege seus dados pessoais e corporativos em conformidade com a LGPD.",
   alternates: { canonical: "/privacidade" },
 };
 

@@ -17,7 +17,7 @@ export default function BuscarOportunidadesButton({ investidorId }: { investidor
         const res = await fetch(`/api/invest-match/investidores/${investidorId}/buscar-oportunidades`, { method: 'POST' })
         const data = await res.json()
         if (!res.ok) { setMsg(data.error ?? 'Falha'); return }
-        setMsg('Busca enfileirada — as oportunidades aparecem em instantes.')
+        setMsg('Busca enfileirada. As oportunidades aparecem em instantes.')
         setTimeout(() => router.refresh(), 5000)
       } catch (e) {
         setMsg((e as Error).message)

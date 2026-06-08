@@ -37,7 +37,7 @@ export default function AprendizadosPage() {
       const { feedback } = await res.json()
       setFeedbacks(prev => [feedback, ...prev])
       setTexto('')
-      showMsg('✓ Aprendizado salvo — já válido para a próxima análise.')
+      showMsg('✓ Aprendizado salvo. Já válido para a próxima análise.')
     }
   }
 
@@ -150,7 +150,7 @@ export default function AprendizadosPage() {
           Cada análise carrega os aprendizados globais <span className="text-ok font-semibold">ativos</span> + os aprendizados específicos do escritório responsável pelo deal,
           injetando ambos no contexto de cada agente antes da execução.
           Aprendizados <span className="text-ink-3 font-semibold">pausados</span> são ignorados sem precisar deletar.
-          As regras individuais de cada agente prevalecem sempre — os aprendizados informam, não sobrescrevem.
+          As regras individuais de cada agente prevalecem sempre: os aprendizados informam, não sobrescrevem.
         </div>
       )}
     </div>

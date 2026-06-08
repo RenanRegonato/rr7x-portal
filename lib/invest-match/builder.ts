@@ -1,5 +1,5 @@
 // Orquestrador que constrói uma Tese estruturada (Invest Match) a partir
-// de uma análise da Mandor. Combina:
+// de uma análise do Mandor. Combina:
 //   - mapping determinístico (intake + fact_bank + facts + scores)
 //   - extração via LLM (thesis-builder agent — campos qualitativos)
 //   - embedding voyage-3-large (busca semântica)
@@ -305,7 +305,7 @@ interface MesaShape {
   contradicoes_detectadas?: Array<{ criticidade?: string }>
 }
 
-// documentacao_score a partir do coverage_check da Mandor.
+// documentacao_score a partir do coverage_check do Mandor.
 // coberto vale 1.0, parcial 0.5, nao_coberto 0. Itens 'nao_aplicavel' (histórico
 // financeiro de deals early-stage) NÃO entram no denominador — ausência justificada
 // não penaliza o score. Retorna null se não há itens aplicáveis.

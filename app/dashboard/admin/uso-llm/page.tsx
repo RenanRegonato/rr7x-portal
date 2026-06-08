@@ -115,7 +115,7 @@ function DailyCostChart({ data }: { data: { date: string; cost_usd: number; call
   return (
     <div className="bg-surface border border-border rounded-[14px] p-5 shadow-soft-sm">
       <div className="flex items-baseline justify-between mb-4">
-        <h2 className="text-[13px] font-semibold text-ink">Custo diário — últimos 30 dias</h2>
+        <h2 className="text-[13px] font-semibold text-ink">Custo diário (últimos 30 dias)</h2>
         <span className="text-[11px] text-ink-3">pico: {fmtUSD(max)}</span>
       </div>
       <svg viewBox={`0 0 ${W} ${H + 22}`} className="w-full" style={{ maxHeight: 140 }}>

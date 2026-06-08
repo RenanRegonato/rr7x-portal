@@ -67,7 +67,7 @@ export default function TermosPage() {
 
           <T num="2" title="Descrição do serviço">
             <p>
-              A Mandor é uma plataforma de deal intelligence que oferece, entre outros recursos:
+              O Mandor é uma rede cognitiva de deal intelligence que oferece, entre outros recursos:
             </p>
             <ul>
               <li>Análise de ativos para M&amp;A, crédito estruturado e preparação de mercado;</li>
@@ -89,7 +89,7 @@ export default function TermosPage() {
               <li>É responsável por todas as atividades realizadas com sua conta.</li>
               <li>Deve notificar imediatamente qualquer acesso não autorizado à sua conta.</li>
               <li>Contas não podem ser transferidas, compartilhadas ou cedidas sem autorização prévia por escrito.</li>
-              <li>A Mandor reserva-se o direito de suspender ou encerrar contas que violem estes Termos.</li>
+              <li>O Mandor reserva-se o direito de suspender ou encerrar contas que violem estes Termos.</li>
             </ul>
           </T>
 
@@ -116,7 +116,7 @@ export default function TermosPage() {
             </Ts>
             <Ts title="4.4 Alterações de preço">
               <p>
-                A Mandor pode ajustar os preços com aviso prévio de 30 dias. A continuidade do uso após o aviso
+                O Mandor pode ajustar os preços com aviso prévio de 30 dias. A continuidade do uso após o aviso
                 implica aceitação dos novos valores.
               </p>
             </Ts>
@@ -128,7 +128,7 @@ export default function TermosPage() {
               <li>Utilizar a plataforma para fins ilegais, fraudulentos ou contrários à ordem pública;</li>
               <li>Tentar acessar contas de outros usuários, sistemas internos ou dados que não sejam de sua propriedade;</li>
               <li>Fazer engenharia reversa, descompilar ou tentar extrair o código-fonte da plataforma;</li>
-              <li>Interferir no funcionamento dos servidores ou infraestrutura da Mandor;</li>
+              <li>Interferir no funcionamento dos servidores ou infraestrutura do Mandor;</li>
               <li>Transmitir malware, vírus ou qualquer código malicioso;</li>
               <li>Coletar dados de outros usuários de forma não autorizada;</li>
               <li>Revender, sublicenciar ou comercializar o acesso à plataforma sem autorização prévia por escrito;</li>
@@ -139,7 +139,7 @@ export default function TermosPage() {
           </T>
 
           <T num="6" title="Propriedade intelectual">
-            <Ts title="6.1 Direitos da Mandor">
+            <Ts title="6.1 Direitos do Mandor">
               <p>
                 Todo o conteúdo, tecnologia, interface, código-fonte, algoritmos, modelos de análise, marcas e
                 denominações da plataforma Mandor são de propriedade exclusiva da RR7x Capital Hub, protegidos
@@ -165,13 +165,13 @@ export default function TermosPage() {
 
           <T num="7" title="Inteligência artificial">
             <p>
-              A Mandor utiliza modelos de inteligência artificial para processar documentos e gerar diagnósticos.
+              O Mandor utiliza modelos de inteligência artificial para processar documentos e gerar diagnósticos.
               É importante compreender que:
             </p>
             <ul>
               <li>Os resultados gerados por IA são sugestões e análises, não decisões definitivas;</li>
               <li>Todo output deve ser revisado por um profissional qualificado antes de uso em operações reais;</li>
-              <li>A Mandor não garante precisão absoluta dos resultados e não se responsabiliza por decisões tomadas com base exclusiva nos relatórios gerados;</li>
+              <li>O Mandor não garante precisão absoluta dos resultados e não se responsabiliza por decisões tomadas com base exclusiva nos relatórios gerados;</li>
               <li>Os relatórios não substituem assessoria jurídica, contábil ou financeira especializada.</li>
             </ul>
           </T>
@@ -198,8 +198,8 @@ export default function TermosPage() {
               Na máxima extensão permitida pela lei aplicável:
             </p>
             <ul>
-              <li>A Mandor não se responsabiliza por danos indiretos, incidentais, especiais, consequenciais ou punitivos;</li>
-              <li>A responsabilidade total da Mandor, independentemente da natureza da reclamação, limita-se ao valor pago pelo usuário nos últimos 12 meses;</li>
+              <li>O Mandor não se responsabiliza por danos indiretos, incidentais, especiais, consequenciais ou punitivos;</li>
+              <li>A responsabilidade total do Mandor, independentemente da natureza da reclamação, limita-se ao valor pago pelo usuário nos últimos 12 meses;</li>
               <li>Não somos responsáveis por perdas decorrentes de decisões de investimento ou negócios tomadas com base nos relatórios da plataforma.</li>
             </ul>
           </T>
@@ -219,7 +219,7 @@ export default function TermosPage() {
                 de cobrança vigente. Os dados permanecem acessíveis até o encerramento do período pago.
               </p>
             </Ts>
-            <Ts title="11.2 Por iniciativa da Mandor">
+            <Ts title="11.2 Por iniciativa do Mandor">
               <p>
                 Podemos suspender ou encerrar o acesso, com ou sem aviso prévio, em casos de: violação destes
                 Termos, inadimplência, atividade fraudulenta, solicitação de autoridade competente ou encerramento
@@ -230,7 +230,7 @@ export default function TermosPage() {
 
           <T num="12" title="Indenização">
             <p>
-              Você concorda em indenizar, defender e isentar a Mandor e a RR7x Capital Hub de quaisquer
+              Você concorda em indenizar, defender e isentar o Mandor e a RR7x Capital Hub de quaisquer
               reclamações, danos, custos e despesas (incluindo honorários advocatícios) decorrentes do seu uso
               indevido da plataforma ou de violação destes Termos.
             </p>
@@ -256,7 +256,7 @@ export default function TermosPage() {
             <ul>
               <li>Se qualquer cláusula destes Termos for considerada inválida, as demais permanecem em vigor.</li>
               <li>A tolerância de qualquer descumprimento não implica renúncia ao direito de exigir o cumprimento no futuro.</li>
-              <li>Você não pode ceder seus direitos e obrigações decorrentes destes Termos sem consentimento prévio por escrito da Mandor.</li>
+              <li>Você não pode ceder seus direitos e obrigações decorrentes destes Termos sem consentimento prévio por escrito do Mandor.</li>
               <li>Estes Termos, juntamente com a Política de Privacidade, constituem o acordo integral entre as partes.</li>
             </ul>
           </T>

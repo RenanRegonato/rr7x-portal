@@ -80,7 +80,7 @@ export default async function InsightsPage() {
       {/* Poder discriminativo + pesos sugeridos */}
       <section className="bg-surface border border-border rounded-xl p-5">
         <div className="flex items-start justify-between gap-4 mb-1">
-          <h2 className="text-sm font-semibold text-ink">Dimensões — poder preditivo e calibração sugerida</h2>
+          <h2 className="text-sm font-semibold text-ink">Dimensões: poder preditivo e calibração sugerida</h2>
         </div>
         <p className="text-xs text-ink-3 mb-4">
           Para cada dimensão: média do score em matches que avançaram (sucesso) vs encerraram (fracasso).
@@ -137,7 +137,7 @@ export default async function InsightsPage() {
           <div className="mt-4 p-3 rounded-lg bg-surface-2 text-xs text-ink-2 leading-relaxed">
             <strong className="text-ink">Como aplicar:</strong> os pesos sugeridos são uma recomendação baseada
             em {stats.com_outcome} matches com outcome. A aplicação é manual e deve ser feita por quem conhece o
-            negócio — edite os pesos na função SQL <span className="font-mono">invest_match_buscar_candidatos</span>{' '}
+            negócio. Edite os pesos na função SQL <span className="font-mono">invest_match_buscar_candidatos</span>{' '}
             e em <span className="font-mono">lib/invest-match/weights.ts</span>. Recalibração automática foi
             deixada de fora de propósito: aplicar pesos com amostra pequena causa overfitting.
           </div>

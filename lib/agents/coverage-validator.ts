@@ -31,7 +31,7 @@ export interface CoverageOutput {
   resumo: { coberto: number; parcial: number; nao_coberto: number; nao_aplicavel: number }
 }
 
-const SYSTEM_PROMPT = `Você é o Coverage Validator da Mandor — agente que valida se uma análise multiagente cobriu todos os pontos OBRIGATÓRIOS para o tipo de operação em questão.
+const SYSTEM_PROMPT = `Você é o Coverage Validator do Mandor — agente que valida se uma análise multiagente cobriu todos os pontos OBRIGATÓRIOS para o tipo de operação em questão.
 
 Não avalia QUALIDADE da análise — isso é trabalho da Mesa. Avalia apenas se cada item da checklist foi efetivamente abordado.
 

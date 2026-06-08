@@ -54,7 +54,7 @@ export default async function TesesListPage() {
           </div>
           <h2 className="text-base font-semibold text-ink mb-2">Nenhuma tese ainda</h2>
           <p className="text-sm text-ink-2 max-w-md mx-auto">
-            Teses são geradas automaticamente a partir de análises consolidadas da Mandor
+            Teses são geradas automaticamente a partir de análises consolidadas do Mandor
             (endpoint <span className="font-mono text-xs">from-analise</span>) ou criadas manualmente.
           </p>
         </div>

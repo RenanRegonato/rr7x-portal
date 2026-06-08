@@ -1,6 +1,6 @@
 // Notificação do ASSESSOR (dono do deal) quando o motor de matching gera
 // matches para uma tese. Não notifica o investidor — apenas avisa internamente
-// quem subiu o deal na Mandor que há oportunidades para revisar.
+// quem subiu o deal no Mandor que há oportunidades para revisar.
 //
 // Chamado ao fim do runThesisMatchingFn, somente se matches foram persistidos.
 // Best-effort: sem email do assessor → skip sem erro.

@@ -1,4 +1,4 @@
-// Defesas contra prompt injection em agentes LLM da Mandor.
+// Defesas contra prompt injection em agentes LLM do Mandor.
 //
 // Contexto: a plataforma ingere documentos do CLIENTE (PDFs, planilhas,
 // contratos) e os submete a vários agentes Claude. Um documento adversário

@@ -17,7 +17,7 @@ export default function RematchButton({ teseId }: { teseId: string }) {
         const res = await fetch(`/api/invest-match/teses/${teseId}/rematch`, { method: 'POST' })
         const data = await res.json()
         if (!res.ok) { setMsg(data.error ?? 'Falha'); return }
-        setMsg('Matching enfileirado — os resultados aparecem em instantes.')
+        setMsg('Matching enfileirado. Os resultados aparecem em instantes.')
         setTimeout(() => router.refresh(), 4000)
       } catch (e) {
         setMsg((e as Error).message)

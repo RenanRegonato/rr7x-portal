@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { IconSparkle } from '@/components/Icons'
 
-// Gera (ou regenera) a tese de uma análise da Mandor com um clique.
+// Gera (ou regenera) a tese de uma análise do Mandor com um clique.
 // Esconde totalmente a API — o assessor só vê "Gerar tese".
 export default function GerarTeseButton({
   analiseId, teseId, temMesa,

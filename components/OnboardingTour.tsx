@@ -17,8 +17,8 @@ interface Step {
 
 const STEPS: Step[] = [
   {
-    title: 'Bem-vindo à Mandor',
-    body:  'Um tour rápido pelas principais áreas da plataforma. Leva menos de um minuto — você pode pular quando quiser e refazer depois pelo menu Ajuda.',
+    title: 'Bem-vindo ao Mandor',
+    body:  'Um tour rápido pelas principais áreas do Mandor. Leva menos de um minuto. Você pode pular quando quiser e refazer depois pelo menu Ajuda.',
   },
   {
     anchor: 'pipeline',
@@ -33,7 +33,7 @@ const STEPS: Step[] = [
   {
     anchor: 'escritorio',
     title:  'Seu escritório',
-    body:   'Dados do escritório, equipe e configurações. É a base do seu workspace dentro da Mandor.',
+    body:   'Dados do escritório, equipe e configurações. É a base do seu workspace dentro do Mandor.',
   },
   {
     anchor: 'benchmarks',

@@ -76,7 +76,7 @@ export default function SignupPage() {
           <p className="text-ink-3 text-[13px] mb-6">
             Já existe um acesso registrado para{' '}
             <strong className="text-ink font-semibold">{email}</strong>.
-            Não criamos uma conta duplicada. Para entrar, use sua senha — ou redefina, se esqueceu.
+            Não criamos uma conta duplicada. Para entrar, use sua senha, ou redefina, se esqueceu.
           </p>
           <div className="flex flex-col gap-2.5">
             <Link

@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 const faqs = [
   {
     q: "O que é o Invest Match?",
-    a: "É o módulo de originação da Mandor. A partir da análise de um ativo, ele gera a tese de investimento e aciona um motor de matching que conecta o deal aos investidores ou compradores de perfil compatível, transformando originação em um processo estruturado em vez de depender de agenda e relacionamento pontual.",
+    a: "É o módulo de originação do Mandor. A partir da análise de um ativo, ele gera a tese de investimento e aciona um motor de matching que conecta o deal aos investidores ou compradores de perfil compatível, transformando originação em um processo estruturado em vez de depender de agenda e relacionamento pontual.",
   },
   {
     q: "Como o matching funciona?",
@@ -113,7 +113,7 @@ export default function InvestMatchPage() {
             Da análise à tese, da tese ao investidor certo.
           </h1>
           <p className="animate-fade-up text-[17px] text-lp-ink-2 leading-relaxed max-w-[640px] mb-8" style={{ animationDelay: "300ms" }}>
-            O Invest Match é o módulo de originação da Mandor. A partir da análise do ativo,
+            O Invest Match é o módulo de originação do Mandor. A partir da análise do ativo,
             gera a tese e aciona um motor de matching de cinco camadas que conecta o deal ao
             investidor ou comprador de perfil compatível. Originação deixa de depender de agenda
             e vira processo.

@@ -7,7 +7,7 @@ import { inngest } from '@/lib/inngest'
 
 // POST /api/invest-match/teses/from-analise/[id]
 //
-// Converte a análise consolidada da Mandor (mesa_revisao + fact_bank + outputs)
+// Converte a análise consolidada do Mandor (mesa_revisao + fact_bank + outputs)
 // numa Tese estruturada do Invest Match.
 //
 // - Requer auth.

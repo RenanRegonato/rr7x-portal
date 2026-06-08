@@ -69,7 +69,7 @@ export default function ContatoPage() {
             <em style={{ fontStyle: "italic" }}>ajudar?</em>
           </h1>
           <p className="text-[15.5px] text-lp-ink-2 max-w-[480px] leading-relaxed">
-            Tire dúvidas, solicite demonstração ou converse com nossa equipe sobre como a Mandor se encaixa no fluxo do seu escritório.
+            Tire dúvidas, solicite demonstração ou converse com nossa equipe sobre como o Mandor se encaixa no fluxo do seu escritório.
           </p>
         </div>
       </section>
@@ -125,7 +125,7 @@ export default function ContatoPage() {
                     className="w-full border border-lp-border rounded-[10px] px-3 py-2.5 text-[13px] bg-lp-canvas outline-none transition-shadow focus:border-lp-accent focus:shadow-[0_0_0_3px_oklch(0.93_0.04_240)] text-lp-ink"
                   >
                     <option value="">Selecione o assunto…</option>
-                    <option value="Quero conhecer a Mandor: Solicitar demonstração">Solicitar demonstração</option>
+                    <option value="Quero conhecer o Mandor: Solicitar demonstração">Solicitar demonstração</option>
                     <option value="Dúvida sobre planos e preços">Dúvida sobre planos e preços</option>
                     <option value="Suporte técnico">Suporte técnico</option>
                     <option value="Parceria ou integração">Parceria ou integração</option>
@@ -194,7 +194,7 @@ export default function ContatoPage() {
                 </svg>
               }
               title="Demonstração"
-              content="Agende uma conversa para entender como a Mandor se encaixa no fluxo do seu escritório."
+              content="Agende uma conversa para entender como o Mandor se encaixa no fluxo do seu escritório."
               href="/auth/signup"
               cta="Solicitar acesso →"
             />

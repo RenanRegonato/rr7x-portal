@@ -6,7 +6,7 @@ import UpsellPlus from '@/components/invest-match/UpsellPlus'
 
 // Gate do módulo Invest Match (Plus).
 // O item continua visível no menu para todos; o acesso real é verificado aqui.
-// - Gestor master da Mandor (admin): acesso irrestrito.
+// - Gestor master do Mandor (admin): acesso irrestrito.
 // - Escritório sem o Plus habilitado: tela de upsell (oportunidade comercial).
 
 export default async function InvestMatchLayout({ children }: { children: React.ReactNode }) {

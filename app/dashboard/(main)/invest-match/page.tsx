@@ -69,7 +69,7 @@ export default async function InvestMatchOverviewPage() {
           </div>
           <h1 className="text-2xl font-semibold text-ink">Invest Match</h1>
           <p className="text-ink-2 text-sm mt-1 max-w-2xl">
-            Originação inteligente: cruza teses de investidores com análises da Mandor para
+            Originação inteligente: cruza teses de investidores com análises do Mandor para
             gerar matches qualificados com explicação e score multi-camada.
           </p>
         </div>
@@ -353,7 +353,7 @@ function OnboardingSteps() {
         <PassoItem
           numero={3}
           titulo="Receba as conexões qualificadas"
-          descricao="O sistema compara cada empresa com a base de investidores e apresenta as conexões mais promissoras — com uma explicação clara de por que combinam e o que conversar na primeira reunião."
+          descricao="O sistema compara cada empresa com a base de investidores e apresenta as conexões mais promissoras, com uma explicação clara de por que combinam e o que conversar na primeira reunião."
           acaoLabel="Ver conexões"
           acaoHref="/dashboard/invest-match/matches"
         />

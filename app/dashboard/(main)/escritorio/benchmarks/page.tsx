@@ -164,7 +164,7 @@ export default function EscritorioBenchmarksPage() {
             value_max:  editMax,
             unit:       row.unit,
             descricao:  editDesc || row.global?.descricao || undefined,
-            source:     `Override do escritório — ajustado em ${formatDateBR(new Date())}`,
+            source:     `Override do escritório, ajustado em ${formatDateBR(new Date())}`,
           }),
         })
         const d = await r.json()
@@ -178,7 +178,7 @@ export default function EscritorioBenchmarksPage() {
   }
 
   async function removeOverride(override: Benchmark) {
-    if (!confirm('Remover override do escritório? O pipeline volta a usar o valor global da Mandor.')) return
+    if (!confirm('Remover override do escritório? O pipeline volta a usar o valor global do Mandor.')) return
     const r = await fetch(`/api/escritorio/benchmarks/${override.id}`, { method: 'DELETE' })
     if (!r.ok) {
       const d = await r.json().catch(() => ({}))
@@ -214,7 +214,7 @@ export default function EscritorioBenchmarksPage() {
           <div>
             <p className="text-[13px] text-ink-2">
               Personalize os parâmetros de mercado que sua mesa usa.
-              <span className="text-ink-3"> Globais herdam da Mandor. Overrides são exclusivos do seu escritório.</span>
+              <span className="text-ink-3"> Globais herdam do Mandor. Overrides são exclusivos do seu escritório.</span>
             </p>
           </div>
           <select

@@ -15,7 +15,7 @@ const TIPOS_ATIVO = ['Empresa (M&A)', 'Imóvel / Real Estate', 'Startup / Scale-
 const ESTAGIOS   = ['Projeto Pré-Operacional', 'Estruturando', 'Estruturado', 'Em comercialização', 'Em negociação / Closing']
 const OBJETIVOS  = ['Vender 100%', 'Vender participação', 'Captar investimento', 'Estruturar crédito', 'Preparar para o mercado', 'Diagnóstico / Due Diligence']
 const NIVEIS_INFO = ['Baixo (poucos dados formais)', 'Médio (dados parciais)', 'Alto (DRE, balanço e documentos disponíveis)']
-const OPERACAO   = ['Sim — já há operação/receita', 'Não — projeto pré-operacional (sem histórico financeiro)']
+const OPERACAO   = ['Sim: já há operação/receita', 'Não: projeto pré-operacional (sem histórico financeiro)']
 const MICRO_HINTS = [
   'O ativo já foi apresentado ao mercado anteriormente?',
   'Qual é o nível de urgência da operação?',
@@ -483,12 +483,12 @@ function NovaAnaliseInner() {
                 />
                 <div>
                   <p className="text-[12.5px] font-semibold text-ink mb-1">
-                    Consentimento para processamento de dados — LGPD
+                    Consentimento para processamento de dados (LGPD)
                   </p>
                   <p className="text-[11.5px] text-ink-2 leading-relaxed">
                     Autorizo o processamento dos dados deste intake e dos documentos enviados por sistemas de inteligência artificial
                     para fins de análise e geração de relatórios de deal, conforme a Lei Geral de Proteção de Dados (Lei 13.709/2018),
-                    art. 7º, inc. V — execução de contrato ou procedimentos preliminares.
+                    art. 7º, inc. V: execução de contrato ou procedimentos preliminares.
                     Os dados serão armazenados com segurança e não serão utilizados para treinamento de modelos de IA.
                   </p>
                 </div>
@@ -580,7 +580,7 @@ function StepContent({
   if (step === 0) return (
     <div className="space-y-5">
       <p className="text-[13px] text-ink-2 -mt-2">
-        Dados do detentor do ativo — aparece nos documentos de captação e no relatório.
+        Dados do detentor do ativo: aparece nos documentos de captação e no relatório.
       </p>
       <div className="grid grid-cols-2 gap-4">
         <Field label="Nome completo">
@@ -794,7 +794,7 @@ function StepContent({
         </div>
         <p className="text-[12px] text-ink-3 mb-4 leading-relaxed">
           Rastreio de conformidade tributária, riscos fiscais e impactos da Reforma (EC 132/2023)
-          sobre o ativo — para captação, M&A e due diligence.
+          sobre o ativo, para captação, M&A e due diligence.
         </p>
 
         {rtUnlocked ? (
@@ -876,7 +876,7 @@ function StepContent({
         value={form.resumoAtivo}
         onChange={e => set('resumoAtivo', e.target.value)}
         rows={8}
-        placeholder="Ex: Empresa familiar, 2ª geração, sócios alinhados. Nunca foi ao mercado. Urgência moderada — sócio majoritário quer liquidez nos próximos 18 meses..."
+        placeholder="Ex: Empresa familiar, 2ª geração, sócios alinhados. Nunca foi ao mercado. Urgência moderada, sócio majoritário quer liquidez nos próximos 18 meses..."
       />
     </div>
   )
@@ -907,7 +907,7 @@ function StepContent({
         />
         <div className="text-3xl mb-2">📂</div>
         <p className="text-ink-2 text-[13px] font-medium">Clique para selecionar ou arraste os arquivos</p>
-        <p className="text-ink-3 text-[11px] mt-1">PDF · Word · Excel · CSV · PNG · JPG — máx. {MAX_FILE_MB}MB por arquivo</p>
+        <p className="text-ink-3 text-[11px] mt-1">PDF · Word · Excel · CSV · PNG · JPG · máx. {MAX_FILE_MB}MB por arquivo</p>
       </div>
       {files.length > 0 && (
         <div className="mt-4 space-y-2">

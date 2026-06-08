@@ -1,6 +1,6 @@
 // Helpers de auth/autorização do módulo Adequação à Reforma Tributária (Ferrante).
 // Mesmo padrão do Invest Match: gating premium por flag booleano no escritório,
-// controlado pelo gestor master da Mandor (admin).
+// controlado pelo gestor master do Mandor (admin).
 
 import { createAdminClient } from '@/lib/supabase-server'
 // resolveEscritorioId é genérico (resolução de tenant), reutilizado entre módulos.
@@ -10,7 +10,7 @@ export { resolveEscritorioId }
 
 /**
  * O escritório contratou o módulo Adequação à Reforma Tributária (premium)?
- * Flag controlada exclusivamente pelo gestor master da Mandor (admin).
+ * Flag controlada exclusivamente pelo gestor master do Mandor (admin).
  */
 export async function isReformaTributariaEnabled(escritorioId: string | null): Promise<boolean> {
   if (!escritorioId) return false
@@ -29,7 +29,7 @@ export type ReformaTributariaGate =
 
 /**
  * Gate único para as rotas/ações do módulo.
- * - Gestor master da Mandor (role=admin): acesso irrestrito.
+ * - Gestor master do Mandor (role=admin): acesso irrestrito.
  * - Demais usuários: só passam se o escritório tiver o módulo habilitado.
  */
 export async function gateReformaTributaria(userId: string): Promise<ReformaTributariaGate> {

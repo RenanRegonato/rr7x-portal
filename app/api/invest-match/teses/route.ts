@@ -7,7 +7,7 @@ import { createManualThesis } from '@/lib/invest-match/manual-thesis-service'
 import { inngest } from '@/lib/inngest'
 
 // POST /api/invest-match/teses
-// Cadastro MANUAL de tese (origem='manual', sem análise da Mandor).
+// Cadastro MANUAL de tese (origem='manual', sem análise do Mandor).
 // Gera embedding (best-effort) e dispara o motor de matching async (Inngest).
 export const maxDuration = 30  // voyage embed ~3-5s
 

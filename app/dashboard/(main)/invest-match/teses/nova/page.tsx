@@ -28,7 +28,7 @@ export default async function NovaTesePage() {
         <h1 className="text-2xl font-semibold text-ink">Gerar tese de uma análise</h1>
       </div>
       <p className="text-ink-2 text-sm mb-6 ml-10">
-        Escolha uma análise concluída. A partir do diagnóstico da Mandor, criamos automaticamente
+        Escolha uma análise concluída. A partir do diagnóstico do Mandor, criamos automaticamente
         a tese de investimento e buscamos os investidores compatíveis.
       </p>
 
@@ -37,7 +37,7 @@ export default async function NovaTesePage() {
         <div className="min-w-0">
           <div className="text-sm font-semibold text-ink">Prefere cadastrar do zero?</div>
           <p className="text-xs text-ink-3 mt-0.5">
-            Inclua uma oportunidade manualmente, sem depender de uma análise da Mandor.
+            Inclua uma oportunidade manualmente, sem depender de uma análise do Mandor.
           </p>
         </div>
         <Link
@@ -52,10 +52,10 @@ export default async function NovaTesePage() {
         <div className="bg-surface border border-border rounded-xl p-10 text-center">
           <p className="text-sm text-ink-2">
             Nenhuma análise concluída encontrada no seu escritório.
-            Conclua uma análise na Mandor para poder gerar a tese aqui.
+            Conclua uma análise no Mandor para poder gerar a tese aqui.
           </p>
           <Link href="/dashboard/nova-analise" className="inline-block mt-4 text-sm text-accent-strong hover:underline">
-            Criar análise na Mandor →
+            Criar análise no Mandor →
           </Link>
         </div>
       ) : (

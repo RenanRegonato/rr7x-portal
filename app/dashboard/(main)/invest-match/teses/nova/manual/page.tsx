@@ -24,7 +24,7 @@ export default async function NovaTeseManualPage() {
         <h1 className="text-2xl font-semibold text-ink">Cadastrar tese manualmente</h1>
       </div>
       <p className="text-ink-2 text-sm mb-6 ml-10">
-        Inclua uma oportunidade direto no sistema, sem depender de uma análise da Mandor.
+        Inclua uma oportunidade direto no sistema, sem depender de uma análise do Mandor.
         Ao salvar, o motor de matching cruza a tese com sua base de investidores.
       </p>
 

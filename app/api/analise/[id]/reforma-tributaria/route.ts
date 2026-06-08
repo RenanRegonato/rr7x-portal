@@ -64,7 +64,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
     }
     // Gate comercial: o escritório DONO do deal precisa ter o módulo habilitado
-    // (o gestor master da Mandor, role=admin, bypassa). Fecha o consumo do premium
+    // (o gestor master do Mandor, role=admin, bypassa). Fecha o consumo do premium
     // por chamada de usuário de escritório sem entitlement (ex.: opt-in setado antes
     // de um downgrade). O caminho interno (x-internal-token) segue confiando no token:
     // o orquestrador já decide rodar/pular pelo entitlement em run-pipeline.ts.

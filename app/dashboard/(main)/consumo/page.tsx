@@ -129,7 +129,7 @@ export default async function ConsumoPage() {
               <span className="text-[18px] leading-none mt-0.5">{esgotado ? '⛔' : '⚠️'}</span>
               <div>
                 <p className={`text-[13.5px] font-semibold ${esgotado ? 'text-[oklch(0.55_0.2_25)]' : 'text-warn'}`}>
-                  {esgotado ? 'Pacote esgotado' : `Limite baixo — ${restante} análise(s) restante(s)`}
+                  {esgotado ? 'Pacote esgotado' : `Limite baixo: ${restante} análise(s) restante(s)`}
                 </p>
                 <p className="text-[12.5px] text-ink-2 mt-0.5">
                   {esgotado
@@ -145,7 +145,7 @@ export default async function ConsumoPage() {
             <SummaryCard label="Disponível no plano" value={total} hint="total contratado" />
             <SummaryCard label="Utilizadas" value={consumido} hint={`${pctUso}% do plano`} />
             <SummaryCard label="Restantes" value={restante} hint="ainda disponíveis" emphasis={restante === 0 ? 'danger' : limiteBaixo ? 'warn' : 'ok'} />
-            <SummaryCard label="Tipo de plano" valueText={ativos.map(p => TIPO_LABEL[p.tipo] ?? p.tipo).join(', ') || '—'} hint="sem prazo — válido até esgotar" />
+            <SummaryCard label="Tipo de plano" valueText={ativos.map(p => TIPO_LABEL[p.tipo] ?? p.tipo).join(', ') || '—'} hint="sem prazo: válido até esgotar" />
           </div>
 
           {/* Barra de uso */}

@@ -1,6 +1,6 @@
 // Contrato de mapping Mandor → Tese estruturada do Invest Match.
 //
-// A Mandor produz três fontes de verdade ao concluir uma análise:
+// O Mandor produz três fontes de verdade ao concluir uma análise:
 //   1. analises.mesa_revisao      — veredito final da Mesa Consolidadora (jsonb)
 //   2. analises.fact_bank         — consolidação dos facts extraídos (jsonb)
 //   3. analise_facts (truth layer) — fatos atômicos com source/confidence
@@ -11,7 +11,7 @@
 //
 // Este arquivo declara:
 //   - tipo MandorThesisInput (o que entra)
-//   - tabela MAPPING (campo da tese ← origem na Mandor)
+//   - tabela MAPPING (campo da tese ← origem no Mandor)
 //   - função stub mapMandorToThesis (a ser implementada no próximo passo)
 //
 // A função real combinará:
@@ -25,7 +25,7 @@ import type { Fact } from '../truth-layer'
 
 
 // ============================================================
-// INPUT — o que a Mandor entrega
+// INPUT — o que o Mandor entrega
 // ============================================================
 
 export interface MesaRevisao {
@@ -91,7 +91,7 @@ export interface MandorThesisInput {
   // Truth layer — fatos atômicos (rastreáveis a documento+página)
   facts:                     Fact[]
 
-  // Scores das dimensões (calculados em outras camadas da Mandor)
+  // Scores das dimensões (calculados em outras camadas do Mandor)
   // Vêm de tabelas como coverage_check, consistency_issues, agent_claims
   scores:                    {
     maturity_score?:         number  // calculado pelo agente "maturidade"
@@ -104,7 +104,7 @@ export interface MandorThesisInput {
 
 
 // ============================================================
-// MAPPING — campo da Tese ← origem na Mandor
+// MAPPING — campo da Tese ← origem no Mandor
 // ============================================================
 // Esta tabela é a documentação canônica da integração. Cada linha
 // declara como um campo de StructuredThesis é populado.

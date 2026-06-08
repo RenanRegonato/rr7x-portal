@@ -22,7 +22,7 @@ function DailyChart({ data }: { data: { date: string; count: number }[] }) {
 
   return (
     <div className="bg-surface border border-border rounded-[14px] p-5 shadow-soft-sm">
-      <h2 className="text-[13px] font-semibold mb-4 text-ink">Análises — últimos 14 dias</h2>
+      <h2 className="text-[13px] font-semibold mb-4 text-ink">Análises (últimos 14 dias)</h2>
       <svg viewBox={`0 0 ${W} ${H + 20}`} className="w-full" style={{ maxHeight: 110 }}>
         {data.map((d, i) => {
           const barH = Math.max(2, Math.round((d.count / max) * H))

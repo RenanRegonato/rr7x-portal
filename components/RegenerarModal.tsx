@@ -154,7 +154,7 @@ export default function RegenerarModal({
             <div className="space-y-4">
               <div className="rounded-[10px] bg-accent-soft/30 border border-accent/30 p-3 text-[12px] text-ink-2">
                 Preencha o briefing abaixo. A IA Revisora avaliará tecnicamente se a alteração faz sentido
-                no contexto da análise. A decisão final é sua — mesmo que ela contra-argumente, você pode
+                no contexto da análise. A decisão final é sua, mesmo que ela contra-argumente, você pode
                 prosseguir. Você tem <strong>{restantesAntes} regenerações restantes</strong>.
               </div>
 

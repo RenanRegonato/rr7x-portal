@@ -60,7 +60,7 @@ export default function ContaPage() {
       return
     }
     if (telefone && !isTelefoneValido(telefone)) {
-      setDadosError('Telefone inválido — inclua o DDD.')
+      setDadosError('Telefone inválido. Inclua o DDD.')
       return
     }
 
@@ -156,7 +156,7 @@ export default function ContaPage() {
                 placeholder="(11) 99999-9999"
               />
               {telefone && !isTelefoneValido(telefone) && (
-                <p className="text-[11px] text-[oklch(0.50_0.20_25)] mt-1">Número incompleto — inclua o DDD.</p>
+                <p className="text-[11px] text-[oklch(0.50_0.20_25)] mt-1">Número incompleto. Inclua o DDD.</p>
               )}
             </div>
 

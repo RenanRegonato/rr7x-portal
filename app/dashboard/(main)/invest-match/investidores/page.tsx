@@ -89,7 +89,7 @@ function EmptyState() {
       <p className="text-sm text-ink-2 max-w-md mx-auto mb-6">
         Cadastre o primeiro investidor com sua tese declarada (setores, faixa de ticket,
         estágios aceitos, narrativa). O sistema vai cruzar essa tese com cada análise
-        consolidada da Mandor.
+        consolidada do Mandor.
       </p>
       <Link
         href="/dashboard/invest-match/investidores/novo"

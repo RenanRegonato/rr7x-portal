@@ -1,6 +1,6 @@
-// Service de criação MANUAL de tese (origem='manual', sem análise da Mandor).
+// Service de criação MANUAL de tese (origem='manual', sem análise do Mandor).
 // Espelha o final de builder.ts (persistência + embedding), mas a partir de um
-// payload já validado (TeseCreateSchema) em vez do diagnóstico da Mandor.
+// payload já validado (TeseCreateSchema) em vez do diagnóstico do Mandor.
 //
 // Princípio (igual ao investidor-service): o embedding só é gravado por aqui,
 // garantindo consistência entre o texto e o vetor. Embedding é best-effort —

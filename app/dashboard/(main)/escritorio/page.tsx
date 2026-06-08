@@ -132,7 +132,7 @@ export default function EscritorioPage() {
 
   async function save(e: React.FormEvent) {
     e.preventDefault()
-    if (!isCNPJValid(form.cnpj)) { setCnpjError('CNPJ inválido — deve ter 14 dígitos.'); return }
+    if (!isCNPJValid(form.cnpj)) { setCnpjError('CNPJ inválido: deve ter 14 dígitos.'); return }
     setCnpjError('')
     setSaving(true)
     setMsg('')

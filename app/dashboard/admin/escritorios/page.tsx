@@ -848,8 +848,8 @@ export default function EscritoriosPage() {
                             onChange={e => setEditUserRole(e.target.value as UserRole)}
                             className="flex-1 border border-border rounded-[8px] px-2.5 py-2 text-[12px] bg-bg outline-none focus:border-accent-strong"
                           >
-                            <option value="gerente">Gerente — acesso completo ao escritório</option>
-                            <option value="assessor">Assessor — acesso aos próprios deals</option>
+                            <option value="gerente">Gerente: acesso completo ao escritório</option>
+                            <option value="assessor">Assessor: acesso aos próprios deals</option>
                           </select>
                           <button
                             onClick={() => salvarRole(u.id)}

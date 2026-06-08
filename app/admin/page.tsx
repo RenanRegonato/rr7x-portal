@@ -132,14 +132,14 @@ export default function AdminPage() {
                   disabled={loading}
                   className="border border-gray-600 hover:border-cyan-500 hover:text-cyan-400 px-4 py-2 rounded-lg text-sm transition disabled:opacity-50"
                 >
-                  Avulso — 1 análise
+                  Avulso: 1 análise
                 </button>
                 <button
                   onClick={() => ativar('recorrente')}
                   disabled={loading}
                   className="border border-gray-600 hover:border-cyan-500 hover:text-cyan-400 px-4 py-2 rounded-lg text-sm transition disabled:opacity-50"
                 >
-                  Recorrente — ilimitado
+                  Recorrente: ilimitado
                 </button>
                 <button
                   onClick={() => ativar('enterprise')}

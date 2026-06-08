@@ -44,7 +44,7 @@ const PAGE_SIZE = 12
 // ─── Onboarding empty state ───────────────────────────────────────────────────
 
 const HOW_IT_WORKS = [
-  { n: '1', title: 'Deal Intake', desc: 'Preencha o formulário com os dados do ativo — nome, tipo, ticket, documentos.' },
+  { n: '1', title: 'Deal Intake', desc: 'Preencha o formulário com os dados do ativo: nome, tipo, ticket, documentos.' },
   { n: '2', title: '10 especialistas em paralelo', desc: 'Mandor aciona o squad: diagnóstico financeiro, M&A, crédito, contratos, originação, revisão final e mais.' },
   { n: '3', title: 'Relatório em até 90 min', desc: 'DRS, Blind Teaser, Pitchbook e Relatório Consolidado prontos para apresentar.' },
 ]

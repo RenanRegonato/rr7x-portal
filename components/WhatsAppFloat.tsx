@@ -1,7 +1,7 @@
 "use client";
 
 const WHATSAPP = "5514988220001";
-const MENSAGEM = "Olá! Estava no site da Mandor e gostaria de saber mais sobre a plataforma.";
+const MENSAGEM = "Olá! Estava no site do Mandor e gostaria de saber mais sobre o Mandor.";
 const HREF = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(MENSAGEM)}`;
 
 // Botão flutuante de WhatsApp, fixo no canto inferior direito.

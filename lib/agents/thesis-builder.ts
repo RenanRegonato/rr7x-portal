@@ -1,7 +1,7 @@
 import { callLLM } from '@/lib/llm/call'
 import { PROMPT_INJECTION_GUARD, wrapClientData } from '@/lib/llm/prompt-safety'
 
-// Thesis Builder — agente que converte uma análise consolidada da Mandor
+// Thesis Builder — agente que converte uma análise consolidada do Mandor
 // numa Tese estruturada para o Invest Match.
 //
 // Recebe: mesa_revisao + fact_bank compacto + outputs narrativos + intake.
@@ -44,7 +44,7 @@ export interface ThesisBuilderOutput {
   urgencia:                  Urgencia
 
   // Scores qualitativos derivados dos outputs dos agentes (0-100 ou null).
-  // Não existem como número estruturado na Mandor — o LLM os estima a partir
+  // Não existem como número estruturado no Mandor — o LLM os estima a partir
   // das narrativas (maturidade, diagnóstico, revisão).
   maturity_score:            number | null
   governance_score:          number | null
@@ -83,13 +83,13 @@ export interface ThesisBuilderInput {
 }
 
 
-const SYSTEM_PROMPT = `Você é o Thesis Builder do Invest Match — agente que converte a análise consolidada de uma empresa/projeto (produzida pela Mandor) numa TESE DE INVESTIMENTO ESTRUTURADA.
+const SYSTEM_PROMPT = `Você é o Thesis Builder do Invest Match — agente que converte a análise consolidada de uma empresa/projeto (produzida pelo Mandor) numa TESE DE INVESTIMENTO ESTRUTURADA.
 
 # Contexto
 
 O Invest Match é uma plataforma que cruza teses de empresas (que buscam capital) com teses de investidores (fundos, family offices, holdings, estratégicos). Sua saída vira o input do motor de matching multi-camada.
 
-A Mandor já produziu:
+O Mandor já produziu:
 - mesa_revisao: veredito final da Mesa Consolidadora (institucional)
 - fact_bank: fatos consolidados extraídos dos documentos
 - outputs dos agentes: narrativas de diagnóstico, M&A, originação, maturidade, revisão

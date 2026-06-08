@@ -177,7 +177,7 @@ export default function AgentesPage() {
             )}
 
             <p className="text-[11px] text-ink-3 mt-2">
-              Alterações entram em vigor imediatamente na próxima análise — sem deploy.
+              Alterações entram em vigor imediatamente na próxima análise, sem deploy.
             </p>
           </>
         ) : (

@@ -117,7 +117,7 @@ export default function ReformaTributariaPage() {
           <p className="animate-fade-up text-[17px] text-lp-ink-2 leading-relaxed max-w-[640px] mb-8" style={{ animationDelay: "300ms" }}>
             A Reforma Tributária do consumo (EC 132/2023 e LC 214/2025) muda a realidade fiscal
             de quase toda empresa que será comprada, vendida ou financiada na transição de 2026
-            a 2033. A Mandor diagnostica essa adequação dentro da própria análise do deal: o que
+            a 2033. O Mandor diagnostica essa adequação dentro da própria análise do deal: o que
             trava valuation, due diligence e crédito por motivo tributário, ancorado em artigo de lei.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -135,7 +135,7 @@ export default function ReformaTributariaPage() {
         </div>
       </section>
 
-      {/* ── O que a Mandor diagnostica ────────────────────────────────────── */}
+      {/* ── O que o Mandor diagnostica ────────────────────────────────────── */}
       <section className="max-w-[1280px] mx-auto px-6 py-20 lg:py-24">
         <div className="reveal-blur max-w-[640px] mb-12">
           <p className="lp-eyebrow mb-4">o que decide o deal</p>

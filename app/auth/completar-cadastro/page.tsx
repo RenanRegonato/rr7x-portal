@@ -117,7 +117,7 @@ export default function CompletarCadastroPage() {
               />
               {telefone && !isTelefoneValido(telefone) && (
                 <p className="text-[11px] text-[oklch(0.50_0.20_25)] mt-1">
-                  Número incompleto — inclua o DDD.
+                  Número incompleto. Inclua o DDD.
                 </p>
               )}
             </div>

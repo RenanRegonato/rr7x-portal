@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   // Gate comercial do módulo premium: o opt-in da Reforma Tributária ('possui' ou
   // 'diagnosticar') só é aceito se o escritório do criador tiver o módulo habilitado
-  // (admin da Mandor bypassa). Espelha o bloqueio da UI e fecha o atalho de POST
+  // (admin do Mandor bypassa). Espelha o bloqueio da UI e fecha o atalho de POST
   // direto na API que setaria o opt-in sem entitlement.
   if (intake.reformaTributaria && intake.reformaTributaria !== 'na') {
     const gate = await gateReformaTributaria(user.id)

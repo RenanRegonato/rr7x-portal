@@ -27,7 +27,7 @@ const faqSchema = {
     },
     {
       "@type": "Question",
-      name: "A Mandor está em conformidade com a LGPD?",
+      name: "O Mandor está em conformidade com a LGPD?",
       acceptedAnswer: {
         "@type": "Answer",
         text: "Sim. Mandor opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para planos Institucional e Corporativo.",
@@ -35,7 +35,7 @@ const faqSchema = {
     },
     {
       "@type": "Question",
-      name: "Quanto tempo leva para começar a operar com a Mandor?",
+      name: "Quanto tempo leva para começar a operar com o Mandor?",
       acceptedAnswer: {
         "@type": "Answer",
         text: "O onboarding leva de 1 a 3 dias úteis para os planos Institucional e Corporativo. Para o plano Pontual, a primeira análise pode ser submetida no mesmo dia do contrato.",
@@ -161,7 +161,7 @@ const planos = [
 const depoimentos = [
   {
     texto:
-      "Testamos a Mandor em dois deals que eram candidatos ao No-Go de início. Em menos de uma hora tinha análise financeira e mapa jurídico de ambos. Um descartamos mesmo. O outro revelou uma estrutura de crédito que ninguém tinha visto. Hoje é um mandato ativo.",
+      "Testamos o Mandor em dois deals que eram candidatos ao No-Go de início. Em menos de uma hora tinha análise financeira e mapa jurídico de ambos. Um descartamos mesmo. O outro revelou uma estrutura de crédito que ninguém tinha visto. Hoje é um mandato ativo.",
     nome: "Ricardo C.",
     cargo: "Sócio",
     empresa: "Boutique M&A · São Paulo",
@@ -188,11 +188,11 @@ const faqs = [
     a: "Mandor opera com criptografia em trânsito (TLS 1.3) e em repouso (AES-256). Nenhum dado é compartilhado entre escritórios. Cada análise fica isolada em ambiente dedicado ao escritório contratante.",
   },
   {
-    q: "A Mandor está em conformidade com a LGPD?",
+    q: "O Mandor está em conformidade com a LGPD?",
     a: "Sim. Mandor opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para planos Institucional e Corporativo.",
   },
   {
-    q: "Quanto tempo leva para começar a operar com a Mandor?",
+    q: "Quanto tempo leva para começar a operar com o Mandor?",
     a: "O onboarding leva de 1 a 3 dias úteis para os planos Institucional e Corporativo. Para o plano Pontual, a primeira análise pode ser submetida no mesmo dia do contrato.",
   },
   {
@@ -404,7 +404,7 @@ export default function LandingPage() {
       {/* ── Depoimentos ──────────────────────────────────────────────────── */}
       <section className="bg-lp-fog border-y border-lp-border">
         <div className="max-w-[1180px] mx-auto px-6 py-28 lg:py-36">
-          <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-14">quem opera com a Mandor</p>
+          <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-14">quem opera com o Mandor</p>
           <div className="grid md:grid-cols-3 gap-x-12 gap-y-12">
             {depoimentos.map((d) => (
               <figure key={d.nome} className="reveal">

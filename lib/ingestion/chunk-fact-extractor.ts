@@ -20,7 +20,7 @@ interface ExtractArgs {
   documentId?:    string
 }
 
-const SYSTEM_PROMPT = `Você é o Extrator de Fatos da Mandor — converte trechos brutos de documentos financeiros em FATOS ESTRUTURADOS JSON.
+const SYSTEM_PROMPT = `Você é o Extrator de Fatos do Mandor — converte trechos brutos de documentos financeiros em FATOS ESTRUTURADOS JSON.
 
 Você recebe UM chunk (recorte) de um documento maior. Extraia TODOS os fatos relevantes presentes nesse chunk. Não invente, não infira — cite literal quando possível.
 

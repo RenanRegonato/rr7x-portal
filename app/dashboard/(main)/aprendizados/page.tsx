@@ -38,7 +38,7 @@ export default function AprendizadosEscritorioPage() {
       const { feedback } = await res.json()
       setFeedbacks(prev => [feedback, ...prev])
       setTexto('')
-      showMsg('✓ Aprendizado salvo — válido para a próxima análise deste escritório.')
+      showMsg('✓ Aprendizado salvo. Válido para a próxima análise deste escritório.')
     }
   }
 

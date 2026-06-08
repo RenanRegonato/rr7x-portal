@@ -509,11 +509,11 @@ export default function AnalisePage() {
                 <div className="h-full bg-accent transition-all" style={{ width: `${ingestProgress.percent}%` }} />
               </div>
               {ingestProgress.failed > 0 && (
-                <p className="mt-3 text-[11px] text-warn">{ingestProgress.failed} arquivo(s) com erro — análise segue mesmo assim.</p>
+                <p className="mt-3 text-[11px] text-warn">{ingestProgress.failed} arquivo(s) com erro. A análise segue mesmo assim.</p>
               )}
             </div>
             <p className="mt-6 text-[11px] text-ink-3">
-              Você pode fechar essa aba — vamos te avisar por email quando estiver pronto.
+              Você pode fechar essa aba. Vamos te avisar por email quando estiver pronto.
             </p>
           </div>
         </div>
@@ -1567,7 +1567,7 @@ function OutputPanel({
       {showAttest && (
         <div className="border-b border-border bg-slate-50 px-7 py-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">Rastreabilidade — ICVM 598/2018</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">Rastreabilidade (ICVM 598/2018)</p>
             {attestLoading && <span className="text-[11px] text-ink-3 animate-pulse">Carregando...</span>}
           </div>
 

@@ -226,7 +226,7 @@ export default function ClientesPage() {
                         : 'border-border hover:border-border-strong text-ink-2 hover:text-ink bg-surface hover:bg-surface-hover'
                     }`}
                   >
-                    {p === 'avulso' ? 'Avulso — 1 análise' : p === 'recorrente' ? 'Recorrente — ilimitado' : 'Enterprise'}
+                    {p === 'avulso' ? 'Avulso: 1 análise' : p === 'recorrente' ? 'Recorrente: ilimitado' : 'Enterprise'}
                     {selecionado.assinatura?.plano === p && selecionado.assinatura?.status === 'ativo' && (
                       <span className="text-[11px] ml-2 text-accent-strong">✓ ativo</span>
                     )}

@@ -71,7 +71,7 @@ export default async function EditInvestidorPage({ params }: PageProps) {
         {oportunidades.length === 0 ? (
           <div className="bg-surface border border-border rounded-xl p-6 text-center text-sm text-ink-2">
             Nenhuma oportunidade ainda. Clique em <strong>Buscar oportunidades</strong> para cruzar a tese
-            deste investidor com as análises da Mandor.
+            deste investidor com as análises do Mandor.
             {!inv.tese_embedding_at && (
               <div className="text-[11px] text-ink-3 mt-2">
                 Dica: preencha a tese narrativa (resumo/completa) para ativar o matching semântico.

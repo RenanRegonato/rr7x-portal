@@ -7,13 +7,13 @@ import {
 // módulo Invest Match (Plus) habilitado. O bloqueio vira oportunidade comercial.
 
 const WHATSAPP = '5514988220001'
-const MENSAGEM  = 'Olá! Quero habilitar o módulo Invest Match (Plus) no meu escritório na Mandor. Podemos conversar?'
+const MENSAGEM  = 'Olá! Quero habilitar o módulo Invest Match (Plus) no meu escritório no Mandor. Podemos conversar?'
 const WHATSAPP_HREF = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(MENSAGEM)}`
 
 const beneficios = [
   {
     titulo:    'Originação inteligente, sem esforço manual',
-    descricao: 'Cada análise concluída na Mandor vira automaticamente uma tese de investimento, pronta para conexão.',
+    descricao: 'Cada análise concluída no Mandor vira automaticamente uma tese de investimento, pronta para conexão.',
   },
   {
     titulo:    'Matches qualificados e explicados',
@@ -49,8 +49,8 @@ export default function UpsellPlus() {
             <div>
               <h1 className="text-3xl font-semibold text-ink tracking-tight">Invest Match</h1>
               <p className="text-ink-2 text-base mt-2 max-w-2xl leading-relaxed">
-                O módulo de originação que transforma suas análises da Mandor em conexões reais com
-                investidores — cruzando teses e perfis automaticamente para gerar oportunidades qualificadas.
+                O módulo de originação que transforma suas análises do Mandor em conexões reais com
+                investidores, cruzando teses e perfis automaticamente para gerar oportunidades qualificadas.
               </p>
             </div>
           </div>
@@ -100,7 +100,7 @@ export default function UpsellPlus() {
             <h3 className="text-sm font-semibold text-ink">Para o escritório</h3>
           </div>
           <p className="text-sm text-ink-2 leading-relaxed">
-            Aproveita o trabalho analítico que você já faz na Mandor e o converte em uma nova frente de
+            Aproveita o trabalho analítico que você já faz no Mandor e o converte em uma nova frente de
             receita: originação de deals com investidores, sem montar uma operação dedicada.
           </p>
         </div>
@@ -111,7 +111,7 @@ export default function UpsellPlus() {
           </div>
           <p className="text-sm text-ink-2 leading-relaxed">
             As empresas analisadas ganham acesso a investidores realmente aderentes à tese, com
-            conexões fundamentadas — encurtando o caminho até a captação.
+            conexões fundamentadas, encurtando o caminho até a captação.
           </p>
         </div>
       </div>

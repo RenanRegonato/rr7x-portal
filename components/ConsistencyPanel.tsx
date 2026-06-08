@@ -111,7 +111,7 @@ export default function ConsistencyPanel({ analiseId }: ConsistencyPanelProps) {
           <p className="text-[11px] text-ink-3 mt-0.5">
             {checkedAt
               ? `Última verificação: ${formatDateTimeBR(checkedAt, { second: '2-digit' })}`
-              : 'Ainda não verificada — clique em Re-validar'}
+              : 'Ainda não verificada. Clique em Re-validar'}
             {totalNaoResolvido > 0 && ` · ${totalNaoResolvido} pendente${totalNaoResolvido === 1 ? '' : 's'}`}
           </p>
         </div>

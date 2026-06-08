@@ -382,7 +382,7 @@ export default function UsuariosPage() {
 
             {selecionado.role === 'admin' && (
               <p className="text-[12px] text-ink-3 bg-surface-2 border border-border rounded-[10px] p-3">
-                Conta administrativa — perfil não editável.
+                Conta administrativa: perfil não editável.
               </p>
             )}
 
