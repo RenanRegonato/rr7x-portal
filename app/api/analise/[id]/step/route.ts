@@ -6,6 +6,7 @@ import { readAnalyseDocs, DocReadSummary } from '@/lib/doc-reader'
 import { fetchBCBIndicators } from '@/lib/bcb-data'
 import { fetchCapitalMarketsData, fetchListedComparables, extractSectorKeywords } from '@/lib/cvm-data'
 import { checkCADE, formatCADEForPrompt } from '@/lib/cade-check'
+import { pullCNPJEnrichment } from '@/lib/auto-pull/cnpj'
 import { getFacts, formatTruthLayer } from '@/lib/truth-layer'
 import { getFactBankForAgent, formatFactBankForPrompt } from '@/lib/fact-bank-for-agent'
 import { listBenchmarks, formatBenchmarksForPrompt } from '@/lib/benchmarks'
@@ -377,7 +378,7 @@ Sua tarefa: produzir um diagnóstico narrativo do que os documentos do deal reve
   }]
 }
 
-function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, escritorioBlock = '', feedbackBlock = '', bcbData = '', cvmCapital = '', cvmComps = '', intake: Record<string, string> = {}, truthLayerBlock = '', benchmarksBlock = ''): { system: SystemBlock[]; user: string | ContentBlock[] } | null {
+function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: string, allOutputs: string, outputs: Record<string, string> = {}, escritorioBlock = '', feedbackBlock = '', bcbData = '', cvmCapital = '', cvmComps = '', intake: Record<string, string> = {}, truthLayerBlock = '', benchmarksBlock = '', cnpjData = ''): { system: SystemBlock[]; user: string | ContentBlock[] } | null {
   // HUMANIZER_DIRECTIVE como primeiro bloco de sistema: prefixo estável compartilhado por
   // TODOS os agentes e TODAS as análises → máximo de cache hit na API Anthropic.
   // Cada análise paga o custo de leitura do HUMANIZER_DIRECTIVE apenas na primeira chamada;
@@ -483,7 +484,7 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
       const cadeContext = formatCADEForPrompt(cadeCheck)
       return {
         system: sysBlocks(prompts['kyc'] || 'Você é KYC & Compliance, KYC & Compliance Analyst da RR7x Capital Hub. Realize o screening de conformidade, KYC e red flags regulatórios do deal.'),
-        user: parallelUser(`Realize o screening de compliance e KYC completo para este deal.${cadeContext}`),
+        user: parallelUser(`Realize o screening de compliance e KYC completo para este deal.${cadeContext}${cnpjData}`),
       }
     }
     case 'diagnostico':
@@ -721,13 +722,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const escritorioData = await loadEscritorio(analise.user_id)
     const escritorioIdParaBenchmarks = escritorioData.escritorioId ?? undefined
 
-    const [prompts, bcbData, cvmCapital, cvmComps, factsData, benchmarksData] = await Promise.all([
+    const [prompts, bcbData, cvmCapital, cvmComps, factsData, benchmarksData, cnpjData] = await Promise.all([
       loadPrompts(),
       (step === 'pesquisa' || step === 'estruturacao') ? fetchBCBIndicators() : Promise.resolve(''),
       step === 'estruturacao' ? fetchCapitalMarketsData(sectorKeywords)  : Promise.resolve(''),
       step === 'pesquisa'     ? fetchListedComparables(sectorKeywords)   : Promise.resolve(''),
       getFacts(id),
       stepUsaBenchmarks ? listBenchmarks({ escritorio_id: escritorioIdParaBenchmarks }) : Promise.resolve([]),
+      // Auto-pull documental: cadastro + QSA do CNPJ do detentor, só no KYC.
+      step === 'kyc' ? pullCNPJEnrichment(intake) : Promise.resolve(''),
     ])
     const escritorioBlock = escritorioData.block
     const feedbackBlock   = await loadFeedbacks(escritorioData.escritorioId)
@@ -846,7 +849,7 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
     }
 
     // Todos os outros steps
-    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock, feedbackBlock, bcbData, cvmCapital, cvmComps, intake, truthLayerBlock, benchmarksBlock)
+    const args = getStepArgs(step, prompts, intakeStr, allOutputs, outputs, escritorioBlock, feedbackBlock, bcbData, cvmCapital, cvmComps, intake, truthLayerBlock, benchmarksBlock, cnpjData)
     if (!args) return NextResponse.json({ error: 'Step inválido' }, { status: 400 })
 
     // Trava de segurança: a Anthropic aceita no máximo 4 blocos com cache_control
