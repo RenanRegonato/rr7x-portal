@@ -8,6 +8,7 @@ import { OttoInput, OttoTextarea, OttoSelect, Field } from '@/components/form-pr
 import { IconArrowRight, IconSparkle } from '@/components/Icons'
 import SaldoPacoteAviso from '@/components/SaldoPacoteAviso'
 import { AnaliseCreateSchema } from '@/lib/schemas'
+import { maskCpfCnpj, maskTelefone } from '@/lib/masks'
 import { z } from 'zod'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -76,7 +77,9 @@ const FIELD_LABELS: Record<string, { label: string; step: number }> = {
   obsMandato:            { label: 'Observações do mandato',       step: 1 },
 }
 
-const EMAIL_FIELDS = new Set(['emailProprietario', 'assessorEmail', 'parceiroEmail'])
+const EMAIL_FIELDS    = new Set(['emailProprietario', 'assessorEmail', 'parceiroEmail'])
+const CPFCNPJ_FIELDS  = new Set(['cpfCnpjProprietario'])
+const TELEFONE_FIELDS = new Set(['telefoneProprietario', 'assessorTelefone', 'parceiroTelefone'])
 
 // Transforma os erros do Zod (cliente) numa frase única em PT, com campo + etapa.
 function describeIntakeErrors(error: z.ZodError): string {
@@ -88,6 +91,8 @@ function describeIntakeErrors(error: z.ZodError): string {
     if (iss.code === 'too_big' && 'maximum' in iss)   why = `muito longo (máximo ${iss.maximum} caracteres)`
     else if (iss.code === 'too_small')                why = 'obrigatório'
     else if (EMAIL_FIELDS.has(key))                   why = 'e-mail inválido'
+    else if (CPFCNPJ_FIELDS.has(key))                 why = 'CPF ou CNPJ inválido'
+    else if (TELEFONE_FIELDS.has(key))                why = 'telefone inválido (DDD + número)'
     else if (key === 'linkDocumentos')                why = 'URL inválida'
     const where = info ? ` — etapa ${info.step + 1}` : ''
     return `${label}: ${why}${where}`
@@ -596,7 +601,9 @@ function StepContent({
         <Field label="CPF / CNPJ">
           <OttoInput
             value={form.cpfCnpjProprietario}
-            onChange={e => set('cpfCnpjProprietario', e.target.value)}
+            onChange={e => set('cpfCnpjProprietario', maskCpfCnpj(e.target.value))}
+            inputMode="numeric"
+            maxLength={18}
             placeholder="000.000.000-00"
           />
         </Field>
@@ -606,7 +613,9 @@ function StepContent({
           <OttoInput
             type="tel"
             value={form.telefoneProprietario}
-            onChange={e => set('telefoneProprietario', e.target.value)}
+            onChange={e => set('telefoneProprietario', maskTelefone(e.target.value))}
+            inputMode="numeric"
+            maxLength={15}
             placeholder="(11) 99999-9999"
           />
         </Field>
@@ -656,7 +665,9 @@ function StepContent({
               <OttoInput
                 type="tel"
                 value={form.assessorTelefone}
-                onChange={e => set('assessorTelefone', e.target.value)}
+                onChange={e => set('assessorTelefone', maskTelefone(e.target.value))}
+                inputMode="numeric"
+                maxLength={15}
                 placeholder="(11) 99999-9999"
               />
             </Field>
@@ -694,7 +705,9 @@ function StepContent({
               <OttoInput
                 type="tel"
                 value={form.parceiroTelefone}
-                onChange={e => set('parceiroTelefone', e.target.value)}
+                onChange={e => set('parceiroTelefone', maskTelefone(e.target.value))}
+                inputMode="numeric"
+                maxLength={15}
                 placeholder="(11) 99999-9999"
               />
             </Field>

@@ -1,9 +1,29 @@
 import { z } from 'zod'
+import { isValidCPF, isValidCNPJ } from './extract/br-parsers'
 
 const uuid    = z.string().uuid('ID inválido')
 const shortStr = (max = 200) => z.string().max(max).trim()
 const optUrl  = z.union([z.string().url('URL inválida').max(500), z.literal(''), z.undefined()])
 const optEmail = z.union([z.string().email('Email inválido').max(200), z.literal(''), z.undefined()])
+
+// CPF (11 díg. + DV) ou CNPJ (14 díg. + DV). Opcional; se vier, tem de ser válido
+// pelo dígito verificador — barra número incompleto/inventado antes do auto-pull.
+const onlyDigits = (s: string) => s.replace(/\D/g, '')
+const optCpfCnpj = z.union([
+  z.literal(''), z.undefined(),
+  z.string().max(20).refine(v => {
+    const d = onlyDigits(v)
+    return isValidCPF(d) || isValidCNPJ(d)
+  }, 'CPF ou CNPJ inválido'),
+])
+// Telefone BR: opcional; se vier, 10 (fixo) ou 11 (celular) dígitos.
+const optTelefone = z.union([
+  z.literal(''), z.undefined(),
+  z.string().max(20).refine(v => {
+    const n = onlyDigits(v).length
+    return n === 10 || n === 11
+  }, 'Telefone inválido (DDD + número)'),
+])
 
 // POST /api/analise
 export const AnaliseCreateSchema = z.object({
@@ -27,15 +47,15 @@ export const AnaliseCreateSchema = z.object({
   // ainda enviar esse campo, ele é simplesmente ignorado em vez de derrubar a
   // requisição com "URL inválida".
   nomeProprietario:      shortStr(200).optional(),
-  cpfCnpjProprietario:   shortStr(20).optional(),
-  telefoneProprietario:  shortStr(20).optional(),
+  cpfCnpjProprietario:   optCpfCnpj,
+  telefoneProprietario:  optTelefone,
   emailProprietario:     optEmail,
   obsProprietario:       shortStr(2000).optional(),
   assessorNome:          shortStr(200).optional(),
-  assessorTelefone:      shortStr(20).optional(),
+  assessorTelefone:      optTelefone,
   assessorEmail:         optEmail,
   parceiroNome:          shortStr(200).optional(),
-  parceiroTelefone:      shortStr(20).optional(),
+  parceiroTelefone:      optTelefone,
   parceiroEmail:         optEmail,
   obsMandato:            shortStr(2000).optional(),
 })
