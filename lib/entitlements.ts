@@ -50,3 +50,26 @@ export async function getUsuariosUsage(escritorioId: string | null): Promise<Usu
   const c = count ?? 0
   return { count: c, max, atLimit: max != null && c >= max }
 }
+
+export interface LimiteUsage {
+  count: number       // uso no período corrente
+  max: number | null  // limite do plano (null = ilimitado)
+  atLimit: boolean
+}
+
+// Buscas IA no Mapa feitas pelo escritório no mês corrente vs. mapa_buscas_ia_mes.
+// A contagem mensal (fuso America/Sao_Paulo) fica na RPC mercado_buscas_ia_mes_count.
+// Fail-open: se a tabela/RPC ainda não existir, count=0 (não bloqueia a busca).
+export async function getMapaBuscasIaUsage(escritorioId: string | null): Promise<LimiteUsage> {
+  const ent = await getEntitlements(escritorioId)
+  const max = ent ? ent.limites.mapa_buscas_ia_mes : null
+  if (!escritorioId) return { count: 0, max, atLimit: false }
+  const admin = createAdminClient()
+  const { data, error } = await admin.rpc('mercado_buscas_ia_mes_count', { p_escritorio_id: escritorioId })
+  if (error) {
+    console.error('[entitlements] mercado_buscas_ia_mes_count falhou:', error.message)
+    return { count: 0, max, atLimit: false }
+  }
+  const c = typeof data === 'number' ? data : 0
+  return { count: c, max, atLimit: max != null && c >= max }
+}

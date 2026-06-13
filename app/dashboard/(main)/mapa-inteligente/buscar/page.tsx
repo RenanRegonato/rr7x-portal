@@ -1,9 +1,9 @@
 // Mapa Inteligente do Mercado — Busca + resultados (filtros via form GET)
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { buscarEntidades, buscarSemantica } from '@/lib/mapa-mercado/queries'
-import { canMapaCompleto } from '@/lib/mapa-mercado/access'
+import { getUserContext } from '@/lib/get-role'
+import { hasModulo, getMapaBuscasIaUsage } from '@/lib/entitlements'
+import { buscarEntidades, buscarSemantica, registrarBuscaIa } from '@/lib/mapa-mercado/queries'
 import { TIPO_LABEL, type EntidadeTipo } from '@/lib/mapa-mercado/types'
 import { IconSearch, IconArrowLeft } from '@/components/Icons'
 import NotaMercado from '../_components/NotaMercado'
@@ -31,9 +31,9 @@ export default async function BuscarPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/auth/login')
+  const ctx = await getUserContext()
+  if (!ctx) redirect('/auth/login')
+  const isAdmin = ctx.role === 'admin'
 
   // tipos pode chegar como string ('gestora') OU array (['gestora','banco'])
   // quando o form marca vários checkboxes — tratar os dois casos.
@@ -44,8 +44,14 @@ export default async function BuscarPage({
   const q = primeiro(sp.q).trim()
   const tiposSel = comoArray(sp.tipos).filter(Boolean) as EntidadeTipo[]
   const uf = primeiro(sp.uf)
-  const podeIA = await canMapaCompleto() // busca semântica é do Mapa completo
-  const modoIA = primeiro(sp.modo) === 'ia' && !!q && podeIA
+
+  // Módulo (liga o recurso) + limite mensal de buscas IA (conta o uso).
+  const podeIA = isAdmin || await hasModulo(ctx.escritorioId, 'mapa_completo')
+  const querIA = primeiro(sp.modo) === 'ia' && !!q && podeIA
+  // Admin tem bypass do limite; demais checam mapa_buscas_ia_mes do mês corrente.
+  const usoIA = querIA && !isAdmin ? await getMapaBuscasIaUsage(ctx.escritorioId) : null
+  const limiteIaAtingido = usoIA?.atLimit ?? false
+  const modoIA = querIA && !limiteIaAtingido
 
   const resultados = modoIA
     ? await buscarSemantica(q, { tipos: tiposSel.length ? tiposSel : undefined, uf: uf || undefined, limit: 50 })
@@ -55,6 +61,11 @@ export default async function BuscarPage({
         uf: uf || undefined,
         limit: 50,
       })
+
+  // Registra a busca IA para a contagem mensal (best-effort; só não-admin).
+  if (modoIA && !isAdmin && ctx.escritorioId) {
+    await registrarBuscaIa(ctx.escritorioId, ctx.userId, q, resultados.length)
+  }
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto w-full">
@@ -115,6 +126,19 @@ export default async function BuscarPage({
 
         {/* Resultados */}
         <main>
+          {limiteIaAtingido && (
+            <div className="mb-3 bg-surface border border-accent-strong/30 rounded-xl px-4 py-3">
+              <p className="text-[13px] font-medium text-ink mb-0.5">
+                Limite de buscas IA do mês atingido
+              </p>
+              <p className="text-[12px] text-ink-3 leading-relaxed">
+                Seu plano inclui <span className="font-semibold text-ink">{usoIA?.max}</span> buscas inteligentes por mês.
+                Mostrando resultados por nome. O limite renova no início do próximo mês; para ampliar, faça upgrade
+                em <span className="text-accent-strong">Planos</span>.
+              </p>
+            </div>
+          )}
+
           <div className="flex items-baseline justify-between mb-3">
             <h1 className="text-lg font-semibold text-ink">
               {q ? <>Resultados para “{q}”</> : 'Participantes do mercado'}
@@ -122,6 +146,12 @@ export default async function BuscarPage({
             </h1>
             <span className="text-sm text-ink-3 tabular-nums">{resultados.length} {resultados.length === 1 ? 'resultado' : 'resultados'}</span>
           </div>
+
+          {modoIA && usoIA && usoIA.max != null && (
+            <p className="text-[11px] text-ink-3 -mt-2 mb-3">
+              Buscas IA: {Math.min(usoIA.count + 1, usoIA.max)} de {usoIA.max} este mês
+            </p>
+          )}
 
           {resultados.length === 0 ? (
             <div className="bg-surface border border-border rounded-xl p-8 text-center">

@@ -66,6 +66,27 @@ export async function buscarSemantica(
   return ((data ?? []) as Row[]).map(r => ({ ...r, rank: r.similaridade }))
 }
 
+// Registra uma busca IA executada (para o limite mensal mapa_buscas_ia_mes).
+// Best-effort: nunca quebra a renderização da busca.
+export async function registrarBuscaIa(
+  escritorioId: string,
+  userId: string,
+  q: string,
+  resultados: number,
+): Promise<void> {
+  try {
+    const admin = createAdminClient()
+    await admin.from('mapa_buscas_log').insert({
+      escritorio_id: escritorioId,
+      user_id:       userId,
+      q:             q.slice(0, 300),
+      resultados,
+    })
+  } catch (e) {
+    console.error('[mapa-mercado] registrarBuscaIa falhou:', e instanceof Error ? e.message : String(e))
+  }
+}
+
 export async function getEntidade(id: string): Promise<Entidade | null> {
   const admin = createAdminClient()
   const { data, error } = await admin
