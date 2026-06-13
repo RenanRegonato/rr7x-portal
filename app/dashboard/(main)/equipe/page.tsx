@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase-server'
 import { formatDateBR } from '@/lib/format-date'
 import { getUserContext } from '@/lib/get-role'
+import { getUsuariosUsage } from '@/lib/entitlements'
 import { redirect } from 'next/navigation'
 import Topbar from '@/components/Topbar'
 import ConvidarAssessor from './ConvidarAssessor'
@@ -21,6 +22,9 @@ export default async function EquipePage() {
   const { data: perfis } = ctx.escritorioId
     ? await admin.from('perfis').select('user_id, role').eq('escritorio_id', ctx.escritorioId)
     : { data: [] }
+
+  // Uso de assentos vs. limite usuarios_max do plano
+  const usage = await getUsuariosUsage(ctx.escritorioId)
 
   const memberIds = (perfis ?? [])
     .filter((p: { user_id: string; role: string }) => p.user_id !== ctx.userId)
@@ -48,9 +52,29 @@ export default async function EquipePage() {
       />
 
       <div className="p-8 max-w-3xl space-y-6">
-        {/* Invite button */}
+        {/* Convite + uso de assentos do plano */}
         {ctx.escritorioId && (
-          <ConvidarAssessor />
+          <div className="space-y-2">
+            {usage.atLimit ? (
+              <div className="bg-surface border border-border rounded-[14px] p-5 shadow-soft-sm">
+                <p className="text-[13px] font-medium text-ink mb-1">
+                  Limite de usuários do plano atingido
+                </p>
+                <p className="text-[12px] text-ink-3 leading-relaxed">
+                  Seu plano permite <span className="font-semibold text-ink">{usage.max}</span> usuários.
+                  Para ampliar a equipe, faça upgrade em <span className="text-accent-strong">Planos</span> ou
+                  fale com o suporte.
+                </p>
+              </div>
+            ) : (
+              <ConvidarAssessor />
+            )}
+            {usage.max != null && (
+              <p className="text-[11px] text-ink-3">
+                {usage.count} de {usage.max} usuários do plano
+              </p>
+            )}
+          </div>
         )}
 
         {membros.length === 0 ? (

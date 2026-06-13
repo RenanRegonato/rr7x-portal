@@ -4,6 +4,7 @@ import { getUserContext } from '@/lib/get-role'
 import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { ConvidarSchema } from '@/lib/schemas'
 import { audit, extractIp } from '@/lib/audit'
+import { getUsuariosUsage } from '@/lib/entitlements'
 
 export async function POST(req: NextRequest) {
   const ctx = await getUserContext()
@@ -24,6 +25,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Email inválido' }, { status: 400 })
   }
   const { email } = parsed.data
+
+  // Limite de assentos do plano (usuarios_max). Conta perfis já provisionados,
+  // então convites pendentes contam. Admin tem bypass (não passa por aqui).
+  const usage = await getUsuariosUsage(ctx.escritorioId)
+  if (usage.atLimit) {
+    return NextResponse.json(
+      { error: `Limite de ${usage.max} usuários do plano atingido. Fale com o suporte para ampliar a equipe.` },
+      { status: 403 },
+    )
+  }
 
   const admin = createAdminClient()
 

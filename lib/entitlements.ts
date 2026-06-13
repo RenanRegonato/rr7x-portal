@@ -28,3 +28,25 @@ export async function getLimite(escritorioId: string | null, limite: LimiteKey):
   const ent = await getEntitlements(escritorioId)
   return ent ? ent.limites[limite] : null
 }
+
+export interface UsuariosUsage {
+  count: number       // total de perfis vinculados ao escritório (inclui o gerente)
+  max: number | null  // limite usuarios_max do plano (null = ilimitado)
+  atLimit: boolean    // já atingiu/excedeu o limite
+}
+
+// Uso de assentos do escritório vs. o limite usuarios_max do plano.
+// Conta perfis já provisionados (convites pendentes criam perfil), evitando
+// burlar o limite disparando vários convites de uma vez.
+export async function getUsuariosUsage(escritorioId: string | null): Promise<UsuariosUsage> {
+  const ent = await getEntitlements(escritorioId)
+  const max = ent ? ent.limites.usuarios_max : null
+  if (!escritorioId) return { count: 0, max, atLimit: false }
+  const admin = createAdminClient()
+  const { count } = await admin
+    .from('perfis')
+    .select('*', { count: 'exact', head: true })
+    .eq('escritorio_id', escritorioId)
+  const c = count ?? 0
+  return { count: c, max, atLimit: max != null && c >= max }
+}
