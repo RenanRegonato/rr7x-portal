@@ -1,12 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
-import { isAdminViewer } from '@/lib/get-role'
+import { isAdminViewer, getUserContext, canAccessAnalise } from '@/lib/get-role'
 
 async function isOwner(analiseId: string, userId: string): Promise<boolean> {
   const admin = createAdminClient()
-  const { data } = await admin.from('analises').select('user_id').eq('id', analiseId).single()
+  const { data } = await admin.from('analises').select('user_id').eq('id', analiseId).maybeSingle()
   if (data?.user_id === userId) return true
   return isAdminViewer(userId)
+}
+
+// Pode ver o deal: dono, gerente do time, admin, ou membro do deal.
+async function canViewDeal(analiseId: string): Promise<boolean> {
+  const ctx = await getUserContext()
+  if (!ctx) return false
+  const admin = createAdminClient()
+  const { data: analise } = await admin.from('analises').select('user_id').eq('id', analiseId).maybeSingle()
+  if (!analise) return false
+  if (await canAccessAnalise(ctx, analise.user_id)) return true
+  const { data: membro } = await admin
+    .from('deal_members')
+    .select('id')
+    .eq('analise_id', analiseId)
+    .eq('user_id', ctx.userId)
+    .maybeSingle()
+  return !!membro
 }
 
 // GET /api/analise/members?id=X
@@ -17,6 +34,8 @@ export async function GET(req: NextRequest) {
 
   const id = req.nextUrl.searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'ID obrigatório' }, { status: 400 })
+
+  if (!await canViewDeal(id)) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
 
   const admin = createAdminClient()
   const { data } = await admin
