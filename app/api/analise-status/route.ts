@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
 import { sendCompletionEmail, sendErrorNotification } from '@/lib/email'
 import { decryptSensitiveFields } from '@/lib/crypto'
+import { getUserContext } from '@/lib/get-role'
+import { getRegeneracoesUsage } from '@/lib/entitlements'
 
 export async function GET(req: NextRequest) {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+
+  const ctx = await getUserContext()
 
   const id = req.nextUrl.searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'ID obrigatório' }, { status: 400 })
@@ -50,16 +54,22 @@ export async function GET(req: NextRequest) {
 
   const { data } = await admin
     .from('analises')
-    .select('id, status, outputs, nome_ativo, deal_intake, criado_em, regeneracoes_count, facts_extracted_at, consistency_checked_at, mesa_revisao, mesa_revisao_at, risk_correlation_at, coverage_check, coverage_checked_at')
+    .select('id, user_id, status, outputs, nome_ativo, deal_intake, criado_em, regeneracoes_count, facts_extracted_at, consistency_checked_at, mesa_revisao, mesa_revisao_at, risk_correlation_at, coverage_check, coverage_checked_at')
     .eq('id', id)
     .single()
 
   if (!data) return NextResponse.json(null)
 
-  // Decrypt PII fields before sending to the client
+  // Limite de regenerações do plano (admin tem bypass -> ilimitado/null).
+  const uso = await getRegeneracoesUsage(data.user_id, data.regeneracoes_count ?? 0)
+  const regeneracoes_max = ctx?.role === 'admin' ? null : uso.max
+
+  // Não expõe o user_id do dono ao cliente; decifra PII antes de enviar.
+  const { user_id: _ownerId, ...safe } = data
   const response = {
-    ...data,
+    ...safe,
     deal_intake: data.deal_intake ? decryptSensitiveFields(data.deal_intake) : null,
+    regeneracoes_max,
   }
 
   return NextResponse.json(response)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient, createServerSupabaseClient } from '@/lib/supabase-server'
 import { getUserContext, canAccessAnalise } from '@/lib/get-role'
+import { getRegeneracoesUsage } from '@/lib/entitlements'
 import { RegenerarAvaliarSchema } from '@/lib/schemas'
 import { audit, extractIp } from '@/lib/audit'
 import { avaliarPedidoRegeneracao } from '@/lib/agents/revisor'
@@ -89,12 +90,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const podeAcessar = await canAccessAnalise(ctx, analise.user_id)
   if (!podeAcessar) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
 
-  // Limite de 3 regenerações (denormalizado em analises.regeneracoes_count)
-  const LIMITE = 3
-  if ((analise.regeneracoes_count ?? 0) >= LIMITE) {
+  // Limite de regenerações do plano (denormalizado em analises.regeneracoes_count).
+  // Resolve o teto pelo escritório DONO da análise; admin (Gestor Geral) bypassa.
+  const uso = await getRegeneracoesUsage(analise.user_id, analise.regeneracoes_count ?? 0)
+  if (ctx.role !== 'admin' && uso.atLimit) {
     return NextResponse.json(
       {
-        error: `Limite de ${LIMITE} regenerações atingido. Para novas alterações, é necessário subir o Deal novamente, consumindo uma nova análise do pacote.`,
+        error: `Limite de ${uso.max} regenerações atingido. Para novas alterações, é necessário subir o Deal novamente, consumindo uma nova análise do pacote.`,
         limite_atingido: true,
       },
       { status: 403 }
@@ -199,6 +201,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     ia_decisao:     revisor.decisao,
     ia_argumento:   revisor.argumento,
     ia_riscos:      revisor.riscos,
-    regeneracoes_restantes: LIMITE - (analise.regeneracoes_count ?? 0),
+    regeneracoes_restantes: uso.max == null ? null : Math.max(0, uso.max - (analise.regeneracoes_count ?? 0)),
   })
 }

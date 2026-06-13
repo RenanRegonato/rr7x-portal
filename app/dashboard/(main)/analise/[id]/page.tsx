@@ -198,6 +198,8 @@ export default function AnalisePage() {
   // Regenerar com briefing
   const [regenStep,    setRegenStep]    = useState<string | null>(null)
   const [regenCount,   setRegenCount]   = useState(0)
+  // Teto de regenerações do plano (null = ilimitado, ex.: admin). Fallback no preset.
+  const [regenMax,     setRegenMax]     = useState<number | null>(MAX_REGENERACOES)
 
   // Cascade após regenerar
   const [cascadeModalOpen,   setCascadeModalOpen]   = useState(false)
@@ -413,6 +415,7 @@ export default function AnalisePage() {
       setAnalise(data)
       setStatus(data.status)
       setRegenCount(Number(data.regeneracoes_count ?? 0))
+      if (data.regeneracoes_max !== undefined) setRegenMax(data.regeneracoes_max)
       const existing = (data.outputs ?? {}) as Record<string, string>
       setOutputs(existing)
 
@@ -651,6 +654,7 @@ export default function AnalisePage() {
         runningSteps={runningSteps}
         onReprocessStep={(step) => setRegenStep(step)}
         regenCount={regenCount}
+        regenMax={regenMax}
       />
       {regenStep && (
         <RegenerarModal
@@ -658,7 +662,7 @@ export default function AnalisePage() {
           step={regenStep}
           stepLabel={regenStepLabel}
           regeneracoesCount={regenCount}
-          maxRegeneracoes={MAX_REGENERACOES}
+          maxRegeneracoes={regenMax}
           open={true}
           onClose={() => setRegenStep(null)}
           onConfirmed={(regeneracaoId) => {
@@ -816,7 +820,7 @@ function SquadView({
 function DealDetail({
   analise, outputs, status, activeTab, setActiveTab,
   onBack, onRegenerate, runningSteps,
-  onReprocessStep, regenCount,
+  onReprocessStep, regenCount, regenMax,
 }: {
   analise:          any
   outputs:          Record<string, string>
@@ -828,6 +832,7 @@ function DealDetail({
   runningSteps:     Set<string>
   onReprocessStep:  (step: string) => void
   regenCount:       number
+  regenMax:         number | null
 }) {
   const runningConsolidado = runningSteps.has('relatorio_consolidado')
   const [showPipeline,   setShowPipeline]   = useState(false)
@@ -1089,8 +1094,8 @@ function DealDetail({
             pdfMeta={pdfMeta}
             onReprocess={() => onReprocessStep(activeTab)}
             isReprocessing={runningSteps.has(activeTab)}
-            regenLabel={`Regenerar (${regenCount}/${MAX_REGENERACOES})`}
-            regenDisabled={regenCount >= MAX_REGENERACOES || runningSteps.has(activeTab)}
+            regenLabel={regenMax == null ? `Regenerar (${regenCount})` : `Regenerar (${regenCount}/${regenMax})`}
+            regenDisabled={(regenMax != null && regenCount >= regenMax) || runningSteps.has(activeTab)}
           />
           </>
         ) : (

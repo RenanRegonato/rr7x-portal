@@ -73,3 +73,21 @@ export async function getMapaBuscasIaUsage(escritorioId: string | null): Promise
   const c = typeof data === 'number' ? data : 0
   return { count: c, max, atLimit: max != null && c >= max }
 }
+
+// Regenerações de uma análise vs. regeneracoes_por_analise do plano do escritório
+// DONO da análise. count = analise.regeneracoes_count (contador denormalizado).
+export async function getRegeneracoesUsage(
+  ownerUserId: string,
+  regeneracoesCount: number,
+): Promise<LimiteUsage> {
+  const admin = createAdminClient()
+  const { data: perfil } = await admin
+    .from('perfis')
+    .select('escritorio_id')
+    .eq('user_id', ownerUserId)
+    .maybeSingle()
+  const ent = await getEntitlements(perfil?.escritorio_id ?? null)
+  const max = ent ? ent.limites.regeneracoes_por_analise : null
+  const count = regeneracoesCount ?? 0
+  return { count, max, atLimit: max != null && count >= max }
+}

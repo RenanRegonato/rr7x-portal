@@ -17,7 +17,7 @@ interface RegenerarModalProps {
   step:               string
   stepLabel:          string
   regeneracoesCount:  number
-  maxRegeneracoes:    number
+  maxRegeneracoes:    number | null  // null = ilimitado (ex.: admin)
   open:               boolean
   onClose:            () => void
   /** Chamado quando o assessor confirma a execução. O parent deve disparar
@@ -39,8 +39,9 @@ export default function RegenerarModal({
 
   if (!open) return null
 
-  const limiteAtingido = regeneracoesCount >= maxRegeneracoes
-  const restantesAntes  = maxRegeneracoes - regeneracoesCount
+  const ilimitado       = maxRegeneracoes == null
+  const limiteAtingido  = !ilimitado && regeneracoesCount >= maxRegeneracoes
+  const restantesAntes  = ilimitado ? null : maxRegeneracoes - regeneracoesCount
 
   function reset() {
     setEstado('formulario')
@@ -132,7 +133,7 @@ export default function RegenerarModal({
             <h2 className="font-display text-[20px] font-medium tracking-tight">Regenerar Resumo</h2>
             <p className="text-[12px] text-ink-3 mt-0.5">
               Step: <span className="font-medium text-ink-2">{stepLabel}</span>
-              {' '}· {regeneracoesCount}/{maxRegeneracoes} regenerações usadas
+              {' '}· {ilimitado ? `${regeneracoesCount} regenerações usadas` : `${regeneracoesCount}/${maxRegeneracoes} regenerações usadas`}
             </p>
           </div>
           <button onClick={fechar} className="text-ink-3 hover:text-ink text-[20px] leading-none">×</button>
@@ -155,7 +156,9 @@ export default function RegenerarModal({
               <div className="rounded-[10px] bg-accent-soft/30 border border-accent/30 p-3 text-[12px] text-ink-2">
                 Preencha o briefing abaixo. A IA Revisora avaliará tecnicamente se a alteração faz sentido
                 no contexto da análise. A decisão final é sua, mesmo que ela contra-argumente, você pode
-                prosseguir. Você tem <strong>{restantesAntes} regenerações restantes</strong>.
+                prosseguir. {ilimitado
+                  ? <>Esta análise tem <strong>regenerações ilimitadas</strong>.</>
+                  : <>Você tem <strong>{restantesAntes} regenerações restantes</strong>.</>}
               </div>
 
               <div>
@@ -238,7 +241,9 @@ export default function RegenerarModal({
 
               <div className="rounded-[8px] bg-surface border border-border p-3 text-[12px] text-ink-3">
                 A decisão final é sua. Você pode prosseguir mesmo que o Revisor tenha contra-argumentado.
-                Esta regeneração consumirá <strong>1 das suas {restantesAntes} restantes</strong>.
+                {ilimitado
+                  ? <> Esta regeneração consumirá <strong>1 regeneração</strong>.</>
+                  : <> Esta regeneração consumirá <strong>1 das suas {restantesAntes} restantes</strong>.</>}
               </div>
 
               {erro && (
