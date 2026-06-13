@@ -79,13 +79,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: updateError.message }, { status: 500 })
   }
 
-  await admin
-    .from('analises')
-    .update({
-      regeneracoes_count: (analise.regeneracoes_count ?? 0) + 1,
-      atualizado_em: agora,
-    })
-    .eq('id', analiseId)
+  // Incremento atômico (evita lost-update entre regenerações simultâneas).
+  // Fallback read-modify-write enquanto a RPC não estiver aplicada no banco.
+  const { data: novoCount, error: incErr } = await admin.rpc('increment_regeneracoes_count', { p_analise_id: analiseId })
+  let count: number
+  if (incErr || typeof novoCount !== 'number') {
+    count = (analise.regeneracoes_count ?? 0) + 1
+    await admin.from('analises').update({ regeneracoes_count: count, atualizado_em: agora }).eq('id', analiseId)
+  } else {
+    count = novoCount
+  }
 
   void audit({
     event:    'regeneracao.executada',
@@ -95,7 +98,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       analise_id: analiseId,
       step: regeneracao.step_key,
       ia_decisao: regeneracao.ia_decisao,
-      novo_count: (analise.regeneracoes_count ?? 0) + 1,
+      novo_count: count,
     },
     ip:       extractIp(req.headers),
     userAgent: req.headers.get('user-agent'),
@@ -103,7 +106,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   return NextResponse.json({
     ok: true,
-    regeneracoes_count: (analise.regeneracoes_count ?? 0) + 1,
-    regeneracoes_restantes: uso.max == null ? null : Math.max(0, uso.max - ((analise.regeneracoes_count ?? 0) + 1)),
+    regeneracoes_count: count,
+    regeneracoes_restantes: uso.max == null ? null : Math.max(0, uso.max - count),
   })
 }

@@ -877,23 +877,46 @@ Seja completamente honesto: se um documento não pôde ser lido, diga claramente
     // assessor como prefixo no user content. O Revisor já aprovou ou o
     // assessor decidiu prosseguir apesar do contra-argumento.
     if (regeneracao_id) {
-      const { data: regen } = await admin
+      // Claim atômico: o briefing (pago) só é aplicado na PRIMEIRA chamada de /step
+      // desta regeneração. Reusos não re-injetam o briefing. Fallback para o
+      // comportamento antigo enquanto a coluna aplicada_em não existir no banco.
+      let briefing: { briefing_o_que: string; briefing_motivo: string } | null = null
+      const claim = await admin
         .from('regeneracoes')
-        .select('briefing_o_que, briefing_motivo, executada, step_key, analise_id')
+        .update({ aplicada_em: new Date().toISOString() })
         .eq('id', regeneracao_id)
+        .eq('analise_id', id)
+        .eq('step_key', step)
+        .eq('executada', true)
+        .is('aplicada_em', null)
+        .select('briefing_o_que, briefing_motivo')
         .maybeSingle()
 
-      if (regen && regen.executada && regen.analise_id === id && regen.step_key === step) {
+      if (claim.error) {
+        // Pré-migration: coluna aplicada_em ainda não existe.
+        const { data: regen } = await admin
+          .from('regeneracoes')
+          .select('briefing_o_que, briefing_motivo, executada, step_key, analise_id')
+          .eq('id', regeneracao_id)
+          .maybeSingle()
+        if (regen && regen.executada && regen.analise_id === id && regen.step_key === step) {
+          briefing = { briefing_o_que: regen.briefing_o_que, briefing_motivo: regen.briefing_motivo }
+        }
+      } else if (claim.data) {
+        briefing = claim.data
+      }
+
+      if (briefing) {
         const briefingHeader =
 `# DIRETRIZ DE REGENERAÇÃO (BRIEFING DO ASSESSOR)
 
 O assessor responsável solicitou a regeneração deste step com o seguinte briefing. Considere essas diretrizes ao produzir o novo output, mantendo o rigor técnico habitual da análise.
 
 **O que ele quer alterar:**
-${regen.briefing_o_que}
+${briefing.briefing_o_que}
 
 **Motivo:**
-${regen.briefing_motivo}
+${briefing.briefing_motivo}
 
 ---
 
