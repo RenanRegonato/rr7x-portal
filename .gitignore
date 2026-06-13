@@ -44,3 +44,6 @@ next-env.d.ts
 
 # material-fonte da KB da reforma tributária (PDFs pesados, não usados em runtime)
 /reforma
+
+# backups locais / off-site (Arquivo Âncora .docx + zip pesado) — vivem só no Drive
+/Backup
