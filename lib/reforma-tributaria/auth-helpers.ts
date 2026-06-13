@@ -5,22 +5,17 @@
 import { createAdminClient } from '@/lib/supabase-server'
 // resolveEscritorioId é genérico (resolução de tenant), reutilizado entre módulos.
 import { resolveEscritorioId } from '@/lib/invest-match/auth-helpers'
+import { hasModulo } from '@/lib/entitlements'
 
 export { resolveEscritorioId }
 
 /**
- * O escritório contratou o módulo Adequação à Reforma Tributária (premium)?
- * Flag controlada exclusivamente pelo gestor master do Mandor (admin).
+ * O escritório contratou o módulo Adequação à Reforma Tributária?
+ * Resolve via entitlements (preset + overrides), com fallback na flag antiga
+ * reforma_tributaria_enabled. Configurado em Admin → Planos & Acessos.
  */
 export async function isReformaTributariaEnabled(escritorioId: string | null): Promise<boolean> {
-  if (!escritorioId) return false
-  const admin = createAdminClient()
-  const { data } = await admin
-    .from('escritorios')
-    .select('reforma_tributaria_enabled')
-    .eq('id', escritorioId)
-    .maybeSingle()
-  return data?.reforma_tributaria_enabled === true
+  return hasModulo(escritorioId, 'reforma_tributaria')
 }
 
 export type ReformaTributariaGate =

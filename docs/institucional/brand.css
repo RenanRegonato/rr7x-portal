@@ -1,0 +1,210 @@
+/* ============================================================================
+   MANDOR · Brand Book v1 · Folha de estilo institucional para PDF
+   Sistema editorial: Archive Ivory + Editorial Ink + Oxidized Bronze
+   Fontes: Newsreader (display/serif), Hanken Grotesk (texto), Courier Prime (mono)
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Hanken+Grotesk:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap");
+
+:root{
+  --ivory:#EDE9E5; --fog:#E5E0D9; --mist:#DDD7CD;
+  --ink:#211F1A; --ink2:#4A4843; --ink3:#7C7A74; --ink4:#9E9C97;
+  --line:#D8D3CB; --line-strong:#C2BDB4; --line-subtle:#E5E0D9;
+  --bronze:#8C6F45; --bronze-soft:#E8E2D6; --bronze-hover:#7A6038; --bronze-strong:#65502E;
+  --graphite:#1A1815; --graphite2:#22201C; --graphite3:#2E2B26;
+  --on-dark:#EDE9E5; --on-dark2:#B5B0A6; --dark-line:#38342D;
+}
+
+/* ---- Página -------------------------------------------------------------- */
+@page{
+  size: A4;
+  margin: 18mm 17mm 20mm 17mm;
+  @bottom-left{
+    content: "Rede Cognitiva Mandor";
+    font-family:"Hanken Grotesk", sans-serif; font-size:7pt;
+    letter-spacing:0.12em; color:#9E9C97;
+  }
+  @bottom-center{
+    content: "Confidencial";
+    font-family:"Hanken Grotesk", sans-serif; font-size:7pt;
+    letter-spacing:0.18em; text-transform:uppercase; color:#C2BDB4;
+  }
+  @bottom-right{
+    content: counter(page);
+    font-family:"Newsreader", serif; font-size:8.5pt; color:#8C6F45;
+  }
+}
+@page cover{ margin:0; @bottom-left{content:none} @bottom-center{content:none} @bottom-right{content:none} }
+
+*{ box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+html,body{ margin:0; padding:0; }
+body{
+  background:var(--ivory);
+  color:var(--ink);
+  font-family:"Hanken Grotesk", system-ui, sans-serif;
+  font-size:10.3pt; line-height:1.62;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---- Tipografia ---------------------------------------------------------- */
+h1,h2,h3,h4{ font-family:"Newsreader", Georgia, serif; font-weight:600; color:var(--ink); margin:0; }
+p{ margin:0 0 9pt; }
+strong{ font-weight:600; color:var(--ink); }
+em{ font-style:italic; }
+a{ color:var(--bronze-strong); text-decoration:none; }
+.mono{ font-family:"Courier Prime", monospace; }
+
+/* ---- Capa (full bleed) --------------------------------------------------- */
+.cover{
+  page:cover; break-after:page;
+  background:var(--graphite); color:var(--on-dark);
+  height:297mm; width:210mm; position:relative;
+  padding:26mm 24mm;
+  display:flex; flex-direction:column;
+}
+.cover-top{ display:flex; justify-content:space-between; align-items:flex-start; }
+.lockup{ display:flex; align-items:center; gap:11px; }
+.lockup .wm{ font-family:"Newsreader", serif; font-weight:500; font-size:25pt; letter-spacing:0.16em; color:var(--on-dark); }
+.cover-class{
+  text-align:right; font-size:7pt; letter-spacing:0.22em; text-transform:uppercase;
+  color:var(--on-dark2); line-height:1.7; font-weight:600;
+}
+.cover-body{ margin-top:auto; }
+.cover-kicker{
+  font-size:8.5pt; letter-spacing:0.34em; text-transform:uppercase;
+  color:var(--bronze); font-weight:700; margin-bottom:14px;
+}
+.cover-title{
+  font-family:"Newsreader", Georgia, serif;
+  font-size:47pt; line-height:1.03; color:var(--on-dark);
+  font-weight:600; letter-spacing:-0.005em; margin-bottom:16px;
+}
+.cover-sub{
+  font-size:13pt; color:var(--on-dark2); line-height:1.55; max-width:142mm;
+  font-weight:400; margin-bottom:26px;
+}
+.cover-rule{ width:64px; height:2px; background:var(--bronze); margin:0 0 22px; }
+.cover-meta{ display:flex; gap:34px; }
+.cover-meta .k{ font-size:6.8pt; letter-spacing:0.18em; text-transform:uppercase; color:var(--on-dark2); margin-bottom:4px; font-weight:600; }
+.cover-meta .v{ font-size:10pt; color:var(--on-dark); font-weight:500; font-family:"Newsreader",serif; }
+.cover-foot{
+  position:absolute; left:24mm; right:24mm; bottom:18mm;
+  border-top:1px solid var(--dark-line); padding-top:9px;
+  display:flex; justify-content:space-between;
+  font-size:7.5pt; color:var(--on-dark2); letter-spacing:0.04em;
+}
+
+/* monograma I/I */
+.mono-mark{ display:inline-block; }
+.mono-mark svg{ display:block; }
+
+/* ---- Sumário ------------------------------------------------------------- */
+.toc{ break-before:page; padding-top:6mm; }
+.toc-list{ margin-top:14px; }
+.toc-row{
+  display:flex; align-items:baseline; gap:12px;
+  padding:7.5pt 0; border-bottom:1px solid var(--line-subtle);
+}
+.toc-num{ font-family:"Newsreader",serif; font-size:11pt; color:var(--bronze); width:26px; flex:none; font-weight:600; }
+.toc-ttl{ font-size:10.5pt; color:var(--ink); font-weight:500; }
+.toc-sub{ font-size:9pt; color:var(--ink3); margin-left:auto; text-align:right; }
+
+/* ---- Seções -------------------------------------------------------------- */
+section{ break-before:page; padding-top:2mm; }
+section.no-break{ break-before:auto; }
+.sec-head{ margin-bottom:14px; border-bottom:1.5px solid var(--ink); padding-bottom:11px; }
+.sec-kicker{
+  display:flex; align-items:center; gap:9px;
+  font-size:7.5pt; letter-spacing:0.26em; text-transform:uppercase;
+  color:var(--bronze); font-weight:700; margin-bottom:9px;
+}
+.sec-kicker .chip{
+  display:inline-grid; place-items:center; width:22px; height:22px;
+  background:var(--bronze-soft); color:var(--bronze-strong);
+  font-family:"Newsreader",serif; font-weight:600; font-size:10pt;
+  border-radius:3px; letter-spacing:0;
+}
+h2.sec-title{ font-size:23pt; line-height:1.1; letter-spacing:-0.01em; }
+.sec-lede{ font-size:11.5pt; color:var(--ink2); line-height:1.55; margin:11px 0 4px; max-width:158mm; font-family:"Newsreader",serif; }
+
+h3{ font-size:13.5pt; margin:18px 0 7px; color:var(--ink); }
+h4{ font-size:11pt; margin:13px 0 5px; color:var(--bronze-strong); font-family:"Hanken Grotesk",sans-serif; font-weight:700; letter-spacing:0.02em; text-transform:uppercase; font-size:8.5pt; }
+
+ul,ol{ margin:0 0 9pt; padding-left:17px; }
+li{ margin:0 0 4pt; }
+li::marker{ color:var(--bronze); }
+
+/* ---- Componentes --------------------------------------------------------- */
+.callout{
+  background:var(--fog); border-left:3px solid var(--bronze);
+  padding:11px 15px; margin:12px 0; border-radius:0 6px 6px 0;
+  break-inside:avoid;
+}
+.callout .lbl{ font-size:7.5pt; letter-spacing:0.16em; text-transform:uppercase; color:var(--bronze-strong); font-weight:700; margin-bottom:3px; }
+.callout p{ margin:0; font-size:9.8pt; color:var(--ink2); }
+
+.reading{
+  font-size:9.6pt; color:var(--ink2); font-style:italic;
+  font-family:"Newsreader",serif; border-top:1px dashed var(--line-strong);
+  padding-top:7px; margin:9px 0 4px;
+}
+.reading b{ font-style:normal; color:var(--bronze-strong); font-family:"Hanken Grotesk",sans-serif; font-weight:700; font-size:8pt; letter-spacing:0.08em; text-transform:uppercase; }
+
+table{ width:100%; border-collapse:collapse; margin:12px 0; font-size:9.2pt; break-inside:avoid; }
+thead th{
+  background:var(--graphite2); color:var(--on-dark);
+  text-align:left; padding:7px 9px; font-weight:600;
+  font-size:8pt; letter-spacing:0.04em; text-transform:uppercase;
+}
+tbody td{ padding:6.5px 9px; border-bottom:1px solid var(--line); color:var(--ink2); vertical-align:top; }
+tbody tr:nth-child(even) td{ background:var(--fog); }
+tbody td strong{ color:var(--ink); }
+
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:11px; margin:12px 0; }
+.card{
+  background:var(--mist); border:1px solid var(--line); border-radius:7px;
+  padding:13px 15px; break-inside:avoid;
+}
+.card h4{ margin-top:0; }
+.card p{ font-size:9.4pt; color:var(--ink2); margin:0; }
+.card .big{ font-family:"Newsreader",serif; font-size:19pt; color:var(--bronze-strong); font-weight:600; display:block; margin-bottom:2px; }
+
+.steps{ counter-reset:step; margin:12px 0; padding:0; list-style:none; }
+.steps li{
+  position:relative; padding:0 0 12px 34px; margin:0;
+  border-left:1px solid var(--line); margin-left:11px;
+}
+.steps li:last-child{ border-left:1px solid transparent; }
+.steps li::before{
+  counter-increment:step; content:counter(step);
+  position:absolute; left:-11px; top:-2px;
+  width:22px; height:22px; background:var(--bronze); color:var(--ivory);
+  border-radius:50%; display:grid; place-items:center;
+  font-family:"Newsreader",serif; font-size:9.5pt; font-weight:600;
+}
+.steps li .st{ font-weight:600; color:var(--ink); display:block; margin-bottom:1px; }
+.steps li .sd{ font-size:9.4pt; color:var(--ink2); }
+
+.tag{
+  display:inline-block; font-size:7pt; letter-spacing:0.08em; text-transform:uppercase;
+  font-weight:700; padding:2px 7px; border-radius:20px; vertical-align:middle;
+  background:var(--bronze-soft); color:var(--bronze-strong);
+}
+.tag.live{ background:#E6EFE6; color:#2F6B3A; }
+.tag.adm{ background:#EDE3D6; color:#7A6038; }
+
+.kv{ display:grid; grid-template-columns:auto 1fr; gap:3px 16px; margin:10px 0; font-size:9.6pt; }
+.kv dt{ color:var(--ink3); font-weight:600; }
+.kv dd{ margin:0; color:var(--ink2); }
+
+.divider{ height:1px; background:var(--line); margin:16px 0; border:0; }
+
+.closing{
+  background:var(--graphite); color:var(--on-dark);
+  border-radius:9px; padding:22px 26px; margin:16px 0;
+}
+.closing h3{ color:var(--on-dark); font-size:15pt; margin-top:0; }
+.closing p{ color:var(--on-dark2); font-size:10pt; }
+.closing .sig{ color:var(--bronze); font-family:"Newsreader",serif; font-size:11pt; margin-top:10px; }

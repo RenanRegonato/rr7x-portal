@@ -3,6 +3,7 @@ import { getUserContext } from '@/lib/get-role'
 import { redirect } from 'next/navigation'
 import Sidebar from '@/components/Sidebar'
 import OnboardingTour from '@/components/OnboardingTour'
+import DicaPagina from '@/components/DicaPagina'
 
 const ROLE_LABEL: Record<string, string> = {
   admin:    'Administrador',
@@ -33,6 +34,7 @@ export default async function DashboardMainLayout({ children }: { children: Reac
         {children}
       </main>
       <OnboardingTour autoStart={!onboardingDone}/>
+      <DicaPagina/>
     </div>
   )
 }

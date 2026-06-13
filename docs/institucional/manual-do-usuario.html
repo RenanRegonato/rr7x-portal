@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Mandor · Manual do Usuário</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* Manual é documento operacional, não confidencial: ajusta o rótulo do rodapé. */
+  @page{ @bottom-center{
+    content:"Uso interno"; font-family:"Hanken Grotesk", sans-serif;
+    font-size:7pt; letter-spacing:0.18em; text-transform:uppercase; color:#C2BDB4;
+  } }
+</style>
+</head>
+<body>
+
+<!-- ============================ CAPA ============================ -->
+<div class="cover">
+  <div class="cover-top">
+    <div class="lockup">
+      <span class="mono-mark">
+        <svg width="29" height="30" viewBox="0 0 48 50" fill="#EDE9E5"><rect x="0" y="0" width="10" height="50"/><polygon points="25.4,0 35.4,0 22,50 12,50"/><rect x="37.4" y="0" width="10" height="50"/></svg>
+      </span>
+      <span class="wm">MANDOR</span>
+    </div>
+    <div class="cover-class">Documento Operacional<br>Uso interno do escritório</div>
+  </div>
+
+  <div class="cover-body">
+    <div class="cover-kicker">Manual do Usuário</div>
+    <div class="cover-title">Guia operacional<br>do Mandor.</div>
+    <div class="cover-sub">Como gestores, assessores e operadores autorizados usam o Mandor no dia a dia: do primeiro acesso à leitura do parecer.</div>
+    <div class="cover-rule"></div>
+    <div class="cover-meta">
+      <div><div class="k">Edição</div><div class="v">Junho de 2026</div></div>
+      <div><div class="k">Versão</div><div class="v">1.1</div></div>
+      <div><div class="k">Público</div><div class="v">Escritórios e assessorias</div></div>
+    </div>
+  </div>
+
+  <div class="cover-foot">
+    <span>O Mandor · Guia Operacional</span>
+    <span>www.mandor.com.br</span>
+  </div>
+</div>
+
+<!-- ============================ SUMÁRIO ============================ -->
+<section class="toc">
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">§</span> Conteúdo</div>
+    <h2 class="sec-title">Sumário</h2>
+  </div>
+  <div class="toc-list">
+    <div class="toc-row"><span class="toc-num">01</span><span class="toc-ttl">Apresentação do Mandor</span><span class="toc-sub">O que é e para que serve</span></div>
+    <div class="toc-row"><span class="toc-num">02</span><span class="toc-ttl">Primeiro Acesso</span><span class="toc-sub">Login, convite e duas etapas</span></div>
+    <div class="toc-row"><span class="toc-num">03</span><span class="toc-ttl">Configuração de Conta</span><span class="toc-sub">Dados pessoais e senha</span></div>
+    <div class="toc-row"><span class="toc-num">04</span><span class="toc-ttl">Perfil do Usuário</span><span class="toc-sub">Papéis e permissões</span></div>
+    <div class="toc-row"><span class="toc-num">05</span><span class="toc-ttl">Dashboard Principal</span><span class="toc-sub">Sua central de operações</span></div>
+    <div class="toc-row"><span class="toc-num">06</span><span class="toc-ttl">Cadastro de Operações</span><span class="toc-sub">Abrindo uma nova análise</span></div>
+    <div class="toc-row"><span class="toc-num">07</span><span class="toc-ttl">Envio de Documentos</span><span class="toc-sub">Anexos e formatos</span></div>
+    <div class="toc-row"><span class="toc-num">08</span><span class="toc-ttl">Acompanhamento de Análises</span><span class="toc-sub">Progresso em tempo real</span></div>
+    <div class="toc-row"><span class="toc-num">09</span><span class="toc-ttl">Interpretação dos Pareceres</span><span class="toc-sub">Lendo o resultado</span></div>
+    <div class="toc-row"><span class="toc-num">10</span><span class="toc-ttl">Regeneração e Ajustes</span><span class="toc-sub">Refinando uma seção</span></div>
+    <div class="toc-row"><span class="toc-num">11</span><span class="toc-ttl">Compartilhamento</span><span class="toc-sub">Enviando o relatório</span></div>
+    <div class="toc-row"><span class="toc-num">12</span><span class="toc-ttl">Gestão de Equipe</span><span class="toc-sub">Convidando assessores</span></div>
+    <div class="toc-row"><span class="toc-num">13</span><span class="toc-ttl">Gestão de Clientes</span><span class="toc-sub">Carteira e operações</span></div>
+    <div class="toc-row"><span class="toc-num">14</span><span class="toc-ttl">Relatórios e Histórico</span><span class="toc-sub">Consumo e aprendizados</span></div>
+    <div class="toc-row"><span class="toc-num">15</span><span class="toc-ttl">Mapa Inteligente do Mercado</span><span class="toc-sub">Quem é quem e quem conecta</span></div>
+    <div class="toc-row"><span class="toc-num">16</span><span class="toc-ttl">Boas Práticas de Utilização</span><span class="toc-sub">Como extrair o melhor</span></div>
+    <div class="toc-row"><span class="toc-num">17</span><span class="toc-ttl">Perguntas Frequentes</span><span class="toc-sub">FAQ</span></div>
+    <div class="toc-row"><span class="toc-num">18</span><span class="toc-ttl">Suporte e Atendimento</span><span class="toc-sub">Como falar conosco</span></div>
+  </div>
+</section>
+
+<!-- ============================ 01 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">01</span> Apresentação do Mandor</div>
+    <h2 class="sec-title">O que é e para que serve</h2>
+    <p class="sec-lede">O Mandor recebe os dados e os documentos de um ativo e devolve um parecer institucional completo em até 90 minutos. Este guia mostra como operá-lo no dia a dia.</p>
+  </div>
+
+  <p>No seu trabalho, o Mandor cumpre um papel simples de descrever: você abre uma operação, anexa a documentação e acompanha. Uma rede de inteligências especializadas analisa o ativo e produz um conjunto de pareceres, do diagnóstico financeiro à estratégia de originação, além dos materiais de captação prontos para uso.</p>
+
+  <div class="grid2">
+    <div class="card"><span class="big">1</span><h4>Você abre o mandato</h4><p>Preenche um formulário guiado com os dados do ativo e do proprietário e anexa os documentos.</p></div>
+    <div class="card"><span class="big">2</span><h4>O Mandor analisa</h4><p>As inteligências trabalham em paralelo. Você acompanha o progresso em tempo real.</p></div>
+    <div class="card"><span class="big">3</span><h4>Você recebe o parecer</h4><p>Relatório consolidado, pareceres por dimensão e documentos de captação, prontos para baixar e compartilhar.</p></div>
+  </div>
+
+  <div class="callout">
+    <div class="lbl">Antes de começar</div>
+    <p>O Mandor funciona inteiramente no navegador, em www.mandor.com.br. Não há nada para instalar. Recomendamos um navegador atualizado (Chrome, Edge, Safari ou Firefox).</p>
+  </div>
+</section>
+
+<!-- ============================ 02 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">02</span> Primeiro Acesso</div>
+    <h2 class="sec-title">Login, convite e duas etapas</h2>
+    <p class="sec-lede">O acesso é por e-mail e senha, com verificação em duas etapas obrigatória. O primeiro acesso pode ser por convite (assessor) ou por cadastro próprio (gestor do escritório).</p>
+  </div>
+
+  <h3>Acesso por convite</h3>
+  <p>Se você foi convidado pelo gestor do seu escritório, recebeu um e-mail com um link de acesso. Ao clicar:</p>
+  <ol class="steps">
+    <li><span class="st">Crie sua senha</span><span class="sd">Defina uma senha com no mínimo 8 caracteres. O indicador de força mostra os requisitos em tempo real.</span></li>
+    <li><span class="st">Confirme a senha</span><span class="sd">Repita para garantir que não houve erro de digitação.</span></li>
+    <li><span class="st">Acesse o painel</span><span class="sd">Pronto. Você entra já vinculado ao escritório que o convidou.</span></li>
+  </ol>
+
+  <h3>Cadastro próprio</h3>
+  <p>Se você abre a conta do escritório, use a opção de criar conta e informe nome completo, escritório, e-mail corporativo e senha. Você receberá um e-mail de confirmação. Ao confirmar, complete o cadastro com nome e telefone e siga para o painel.</p>
+
+  <div class="callout">
+    <div class="lbl">Verificação em duas etapas</div>
+    <p>Por segurança, o Mandor exige verificação em duas etapas. No primeiro acesso, você será guiado a cadastrar um aplicativo autenticador (como Google Authenticator ou similar). Guarde o acesso a esse aplicativo: ele será solicitado nos próximos logins.</p>
+  </div>
+
+  <h3>Esqueci minha senha</h3>
+  <p>Na tela de login, use a opção de recuperação. Informe o e-mail cadastrado e você receberá um link para definir uma nova senha. Por segurança, a mensagem de confirmação é sempre exibida, independentemente de o e-mail existir ou não.</p>
+</section>
+
+<!-- ============================ 03 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">03</span> Configuração de Conta</div>
+    <h2 class="sec-title">Dados pessoais e senha</h2>
+    <p class="sec-lede">Em Minha Conta, você mantém seus dados atualizados e altera sua senha quando precisar.</p>
+  </div>
+
+  <h3>Dados pessoais</h3>
+  <ul>
+    <li><strong>E-mail:</strong> exibido apenas para conferência (não editável por aqui).</li>
+    <li><strong>Nome completo:</strong> nome e sobrenome. Aparece nos registros das suas operações.</li>
+    <li><strong>Telefone / WhatsApp:</strong> com DDD. O campo é formatado automaticamente e aceita apenas números.</li>
+  </ul>
+  <p>Após editar, use o botão Salvar. Uma confirmação aparece quando os dados são gravados.</p>
+
+  <h3>Alterar senha</h3>
+  <ol class="steps">
+    <li><span class="st">Informe a senha atual</span><span class="sd">Necessária para confirmar que é você.</span></li>
+    <li><span class="st">Defina a nova senha</span><span class="sd">Mínimo de 8 caracteres, seguindo o indicador de força.</span></li>
+    <li><span class="st">Confirme e salve</span><span class="sd">A nova senha passa a valer imediatamente.</span></li>
+  </ol>
+
+  <h3>Dados do escritório <span class="tag">gestor</span></h3>
+  <p>O gestor do escritório acessa, em Seu Escritório, os dados que aparecem nos materiais gerados: nome, CNPJ, endereço, contato, site, slogan e logo. O logo enviado passa a constar nos relatórios em PDF e nos documentos de captação do escritório.</p>
+</section>
+
+<!-- ============================ 04 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">04</span> Perfil do Usuário</div>
+    <h2 class="sec-title">Papéis e permissões</h2>
+    <p class="sec-lede">O que cada pessoa vê e faz no Mandor depende do seu papel. São três, e eles definem o acesso de forma clara.</p>
+  </div>
+
+  <table>
+    <thead><tr><th>Papel</th><th>O que pode fazer</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Gestor do escritório</strong></td><td>Abre análises, vê todas as operações do escritório, convida e gerencia a equipe, edita os dados do escritório e acompanha o consumo do pacote.</td></tr>
+      <tr><td><strong>Assessor</strong></td><td>Abre análises e acompanha as próprias operações e as compartilhadas pela equipe.</td></tr>
+      <tr><td><strong>Administração Mandor</strong></td><td>Equipe interna responsável por configuração de planos e suporte. Não interfere no conteúdo das suas análises.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <div class="lbl">Visão de carteira</div>
+    <p>Cada escritório enxerga apenas as próprias operações. Os dados de um escritório nunca ficam visíveis para outro.</p>
+  </div>
+</section>
+
+<!-- ============================ 05 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">05</span> Dashboard Principal</div>
+    <h2 class="sec-title">Sua central de operações</h2>
+    <p class="sec-lede">O painel reúne todas as suas análises em um só lugar, com busca, filtros e status atualizado.</p>
+  </div>
+
+  <h3>O que você vê</h3>
+  <ul>
+    <li><strong>Grade de análises:</strong> cada operação aparece como um cartão com nome do ativo, tipo, status e data.</li>
+    <li><strong>Status:</strong> indica se a análise está Processando, Concluída ou Com erro.</li>
+    <li><strong>Busca e filtros:</strong> localize por nome do ativo ou filtre por tipo de ativo, tipo de operação e status.</li>
+    <li><strong>Primeiro deal:</strong> se ainda não há análises, o painel apresenta um guia rápido e o botão para iniciar a primeira operação.</li>
+  </ul>
+
+  <ol class="steps">
+    <li><span class="st">Abrir uma análise</span><span class="sd">Clique no cartão da operação para ver o andamento e os pareceres.</span></li>
+    <li><span class="st">Iniciar nova análise</span><span class="sd">Use o botão de nova análise para abrir o formulário guiado.</span></li>
+    <li><span class="st">Filtrar a carteira</span><span class="sd">Combine os filtros para encontrar rapidamente um grupo de operações.</span></li>
+  </ol>
+
+  <div class="callout">
+    <div class="lbl">Tour guiado</div>
+    <p>No primeiro acesso, um tour apresenta as principais áreas do painel. Você pode refazê-lo a qualquer momento pelo menu Ajuda.</p>
+  </div>
+</section>
+
+<!-- ============================ 06 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">06</span> Cadastro de Operações</div>
+    <h2 class="sec-title">Abrindo uma nova análise</h2>
+    <p class="sec-lede">O cadastro é um formulário guiado, organizado em etapas. O seu preenchimento é salvo como rascunho automaticamente, então você pode pausar e voltar depois.</p>
+  </div>
+
+  <h3>As etapas do formulário</h3>
+  <h4>Proprietário</h4>
+  <p>Dados do detentor do ativo, que aparecem nos documentos de captação e no relatório: nome, CPF ou CNPJ, telefone e e-mail. Os campos de documento e telefone são formatados automaticamente e validados, então um CPF ou CNPJ incompleto ou inválido é apontado antes do envio.</p>
+
+  <h4>Mandato</h4>
+  <p>Dados do assessor e de eventual parceiro na operação, com observações relevantes sobre o mandato.</p>
+
+  <h4>Ativo</h4>
+  <ul>
+    <li><strong>Nome e tipo do ativo:</strong> empresa, startup, agronegócio, imóvel, portfólio de crédito, franquia ou outro.</li>
+    <li><strong>Localização e estágio:</strong> da fase pré-operacional ao fechamento.</li>
+    <li><strong>Objetivo:</strong> vender, captar investimento, estruturar crédito, preparar para o mercado ou diagnosticar.</li>
+    <li><strong>Dados financeiros:</strong> ticket estimado, nível de informação disponível e situação operacional.</li>
+    <li><strong>Tese do ativo:</strong> o resumo que fundamenta a operação, mais informações complementares.</li>
+  </ul>
+
+  <div class="callout">
+    <div class="lbl">Módulo opcional: Adequação à Reforma Tributária</div>
+    <p>Na etapa final, você pode solicitar o diagnóstico de adequação às novas regras tributárias. O módulo é opcional e fica disponível conforme a contratação do escritório.</p>
+  </div>
+
+  <h3>Antes de ativar</h3>
+  <ol class="steps">
+    <li><span class="st">Confirme a conformidade LGPD</span><span class="sd">Marque a confirmação de que o tratamento dos dados está em conformidade.</span></li>
+    <li><span class="st">Verifique o saldo do pacote</span><span class="sd">O Mandor mostra quantas análises restam no pacote antes de você confirmar.</span></li>
+    <li><span class="st">Ative a análise</span><span class="sd">Ao confirmar, a rede começa a trabalhar e você é levado à página de acompanhamento.</span></li>
+  </ol>
+</section>
+
+<!-- ============================ 07 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">07</span> Envio de Documentos</div>
+    <h2 class="sec-title">Anexos e formatos</h2>
+    <p class="sec-lede">Quanto melhor a documentação, melhor a análise. Os arquivos são anexados na etapa final do cadastro.</p>
+  </div>
+
+  <h3>Como anexar</h3>
+  <p>Arraste os arquivos para a área indicada ou clique para selecioná-los. Cada arquivo aparece em uma lista, e você pode remover qualquer um antes de ativar a análise.</p>
+
+  <dl class="kv">
+    <dt>Formatos aceitos</dt><dd>PDF, Word, Excel, CSV, texto, PNG e JPG.</dd>
+    <dt>Tamanho por arquivo</dt><dd>Até 20 MB.</dd>
+    <dt>Quantidade</dt><dd>Até 50 arquivos por operação.</dd>
+  </dl>
+
+  <div class="callout">
+    <div class="lbl">O que enviar</div>
+    <p>Demonstrações financeiras, contrato social e alterações, contratos relevantes, certidões, apresentações e qualquer material que ajude a contar a história do ativo. Documentos digitalizados também são lidos.</p>
+  </div>
+
+  <p>Se um arquivo exceder o limite de tamanho ou estiver em formato não aceito, ele é sinalizado e ignorado, sem interromper o envio dos demais.</p>
+</section>
+
+<!-- ============================ 08 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">08</span> Acompanhamento de Análises</div>
+    <h2 class="sec-title">Progresso em tempo real</h2>
+    <p class="sec-lede">Depois de ativar, você acompanha a análise ao vivo. Pode fechar o navegador: o trabalho continua no servidor e estará pronto quando você voltar.</p>
+  </div>
+
+  <h3>A página da análise</h3>
+  <ul>
+    <li><strong>Quadro de inteligências:</strong> cada especialidade aparece com uma barra de progresso e seu status (aguardando, em execução, concluída).</li>
+    <li><strong>Registro ao vivo:</strong> um log mostra o andamento do trabalho conforme as inteligências avançam.</li>
+    <li><strong>Abas de resultado:</strong> à medida que cada parecer fica pronto, ele aparece em uma aba própria.</li>
+  </ul>
+
+  <h3>Ações disponíveis</h3>
+  <table>
+    <thead><tr><th>Situação</th><th>O que você pode fazer</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Em processamento</strong></td><td>Acompanhar o progresso ao vivo. Se necessário, interromper ou reprocessar a análise.</td></tr>
+      <tr><td><strong>Concluída</strong></td><td>Ler os pareceres, baixar o PDF, compartilhar e solicitar a regeneração de uma seção.</td></tr>
+      <tr><td><strong>Com erro</strong></td><td>Reprocessar a análise. Se persistir, acionar o suporte.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <div class="lbl">Tempo de entrega</div>
+    <p>A análise completa leva até 90 minutos, conforme o volume de documentos. Você não precisa ficar na tela: pode voltar mais tarde para conferir o resultado.</p>
+  </div>
+</section>
+
+<!-- ============================ 09 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">09</span> Interpretação dos Pareceres</div>
+    <h2 class="sec-title">Lendo o resultado</h2>
+    <p class="sec-lede">A análise entrega um conjunto de pareceres. Comece pelo Resumo Executivo e desça aos detalhes conforme a necessidade.</p>
+  </div>
+
+  <h3>O que você recebe</h3>
+  <table>
+    <thead><tr><th>Documento</th><th>O que traz</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Resumo Executivo</strong></td><td>A síntese da mesa: diagnóstico, oportunidades, riscos e recomendação. É o ponto de partida.</td></tr>
+      <tr><td><strong>Diagnóstico Financeiro</strong></td><td>Leitura das demonstrações, indicadores e estrutura de capital.</td></tr>
+      <tr><td><strong>Mercado e M&amp;A</strong></td><td>Setor, comparáveis, tese de transação e faixa de valor.</td></tr>
+      <tr><td><strong>Jurídico e Compliance</strong></td><td>Riscos legais, estrutura societária e verificação cadastral.</td></tr>
+      <tr><td><strong>Originação e Estruturação</strong></td><td>Perfil de comprador ou investidor e estruturas de operação viáveis.</td></tr>
+      <tr><td><strong>Materiais de captação</strong></td><td>Teaser anônimo e apresentação institucional, prontos para distribuição.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Como ler com segurança</h3>
+  <ul>
+    <li><strong>Verifique o Resumo Executivo primeiro:</strong> ele consolida o veredicto e direciona a leitura.</li>
+    <li><strong>Observe as ressalvas:</strong> quando faltam documentos ou o ativo é pré-operacional, o parecer registra isso de forma explícita.</li>
+    <li><strong>Confie no que tem fonte:</strong> o Mandor não inventa números. Quando uma informação não está nos documentos, ela é apontada como lacuna, não estimada.</li>
+  </ul>
+
+  <h3>Baixar em PDF</h3>
+  <p>Use o botão de PDF na página da análise para baixar o relatório compilado, com a identidade do seu escritório, sumário e seções organizadas, pronto para apresentar ao cliente.</p>
+</section>
+
+<!-- ============================ 10 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">10</span> Regeneração e Ajustes</div>
+    <h2 class="sec-title">Refinando uma seção</h2>
+    <p class="sec-lede">Se uma seção precisa de ajuste, você pode pedir a regeneração com uma orientação. A decisão final continua sendo sua.</p>
+  </div>
+
+  <ol class="steps">
+    <li><span class="st">Escolha a seção</span><span class="sd">Selecione qual parecer deseja regenerar.</span></li>
+    <li><span class="st">Descreva o que ajustar</span><span class="sd">Explique o que corrigir e por quê, com pelo menos uma frase em cada campo.</span></li>
+    <li><span class="st">Confirme</span><span class="sd">A orientação é avaliada e a seção é refeita. O histórico de versões é preservado.</span></li>
+  </ol>
+
+  <div class="callout">
+    <div class="lbl">Bom saber</div>
+    <p>Há um limite de regenerações por análise, pensado para preservar a consistência do parecer. Use a regeneração para refinar, não para reescrever do zero.</p>
+  </div>
+</section>
+
+<!-- ============================ 11 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">11</span> Compartilhamento</div>
+    <h2 class="sec-title">Enviando o relatório</h2>
+    <p class="sec-lede">Você pode compartilhar uma análise concluída por meio de um link de leitura, sem que o destinatário precise ter conta.</p>
+  </div>
+
+  <ol class="steps">
+    <li><span class="st">Gere o link</span><span class="sd">Na página da análise, use a opção de compartilhar para criar um link de leitura.</span></li>
+    <li><span class="st">Envie</span><span class="sd">Copie e envie o link ao destinatário. Ele acessa apenas a versão de leitura do relatório.</span></li>
+    <li><span class="st">Revogue quando quiser</span><span class="sd">O link tem prazo de validade e pode ser revogado a qualquer momento.</span></li>
+  </ol>
+
+  <div class="callout">
+    <div class="lbl">Segurança do compartilhamento</div>
+    <p>O link é assinado e tem validade limitada. Os acessos ficam registrados. Apenas análises concluídas podem ser compartilhadas.</p>
+  </div>
+</section>
+
+<!-- ============================ 12 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">12</span> Gestão de Equipe</div>
+    <h2 class="sec-title">Convidando assessores <span class="tag">gestor</span></h2>
+    <p class="sec-lede">O gestor do escritório monta a equipe convidando assessores, que passam a operar dentro da mesma carteira.</p>
+  </div>
+
+  <h3>Convidar um assessor</h3>
+  <ol class="steps">
+    <li><span class="st">Abra Minha Equipe</span><span class="sd">Acesse a área de equipe pelo menu.</span></li>
+    <li><span class="st">Informe o e-mail</span><span class="sd">Digite o e-mail do assessor e envie o convite.</span></li>
+    <li><span class="st">Acompanhe o ingresso</span><span class="sd">O assessor recebe um link, cria a senha e entra já vinculado ao escritório.</span></li>
+  </ol>
+
+  <h3>Acompanhar a equipe</h3>
+  <p>A lista de membros mostra cada assessor com o número de análises concluídas e a data da última operação, dando ao gestor uma visão do volume de trabalho do escritório.</p>
+</section>
+
+<!-- ============================ 13 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">13</span> Gestão de Clientes</div>
+    <h2 class="sec-title">Carteira e operações</h2>
+    <p class="sec-lede">No Mandor, cada operação carrega os dados do seu proprietário e do mandato. A carteira de clientes do escritório se organiza pelas análises abertas.</p>
+  </div>
+
+  <h3>Organizando a carteira</h3>
+  <ul>
+    <li><strong>Por operação:</strong> cada análise registra o proprietário, o assessor responsável e o objetivo, formando o histórico do relacionamento.</li>
+    <li><strong>Busca e filtros:</strong> localize as operações de um mesmo cliente pelo nome do ativo ou do proprietário, e filtre por tipo e status.</li>
+    <li><strong>Visão do gestor:</strong> o gestor enxerga todas as operações do escritório, o que permite acompanhar a carteira inteira em um só lugar.</li>
+  </ul>
+
+  <div class="callout">
+    <div class="lbl">Privacidade do cliente</div>
+    <p>Os dados pessoais do proprietário são protegidos e ficam restritos ao seu escritório. Eles aparecem nos materiais da operação, mas nunca são expostos a outros escritórios.</p>
+  </div>
+</section>
+
+<!-- ============================ 14 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">14</span> Relatórios e Histórico</div>
+    <h2 class="sec-title">Consumo e aprendizados</h2>
+    <p class="sec-lede">O gestor acompanha o uso do pacote e registra aprendizados que personalizam as próximas análises do escritório.</p>
+  </div>
+
+  <h3>Consumo do pacote <span class="tag">gestor</span></h3>
+  <p>A área de consumo mostra o total de análises do pacote, quantas foram usadas e quantas restam, com avisos quando o limite está baixo ou esgotado. O histórico lista as análises do período.</p>
+  <div class="callout">
+    <div class="lbl">O que você acompanha</div>
+    <p>O consumo é medido em unidades de análise. O escritório vê quantas análises foram usadas e quantas restam, de forma simples e previsível.</p>
+  </div>
+
+  <h3>Aprendizados do escritório <span class="tag">gestor</span></h3>
+  <p>O gestor pode registrar aprendizados, observações próprias da tese do escritório, que passam a orientar as análises futuras. Cada aprendizado pode ser ativado ou desativado, e vale apenas para o próprio escritório.</p>
+</section>
+
+<!-- ============================ 15 — MAPA INTELIGENTE DO MERCADO ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">15</span> Mapa Inteligente do Mercado</div>
+    <h2 class="sec-title">Quem é quem no mercado, e para quem levar o deal</h2>
+    <p class="sec-lede">O Mapa Inteligente do Mercado reúne os participantes do mercado de capitais brasileiro e mostra como se conectam. Você o acessa pelo menu Mapa do Mercado. É construído sobre dado público, com fonte sempre indicada.</p>
+  </div>
+
+  <h3>O que você encontra</h3>
+  <ul>
+    <li><strong>Participantes:</strong> gestoras, administradores, custodiantes, distribuidores, bancos, securitizadoras, family offices e boutiques.</li>
+    <li><strong>Veículos:</strong> fundos, FIDCs, FIIs e demais estruturas, com o papel que cada participante exerce em cada um.</li>
+    <li><strong>Conexões:</strong> quem atua com quem nos mesmos veículos, formando a malha de relacionamentos do mercado.</li>
+  </ul>
+
+  <h3>Como pesquisar</h3>
+  <ol class="steps">
+    <li><span class="st">Busca por nome</span><span class="sd">Digite o nome de uma gestora, banco ou fundo. A busca tolera pequenos erros de digitação.</span></li>
+    <li><span class="st">Busca inteligente (IA)</span><span class="sd">Marque a opção de busca inteligente e pergunte em linguagem natural, por exemplo "gestoras de crédito estruturado em SP".</span></li>
+    <li><span class="st">Filtros</span><span class="sd">Refine por tipo de participante e por UF para chegar rápido ao grupo desejado.</span></li>
+  </ol>
+
+  <h3>A ficha do participante</h3>
+  <ul>
+    <li><strong>Perfil de atuação:</strong> um resumo derivado dos dados, com os tipos de veículo e os mandatos em que a instituição mais atua.</li>
+    <li><strong>Veículos e papéis:</strong> em que fundos atua e como (gestor, administrador, custodiante).</li>
+    <li><strong>Score de relevância de mercado:</strong> indicador proprietário de atividade no mercado. Não é nota de qualidade de investimento.</li>
+    <li><strong>Indicadores financeiros (bancos):</strong> ativo total, carteira PJ, patrimônio e demais números, com fonte no Banco Central.</li>
+  </ul>
+
+  <h3>Mapa de conexões</h3>
+  <p>Na ficha, abra o mapa de conexões para ver, em um grafo navegável, os participantes que operam nos mesmos veículos. A espessura da linha indica a força do vínculo, e clicar em um nó leva você à ficha dele, permitindo explorar o ecossistema.</p>
+
+  <h3>Alvos de captação a partir do deal</h3>
+  <p>Quando você abre um deal no Invest Match, o Mapa indica as gestoras que já operam aquele mandato (por exemplo, FIDC para crédito estruturado), da mais experiente à menos. Cada alvo pode ser cadastrado direto no pipeline do Invest Match, com o caminho de relacionamento até a instituição.</p>
+
+  <div class="callout">
+    <div class="lbl">Origem dos dados</div>
+    <p>O Mapa é construído sobre dados públicos (CVM, Banco Central, B3 e Receita Federal), com atribuição de fonte. É um sinal de afinidade de mandato e relevância de mercado, não uma recomendação de investimento.</p>
+  </div>
+</section>
+
+<!-- ============================ 16 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">16</span> Boas Práticas de Utilização</div>
+    <h2 class="sec-title">Como extrair o melhor</h2>
+    <p class="sec-lede">Algumas práticas simples elevam bastante a qualidade do parecer.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card"><h4>Envie documentos completos</h4><p>Quanto mais material relevante, mais profunda a análise. Demonstrações, contratos e certidões fazem diferença.</p></div>
+    <div class="card"><h4>Descreva bem a tese</h4><p>Um bom resumo do ativo orienta a leitura. Diga o objetivo, a urgência e o contexto da operação.</p></div>
+    <div class="card"><h4>Classifique o estágio com honestidade</h4><p>Indicar corretamente se o ativo é pré-operacional evita ressalvas desnecessárias e calibra a análise.</p></div>
+    <div class="card"><h4>Leia o Resumo primeiro</h4><p>Ele consolida o veredicto. Use as demais abas para aprofundar pontos específicos.</p></div>
+    <div class="card"><h4>Use a regeneração com foco</h4><p>Oriente o ajuste de forma objetiva, dizendo o que corrigir e por quê.</p></div>
+    <div class="card"><h4>Proteja seus acessos</h4><p>Mantenha a verificação em duas etapas ativa e não compartilhe sua senha.</p></div>
+  </div>
+</section>
+
+<!-- ============================ 17 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">17</span> Perguntas Frequentes</div>
+    <h2 class="sec-title">FAQ</h2>
+  </div>
+
+  <h4>Preciso instalar algo?</h4>
+  <p>Não. O Mandor funciona no navegador, em www.mandor.com.br.</p>
+
+  <h4>Quanto tempo leva uma análise?</h4>
+  <p>Até 90 minutos, conforme o volume de documentos. Você pode fechar o navegador e voltar depois.</p>
+
+  <h4>Meus dados estão seguros?</h4>
+  <p>Sim. O acesso exige verificação em duas etapas, os dados sensíveis são cifrados e cada escritório enxerga apenas as próprias operações.</p>
+
+  <h4>O Mandor inventa números quando falta informação?</h4>
+  <p>Não. Quando um dado não está nos documentos, o parecer registra a lacuna de forma explícita, em vez de estimar.</p>
+
+  <h4>Posso ajustar um parecer?</h4>
+  <p>Sim, pela regeneração de seção, com uma orientação sua. O histórico de versões é preservado e a decisão final é sempre do profissional.</p>
+
+  <h4>Como compartilho o resultado com um cliente?</h4>
+  <p>Gere um link de leitura na página da análise. Ele tem validade limitada e pode ser revogado.</p>
+
+  <h4>O que acontece se um arquivo for muito grande?</h4>
+  <p>Arquivos acima de 20 MB ou em formato não aceito são sinalizados e ignorados, sem interromper os demais.</p>
+
+  <h4>Posso convidar minha equipe?</h4>
+  <p>Sim. O gestor do escritório convida assessores pela área de equipe, e eles passam a operar na mesma carteira.</p>
+</section>
+
+<!-- ============================ 18 ============================ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-kicker"><span class="chip">18</span> Suporte e Atendimento</div>
+    <h2 class="sec-title">Como falar conosco</h2>
+    <p class="sec-lede">Estamos à disposição para ajudar no que for preciso, do primeiro acesso à leitura de um parecer.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card"><h4>Menu Ajuda</h4><p>Dentro do Mandor, o menu Ajuda permite refazer o tour guiado e acessar os canais de atendimento.</p></div>
+    <div class="card"><h4>Suporte por e-mail</h4><p>Em caso de dúvida ou dificuldade, acione o suporte. Os planos institucionais contam com atendimento prioritário.</p></div>
+  </div>
+
+  <div class="closing">
+    <h3>Bom trabalho.</h3>
+    <p>Este guia cobre o uso diário do Mandor. À medida que novos recursos são incorporados, ele é atualizado. Mantenha-se sempre na versão mais recente em www.mandor.com.br.</p>
+    <div class="sig">O Mandor · Guia Operacional</div>
+  </div>
+
+  <hr class="divider">
+  <p style="font-size:8.5pt;color:#7C7A74;">Documento operacional para uso interno do escritório. As telas e os recursos descritos refletem o produto na data de edição e podem evoluir. www.mandor.com.br</p>
+</section>
+
+</body>
+</html>

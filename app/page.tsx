@@ -8,7 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 export const metadata: Metadata = {
   title: "Mandor | Inteligência operacional para M&A, crédito estruturado e preparação de deals",
   description:
-    "Diagnóstico institucional de operações de M&A, crédito estruturado e preparação de ativos para o mercado: análise rastreável e auditável, ancorada em documento e fonte. Inclui adequação à Reforma Tributária e originação via Invest Match.",
+    "Diagnóstico institucional de operações de M&A, crédito estruturado e preparação de ativos para o mercado: análise rastreável e auditável, ancorada em documento e fonte. Inclui adequação à Reforma Tributária, originação via Invest Match e o Mapa Inteligente do Mercado.",
   alternates: { canonical: "/" },
 };
 
@@ -216,6 +216,7 @@ const faqs = [
 const modulos = [
   { k: "01", t: "Reforma Tributária", d: "Adequação à EC 132/2023 e à LC 214/2025 dentro da análise. O risco fiscal que decide o deal, ancorado em lei e rastreável na due diligence.", href: "/reforma-tributaria" },
   { k: "02", t: "Invest Match",       d: "Da análise à tese, da tese ao investidor certo. Um motor de matching de cinco camadas que transforma originação em processo.", href: "/invest-match" },
+  { k: "03", t: "Mapa Inteligente do Mercado", d: "O atlas do capital privado brasileiro. Gestoras, bancos, FIDCs e securitizadoras, como se conectam e, a partir de um deal, para quem levá-lo. Sobre dado público.", href: "/mapa-inteligente" },
 ];
 
 /* ─── Component ──────────────────────────────────────────────────────────── */

@@ -7,6 +7,10 @@ import { notifyAssessorOfMatches } from '@/lib/invest-match/notify'
 import { runAnalysisPipeline } from '@/lib/analise/run-pipeline'
 import { recoverStuckIngestions } from '@/lib/ingestion/watchdog'
 import { runDealMonitor } from '@/lib/monitoring/deal-monitor'
+import { runEtlCvmCadFiPage, criarIngestaoRun, finalizarIngestaoRun, rebuildGrafoEScore } from '@/lib/mapa-mercado/etl-cvm'
+import { enrichEntidadesReceitaPage } from '@/lib/mapa-mercado/etl-receita'
+import { embedEntidadesPage } from '@/lib/mapa-mercado/etl-embeddings'
+import { runEtlBcbBancos } from '@/lib/mapa-mercado/etl-bcb'
 
 // Cada step do Inngest é uma request HTTP serverless. Steps como extract-text
 // (com OCR Mistral em PDFs grandes) e embed-chunks (várias chamadas Voyage)
@@ -153,8 +157,134 @@ export const dealMonitorFn = inngest.createFunction(
   },
 )
 
+// Função 8: ETL do Mapa Inteligente do Mercado (CVM Dados Abertos / ODbL).
+// Carrega o cadastro de fundos, monta entidades + veículos + prestadores e
+// reconstrói o grafo de conexões e o score de relevância. Cron semanal +
+// disparo manual (admin via POST /api/mapa-mercado/etl/cvm).
+export const mapaMercadoEtlCvmFn = inngest.createFunction(
+  {
+    id:       'mapa-mercado-etl-cvm',
+    name:     'Mapa do Mercado: ETL CVM (cadastro de fundos)',
+    triggers: [
+      { cron: '0 7 * * 1' },                       // toda segunda 07:00 UTC
+      { event: 'mapa-mercado/etl.cvm_requested' },  // disparo manual (admin)
+    ],
+    concurrency: { limit: 1 },                      // ETL pesado: nunca em paralelo
+    retries:     1,
+  },
+  async ({ event, step, logger }) => {
+    // event.data pode vir do cron (sem campos) ou do disparo manual.
+    const data = event.data as { max?: number; pageSize?: number } | undefined
+    const pageSize = data?.pageSize ?? 8000
+    const max = data?.max ?? 0                 // 0 = base completa (~60k)
+    const MAX_PAGINAS = 40                       // backstop (40 * 8000 = 320k)
+
+    const runId = await step.run('iniciar-run', () => criarIngestaoRun())
+    const acc = { lidas: 0, veiculos: 0, prestadores: 0 }
+
+    try {
+      let offset = 0
+      for (let p = 0; p < MAX_PAGINAS; p++) {
+        if (max > 0 && offset >= max) break
+        const limit = max > 0 ? Math.min(pageSize, max - offset) : pageSize
+        // Cada página é um step próprio (300s cada) → sem timeout na base toda.
+        const res = await step.run(`pagina-${p}-off-${offset}`, () =>
+          runEtlCvmCadFiPage({ offset, limit, logger }),
+        )
+        acc.lidas += res.lidas
+        acc.veiculos += res.veiculos
+        acc.prestadores += res.prestadores
+        if (res.lidas < limit) break            // última página (acabou o arquivo)
+        offset += pageSize
+      }
+      await step.run('finalizar-run', () => finalizarIngestaoRun(runId, 'completed', acc))
+      await step.run('rebuild-grafo-score', () => rebuildGrafoEScore({ logger }))
+      return { status: 'completed', ...acc }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      await step.run('marcar-falha', () => finalizarIngestaoRun(runId, 'failed', acc, msg))
+      throw err
+    }
+  },
+)
+
+// Função 9: enriquecimento das entidades do Mapa via Receita (BrasilAPI).
+// Completa município/UF/CNAE/situação e marca bancos pelo CNAE. Paginado
+// (lotes de ~120, gentil com rate-limit) + drain monotônico até esgotar.
+export const mapaMercadoEnrichReceitaFn = inngest.createFunction(
+  {
+    id:       'mapa-mercado-enrich-receita',
+    name:     'Mapa do Mercado: enriquecimento Receita (cidade/UF/CNAE)',
+    triggers: [
+      { cron: '30 7 * * 1' },                          // segunda 07:30 UTC (após o ETL CVM)
+      { event: 'mapa-mercado/etl.receita_requested' },  // disparo manual (admin)
+    ],
+    concurrency: { limit: 1 },
+    retries:     1,
+  },
+  async ({ event, step, logger }) => {
+    const pageSize = (event.data as { pageSize?: number } | undefined)?.pageSize ?? 120
+    const MAX_PAGINAS = 20                              // 20 * 120 = 2400 (cobre ~1.3k atuais)
+    const acc = { processadas: 0, enriquecidas: 0, bancos: 0, falhas: 0 }
+    for (let p = 0; p < MAX_PAGINAS; p++) {
+      const res = await step.run(`receita-pagina-${p}`, () => enrichEntidadesReceitaPage({ limit: pageSize, logger }))
+      acc.processadas += res.processadas
+      acc.enriquecidas += res.enriquecidas
+      acc.bancos += res.bancos_marcados
+      acc.falhas += res.falhas
+      if (res.processadas < pageSize) break            // esgotou as não-tentadas
+    }
+    return acc
+  },
+)
+
+// Função 10: embeddings das entidades p/ busca semântica (voyage-3-large).
+// Paginado (lotes de 128 = batch do voyage) + drain por embedding IS NULL.
+export const mapaMercadoEmbedFn = inngest.createFunction(
+  {
+    id:       'mapa-mercado-embed',
+    name:     'Mapa do Mercado: embeddings das entidades (busca semântica)',
+    triggers: [
+      { cron: '0 8 * * 1' },                          // segunda 08:00 UTC (após enrich)
+      { event: 'mapa-mercado/etl.embed_requested' },   // disparo manual (admin)
+    ],
+    concurrency: { limit: 1 },
+    retries:     1,
+  },
+  async ({ event, step, logger }) => {
+    const pageSize = (event.data as { pageSize?: number } | undefined)?.pageSize ?? 128
+    const MAX_PAGINAS = 30
+    const acc = { processadas: 0, gravadas: 0 }
+    for (let p = 0; p < MAX_PAGINAS; p++) {
+      const res = await step.run(`embed-pagina-${p}`, () => embedEntidadesPage({ limit: pageSize, logger }))
+      acc.processadas += res.processadas
+      acc.gravadas += res.gravadas
+      if (res.processadas < pageSize) break
+    }
+    return acc
+  },
+)
+
+// Função 11: dados financeiros dos bancos (BCB IF.data). Ativo, carteira de
+// crédito, carteira PJ, PL, lucro por trimestre → mercado_metricas.
+export const mapaMercadoEtlBcbFn = inngest.createFunction(
+  {
+    id:       'mapa-mercado-etl-bcb',
+    name:     'Mapa do Mercado: ETL BCB (bancos / carteira PJ)',
+    triggers: [
+      { cron: '0 9 5 * *' },                          // dia 5 de cada mês 09:00 UTC
+      { event: 'mapa-mercado/etl.bcb_requested' },     // disparo manual (admin)
+    ],
+    concurrency: { limit: 1 },
+    retries:     1,
+  },
+  async ({ step, logger }) => {
+    return await step.run('etl-bcb', () => runEtlBcbBancos({ logger }))
+  },
+)
+
 // signingKey lido automaticamente de INNGEST_SIGNING_KEY env var
 export const { GET, POST, PUT } = serve({
   client:    inngest,
-  functions: [processDocumentFn, consolidateFactBankFn, runThesisMatchingFn, reverseMatchingFn, runAnalysisPipelineFn, ingestionWatchdogFn, dealMonitorFn],
+  functions: [processDocumentFn, consolidateFactBankFn, runThesisMatchingFn, reverseMatchingFn, runAnalysisPipelineFn, ingestionWatchdogFn, dealMonitorFn, mapaMercadoEtlCvmFn, mapaMercadoEnrichReceitaFn, mapaMercadoEmbedFn, mapaMercadoEtlBcbFn],
 })

@@ -7,6 +7,7 @@ import { IconSettings, IconSquad, IconDoc, IconHome, IconUsers, IconBuilding, Ic
 const NAV = [
   { href: '/dashboard/admin',              label: 'Overview',     Icon: IconHome     },
   { href: '/dashboard/admin/escritorios',  label: 'Escritórios',  Icon: IconBuilding },
+  { href: '/dashboard/admin/planos',       label: 'Planos & Acessos', Icon: IconSparkle },
   { href: '/dashboard/admin/pacotes',      label: 'Pacotes',      Icon: IconFolder   },
   { href: '/dashboard/admin/benchmarks',   label: 'Benchmarks',   Icon: IconFileText },
   { href: '/dashboard/admin/uso-llm',      label: 'Uso LLM',      Icon: IconSquad    },

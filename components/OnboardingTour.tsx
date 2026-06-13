@@ -31,6 +31,11 @@ const STEPS: Step[] = [
     body:   'Transforme análises em teses de investimento e cruze com sua base de investidores. O painel mostra funil, valor em jogo e a fila de matches a curar.',
   },
   {
+    anchor: 'mapa-mercado',
+    title:  'Mapa do Mercado',
+    body:   'O atlas do capital privado: gestoras, bancos, FIDCs e securitizadoras, como se conectam e, a partir de um deal, para quem levá-lo. Busque por nome ou em linguagem natural e explore o mapa de conexões. Tudo sobre dado público.',
+  },
+  {
     anchor: 'escritorio',
     title:  'Seu escritório',
     body:   'Dados do escritório, equipe e configurações. É a base do seu workspace dentro do Mandor.',

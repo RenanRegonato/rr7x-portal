@@ -4,16 +4,46 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { resolveEscritorioId } from '@/lib/invest-match/auth-helpers'
 import InvestidorForm from '@/components/invest-match/InvestidorForm'
 import { IconArrowLeft } from '@/components/Icons'
+import type { Investidor } from '@/lib/invest-match/types'
 
 export const dynamic = 'force-dynamic'
 
-export default async function NovoInvestidorPage() {
+// Mapa Inteligente do Mercado → tipo de investidor (Invest Match).
+// Usado quando o cadastro é originado a partir de um participante do Mapa.
+const MAPA_TIPO_PARA_INVESTIDOR: Record<string, string> = {
+  gestora:                        'gestora',
+  asset:                          'gestora',
+  boutique_investimento:          'gestora',
+  banco:                          'financeira',
+  family_office:                  'family_office',
+  escritorio_credito_estruturado: 'pj',
+  securitizadora:                 'pj',
+  consultoria:                    'pj',
+}
+
+export default async function NovoInvestidorPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
   const escritorioId = await resolveEscritorioId(user.id)
   if (!escritorioId) redirect('/dashboard/invest-match')
+
+  // Pré-preenchimento opcional vindo do Mapa do Mercado (querystring).
+  const sp = await searchParams
+  const str = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? ''
+  const mapaTipo = str(sp.tipo)
+  const veioDoMapa = !!str(sp.nome)
+  const prefill: Partial<Investidor> = {
+    nome:   str(sp.nome) || undefined,
+    tipo:   (MAPA_TIPO_PARA_INVESTIDOR[mapaTipo] as Investidor['tipo']) || undefined,
+    cidade: str(sp.cidade) || undefined,
+    estado: str(sp.uf) || undefined,
+  }
 
   return (
     <div className="p-6 md:p-8 max-w-5xl mx-auto w-full">
@@ -27,7 +57,13 @@ export default async function NovoInvestidorPage() {
         </div>
       </div>
 
-      <InvestidorForm mode="create"/>
+      {veioDoMapa && (
+        <div className="mb-4 text-[12px] text-ink-2 bg-accent-soft/60 border border-border rounded-lg px-3 py-2">
+          Pré-preenchido a partir do <strong>Mapa do Mercado</strong>. Complete a tese declarada abaixo.
+        </div>
+      )}
+
+      <InvestidorForm mode="create" initial={prefill}/>
     </div>
   )
 }

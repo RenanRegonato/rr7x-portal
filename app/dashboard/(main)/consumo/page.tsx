@@ -3,6 +3,7 @@ import { formatDateBR } from '@/lib/format-date'
 import Link from 'next/link'
 import { getUserContext } from '@/lib/get-role'
 import { createAdminClient } from '@/lib/supabase-server'
+import { resolveEntitlements, PLANO_LABEL, MODULO_KEYS, MODULO_LABEL, type Entitlements } from '@/lib/entitlements-presets'
 
 // Painel de Consumo e Licenciamento do escritório (gestor).
 // Mostra total/usado/restante de análises por pacote, tipo de plano, alerta de
@@ -62,8 +63,16 @@ export default async function ConsumoPage() {
 
   let pacotes: Pacote[] = []
   let historico: Analise[] = []
+  let ent: Entitlements | null = null
 
   if (ctx.escritorioId) {
+    const { data: escritorio } = await admin
+      .from('escritorios')
+      .select('plano, preco_mensal_brl, entitlements, invest_match_enabled, reforma_tributaria_enabled')
+      .eq('id', ctx.escritorioId)
+      .maybeSingle()
+    if (escritorio) ent = resolveEntitlements(escritorio)
+
     const { data: pacotesData } = await admin
       .from('pacotes')
       .select('id, tipo, analises_total, analises_consumidas, status, observacoes, criado_em')
@@ -100,8 +109,37 @@ export default async function ConsumoPage() {
       <div className="mb-8">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3 mb-1">Escritório</p>
         <h1 className="font-display text-[28px] sm:text-[32px] font-medium tracking-tight">Consumo e Licenciamento</h1>
-        <p className="text-[13px] text-ink-3 mt-1">Acompanhe o uso de análises do plano do seu escritório.</p>
+        <p className="text-[13px] text-ink-3 mt-1">Acompanhe o plano, o licenciamento e o uso de análises do seu escritório.</p>
       </div>
+
+      {/* Plano e licenciamento (entitlements do escritório) */}
+      {ent && (
+        <div className="bg-surface border border-border rounded-[14px] shadow-soft-sm p-6 mb-6">
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3 mb-1">Plano atual</p>
+              <div className="flex items-center gap-2">
+                <span className="text-[20px] font-display font-medium text-ink">{PLANO_LABEL[ent.plano]}</span>
+                {ent.preco_mensal_brl != null && (
+                  <span className="text-[12px] text-ink-3">· R$ {ent.preco_mensal_brl.toLocaleString('pt-BR')}/mês</span>
+                )}
+              </div>
+            </div>
+          </div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3 mb-2.5">Licenciamento (módulos)</p>
+          <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
+            {MODULO_KEYS.map(k => {
+              const on = ent!.modulos[k]
+              return (
+                <div key={k} className={`flex items-center gap-2 text-[13px] ${on ? 'text-ink' : 'text-ink-3'}`}>
+                  <span className={`text-[12px] font-bold ${on ? 'text-accent-strong' : 'text-border-strong'}`}>{on ? '✓' : '—'}</span>
+                  {MODULO_LABEL[k]}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Sem escritório / sem pacote */}
       {!ctx.escritorioId || total === 0 ? (
@@ -145,7 +183,7 @@ export default async function ConsumoPage() {
             <SummaryCard label="Disponível no plano" value={total} hint="total contratado" />
             <SummaryCard label="Utilizadas" value={consumido} hint={`${pctUso}% do plano`} />
             <SummaryCard label="Restantes" value={restante} hint="ainda disponíveis" emphasis={restante === 0 ? 'danger' : limiteBaixo ? 'warn' : 'ok'} />
-            <SummaryCard label="Tipo de plano" valueText={ativos.map(p => TIPO_LABEL[p.tipo] ?? p.tipo).join(', ') || '—'} hint="sem prazo: válido até esgotar" />
+            <SummaryCard label="Pacote de consumo" valueText={ativos.map(p => TIPO_LABEL[p.tipo] ?? p.tipo).join(', ') || '—'} hint="sem prazo: válido até esgotar" />
           </div>
 
           {/* Barra de uso */}

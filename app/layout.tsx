@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "Inteligência institucional para M&A e crédito estruturado: diagnóstico financeiro completo, rastreável e auditável, em até 90 minutos. DRS, DRE normalizada, EBITDA ajustado, valuation, análise de M&A, estruturação de crédito, adequação à Reforma Tributária e material de originação.",
+    "Inteligência institucional para M&A e crédito estruturado: diagnóstico financeiro completo, rastreável e auditável, em até 90 minutos. DRS, DRE normalizada, EBITDA ajustado, valuation, análise de M&A, estruturação de crédito, adequação à Reforma Tributária, material de originação e o Mapa Inteligente do Mercado.",
   keywords: [
     "M&A",
     "crédito estruturado",

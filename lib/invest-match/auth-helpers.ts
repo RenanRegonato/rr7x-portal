@@ -4,6 +4,7 @@
 //   - rotas /api/invest-match/*
 
 import { createAdminClient } from '@/lib/supabase-server'
+import { hasModulo } from '@/lib/entitlements'
 
 /**
  * Resolve o escritorio_id do usuário logado.
@@ -32,18 +33,13 @@ export async function resolveEscritorioId(userId: string): Promise<string | null
 }
 
 /**
- * O escritório contratou o módulo Invest Match (Plus)?
- * Flag controlada exclusivamente pelo gestor master do Mandor (admin).
+ * O escritório contratou o módulo Invest Match?
+ * Resolve via entitlements (preset do plano + overrides), com fallback na flag
+ * antiga invest_match_enabled (escritórios ainda não migrados). Configurado
+ * pelo Gestor Geral em Admin → Planos & Acessos.
  */
 export async function isInvestMatchEnabled(escritorioId: string | null): Promise<boolean> {
-  if (!escritorioId) return false
-  const admin = createAdminClient()
-  const { data } = await admin
-    .from('escritorios')
-    .select('invest_match_enabled')
-    .eq('id', escritorioId)
-    .maybeSingle()
-  return data?.invest_match_enabled === true
+  return hasModulo(escritorioId, 'invest_match')
 }
 
 export type InvestMatchGate =

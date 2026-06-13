@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Mandor · Apresentação Institucional</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
+
+  :root{
+    --canvas:#EDE9E5; --fog:#E5E0D9; --mist:#DDD7CD;
+    --ink:#211F1A; --ink2:#4A4843; --ink3:#7C7A74; --ink4:#9E9C97;
+    --border:#D8D3CB; --border-strong:#C2BDB4;
+    --bronze:#8C6F45; --bronze-strong:#65502E; --bronze-soft:#E8E2D6;
+    --dark:#1A1815; --dark-text:#EDE9E5;
+    --serif:'Newsreader',Georgia,serif; --sans:'Hanken Grotesk',-apple-system,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  @page{ size:1280px 720px; margin:0; }
+  html,body{ background:var(--canvas); color:var(--ink); font-family:var(--sans); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .slide{ position:relative; width:1280px; height:720px; padding:88px 96px; overflow:hidden; page-break-after:always; display:flex; flex-direction:column; }
+  .slide:last-child{ page-break-after:auto; }
+  .eyebrow{ font-size:13px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--ink3); }
+  h1{ font-family:var(--serif); font-weight:400; letter-spacing:-.01em; line-height:1.04; }
+  h2{ font-family:var(--serif); font-weight:400; letter-spacing:-.01em; line-height:1.08; color:var(--ink); }
+  .em{ font-style:italic; }
+  .bronze{ color:var(--bronze); }
+  .foot{ position:absolute; left:96px; right:96px; bottom:40px; display:flex; justify-content:space-between; font-size:12px; color:var(--ink3); border-top:1px solid var(--border); padding-top:14px; }
+  .wordmark{ font-family:var(--serif); font-size:22px; letter-spacing:.02em; color:var(--ink); }
+  .wordmark b{ font-weight:500; }
+  .tag{ display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:600; color:var(--bronze-strong); background:var(--bronze-soft); border:1px solid var(--border-strong); border-radius:999px; padding:6px 14px; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:34px; }
+  .card{ background:#fff; border:1px solid var(--border); border-radius:16px; padding:26px 26px 28px; }
+  .card .k{ font-family:var(--serif); font-size:15px; color:var(--ink4); }
+  .card h3{ font-family:var(--serif); font-weight:500; font-size:23px; margin:8px 0 10px; color:var(--ink); line-height:1.12; }
+  .card p{ font-size:14.5px; line-height:1.55; color:var(--ink2); }
+  ul.checks{ list-style:none; display:flex; flex-direction:column; gap:13px; }
+  ul.checks li{ font-size:16.5px; line-height:1.5; color:var(--ink2); padding-left:26px; position:relative; }
+  ul.checks li:before{ content:"✓"; position:absolute; left:0; color:var(--bronze); font-weight:700; font-size:14px; top:2px; }
+  .dark{ background:var(--dark); color:var(--dark-text); }
+  .dark h1,.dark h2{ color:var(--dark-text); }
+  .dark .eyebrow{ color:#B5B0A6; }
+  .num{ font-family:var(--serif); font-size:46px; color:var(--ink); line-height:1; }
+  .numlbl{ font-size:13px; color:var(--ink3); margin-top:8px; }
+  .accentbar{ width:54px; height:3px; background:var(--bronze); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- 1 · Capa -->
+<section class="slide dark" style="justify-content:space-between;">
+  <div class="wordmark" style="color:#EDE9E5;">M<b>ANDOR</b></div>
+  <div>
+    <p class="eyebrow" style="margin-bottom:26px;">Inteligência institucional para o mercado privado</p>
+    <h1 style="font-size:68px; max-width:980px;">Cada deal, lido com<br>o rigor da sua <span class="em bronze">melhor mesa.</span></h1>
+    <p style="font-size:18px; color:#B5B0A6; max-width:700px; margin-top:26px; line-height:1.55;">
+      Diagnóstico de operações de M&amp;A e crédito estruturado: rastreável, auditável e
+      ancorado em documento e fonte. Com módulos de Reforma Tributária, Invest Match e
+      o novo Mapa Inteligente do Mercado.
+    </p>
+  </div>
+  <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+    <span class="tag" style="background:transparent;border-color:#38342D;color:#B5B0A6;">Apresentação institucional · 2026</span>
+    <span style="font-size:13px;color:#7C7A74;">www.mandor.com.br</span>
+  </div>
+</section>
+
+<!-- 2 · O problema -->
+<section class="slide">
+  <p class="eyebrow">o problema</p>
+  <h2 style="font-size:46px; max-width:980px; margin-top:18px;">A decisão é institucional. A análise, muitas vezes, ainda é artesanal.</h2>
+  <p style="font-size:17px; color:var(--ink2); max-width:760px; margin-top:22px; line-height:1.6;">
+    Operações de M&amp;A e crédito estruturado se decidem em milhões, mas o diagnóstico
+    depende de planilhas dispersas, tempo escasso e leitura não padronizada. Falta rigor
+    rastreável, e falta saber, com método, para quem levar cada operação.
+  </p>
+  <div class="grid3" style="margin-top:54px;">
+    <div><div class="num">90<span style="font-size:24px;">min</span></div><div class="numlbl">da submissão ao diagnóstico completo</div></div>
+    <div><div class="num">100%</div><div class="numlbl">rastreável, ancorado em documento e fonte</div></div>
+    <div><div class="num">3</div><div class="numlbl">módulos especializados sobre o núcleo</div></div>
+  </div>
+  <div class="foot"><span>Mandor · Apresentação institucional</span><span>02</span></div>
+</section>
+
+<!-- 3 · A rede cognitiva -->
+<section class="slide" style="background:var(--fog);">
+  <p class="eyebrow">a solução</p>
+  <h2 style="font-size:46px; max-width:1000px; margin-top:18px;">Uma rede cognitiva que lê o deal como a sua melhor mesa.</h2>
+  <div class="grid2" style="margin-top:40px; align-items:center;">
+    <p style="font-size:17px; color:var(--ink2); line-height:1.65;">
+      O núcleo do Mandor transforma os documentos do ativo em um diagnóstico institucional:
+      DRE normalizada, EBITDA ajustado, valuation, riscos e um Deal Readiness Score, com
+      cada número rastreável até a fonte. Sobre esse núcleo, módulos especializados ampliam
+      a leitura sob demanda.
+    </p>
+    <ul class="checks">
+      <li>Diagnóstico financeiro completo e auditável</li>
+      <li>Deal Readiness Score com justificativa</li>
+      <li>Cada afirmação ligada ao documento de origem</li>
+      <li>Isolamento por escritório, com segurança institucional</li>
+    </ul>
+  </div>
+  <div class="foot"><span>Mandor · Apresentação institucional</span><span>03</span></div>
+</section>
+
+<!-- 4 · Os 3 módulos -->
+<section class="slide">
+  <p class="eyebrow">módulos especializados</p>
+  <h2 style="font-size:44px; margin-top:18px;">Três módulos ampliam a rede sob demanda.</h2>
+  <div class="grid3" style="margin-top:46px;">
+    <div class="card"><div class="k">01</div><h3>Reforma Tributária</h3><p>Adequação à EC 132/2023 e à LC 214/2025 dentro da análise. O risco fiscal que decide o deal, ancorado em lei e rastreável na due diligence.</p></div>
+    <div class="card"><div class="k">02</div><h3>Invest Match</h3><p>Da análise à tese, da tese ao investidor certo. Um motor de matching de cinco camadas que transforma originação em processo.</p></div>
+    <div class="card" style="border-color:var(--bronze);"><div class="k bronze">03 · novo</div><h3>Mapa Inteligente do Mercado</h3><p>O atlas do capital privado brasileiro. Quem é quem, como se conectam e, a partir de um deal, para quem levá-lo. Sobre dado público.</p></div>
+  </div>
+  <div class="foot"><span>Mandor · Apresentação institucional</span><span>04</span></div>
+</section>
+
+<!-- 5 · Mapa Inteligente (destaque) -->
+<section class="slide" style="background:var(--fog);">
+  <span class="tag" style="margin-bottom:18px;width:max-content;">Módulo novo</span>
+  <h2 style="font-size:46px; max-width:1000px;">Mapa Inteligente do Mercado</h2>
+  <p style="font-size:17px; color:var(--ink2); max-width:820px; margin-top:16px; line-height:1.6;">
+    O atlas do capital privado brasileiro, dentro do Mandor. Reúne gestoras, administradores,
+    custodiantes, bancos, FIDCs, securitizadoras, family offices e boutiques, revela como se
+    conectam e, a partir de um deal, aponta para quem levá-lo.
+  </p>
+  <div class="grid2" style="margin-top:34px; align-items:start;">
+    <div class="grid2" style="grid-template-columns:1fr 1fr; gap:18px;">
+      <div class="card" style="padding:20px;"><div class="num" style="font-size:34px;">+1.300</div><div class="numlbl">participantes do mercado</div></div>
+      <div class="card" style="padding:20px;"><div class="num" style="font-size:34px;">+41 mil</div><div class="numlbl">veículos (fundos, FIDCs, FIIs)</div></div>
+      <div class="card" style="padding:20px;"><div class="num" style="font-size:34px;">+9 mil</div><div class="numlbl">conexões mapeadas</div></div>
+      <div class="card" style="padding:20px;"><div class="num" style="font-size:34px;">~600</div><div class="numlbl">bancos com dado financeiro</div></div>
+    </div>
+    <ul class="checks">
+      <li>Busca por nome e busca semântica (IA)</li>
+      <li>Fichas 360º: papéis, veículos, conexões e score de mercado</li>
+      <li>Mapa de conexões navegável do ecossistema</li>
+      <li>Indicadores financeiros dos bancos (carteira PJ, ativo, PL)</li>
+      <li>Alvos de captação a partir do deal, ligados ao Invest Match</li>
+    </ul>
+  </div>
+  <p style="font-size:12.5px; color:var(--ink3); margin-top:26px;">Fontes públicas: CVM, Banco Central, B3 e Receita. Sinal de afinidade de mandato e relevância de mercado, não recomendação de investimento.</p>
+  <div class="foot"><span>Mandor · Apresentação institucional</span><span>05</span></div>
+</section>
+
+<!-- 6 · Do deal ao alvo -->
+<section class="slide">
+  <p class="eyebrow">originação como processo</p>
+  <h2 style="font-size:44px; max-width:1000px; margin-top:18px;">De um deal analisado, o sistema diz para quem levá-lo.</h2>
+  <div class="grid2" style="margin-top:40px; align-items:center;">
+    <ul class="checks">
+      <li>O Mapa identifica as gestoras que já operam o mandato do deal</li>
+      <li>Rankeadas por experiência, com o caminho de relacionamento</li>
+      <li>Cada alvo entra direto no pipeline do Invest Match</li>
+      <li>Originação deixa de depender de agenda e vira método</li>
+    </ul>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:14px;">
+        <span style="font-size:12px;font-weight:600;color:var(--ink2);">Alvos de captação · FIDC · R$ 80M</span>
+        <span style="font-size:11px;color:var(--ink3);">por mandato</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:11px 13px;"><span style="font-size:13px;color:var(--ink);">Gestora de Crédito Estruturado<br><span style="font-size:11px;color:var(--ink3);">98 veículos no mandato</span></span><span class="num" style="font-size:22px;">92</span></div>
+        <div style="display:flex;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:11px 13px;"><span style="font-size:13px;color:var(--ink);">Asset · Recebíveis Multissetorial<br><span style="font-size:11px;color:var(--ink3);">76 veículos no mandato</span></span><span class="num" style="font-size:22px;">88</span></div>
+        <div style="display:flex;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:11px 13px;"><span style="font-size:13px;color:var(--ink);">Boutique de Special Situations<br><span style="font-size:11px;color:var(--ink3);">54 veículos no mandato</span></span><span class="num" style="font-size:22px;">84</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Mandor · Apresentação institucional</span><span>06</span></div>
+</section>
+
+<!-- 7 · Modelo / planos -->
+<section class="slide" style="background:var(--fog);">
+  <p class="eyebrow">modelo</p>
+  <h2 style="font-size:44px; margin-top:18px;">Custo previsível, valor que cresce com o uso.</h2>
+  <div class="grid3" style="margin-top:46px;">
+    <div class="card"><h3 style="font-size:21px;">Pontual</h3><p>Análise por demanda, medida em unidades. Custo previsível, sem complexidade técnica embutida no preço.</p></div>
+    <div class="card"><h3 style="font-size:21px;">Institucional</h3><p>Recorrência para escritórios, com entrega garantida no mesmo dia e acesso aos módulos especializados.</p></div>
+    <div class="card"><h3 style="font-size:21px;">Corporativo</h3><p>Volume e governança para operações de maior escala, com a rede cognitiva e os três módulos habilitados.</p></div>
+  </div>
+  <p style="font-size:15px;color:var(--ink2);margin-top:34px;max-width:840px;line-height:1.6;">Os módulos (Reforma Tributária, Invest Match e Mapa Inteligente do Mercado) são habilitados por contratação adicional, ampliando o valor por cliente sem alterar o fluxo principal.</p>
+  <div class="foot"><span>Mandor · Apresentação institucional</span><span>07</span></div>
+</section>
+
+<!-- 8 · Fechamento -->
+<section class="slide dark" style="justify-content:center;align-items:center;text-align:center;">
+  <p class="eyebrow" style="margin-bottom:24px;">o ativo certo, para o comprador certo, no timing certo</p>
+  <h1 style="font-size:60px;max-width:900px;">Inteligência institucional,<br>do diagnóstico à <span class="em bronze">originação.</span></h1>
+  <p style="font-size:17px;color:#B5B0A6;max-width:600px;margin-top:26px;line-height:1.6;">Solicite acesso e conheça a rede cognitiva e os três módulos do Mandor.</p>
+  <div style="margin-top:34px;display:flex;gap:16px;align-items:center;">
+    <span style="background:var(--bronze);color:#fff;font-size:15px;font-weight:600;padding:13px 28px;border-radius:11px;">www.mandor.com.br</span>
+    <span style="font-size:14px;color:#B5B0A6;">mandor@rr7x.com.br</span>
+  </div>
+</section>
+
+</body>
+</html>

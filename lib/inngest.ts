@@ -46,4 +46,29 @@ export type Events = {
       manual?: boolean           // disparo manual (admin) vs cron
     }
   }
+  'mapa-mercado/etl.cvm_requested': {
+    data: {
+      manual?:   boolean         // disparo manual (admin) vs cron
+      max?:      number          // limite de fundos a processar (0 = todos)
+      pageSize?: number          // tamanho da página (default 8000)
+    }
+  }
+  'mapa-mercado/etl.receita_requested': {
+    data: {
+      manual?:   boolean         // disparo manual (admin) vs cron
+      pageSize?: number          // entidades por página (default 120)
+    }
+  }
+  'mapa-mercado/etl.embed_requested': {
+    data: {
+      manual?:   boolean         // disparo manual (admin) vs cron
+      pageSize?: number          // entidades por página (default 128)
+    }
+  }
+  'mapa-mercado/etl.bcb_requested': {
+    data: {
+      manual?: boolean           // disparo manual (admin) vs cron
+      anoMes?: string            // trimestre específico (YYYYMM); default = mais recente
+    }
+  }
 }

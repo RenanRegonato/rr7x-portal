@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rede Mandor — Apresentação Institucional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opt_size,wght@0,18..72,400;0,18..72,500;0,18..72,600;1,18..72,400&family=Hanken+Grotesk:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap");
+
+:root{
+  /* Mandor Brand Book v1 */
+  --canvas:#EDE9E5;      /* Archive Ivory */
+  --fog:#E5E0D9;
+  --mist:#DDD7CD;
+  --ink:#211F1A;         /* Editorial Ink */
+  --ink-2:#4A4843;       /* Mineral Ash */
+  --ink-3:#7C7A74;       /* Regulatory Grey */
+  --border:#D8D3CB;      /* Pebble Line */
+  --border-strong:#C2BDB4;
+  --accent:#8C6F45;      /* Oxidized Bronze */
+  --accent-soft:#E8E2D6;
+  --accent-strong:#65502E;
+  --dark:#1A1815;        /* Graphite Deep */
+  --dark-2:#22201C;
+  --dark-3:#2E2B26;
+  --dark-text:#EDE9E5;
+  --dark-text-2:#B5B0A6;
+  --dark-border:#38342D;
+  --display:"Newsreader",Georgia,serif;
+  --sans:"Hanken Grotesk",system-ui,sans-serif;
+  --mono:"Courier Prime",ui-monospace,monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#3a3631;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+/* ---------- Slide frame ---------- */
+.deck{display:flex;flex-direction:column;align-items:center;gap:28px;padding:40px 0}
+.slide{
+  position:relative;width:1280px;height:720px;background:var(--canvas);color:var(--ink);
+  overflow:hidden;flex:0 0 auto;box-shadow:0 24px 60px rgba(0,0,0,.35);
+  display:flex;flex-direction:column;
+}
+.slide.dark{background:var(--dark);color:var(--dark-text)}
+.pad{padding:64px 80px;display:flex;flex-direction:column;height:100%}
+
+/* ---------- Typography ---------- */
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);
+  display:flex;align-items:center;gap:14px}
+.eyebrow::before{content:"";width:34px;height:1px;background:var(--accent);display:inline-block}
+.dark .eyebrow{color:#C9A87A}.dark .eyebrow::before{background:#C9A87A}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-3)}
+.dark .kicker{color:var(--dark-text-2)}
+
+h1{font-family:var(--display);font-weight:500;line-height:1.04;letter-spacing:-.5px}
+h2{font-family:var(--display);font-weight:500;font-size:46px;line-height:1.06;letter-spacing:-.4px;color:var(--ink)}
+.dark h2{color:var(--dark-text)}
+h2 .em{color:var(--accent);font-style:italic}
+.lead{font-family:var(--display);font-size:21px;line-height:1.5;color:var(--ink-2);font-weight:400}
+.dark .lead{color:var(--dark-text-2)}
+p{font-size:16px;line-height:1.55;color:var(--ink-2)}
+.dark p{color:var(--dark-text-2)}
+.hair{height:1px;background:var(--border);width:100%}
+.dark .hair{background:var(--dark-border)}
+
+/* slide header block */
+.shead{margin-bottom:30px}
+.shead h2{margin-top:14px}
+.shead .sub{margin-top:12px;max-width:760px}
+
+/* footer chrome */
+.chrome{position:absolute;left:80px;right:80px;bottom:30px;display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--ink-3);text-transform:uppercase}
+.dark .chrome{color:var(--dark-text-2)}
+.chrome .mono-logo{display:flex;align-items:center;gap:9px}
+.chrome svg{height:13px;width:auto}
+
+/* monogram */
+.mono{display:inline-block}
+.mono svg{display:block}
+
+/* pills / chips */
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border-strong);border-radius:999px;
+  padding:8px 16px;font-size:14px;color:var(--ink);background:var(--canvas)}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.dark .chip{border-color:var(--dark-border);color:var(--dark-text);background:transparent}
+
+/* generic flex helpers */
+.row{display:flex}.col{display:flex;flex-direction:column}
+.grow{flex:1}.center{align-items:center;justify-content:center}
+.between{justify-content:space-between}
+.mt-auto{margin-top:auto}
+
+/* big number index for problem cards */
+.idx{font-family:var(--display);font-size:38px;color:var(--accent);line-height:1;font-weight:500}
+
+/* message banner */
+.banner{border-left:3px solid var(--accent);padding:18px 26px;background:var(--accent-soft);
+  font-family:var(--display);font-size:20px;font-style:italic;color:var(--ink);line-height:1.4}
+.dark .banner{background:rgba(140,111,69,.16);border-color:#C9A87A;color:var(--dark-text)}
+
+/* ===================== SLIDE 1 — CAPA ===================== */
+.cover{justify-content:center;padding:0 96px}
+.cover .glow{position:absolute;width:760px;height:760px;border-radius:50%;
+  background:radial-gradient(circle,rgba(140,111,69,.22),transparent 62%);top:-220px;right:-180px;filter:blur(20px)}
+.cover .glow2{position:absolute;width:560px;height:560px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,168,122,.12),transparent 60%);bottom:-200px;left:-140px;filter:blur(20px)}
+.cover .lockup{display:flex;align-items:center;gap:22px;margin-bottom:54px;position:relative;z-index:1}
+.cover .wordmark{font-family:var(--display);font-size:46px;letter-spacing:10px;color:var(--dark-text);font-weight:500}
+.cover h1{font-size:58px;max-width:980px;position:relative;z-index:1}
+.cover h1 .em{color:#C9A87A;font-style:italic}
+.cover .slogan{font-family:var(--mono);font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#C9A87A;
+  margin-bottom:30px;position:relative;z-index:1}
+.cover .subtitle{font-family:var(--display);font-size:22px;color:var(--dark-text-2);margin-top:26px;
+  max-width:720px;position:relative;z-index:1;line-height:1.45}
+.cover .subtitle b{color:var(--dark-text);font-weight:500;font-style:italic}
+
+/* ===================== SLIDE 3 — fluxo ===================== */
+.flow{display:flex;flex-direction:column;gap:0;margin-top:6px}
+.flow-row{display:flex;align-items:stretch;gap:14px}
+.step{flex:1;border:1px solid var(--border);background:var(--canvas);border-radius:6px;padding:13px 14px;
+  font-size:13.5px;color:var(--ink-2);display:flex;align-items:center;justify-content:center;text-align:center;
+  min-height:50px;line-height:1.25}
+.step.hot{border-color:var(--accent);background:var(--accent-soft);color:var(--ink);font-weight:600;position:relative}
+.step.hot::after{content:"●";position:absolute;top:-7px;right:8px;color:var(--accent);font-size:11px}
+.arrow{display:flex;align-items:center;color:var(--ink-3);font-size:16px}
+.flow-legend{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-3);margin-top:4px}
+.flow-legend .sw{width:14px;height:14px;border-radius:3px;background:var(--accent-soft);border:1px solid var(--accent)}
+
+/* ===================== SLIDE 4 — atuação ===================== */
+.two{display:grid;grid-template-columns:1.15fr 1fr;gap:48px;flex:1}
+.tags{display:flex;flex-wrap:wrap;gap:10px}
+.deliv{display:flex;flex-direction:column;gap:0}
+.deliv .d{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);font-size:15px;color:var(--ink)}
+.deliv .d:last-child{border-bottom:none}
+.deliv .d .m{font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:2px;min-width:22px}
+
+/* ===================== SLIDE 5 — comparativo ===================== */
+.cmp{width:100%;border-collapse:collapse;margin-top:6px}
+.cmp th,.cmp td{text-align:left;padding:9px 16px;font-size:14px;border-bottom:1px solid var(--border);vertical-align:top}
+.cmp thead th{font-family:var(--mono);font-size:11.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);
+  border-bottom:1px solid var(--border-strong);padding-bottom:10px}
+.cmp thead th.mr{color:var(--accent)}
+.cmp td.trad{color:var(--ink-3)}
+.cmp td.mand{color:var(--ink);font-weight:500}
+.cmp tbody tr:last-child td{border-bottom:none}
+.cmp .colmark{border-left:1px solid var(--border)}
+
+/* ===================== SLIDE 6 — agentes ===================== */
+.agrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;flex:1}
+.agent{border:1px solid var(--border);border-radius:8px;padding:16px 18px;background:var(--canvas);display:flex;flex-direction:column}
+.agent .an{font-family:var(--display);font-size:18px;color:var(--ink);font-weight:500;margin-bottom:3px}
+.agent .ar{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:9px}
+.agent ul{list-style:none;display:flex;flex-direction:column;gap:3px}
+.agent li{font-size:12.5px;color:var(--ink-2);padding-left:13px;position:relative;line-height:1.35}
+.agent li::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:var(--border-strong)}
+.spine{display:flex;gap:10px;margin-top:14px;font-size:13px;color:var(--ink-2);align-items:center}
+.spine b{color:var(--ink);font-weight:600}
+
+/* ===================== SLIDE 7 — invest match ===================== */
+.im{display:grid;grid-template-columns:1fr 1fr;gap:44px;flex:1}
+.imflow{display:flex;flex-direction:column;gap:8px}
+.imstep{display:flex;align-items:center;gap:13px;font-size:15px;color:var(--ink)}
+.imstep .n{font-family:var(--mono);font-size:12px;color:var(--accent);width:24px;height:24px;border:1px solid var(--accent);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.imstep .bar{width:1px;height:14px;background:var(--border-strong);margin-left:11px}
+.srcgrid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.src{border:1px solid var(--border-strong);border-radius:5px;padding:7px 12px;font-size:13px;color:var(--ink);background:var(--canvas)}
+.bigfig{font-family:var(--display);font-size:54px;color:var(--accent);font-weight:500;line-height:1}
+.bigfig small{font-family:var(--sans);font-size:15px;color:var(--ink-2);display:block;margin-top:4px;font-weight:400}
+
+/* ===================== SLIDE 8 — reforma ===================== */
+.legref{display:flex;gap:12px;margin:4px 0 20px}
+.legref .l{border:1px solid var(--border-strong);border-radius:6px;padding:12px 18px;background:var(--canvas)}
+.legref .l .t{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent)}
+.legref .l .d{font-size:14px;color:var(--ink);margin-top:4px;font-weight:500}
+.impacts{display:grid;grid-template-columns:1fr 1fr;gap:10px 40px;margin-top:6px}
+.impacts .i{display:flex;gap:10px;font-size:14.5px;color:var(--ink-2);padding:8px 0;border-bottom:1px solid var(--border)}
+.impacts .i .m{font-family:var(--mono);color:var(--accent);font-size:12px;margin-top:2px}
+
+/* ===================== SLIDE 9 — planos ===================== */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;flex:1}
+.plan{border:1px solid var(--border);border-radius:10px;padding:24px 22px;display:flex;flex-direction:column;background:var(--canvas)}
+.plan.feat{border-color:var(--accent);background:var(--canvas);box-shadow:0 0 0 1px var(--accent) inset}
+.plan .pt{font-family:var(--display);font-size:24px;color:var(--ink);font-weight:500}
+.plan .pd{font-size:13px;color:var(--ink-3);margin:6px 0 16px;line-height:1.4;min-height:36px}
+.plan .badge{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);
+  border:1px solid var(--accent);border-radius:999px;padding:3px 10px;align-self:flex-start;margin-bottom:12px}
+.plan ul{list-style:none;display:flex;flex-direction:column;gap:7px;margin-top:2px}
+.plan li{font-size:13px;color:var(--ink-2);padding-left:18px;position:relative;line-height:1.35}
+.plan li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-size:12px;top:1px}
+.plan li.off{color:var(--ink-4,#9E9C97)}
+.plan li.off::before{content:"—";color:var(--border-strong)}
+.plan .vol{margin-top:auto;padding-top:14px;border-top:1px solid var(--border);font-size:12.5px;color:var(--ink-3)}
+.plan .vol b{color:var(--ink);font-weight:600}
+
+/* ===================== SLIDE 10 — fecho ===================== */
+.close{justify-content:center;padding:0 96px}
+.close .glow{position:absolute;width:820px;height:820px;border-radius:50%;
+  background:radial-gradient(circle,rgba(140,111,69,.20),transparent 62%);bottom:-300px;right:-180px;filter:blur(20px)}
+.close h1{font-size:50px;max-width:960px;position:relative;z-index:1}
+.close h1 .em{color:#C9A87A;font-style:italic}
+.close .msg{font-family:var(--display);font-size:21px;color:var(--dark-text-2);margin-top:28px;max-width:820px;line-height:1.5;position:relative;z-index:1}
+.close .cta{margin-top:42px;display:flex;align-items:center;gap:22px;position:relative;z-index:1}
+.close .cta .btn{border:1px solid #C9A87A;color:var(--dark-text);padding:15px 28px;border-radius:6px;
+  font-size:15px;font-weight:500;display:flex;align-items:center;gap:10px}
+.close .cta .url{font-family:var(--mono);font-size:14px;letter-spacing:1px;color:#C9A87A}
+
+/* ---------- presentation mode ---------- */
+body.present{overflow:hidden;background:var(--dark)}
+body.present .deck{padding:0;gap:0}
+body.present .slide{display:none;position:fixed;top:50%;left:50%;margin:0;
+  transform:translate(-50%,-50%) scale(var(--scale));box-shadow:0 30px 80px rgba(0,0,0,.5)}
+body.present .slide.active{display:flex}
+.nav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:50;display:none;
+  align-items:center;gap:16px;background:rgba(26,24,21,.85);border:1px solid var(--dark-border);
+  border-radius:999px;padding:8px 16px;font-family:var(--mono);font-size:12px;color:var(--dark-text-2);letter-spacing:1px}
+body.present .nav{display:flex}
+.nav button{background:none;border:none;color:var(--dark-text);font-size:16px;cursor:pointer;padding:0 6px}
+.nav .hint{color:var(--dark-text-2);font-size:10px;letter-spacing:1px}
+.toggle{position:fixed;top:16px;right:18px;z-index:50;font-family:var(--mono);font-size:11px;letter-spacing:1px;
+  background:rgba(26,24,21,.85);color:var(--dark-text-2);border:1px solid var(--dark-border);border-radius:6px;
+  padding:8px 12px;cursor:pointer;text-transform:uppercase}
+
+/* ---------- print / PDF ---------- */
+@page{size:1280px 720px;margin:0}
+@media print{
+  html,body{background:#fff}
+  .deck{gap:0;padding:0}
+  .slide{box-shadow:none;page-break-after:always;break-after:page}
+  .nav,.toggle{display:none!important}
+}
+</style>
+</head>
+<body>
+<button class="toggle" onclick="togglePresent()">Modo apresentação</button>
+<div class="deck" id="deck">
+
+<!-- ============ SLIDE 1 — CAPA ============ -->
+<section class="slide dark cover">
+  <div class="glow"></div><div class="glow2"></div>
+  <div class="lockup">
+    <span class="mono"><svg viewBox="0 0 48 50" width="46" height="48" fill="#EDE9E5" aria-label="Mandor">
+      <rect x="0" y="0" width="10" height="50"/><polygon points="25.4,0 35.4,0 22,50 12,50"/><rect x="37.4" y="0" width="10" height="50"/>
+    </svg></span>
+    <span class="wordmark">MANDOR</span>
+  </div>
+  <div class="slogan">A nova infraestrutura de inteligência do mercado privado</div>
+  <h1>Inteligência Cognitiva para <span class="em">M&amp;A</span>, <span class="em">Crédito Estruturado</span> e <span class="em">Preparação para Mercado</span></h1>
+  <div class="subtitle">Transformando semanas de análise em até <b>90 minutos</b>.</div>
+  <div class="chrome"><span>Apresentação Institucional</span><span>www.mandor.com.br</span></div>
+</section>
+
+<!-- ============ SLIDE 2 — O PROBLEMA ============ -->
+<section class="slide">
+  <div class="pad">
+    <div class="shead">
+      <div class="eyebrow">01 · O problema do mercado</div>
+      <h2>O mercado perde tempo onde não deveria</h2>
+      <p class="sub lead">Escritórios, assessorias, boutiques de M&amp;A, estruturas de crédito, fundos e consultorias enfrentam os mesmos gargalos estruturais.</p>
+    </div>
+    <div class="row" style="gap:30px;flex:1">
+      <div class="col grow" style="gap:8px">
+        <div class="idx">1</div>
+        <div style="font-family:var(--display);font-size:20px;color:var(--ink);font-weight:500;line-height:1.25">Análise documental lenta e operacional</div>
+        <p>Grande volume de documentos. Informações dispersas a consolidar. Dependência de profissionais especializados para interpretar os dados.</p>
+      </div>
+      <div class="col grow" style="gap:8px">
+        <div class="idx">2</div>
+        <div style="font-family:var(--display);font-size:20px;color:var(--ink);font-weight:500;line-height:1.25">Difícil saber se o ativo está apto ao mercado</div>
+        <p>Falta de padronização nos critérios. Risco de levar ativos pouco atrativos a investidores. Tempo gasto em oportunidades sem viabilidade real.</p>
+      </div>
+      <div class="col grow" style="gap:8px">
+        <div class="idx">3</div>
+        <div style="font-family:var(--display);font-size:20px;color:var(--ink);font-weight:500;line-height:1.25">Alto desperdício em operações sem potencial</div>
+        <p>Semanas analisando oportunidades que não avançam. Baixa produtividade dos times comerciais e de estruturação. Custo elevado para filtrar qualidade.</p>
+      </div>
+    </div>
+    <div class="banner" style="margin-top:8px">O mercado perde tempo analisando operações que nunca deveriam chegar à fase de captação ou negociação.</div>
+    <div class="chrome"><span class="mono-logo"><svg viewBox="0 0 48 50" fill="#7C7A74"><rect x="0" y="0" width="10" height="50"/><polygon points="25.4,0 35.4,0 22,50 12,50"/><rect x="37.4" y="0" width="10" height="50"/></svg> Rede Mandor</span><span>02 / 11</span></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 3 — COMO FUNCIONA HOJE ============ -->
+<section class="slide">
+  <div class="pad">
+    <div class="shead">
+      <div class="eyebrow">02 · Como o mercado funciona hoje</div>
+      <h2>Onde o processo trava, e onde <span class="em">o Mandor atua</span></h2>
+    </div>
+    <div class="flow">
+      <div class="flow-row">
+        <div class="step">Originação da oportunidade</div><div class="arrow">→</div>
+        <div class="step">Recebimento de documentos</div><div class="arrow">→</div>
+        <div class="step hot">Organização documental</div><div class="arrow">→</div>
+        <div class="step hot">Análise financeira</div><div class="arrow">→</div>
+        <div class="step hot">Análise jurídica</div><div class="arrow">→</div>
+        <div class="step hot">Análise tributária</div>
+      </div>
+      <div class="row center" style="height:26px;color:var(--ink-3)">↓</div>
+      <div class="flow-row">
+        <div class="step hot">Diagnóstico da qualidade do ativo</div><div class="arrow">→</div>
+        <div class="step hot">Estruturação da operação</div><div class="arrow">→</div>
+        <div class="step hot">Preparação do material para mercado</div><div class="arrow">→</div>
+        <div class="step">Validação interna</div><div class="arrow">→</div>
+        <div class="step hot">Busca de investidores</div><div class="arrow">→</div>
+        <div class="step">Negociação</div>
+      </div>
+    </div>
+    <div class="flow-legend" style="margin-top:24px"><span class="sw"></span> Onde a Rede Mandor organiza, acelera e conecta capital</div>
+    <div class="banner" style="margin-top:14px">É exatamente nesses pontos que a Rede Mandor atua: organiza a documentação, acelera as análises financeira, jurídica e tributária, e conecta a operação às fontes de capital compatíveis.</div>
+    <div class="chrome"><span class="mono-logo"><svg viewBox="0 0 48 50" fill="#7C7A74"><rect x="0" y="0" width="10" height="50"/><polygon points="25.4,0 35.4,0 22,50 12,50"/><rect x="37.4" y="0" width="10" height="50"/></svg> Rede Mandor</span><span>03 / 11</span></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 4 — O QUE FAZ ============ -->
+<section class="slide">
+  <div class="pad">
+    <div class="shead">
+      <div class="eyebrow">03 · O que a Rede Mandor faz</div>
+      <h2>Análises cognitivas com parecer estruturado em <span class="em">até 90 minutos</span></h2>
+    </div>
+    <div class="two">
+      <div class="col" style="gap:18px">
+        <div class="kicker">Áreas de atuação</div>
+        <div class="tags">
+          <span class="chip"><span class="dot"></span>Fusões e Aquisições (M&amp;A)</span>
+          <span class="chip"><span class="dot"></span>Crédito Estruturado</span>
+          <span class="chip"><span class="dot"></span>Diagnóstico Empresarial</span>
+          <span class="chip"><span class="dot"></span>Preparação para Mercado</span>
+          <span class="chip"><span class="dot"></span>Estruturação Financeira</span>
+          <span class="chip"><span class="dot"></span>Compliance</span>
+          <span class="chip"><span class="dot"></span>Governança</span>
+          <span class="chip"><span class="dot"></span>Reforma Tributária</span>
+          <span class="chip"><span class="dot"></span>Valuation e Atratividade</span>
+        </div>
+      </div>
+      <div class="col" style="gap:14px">
+        <div class="kicker">Entregáveis</div>
+        <div class="deliv">
+          <div class="d"><span class="m">01</span>Diagnóstico completo da operação</div>
+          <div class="d"><span class="m">02</span>Identificação de riscos</div>
+          <div class="d"><span class="m">03</span>Identificação de oportunidades</div>
+          <div class="d"><span class="m">04</span>Recomendações de estruturação</div>
+          <div class="d"><span class="m">05</span>Parecer institucional rastreável</div>
+          <div class="d"><span class="m">06</span>Trilha de auditoria completa</div>
+        </div>
+      </div>
+    </div>
+    <div class="banner" style="margin-top:6px">Antes de investir semanas em uma oportunidade, o Mandor informa se vale a pena avançar.</div>
+    <div class="chrome"><span class="mono-logo"><svg viewBox="0 0 48 50" fill="#7C7A74"><rect x="0" y="0" width="10" height="50"/><polygon points="25.4,0 35.4,0 22,50 12,50"/><rect x="37.4" y="0" width="10" height="50"/></svg> Rede Mandor</span><span>04 / 11</span></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 5 — COMPARATIVO ============ -->
+<section class="slide">
+  <div class="pad">
+    <div class="shead" style="margin-bottom:16px">
+      <div class="eyebrow">04 · Mercado tradicional vs Rede Mandor</div>
+      <h2>De conhecimento individual a <span class="em">patrimônio institucional</span></h2>
+    </div>
+    <table class="cmp">
+      <thead><tr><th style="width:50%">Mercado tradicional</th><th class="mr colmark" style="width:50%">Rede Mandor</th></tr></thead>
+      <tbody>
+        <tr><td class="trad">Sem padronização de análise</td><td class="mand colmark">Metodologia padronizada</td></tr>
+        <tr><td class="trad">Dependência de profissionais específicos</td><td class="mand colmark">Inteligência institucionalizada</td></tr>
+        <tr><td class="trad">Sem rastreabilidade completa</td><td class="mand colmark">Trilha de auditoria integrada</td></tr>
+        <tr><td class="trad">Processo manual</td><td class="mand colmark">Processo automatizado</td></tr>
+        <tr><td class="trad">Sem retenção de conhecimento</td><td class="mand colmark">Conhecimento preservado na rede</td></tr>
+        <tr><td class="trad">Análises levam dias ou semanas</td><td class="mand colmark">Devolutiva em até 90 minutos</td></tr>
+        <tr><td class="trad">Alto custo operacional</td><td class="mand colmark">Escalabilidade operacional</td></tr>
+        <tr><td class="trad">Conhecimento fica com o analista</td><td class="mand colmark">Conhecimento permanece com a empresa</td></tr>
+        <tr><td class="trad">Difícil replicar a metodologia</td><td class="mand colmark">Processo replicável e auditável</td></tr>
+        <tr><td class="trad">Risco de interpretações divergentes</td><td class="mand colmark">Critérios uniformes de avaliação</td></tr>
+      </tbody>
+    </table>
+    <div class="banner" style="margin-top:16px">Quando um profissional deixa a empresa, ele leva consigo parte da inteligência acumulada. A Rede Mandor transforma conhecimento individual em patrimônio institucional.</div>
+    <div class="chrome"><span class="mono-logo"><svg viewBox="0 0 48 50" fill="#7C7A74"><rect x="0" y="0" width="10" height="50"/><polygon points="25.4,0 35.4,0 22,50 12,50"/><rect x="37.4" y="0" width="10" height="50"/></svg> Rede Mandor</span><span>05 / 11</span></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 6 — AGENTES ============ -->
+<section class="slide">
+  <div class="pad">
+    <div class="shead" style="margin-bottom:18px">
+      <div class="eyebrow">05 · Infraestrutura de inteligência</div>
+      <h2>Uma rede de agentes especializados trabalhando <span class="em">em conjunto</span></h2>
+    </div>
+    <div class="agrid">
+      <div class="agent"><div class="an">Diagnóstico Financeiro</div><div class="ar">Financial Diligence</div>
+        <ul><li>Balanços e demonstrações</li><li>Indicadores e fluxo de caixa</li><li>Endividamento e valuation</li></ul></div>
+      <div class="agent"><div class="an">Adequação Tributária</div><div class="ar">Reforma Tributária</div>
+        <ul><li>Impactos fiscais</li><li>Diagnóstico tributário</li><li>Adequação à Reforma</li></ul></div>
+      <div class="agent"><div class="an">Due Diligence Jurídica</div><div class="ar">Legal &amp; Contracts</div>
+        <ul><li>Revisão documental</li><li>Riscos jurídicos e passivos</li><li>Contratos e compliance</li></ul></div>
+      <div class="agent"><div class="an">Estruturação de Crédito</div><div class="ar">Structured Credit</div>
+        <ul><li>Estruturação financeira</li><li>Garantias</li><li>Bancabilidade</li></ul></div>
+      <div class="agent"><div class="an">Estruturação de M&amp;A</div><div class="ar">M&amp;A Advisory</div>
+        <ul><li>Atratividade do ativo</li><li>Prontidão para mercado</li><li>Potencial de captação</li></ul></div>
+      <div class="agent"><div class="an">KYC &amp; Compliance</div><div class="ar">Governança</div>
+        <ul><li>Processos e controles internos</li><li>Maturidade empresarial</li><li>Screening e red flags</li></ul></div>
+      <div class="agent"><div class="an">Inteligência de Mercado</div><div class="ar">Market Intelligence</div>
+        <ul><li>Benchmarking</li><li>Posicionamento competitivo</li><li>Tendências setoriais</li></ul></div>
+      <div class="agent"><div class="an">Originação</div><div class="ar">Deal Origination</div>
+        <ul><li>Posicionamento da operação</li><li>Perfil de compradores</li><li>Pipeline de distribuição</li></ul></div>
+      <div class="agent"><div class="an">Validação de Oportunidades</div><div class="ar">Deal Readiness</div>
+        <ul><li>Veredicto de maturidade</li><li>Roadmap de preparação</li><li>Apto ou não ao mercado</li></ul></div>
+    </div>
+    <div class="spine"><b>Orquestração do Mandato</b> coordena os especialistas <span style="color:var(--ink-3)">·</span> <b>Parecer da Mesa de Crédito</b> consolida em uma visão institucional única.</div>
+    <div class="chrome"><span class="mono-logo"><svg viewBox="0 0 48 50" fill="#7C7A74"><rect x="0" y="0" width="10" height="50"/><polygon points="25.4,0 35.4,0 22,50 12,50"/><rect x="37.4" y="0" width="10" height="50"/></svg> Rede Mandor</span><span>06 / 11</span></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 7 — INVEST MATCH ============ -->
+<section class="slide">
+  <div class="pad">
+    <div class="shead" style="margin-bottom:18px">
+      <div class="eyebrow">06 · Invest Match</div>
+      <h2>Da análise à tese, da tese ao <span class="em">investidor certo</span></h2>
+      <p class="sub lead">A partir do diagnóstico do ativo, o Invest Match gera a tese e conecta a operação ao investidor de perfil compatível, com score e justificativa.</p>
+    </div>
+    <div class="im">
+      <div class="col" style="gap:18px">
+        <div class="imflow">
+          <div class="imstep"><span class="n">1</span>Análise da operação</div><div class="bar"></div>
+          <div class="imstep"><span class="n">2</span>Tese estruturada a partir do diagnóstico</div><div class="bar"></div>
+          <div class="imstep"><span class="n">3</span>Matching de 5 camadas: mandato, risco, ticket, setor e estágio</div><div class="bar"></div>
+          <div class="imstep"><span class="n">4</span>Score de compatibilidade + curadoria</div><div class="bar"></div>
+          <div class="imstep"><span class="n">5</span>Conexão com o investidor certo</div>
+        </div>
+        <div class="deliv" style="margin-top:4px">
+          <div class="d"><span class="m">+</span>Originação reversa: do investidor às teses aderentes</div>
+          <div class="d"><span class="m">+</span>Aprovação automática acima do corte, curadoria abaixo</div>
+          <div class="d"><span class="m">+</span>Pipeline de relacionamento, do lead ao fechamento</div>
+        </div>
+      </div>
+      <div class="col" style="gap:12px">
+        <div class="kicker">Exemplo · conexão de um deal</div>
+        <div style="border:1px solid var(--border);border-radius:8px;background:var(--canvas);overflow:hidden">
+          <div class="row between" style="padding:13px 16px;border-bottom:1px solid var(--border)">
+            <span style="font-size:13.5px;color:var(--ink);font-weight:600">Tese · Indústria Química · R$ 280M</span>
+            <span class="kicker">5 camadas</span>
+          </div>
+          <div style="padding:4px 16px 12px">
+            <div class="row between" style="align-items:center;padding:11px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px;color:var(--ink)">Fundo de Crédito Estruturado<br><span style="font-size:11px;color:var(--ink-3)">mandato e ticket aderentes</span></span>
+              <span class="row" style="align-items:center;gap:10px">
+                <span style="font-family:var(--display);font-size:20px;color:var(--ink)">91</span>
+                <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 9px;border-radius:999px;background:#ECFDF3;color:#067647">aprovado</span>
+              </span>
+            </div>
+            <div class="row between" style="align-items:center;padding:11px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px;color:var(--ink)">Family Office · SP<br><span style="font-size:11px;color:var(--ink-3)">apetite de risco compatível</span></span>
+              <span class="row" style="align-items:center;gap:10px">
+                <span style="font-family:var(--display);font-size:20px;color:var(--ink)">84</span>
+                <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent-strong)">curadoria</span>
+              </span>
+            </div>
+            <div class="row between" style="align-items:center;padding:11px 0">
+              <span style="font-size:13px;color:var(--ink)">Gestora de Special Situations<br><span style="font-size:11px;color:var(--ink-3)">setor e estágio aderentes</span></span>
+              <span class="row" style="align-items:center;gap:10px">
+                <span style="font-family:var(--display);font-size:20px;color:var(--ink)">76</span>
+                <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent-strong)">curadoria</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:12.5px;color:var(--ink-3)">Cada match traz score de compatibilidade, justificativa e status no pipeline.</p>
+      </div>
+    </div>
+    <div class="banner" style="margin-top:6px">Cada análise do Mandor vira uma tese e se conecta ao investidor de perfil compatível. Originação deixa de depender de agenda e passa a ser processo.</div>
+    <div class="chrome"><span class="mono-logo"><svg viewBox="0 0 48 50" fill="#7C7A74"><rect x="0" y="0" width="10" height="50"/><polygon points="25.4,0 35.4,0 22,50 12,50"/><rect x="37.4" y="0" width="10" height="50"/></svg> Rede Mandor</span><span>07 / 11</span></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 8 — MAPA INTELIGENTE DO MERCADO ============ -->
+<section class="slide">
+  <div class="pad">
+    <div class="shead" style="margin-bottom:14px">
+      <div class="eyebrow">07 · Mapa Inteligente do Mercado</div>
+      <h2>O atlas do capital privado: <span class="em">para quem levar cada deal</span></h2>
+      <p class="sub lead">Reúne os participantes do mercado de capitais, revela como se conectam e, a partir de um deal, aponta as instituições com afinidade de mandato para captar.</p>
+    </div>
+    <div class="two" style="gap:48px">
+      <div class="col" style="gap:18px">
+        <div class="kicker">Cobertura atual · sobre dado público</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px 28px">
+          <div class="bigfig" style="font-size:40px">+1.300<small>participantes do mercado</small></div>
+          <div class="bigfig" style="font-size:40px">+41 mil<small>veículos (fundos, FIDCs, FIIs)</small></div>
+          <div class="bigfig" style="font-size:40px">+9 mil<small>conexões mapeadas</small></div>
+          <div class="bigfig" style="font-size:40px">~600<small>bancos com dado financeiro</small></div>
+        </div>
+        <div class="tags" style="margin-top:2px">
+          <span class="chip"><span class="dot"></span>Gestoras</span>
+          <span class="chip"><span class="dot"></span>Bancos</span>
+          <span class="chip"><span class="dot"></span>FIDCs</span>
+          <span class="chip"><span class="dot"></span>Securitizadoras</span>
+          <span class="chip"><span class="dot"></span>Family Offices</span>
+        </div>
+      </div>
+      <div class="col" style="gap:12px">
+        <div class="kicker">Exemplo · alvos de captação de um deal</div>
+        <div style="border:1px solid var(--border);border-radius:8px;background:var(--canvas);overflow:hidden">
+          <div class="row between" style="padding:13px 16px;border-bottom:1px solid var(--border)">
+            <span style="font-size:13.5px;color:var(--ink);font-weight:600">FIDC de crédito estruturado · R$ 80M</span>
+            <span class="kicker">por mandato</span>
+          </div>
+          <div style="padding:4px 16px 10px">
+            <div class="row between" style="align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13.5px;color:var(--ink)">Gestora de Crédito Estruturado<br><span style="font-size:11px;color:var(--ink-3)">98 veículos no mandato</span></span>
+              <span style="font-family:var(--display);font-size:21px;color:var(--accent)">92</span>
+            </div>
+            <div class="row between" style="align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13.5px;color:var(--ink)">Asset · Recebíveis Multissetorial<br><span style="font-size:11px;color:var(--ink-3)">76 veículos no mandato</span></span>
+              <span style="font-family:var(--display);font-size:21px;color:var(--accent)">88</span>
+            </div>
+            <div class="row between" style="align-items:center;padding:10px 0">
+              <span style="font-size:13.5px;color:var(--ink)">Boutique de Special Situations<br><span style="font-size:11px;color:var(--ink-3)">54 veículos no mandato</span></span>
+              <span style="font-family:var(--display);font-size:21px;color:var(--accent)">84</span>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:12.5px;color:var(--ink-3)">Cada alvo entra direto no pipeline do Invest Match, com o caminho de relacionamento até a instituição.</p>
+      </div>
+    </div>
+    <div class="banner" style="margin-top:6px">Sinal de afinidade de mandato e relevância de mercado, sobre dado público (CVM, Banco Central, B3 e Receita). Não é recomendação de investimento.</div>
+    <div class="chrome"><span class="mono-logo"><svg viewBox="0 0 48 50" fill="#7C7A74"><rect x="0" y="0" width="10" height="50"/><polygon points="25.4,0 35.4,0 22,50 12,50"/><rect x="37.4" y="0" width="10" height="50"/></svg> Rede Mandor</span><span>08 / 11</span></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 9 — REFORMA TRIBUTÁRIA ============ -->
+<section class="slide">
+  <div class="pad">
+    <div class="shead" style="margin-bottom:10px">
+      <div class="eyebrow">08 · Reforma Tributária e preparação para mercado</div>
+      <h2>Adequação tributária deixou de ser diferencial. Virou <span class="em">requisito</span>.</h2>
+    </div>
+    <div class="legref">
+      <div class="l"><div class="t">Base legal</div><div class="d">Emenda Constitucional nº 132/2023</div></div>
+      <div class="l"><div class="t">Regulamentação</div><div class="d">Lei Complementar nº 214/2025</div></div>
+    </div>
+    <div class="two" style="gap:48px">
+      <div class="col" style="gap:12px">
+        <div class="kicker">Impactos sobre o valor da empresa</div>
+        <div class="impacts">
+          <div class="i"><span class="m">›</span>Mudanças na formação de margens</div>
+          <div class="i"><span class="m">›</span>Alterações no fluxo de caixa</div>
+          <div class="i"><span class="m">›</span>Revisão de estruturas societárias</div>
+          <div class="i"><span class="m">›</span>Impacto direto em valuation</div>
+          <div class="i" style="grid-column:1 / -1"><span class="m">›</span>Necessidade de adequação tributária</div>
+        </div>
+      </div>
+      <div class="col" style="gap:12px">
+        <div class="kicker">Por que importa para M&amp;A e Crédito</div>
+        <div class="deliv">
+          <div class="d"><span class="m">01</span>Empresas preparadas apresentam menor risco</div>
+          <div class="d"><span class="m">02</span>Melhora a percepção de governança</div>
+          <div class="d"><span class="m">03</span>Facilita diligências futuras</div>
+          <div class="d"><span class="m">04</span>Aumenta a atratividade perante investidores e compradores</div>
+        </div>
+      </div>
+    </div>
+    <div class="banner" style="margin-top:6px">Preparar uma empresa para a nova realidade tributária deixou de ser diferencial e passou a ser requisito.</div>
+    <div class="chrome"><span class="mono-logo"><svg viewBox="0 0 48 50" fill="#7C7A74"><rect x="0" y="0" width="10" height="50"/><polygon points="25.4,0 35.4,0 22,50 12,50"/><rect x="37.4" y="0" width="10" height="50"/></svg> Rede Mandor</span><span>09 / 11</span></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 9 — PLANOS ============ -->
+<section class="slide">
+  <div class="pad">
+    <div class="shead" style="margin-bottom:16px">
+      <div class="eyebrow">09 · Planos de contratação</div>
+      <h2>Uma esteira de evolução, do <span class="em">parecer</span> à <span class="em">rede de capital</span></h2>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <div class="pt">Essential</div>
+        <div class="pd">O parecer institucional completo, pronto para decidir se a operação avança.</div>
+        <ul>
+          <li>Pipeline completo de diligência (todos os agentes)</li>
+          <li>Parecer rastreável + trilha de auditoria</li>
+          <li>Documentos de captação (Blind Teaser e Pitchbook)</li>
+          <li>Auto-pull de CNPJ + monitoramento contínuo</li>
+          <li>Exportação em PDF, Excel e PowerPoint</li>
+          <li class="off">Adequação à Reforma Tributária</li>
+          <li class="off">Invest Match</li>
+        </ul>
+        <div class="vol">Volume: <b>pacote básico</b><br>Usuários: <b>até 3</b></div>
+      </div>
+      <div class="plan feat">
+        <div class="badge">Mais escolhido</div>
+        <div class="pt">Professional</div>
+        <div class="pd">Inteligência aplicada: tributário, originação interna e aprendizado do escritório.</div>
+        <ul>
+          <li>Tudo do Essential</li>
+          <li>Adequação à Reforma Tributária (agente dedicado)</li>
+          <li>Aprendizados do escritório (inteligência acumulada)</li>
+          <li>Invest Match: originação interna (teses + matching na sua base)</li>
+          <li>Regeneração e refinamento com briefing</li>
+          <li>Identidade do escritório nos relatórios</li>
+          <li class="off">Rede ampliada de fontes de capital + API</li>
+        </ul>
+        <div class="vol">Volume: <b>ampliado</b><br>Usuários: <b>até 17</b></div>
+      </div>
+      <div class="plan">
+        <div class="pt">Enterprise</div>
+        <div class="pd">A rede de capital e a escala corporativa, com governança avançada.</div>
+        <ul>
+          <li>Tudo do Professional</li>
+          <li>Invest Match em Rede: conexão ampliada às fontes de capital (em evolução)</li>
+          <li>Originação reversa + insights de calibração</li>
+          <li>API e integrações</li>
+          <li>Personalização de agentes</li>
+          <li>Governança avançada, SSO e suporte estratégico</li>
+          <li>Gerente dedicado</li>
+        </ul>
+        <div class="vol">Volume: <b>ilimitado / instância dedicada</b><br>Usuários: <b>ilimitado</b></div>
+      </div>
+    </div>
+    <div class="chrome"><span class="mono-logo"><svg viewBox="0 0 48 50" fill="#7C7A74"><rect x="0" y="0" width="10" height="50"/><polygon points="25.4,0 35.4,0 22,50 12,50"/><rect x="37.4" y="0" width="10" height="50"/></svg> Rede Mandor</span><span>10 / 11</span></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 10 — ENCERRAMENTO ============ -->
+<section class="slide dark close">
+  <div class="glow"></div>
+  <div class="eyebrow" style="position:relative;z-index:1;margin-bottom:26px">Encerramento</div>
+  <h1>A nova infraestrutura de inteligência para o mercado de <span class="em">operações estruturadas</span></h1>
+  <div class="msg">A Rede Mandor transforma análise, estruturação e preparação para mercado em um processo institucional, escalável, auditável e orientado por inteligência cognitiva.</div>
+  <div class="cta">
+    <div class="btn">Solicite uma demonstração</div>
+    <div class="col" style="gap:2px">
+      <span class="url">www.mandor.com.br</span>
+      <span style="font-size:12px;color:var(--dark-text-2)">Reduza semanas de trabalho para até 90 minutos.</span>
+    </div>
+  </div>
+  <div class="chrome">
+    <span class="mono-logo"><svg viewBox="0 0 48 50" fill="#C9A87A"><rect x="0" y="0" width="10" height="50"/><polygon points="25.4,0 35.4,0 22,50 12,50"/><rect x="37.4" y="0" width="10" height="50"/></svg> MANDOR</span>
+    <span>11 / 11</span>
+  </div>
+</section>
+
+</div>
+
+<div class="nav">
+  <button onclick="go(-1)">‹</button>
+  <span id="counter">1 / 11</span>
+  <button onclick="go(1)">›</button>
+  <span class="hint">← → para navegar · P para sair</span>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let cur=0;
+function fit(){
+  const s=Math.min(window.innerWidth/1280, window.innerHeight/720)*0.96;
+  document.documentElement.style.setProperty('--scale', s);
+}
+function render(){
+  slides.forEach((el,i)=>el.classList.toggle('active', i===cur));
+  document.getElementById('counter').textContent=(cur+1)+' / '+slides.length;
+}
+function go(d){cur=Math.max(0,Math.min(slides.length-1,cur+d));render();}
+function togglePresent(){
+  document.body.classList.toggle('present');
+  if(document.body.classList.contains('present')){fit();render();}
+}
+window.addEventListener('resize',fit);
+document.addEventListener('keydown',e=>{
+  if(!document.body.classList.contains('present')) {
+    if(e.key==='p'||e.key==='P'){togglePresent();}
+    return;
+  }
+  if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')go(1);
+  else if(e.key==='ArrowLeft'||e.key==='PageUp')go(-1);
+  else if(e.key==='Home'){cur=0;render();}
+  else if(e.key==='End'){cur=slides.length-1;render();}
+  else if(e.key==='Escape'||e.key==='p'||e.key==='P')togglePresent();
+});
+</script>
+</body>
+</html>
