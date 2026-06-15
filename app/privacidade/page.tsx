@@ -8,8 +8,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacidade" },
 };
 
-const LAST_UPDATED = "14 de maio de 2026";
+const LAST_UPDATED = "15 de junho de 2026";
 const CONTACT_EMAIL = "mandor@rr7x.com.br";
+const DPO_NAME = "Renan Luciano Regonato";
+const DPO_EMAIL = "contato@rr7x.com.br";
 
 export default function PrivacidadePage() {
   return (
@@ -60,9 +62,10 @@ export default function PrivacidadePage() {
 
           <Section num="1" title="Quem somos">
             <p>
-              <strong>Controlador de dados:</strong> RR7x Capital Hub, com email de contato{" "}
+              <strong>Controlador de dados:</strong> RRX CAPITAL HUB LTDA, inscrita no CNPJ sob o nº
+              59.073.078/0001-89, com email de contato{" "}
               <a href={`mailto:${CONTACT_EMAIL}`} className="text-lp-accent hover:underline">{CONTACT_EMAIL}</a>.
-              A plataforma Mandor presta serviços de deal intelligence para escritórios de M&amp;A e crédito estruturado.
+              O Mandor é uma rede cognitiva de inteligência institucional para escritórios de M&amp;A e crédito estruturado.
             </p>
           </Section>
 
@@ -123,10 +126,11 @@ export default function PrivacidadePage() {
               seguintes situações:
             </p>
             <ul>
-              <li><strong>Fornecedores de infraestrutura:</strong> Supabase (banco de dados e autenticação), Vercel (hospedagem) e Anthropic/OpenAI (processamento de IA), todos sujeitos a contratos de processamento de dados e obrigações de confidencialidade.</li>
-              <li><strong>Gateway de pagamento:</strong> processamento seguro de cobranças, sem acesso a dados de deal.</li>
+              <li><strong>Infraestrutura e processamento:</strong> Supabase (banco de dados, autenticação e armazenamento de arquivos), Vercel (hospedagem), Anthropic (processamento de IA dos documentos), Voyage AI (geração de embeddings para busca) e Inngest (orquestração dos processamentos). Todos sujeitos a contratos de processamento de dados e obrigações de confidencialidade.</li>
+              <li><strong>Enriquecimento cadastral:</strong> consulta de CNPJ (dado público) à base da Receita Federal via BrasilAPI, e validação de links públicos do Google Drive/Docs via Jina AI. Não enviamos CPF a esses serviços.</li>
+              <li><strong>Gateway de pagamento:</strong> Stripe, para processamento seguro de cobranças. Não armazenamos dados de cartão e o gateway não acessa dados de deal.</li>
               <li><strong>Obrigação legal:</strong> quando exigido por lei, regulação ou ordem judicial.</li>
-              <li><strong>Proteção de direitos:</strong> para prevenir fraudes ou proteger a segurança da plataforma.</li>
+              <li><strong>Proteção de direitos:</strong> para prevenir fraudes ou proteger a segurança da rede.</li>
             </ul>
             <p>
               Os documentos enviados para análise (DRE, contratos, etc.) são processados exclusivamente para geração
@@ -154,7 +158,7 @@ export default function PrivacidadePage() {
             </p>
             <ul>
               <li><strong>Conta ativa:</strong> dados mantidos enquanto a conta estiver ativa.</li>
-              <li><strong>Após encerramento:</strong> dados operacionais excluídos em até 90 dias; registros fiscais e contábeis retidos pelo prazo legal (5 anos).</li>
+              <li><strong>Após encerramento:</strong> dados operacionais excluídos em até 90 dias da solicitação de encerramento; registros fiscais e contábeis retidos pelo prazo legal (5 anos).</li>
               <li><strong>Documentos de análise:</strong> arquivos enviados podem ser excluídos a qualquer momento pelo titular da conta.</li>
             </ul>
           </Section>
@@ -171,8 +175,8 @@ export default function PrivacidadePage() {
               <li><strong>Informação:</strong> saber com quem compartilhamos seus dados.</li>
             </ul>
             <p>
-              Para exercer qualquer desses direitos, entre em contato pelo email{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="text-lp-accent hover:underline">{CONTACT_EMAIL}</a>.
+              Para exercer qualquer desses direitos, entre em contato com o Encarregado pelo email{" "}
+              <a href={`mailto:${DPO_EMAIL}`} className="text-lp-accent hover:underline">{DPO_EMAIL}</a>.
               Respondemos em até 15 dias úteis.
             </p>
           </Section>
@@ -193,15 +197,16 @@ export default function PrivacidadePage() {
 
           <Section num="9" title="Transferência internacional de dados">
             <p>
-              Alguns de nossos fornecedores de infraestrutura (Vercel, Supabase, Anthropic) são baseados nos
-              Estados Unidos. Essas transferências ocorrem com base em cláusulas contratuais padrão e mecanismos
-              equivalentes que garantem nível adequado de proteção, em conformidade com o Art. 33 da LGPD.
+              Alguns de nossos fornecedores de infraestrutura e processamento (Vercel, Supabase, Anthropic,
+              Voyage AI, Inngest e Stripe) são baseados nos Estados Unidos. Essas transferências ocorrem com base
+              em cláusulas contratuais padrão e mecanismos equivalentes que garantem nível adequado de proteção,
+              em conformidade com o Art. 33 da LGPD.
             </p>
           </Section>
 
           <Section num="10" title="Menores de idade">
             <p>
-              A plataforma Mandor é destinada exclusivamente a profissionais e empresas. Não coletamos
+              O Mandor é destinado exclusivamente a profissionais e empresas. Não coletamos
               conscientemente dados de menores de 18 anos. Se identificarmos tal situação, excluiremos os dados
               imediatamente.
             </p>
@@ -220,8 +225,9 @@ export default function PrivacidadePage() {
               Para dúvidas, solicitações ou reclamações relacionadas a esta Política ou ao tratamento dos seus dados:
             </p>
             <ul>
-              <li><strong>Email:</strong> <a href={`mailto:${CONTACT_EMAIL}`} className="text-lp-accent hover:underline">{CONTACT_EMAIL}</a></li>
-              <li><strong>Plataforma:</strong> <Link href="/contato" className="text-lp-accent hover:underline">mandor.com.br/contato</Link></li>
+              <li><strong>Encarregado (DPO):</strong> {DPO_NAME}</li>
+              <li><strong>Email do Encarregado:</strong> <a href={`mailto:${DPO_EMAIL}`} className="text-lp-accent hover:underline">{DPO_EMAIL}</a></li>
+              <li><strong>Contato geral:</strong> <a href={`mailto:${CONTACT_EMAIL}`} className="text-lp-accent hover:underline">{CONTACT_EMAIL}</a> ou <Link href="/contato" className="text-lp-accent hover:underline">mandor.com.br/contato</Link></li>
             </ul>
             <p>
               Você também pode apresentar reclamação à Autoridade Nacional de Proteção de Dados (ANPD) em{" "}

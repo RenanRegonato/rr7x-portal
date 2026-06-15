@@ -10,6 +10,12 @@ const SENSITIVE_FIELDS: (keyof DealIntake)[] = [
   'telefoneProprietario',
   'emailProprietario',
   'obsProprietario',
+  'assessorNome',
+  'assessorTelefone',
+  'assessorEmail',
+  'parceiroNome',
+  'parceiroTelefone',
+  'parceiroEmail',
 ]
 
 function getKey(): Buffer {
@@ -50,9 +56,18 @@ export function decrypt(ciphertext: string): string {
   return decipher.update(data).toString('utf8') + decipher.final('utf8')
 }
 
-// Detects whether a value is already in the encrypted format (iv:authTag:cipher)
+// Detects whether a value is already in the encrypted format (iv:authTag:cipher).
+// Validates the exact byte lengths of the IV (12) and authTag (16) so that legacy
+// plaintext that happens to contain colons is not mistaken for ciphertext.
 function isEncrypted(value: string): boolean {
-  return value.split(':').length === 3
+  const parts = value.split(':')
+  if (parts.length !== 3) return false
+  const [ivB64, authTagB64] = parts
+  try {
+    return Buffer.from(ivB64, 'base64').length === 12 && Buffer.from(authTagB64, 'base64').length === 16
+  } catch {
+    return false
+  }
 }
 
 /**
