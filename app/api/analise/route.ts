@@ -45,30 +45,59 @@ export async function POST(req: NextRequest) {
     .eq('user_id', user.id)
     .maybeSingle()
 
-  // 2. Tenta consumir do pacote ativo do escritório (FIFO: mais antigo primeiro)
+  // 2. Consome do pacote ativo do escritório (FIFO). Consumo ATÔMICO via RPC
+  //    (lock + incremento num só statement) para não furar o saldo sob
+  //    concorrência. Fallback read-modify-write enquanto a RPC não existir.
   let pacoteId: string | null = null
   let pacoteNovoConsumido: number | null = null
+  let consumoAtomico = false
 
   if (perfil?.escritorio_id) {
-    const { data: pacote } = await admin
-      .from('pacotes')
-      .select('id, analises_total, analises_consumidas')
-      .eq('escritorio_id', perfil.escritorio_id)
-      .eq('status', 'ativo')
-      .order('criado_em', { ascending: true })
-      .limit(1)
-      .maybeSingle()
+    const rpc = await admin.rpc('consumir_pacote_fifo', { p_escritorio_id: perfil.escritorio_id })
+    if (!rpc.error) {
+      consumoAtomico = true
+      const row = Array.isArray(rpc.data) ? rpc.data[0] : rpc.data
+      if (row?.pacote_id) {
+        pacoteId = row.pacote_id
+        pacoteNovoConsumido = row.novo_consumido
+      } else {
+        // Não consumiu: distingue "pacote esgotado" de "sem pacote".
+        const { data: temPacote } = await admin
+          .from('pacotes')
+          .select('id')
+          .eq('escritorio_id', perfil.escritorio_id)
+          .eq('status', 'ativo')
+          .limit(1)
+          .maybeSingle()
+        if (temPacote) {
+          return NextResponse.json(
+            { error: 'Pacote esgotado. Solicite ao gestor a habilitação de um novo pacote.' },
+            { status: 403 }
+          )
+        }
+        // sem pacote → cai no fallback de subscriptions abaixo
+      }
+    } else {
+      // Fallback pré-migration: comportamento antigo (não-atômico).
+      const { data: pacote } = await admin
+        .from('pacotes')
+        .select('id, analises_total, analises_consumidas')
+        .eq('escritorio_id', perfil.escritorio_id)
+        .eq('status', 'ativo')
+        .order('criado_em', { ascending: true })
+        .limit(1)
+        .maybeSingle()
 
-    if (pacote && pacote.analises_consumidas < pacote.analises_total) {
-      pacoteId = pacote.id
-      pacoteNovoConsumido = pacote.analises_consumidas + 1
-    } else if (pacote) {
-      return NextResponse.json(
-        { error: 'Pacote esgotado. Solicite ao gestor a habilitação de um novo pacote.' },
-        { status: 403 }
-      )
+      if (pacote && pacote.analises_consumidas < pacote.analises_total) {
+        pacoteId = pacote.id
+        pacoteNovoConsumido = pacote.analises_consumidas + 1
+      } else if (pacote) {
+        return NextResponse.json(
+          { error: 'Pacote esgotado. Solicite ao gestor a habilitação de um novo pacote.' },
+          { status: 403 }
+        )
+      }
     }
-    // Se não tem pacote, cai no fallback de subscriptions abaixo
   }
 
   // 3. Fallback: usa subscriptions legacy se não consumiu de pacote
@@ -107,6 +136,10 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (createError || !analise) {
+    // Já consumimos atomicamente, mas a análise não nasceu: devolve a unidade.
+    if (consumoAtomico && pacoteId) {
+      await admin.rpc('devolver_pacote', { p_pacote_id: pacoteId })
+    }
     return NextResponse.json({ error: 'Erro ao criar análise' }, { status: 500 })
   }
 
@@ -119,15 +152,18 @@ export async function POST(req: NextRequest) {
     userAgent: req.headers.get('user-agent'),
   })
 
-  // 4. Decrementa: pacote (preferido) ou subscription legacy
+  // 4. Decremento do pacote: no consumo atômico já foi feito na RPC; só o
+  //    fallback (não-atômico) precisa gravar aqui. Audit sempre que houve pacote.
   if (pacoteId && pacoteNovoConsumido !== null) {
-    await admin
-      .from('pacotes')
-      .update({
-        analises_consumidas: pacoteNovoConsumido,
-        atualizado_em: new Date().toISOString(),
-      })
-      .eq('id', pacoteId)
+    if (!consumoAtomico) {
+      await admin
+        .from('pacotes')
+        .update({
+          analises_consumidas: pacoteNovoConsumido,
+          atualizado_em: new Date().toISOString(),
+        })
+        .eq('id', pacoteId)
+    }
 
     void audit({
       event:    'pacote.consumed',
