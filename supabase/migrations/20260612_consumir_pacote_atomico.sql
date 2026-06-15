@@ -4,6 +4,11 @@
 -- Evita furar o saldo sob concorrência (duas análises simultâneas liam o mesmo
 -- analises_consumidas e ambas passavam). Seleciona o pacote ativo mais antigo
 -- com saldo (FIFO) com lock e incrementa num único statement.
+--
+-- FOR UPDATE (bloqueante, SEM SKIP LOCKED): consumos concorrentes do MESMO
+-- pacote serializam no lock e cada um lê o saldo já atualizado, consumindo em
+-- série até esgotar de verdade. SKIP LOCKED faria chamadas concorrentes
+-- desistirem (retornar vazio) e rejeitaria consumos válidos como "esgotado".
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION public.consumir_pacote_fifo(p_escritorio_id uuid)
@@ -20,7 +25,7 @@ BEGIN
     AND analises_consumidas < analises_total
   ORDER BY criado_em ASC
   LIMIT 1
-  FOR UPDATE SKIP LOCKED;
+  FOR UPDATE;
 
   IF v_id IS NULL THEN
     RETURN;  -- nenhum pacote ativo com saldo
