@@ -17,8 +17,9 @@ export type ModuloKey =
   | 'api'
   | 'sso'
 
+// Volume de análises é controlado pelo PACOTE de créditos (tabela `pacotes`),
+// não por um teto mensal de plano — por isso não há `analises_mes` aqui.
 export type LimiteKey =
-  | 'analises_mes'
   | 'usuarios_max'
   | 'regeneracoes_por_analise'
   | 'mapa_buscas_ia_mes'
@@ -43,7 +44,6 @@ export const MODULO_LABEL: Record<ModuloKey, string> = {
 }
 
 export const LIMITE_LABEL: Record<LimiteKey, string> = {
-  analises_mes:             'Análises por mês (incluídas)',
   usuarios_max:             'Usuários (máximo)',
   regeneracoes_por_analise: 'Regenerações por análise',
   mapa_buscas_ia_mes:       'Buscas IA no Mapa por mês',
@@ -56,19 +56,19 @@ export const LIMITE_KEYS = Object.keys(LIMITE_LABEL) as LimiteKey[]
 export const PRESETS: Record<Plano, Omit<Entitlements, 'plano' | 'preco_mensal_brl'> & { preco_mensal_brl: number | null }> = {
   essential: {
     modulos: { reforma_tributaria: false, invest_match: false, invest_match_rede: false, mapa_completo: false, aprendizados: false, monitoramento: true, api: false, sso: false },
-    limites: { analises_mes: 5, usuarios_max: 3, regeneracoes_por_analise: 3, mapa_buscas_ia_mes: 0 },
+    limites: { usuarios_max: 3, regeneracoes_por_analise: 3, mapa_buscas_ia_mes: 0 },
     suporte: 'padrao',
     preco_mensal_brl: 1490,
   },
   professional: {
     modulos: { reforma_tributaria: true, invest_match: true, invest_match_rede: false, mapa_completo: true, aprendizados: true, monitoramento: true, api: false, sso: false },
-    limites: { analises_mes: 15, usuarios_max: 17, regeneracoes_por_analise: 3, mapa_buscas_ia_mes: 200 },
+    limites: { usuarios_max: 17, regeneracoes_por_analise: 3, mapa_buscas_ia_mes: 200 },
     suporte: 'prioritario',
     preco_mensal_brl: 3900,
   },
   enterprise: {
     modulos: { reforma_tributaria: true, invest_match: true, invest_match_rede: true, mapa_completo: true, aprendizados: true, monitoramento: true, api: true, sso: true },
-    limites: { analises_mes: null, usuarios_max: null, regeneracoes_por_analise: 5, mapa_buscas_ia_mes: null },
+    limites: { usuarios_max: null, regeneracoes_por_analise: 5, mapa_buscas_ia_mes: null },
     suporte: 'dedicado',
     preco_mensal_brl: 9900,
   },

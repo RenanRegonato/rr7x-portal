@@ -169,7 +169,7 @@ export async function PATCH(req: NextRequest) {
   if (!await verificarAdmin()) return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
   const body = await req.json()
-  const { id, nome, plano, plano_status, plano_limite_analises, invest_match_enabled, reforma_tributaria_enabled, entitlements, preco_mensal_brl } = body
+  const { id, nome, plano, plano_status, invest_match_enabled, reforma_tributaria_enabled, entitlements, preco_mensal_brl } = body
   if (!id) return NextResponse.json({ error: 'ID obrigatório' }, { status: 400 })
 
   const admin  = createAdminClient()
@@ -178,7 +178,6 @@ export async function PATCH(req: NextRequest) {
   if (typeof nome === 'string')        update.nome                  = nome.trim()
   if (plano             !== undefined) update.plano                 = plano
   if (plano_status      !== undefined) update.plano_status          = plano_status
-  if (plano_limite_analises !== undefined) update.plano_limite_analises = plano_limite_analises ?? null
   if (invest_match_enabled !== undefined) update.invest_match_enabled = invest_match_enabled === true
   if (reforma_tributaria_enabled !== undefined) update.reforma_tributaria_enabled = reforma_tributaria_enabled === true
   if (preco_mensal_brl  !== undefined) update.preco_mensal_brl      = preco_mensal_brl ?? null

@@ -37,7 +37,6 @@ type EscritorioDetalhe = {
   criado_em:             string
   plano?:                PlanoTipo | null
   plano_status?:         PlanoStatus | null
-  plano_limite_analises?: number | null
   invest_match_enabled?: boolean
   reforma_tributaria_enabled?: boolean
 }
@@ -97,7 +96,6 @@ export default function EscritoriosPage() {
   // Plano edição
   const [editPlano,         setEditPlano]         = useState<PlanoTipo>('')
   const [editPlanoStatus,   setEditPlanoStatus]   = useState<PlanoStatus>('')
-  const [editPlanoLimite,   setEditPlanoLimite]   = useState<string>('')
   const [salvandoPlano,     setSalvandoPlano]     = useState(false)
   const [msgPlano,          setMsgPlano]          = useState('')
 
@@ -152,7 +150,6 @@ export default function EscritoriosPage() {
     setEditNome(e.nome ?? '')
     setEditPlano((e.plano ?? '') as PlanoTipo)
     setEditPlanoStatus((e.plano_status ?? '') as PlanoStatus)
-    setEditPlanoLimite(e.plano_limite_analises != null ? String(e.plano_limite_analises) : '')
     setImEnabled(e.invest_match_enabled === true)
     setRtEnabled(e.reforma_tributaria_enabled === true)
     setDetLoading(false)
@@ -208,7 +205,6 @@ export default function EscritoriosPage() {
         id:                    selecionado,
         plano:                 editPlano || null,
         plano_status:          editPlanoStatus || null,
-        plano_limite_analises: editPlanoLimite !== '' ? parseInt(editPlanoLimite) : null,
       }),
     })
     setSalvandoPlano(false)
@@ -690,19 +686,6 @@ export default function EscritoriosPage() {
                       ))}
                     </select>
                   </div>
-                </div>
-                <div>
-                  <label className="text-[11px] text-ink-3 block mb-1.5">
-                    Limite de análises <span className="text-ink-3">(vazio = ilimitado)</span>
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={editPlanoLimite}
-                    onChange={e => { setEditPlanoLimite(e.target.value); setMsgPlano('') }}
-                    placeholder="Ilimitado"
-                    className="w-full border border-border rounded-[8px] px-3 py-2 text-[13px] bg-bg outline-none focus:border-accent-strong placeholder:text-ink-3"
-                  />
                 </div>
                 {msgPlano && (
                   <p className={`text-[12px] ${msgPlano === 'Plano atualizado.' ? 'text-ok' : 'text-warn'}`}>
