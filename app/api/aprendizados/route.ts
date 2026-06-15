@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase-server'
 import { getUserContext } from '@/lib/get-role'
+import { hasModulo } from '@/lib/entitlements'
 
 async function verificarGerente() {
   const ctx = await getUserContext()
   if (!ctx || ctx.role !== 'gerente') return null
   if (!ctx.escritorioId) return null
+  // Aprendizados é um diferencial de plano (módulo 'aprendizados').
+  if (!(await hasModulo(ctx.escritorioId, 'aprendizados'))) return null
   return ctx
 }
 

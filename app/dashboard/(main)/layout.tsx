@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { getUserContext } from '@/lib/get-role'
+import { hasModulo } from '@/lib/entitlements'
 import { redirect } from 'next/navigation'
 import Sidebar from '@/components/Sidebar'
 import OnboardingTour from '@/components/OnboardingTour'
@@ -23,12 +24,16 @@ export default async function DashboardMainLayout({ children }: { children: Reac
   const roleLabel = (meta.escritorio as string | undefined) || ROLE_LABEL[ctx?.role ?? 'assessor']
   const initials = name.split(' ').slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? '').join('')
   const onboardingDone = meta.onboarding_completed === true
+  const aprendizadosEnabled = ctx?.role === 'gerente'
+    ? await hasModulo(ctx.escritorioId, 'aprendizados')
+    : false
 
   return (
     <div className="min-h-screen grid grid-cols-[240px_1fr]">
       <Sidebar
         user={{ name, role: roleLabel, email: user.email!, initials }}
         userRole={ctx?.role ?? 'assessor'}
+        aprendizadosEnabled={aprendizadosEnabled}
       />
       <main className="flex flex-col min-h-screen overflow-y-auto bg-bg">
         {children}

@@ -24,10 +24,12 @@ export default function Sidebar({
   user,
   userRole = 'assessor',
   analiseCount = 0,
+  aprendizadosEnabled = false,
 }: {
   user:          SidebarUser
   userRole?:     UserRole
   analiseCount?: number
+  aprendizadosEnabled?: boolean
 }) {
   const pathname = usePathname()
 
@@ -47,7 +49,10 @@ export default function Sidebar({
 
   const equipeItems: NavItem[] = [
     { id: 'equipe',       label: 'Minha Equipe',  icon: 'users', href: '/dashboard/equipe' },
-    { id: 'aprendizados', label: 'Aprendizados',  icon: 'doc',   href: '/dashboard/aprendizados' },
+    // Aprendizados é diferencial de plano (módulo 'aprendizados').
+    ...(aprendizadosEnabled
+      ? [{ id: 'aprendizados', label: 'Aprendizados', icon: 'doc', href: '/dashboard/aprendizados' } as NavItem]
+      : []),
   ]
 
   const adminItems: NavItem[] = [

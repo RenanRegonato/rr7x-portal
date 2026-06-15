@@ -10,6 +10,7 @@ import { pullCNPJEnrichment } from '@/lib/auto-pull/cnpj'
 import { getFacts, formatTruthLayer } from '@/lib/truth-layer'
 import { getFactBankForAgent, formatFactBankForPrompt } from '@/lib/fact-bank-for-agent'
 import { listBenchmarks, formatBenchmarksForPrompt } from '@/lib/benchmarks'
+import { hasModulo } from '@/lib/entitlements'
 import { parseClaims, persistClaims, CLAIMS_DIRECTIVE } from '@/lib/claims'
 import { isEarlyStage, EARLY_STAGE_DIRETRIZ_AGENTE, EARLY_STAGE_RESSALVA } from '@/lib/early-stage'
 import { isInternalCall } from '@/lib/internal-auth'
@@ -191,9 +192,12 @@ async function loadFeedbacks(escritorioId: string | null): Promise<string> {
   try {
     const admin = createAdminClient()
 
+    // Aprendizados LOCAIS do escritório são um diferencial de plano (módulo
+    // 'aprendizados'); os globais da plataforma valem para todos os planos.
+    const podeLocais = escritorioId ? await hasModulo(escritorioId, 'aprendizados') : false
     const [{ data: global }, { data: local }] = await Promise.all([
       admin.from('admin_feedbacks').select('texto').eq('ativo', true).order('criado_em'),
-      escritorioId
+      podeLocais
         ? admin.from('escritorio_feedbacks').select('texto').eq('escritorio_id', escritorioId).eq('ativo', true).order('criado_em')
         : Promise.resolve({ data: [] }),
     ])
