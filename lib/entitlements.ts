@@ -43,11 +43,26 @@ export async function getUsuariosUsage(escritorioId: string | null): Promise<Usu
   const max = ent ? ent.limites.usuarios_max : null
   if (!escritorioId) return { count: 0, max, atLimit: false }
   const admin = createAdminClient()
-  const { count } = await admin
+  const { data: perfis } = await admin
     .from('perfis')
-    .select('*', { count: 'exact', head: true })
+    .select('user_id')
     .eq('escritorio_id', escritorioId)
-  const c = count ?? 0
+  const ids = (perfis ?? []).map(p => p.user_id)
+  if (ids.length === 0) return { count: 0, max, atLimit: false }
+
+  // Usuário suspenso (banido) libera o assento — conta só usuários ativos.
+  // listUsers traz a plataforma inteira (perPage alto basta na escala atual;
+  // paginar caso a base cresça muito).
+  const { data: list } = await admin.auth.admin.listUsers({ perPage: 1000 })
+  const banidos = new Set(
+    (list?.users ?? [])
+      .filter(u => {
+        const ate = (u as { banned_until?: string | null }).banned_until
+        return ate ? new Date(ate) > new Date() : false
+      })
+      .map(u => u.id),
+  )
+  const c = ids.filter(id => !banidos.has(id)).length
   return { count: c, max, atLimit: max != null && c >= max }
 }
 

@@ -5,7 +5,21 @@ export interface DriveValidation {
   message: string
 }
 
+// Hosts permitidos: a URL é repassada a um leitor externo (Jina), então só
+// aceitamos links do Google Drive/Docs (anti-SSRF — sem host arbitrário).
+const HOSTS_PERMITIDOS = ['drive.google.com', 'docs.google.com']
+
 export async function checkDriveAccess(url: string): Promise<DriveValidation> {
+  let parsed: URL
+  try {
+    parsed = new URL(url)
+  } catch {
+    return { status: 'error', message: 'URL inválida.' }
+  }
+  if (parsed.protocol !== 'https:' || !HOSTS_PERMITIDOS.includes(parsed.hostname)) {
+    return { status: 'error', message: 'Forneça um link público do Google Drive ou Google Docs.' }
+  }
+
   // Google Docs / Sheets públicos: export direto sem autenticação
   const gdocMatch = url.match(/docs\.google\.com\/(document|spreadsheets)\/d\/([^/?]+)/)
   if (gdocMatch) {
