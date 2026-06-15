@@ -1,67 +1,17 @@
 import Topbar from '@/components/Topbar'
 import { getUserContext } from '@/lib/get-role'
 import { getEntitlements } from '@/lib/entitlements'
+import { PLANOS_VITRINE } from '@/lib/planos-vitrine'
 
 const WHATSAPP = '5514988220001'
 
-const planos = [
-  {
-    id:            'essential',
-    nome:          'Essential',
-    posicionamento:'O parecer institucional completo, pronto para decidir se a operação avança.',
-    features: [
-      'Pipeline completo de diligência (todos os agentes)',
-      'Parecer rastreável + trilha de auditoria',
-      'Documentos de captação (Blind Teaser e Pitchbook)',
-      'Auto-pull de CNPJ + monitoramento contínuo',
-      'Mapa do Mercado — consulta (busca e fichas)',
-      'Exportação em PDF, Excel e PowerPoint',
-    ],
-    volume:   'Pacote básico',
-    usuarios: 'Até 3 usuários',
-    destaque: false,
-    mensagem: 'Olá! Tenho interesse no plano Essential do Mandor. Podemos conversar?',
-    botao:    'Falar com consultor',
-  },
-  {
-    id:            'professional',
-    nome:          'Professional',
-    posicionamento:'Inteligência aplicada: tributário, originação interna e aprendizado do escritório.',
-    features: [
-      'Tudo do Essential',
-      'Adequação à Reforma Tributária (agente dedicado)',
-      'Aprendizados do escritório (inteligência acumulada)',
-      'Invest Match: originação interna (teses + matching na sua base)',
-      'Mapa do Mercado completo: busca IA, grafo e alvos de captação',
-      'Regeneração e refinamento com briefing',
-      'Identidade do escritório nos relatórios',
-    ],
-    volume:   'Volume ampliado',
-    usuarios: 'Até 17 usuários',
-    destaque: true,
-    mensagem: 'Olá! Tenho interesse no plano Professional do Mandor. Podemos conversar?',
-    botao:    'Falar com consultor',
-  },
-  {
-    id:            'enterprise',
-    nome:          'Enterprise',
-    posicionamento:'A rede de capital e a escala corporativa, com governança avançada.',
-    features: [
-      'Tudo do Professional',
-      'Invest Match em Rede: fontes de capital ampliadas',
-      'Originação reversa + insights de calibração',
-      'API e integrações',
-      'Personalização de agentes',
-      'Governança avançada, SSO e suporte estratégico',
-      'Gerente dedicado',
-    ],
-    volume:   'Ilimitado / instância dedicada',
-    usuarios: 'Usuários ilimitados',
-    destaque: false,
-    mensagem: 'Olá! Tenho interesse no plano Enterprise do Mandor. Podemos conversar?',
-    botao:    'Falar com consultor',
-  },
-]
+// Conteúdo dos planos vem da fonte única (lib/planos-vitrine); aqui só
+// adicionamos os campos de UI (CTA/WhatsApp) desta tela.
+const planos = PLANOS_VITRINE.map(p => ({
+  ...p,
+  mensagem: `Olá! Tenho interesse no plano ${p.nome} do Mandor. Podemos conversar?`,
+  botao:    'Falar com consultor',
+}))
 
 export default async function PlanosPage() {
   const ctx = await getUserContext()

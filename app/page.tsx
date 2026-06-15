@@ -4,6 +4,7 @@ import AuthErrorHandler from "@/components/AuthErrorHandler";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import { PLANOS_VITRINE } from "@/lib/planos-vitrine";
 
 export const metadata: Metadata = {
   title: "Mandor | Inteligência operacional para M&A, crédito estruturado e preparação de deals",
@@ -30,7 +31,7 @@ const faqSchema = {
       name: "O Mandor está em conformidade com a LGPD?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Sim. Mandor opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para planos Institucional e Corporativo.",
+        text: "Sim. Mandor opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para os planos Professional e Enterprise.",
       },
     },
     {
@@ -38,7 +39,7 @@ const faqSchema = {
       name: "Quanto tempo leva para começar a operar com o Mandor?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "O onboarding leva de 1 a 3 dias úteis para os planos Institucional e Corporativo. Para o plano Pontual, a primeira análise pode ser submetida no mesmo dia do contrato.",
+        text: "O onboarding leva de 1 a 3 dias úteis para os planos Professional e Enterprise. No Essential, a primeira análise pode ser submetida no mesmo dia do contrato.",
       },
     },
     {
@@ -46,7 +47,7 @@ const faqSchema = {
       name: "Mandor se integra com ferramentas que já usamos?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Atualmente exporta em PDF, Word e formato editável compatível com Office. Integração via API e conectores para CRMs estão no roadmap. Para planos Corporativo, avaliamos integrações customizadas mediante escopo.",
+        text: "Atualmente exporta em PDF, Word e formato editável compatível com Office. Integração via API e conectores para CRMs estão no roadmap. No plano Enterprise, avaliamos integrações customizadas mediante escopo.",
       },
     },
     {
@@ -54,7 +55,7 @@ const faqSchema = {
       name: "Como funciona o cancelamento?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Planos mensais têm cancelamento a qualquer momento com 30 dias de aviso. Não há fidelidade mínima nos planos Pontual e Institucional. Planos Corporativos seguem o contrato negociado.",
+        text: "Os planos mensais podem ser cancelados a qualquer momento com 30 dias de aviso, sem fidelidade mínima. O plano Enterprise segue o contrato negociado.",
       },
     },
     {
@@ -62,7 +63,7 @@ const faqSchema = {
       name: "Qual suporte está disponível?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Todos os planos têm suporte por e-mail com resposta em até 24h úteis. O plano Institucional inclui suporte prioritário. O plano Corporativo inclui gestor de conta dedicado e SLA customizado.",
+        text: "Todos os planos têm suporte por e-mail com resposta em até 24h úteis. O plano Professional inclui suporte prioritário. O plano Enterprise inclui gestor de conta dedicado e SLA customizado.",
       },
     },
     {
@@ -70,7 +71,7 @@ const faqSchema = {
       name: "Quanto tempo leva para receber a análise?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Até 90 minutos após a submissão dos documentos. Para planos Institucional e Corporativo, entrega garantida no mesmo dia mesmo para casos com documentação incompleta.",
+        text: "Até 90 minutos após a submissão dos documentos. Para os planos Professional e Enterprise, entrega garantida no mesmo dia mesmo para casos com documentação incompleta.",
       },
     },
   ],
@@ -102,61 +103,26 @@ const comparativo = [
   { dim: "Deals com análise profunda/mês", trad: "10 de 40",                       otto: "38 a 40 de 40" },
 ];
 
-const planos = [
-  {
-    nome: "Pontual",
-    tag: "avulso · por análise",
-    preco: "R$ 3.500",
-    complemento: "/ análise",
-    desc: "Para escritórios com demanda esporádica. Créditos sob demanda, sem comprometimento mensal.",
-    features: [
-      "Pipeline completo por análise",
-      "Pitchbook e Teaser white-label",
-      "Saída institucional padronizada",
-      "Sem fidelidade contratual",
-    ],
-    destaque: false,
-    cta: "Solicitar proposta",
-    href: "/auth/signup",
-    roi: null as string | null,
-  },
-  {
-    nome: "Institucional",
-    tag: "mensal · escritório",
-    preco: "R$ 18.000",
-    complemento: "/ mês + setup",
-    desc: "Para escritórios com fluxo constante. Análises ilimitadas dentro da capacidade mensal.",
-    features: [
-      "Até 20 análises por mês",
-      "Onboarding e configuração assistidos",
-      "Saída com identidade do escritório",
-      "Suporte técnico prioritário",
-      "Histórico e acervo de análises",
-    ],
-    destaque: true,
-    cta: "Começar agora",
-    href: "/auth/signup",
-    roi: "ROI estimado no 1º mês",
-  },
-  {
-    nome: "Corporativo",
-    tag: "sob medida · enterprise",
-    preco: "Sob consulta",
-    complemento: "",
-    desc: "Para redes de escritórios, fundos e estruturas com alto volume. SLA garantido.",
-    features: [
-      "Volume e SLA negociados",
-      "Integração com sistemas internos",
-      "Onboarding dedicado",
-      "Gestor de conta exclusivo",
-      "Acordo de confidencialidade",
-    ],
-    destaque: false,
-    cta: "Falar com nossa equipe",
-    href: "mailto:mandor@rr7x.com.br?subject=Proposta%20Corporativo",
-    roi: null as string | null,
-  },
-];
+// Planos vêm da fonte única (lib/planos-vitrine), em Essential/Professional/
+// Enterprise. Preços não são publicados aqui (Fase 5 — quando validados);
+// CTA leva ao cadastro / proposta.
+const PLANO_TAG: Record<string, string> = {
+  essential:    "parecer · decisão",
+  professional: "originação · inteligência",
+  enterprise:   "rede · escala corporativa",
+};
+const planos = PLANOS_VITRINE.map((p) => ({
+  nome:        p.nome,
+  tag:         PLANO_TAG[p.id] ?? p.volume,
+  preco:       "Sob consulta",
+  complemento: "",
+  desc:        p.posicionamento,
+  features:    p.features,
+  destaque:    p.destaque,
+  cta:         p.destaque ? "Começar agora" : "Solicitar proposta",
+  href:        "/auth/signup",
+  roi:         null as string | null,
+}));
 
 const depoimentos = [
   {
@@ -189,27 +155,27 @@ const faqs = [
   },
   {
     q: "O Mandor está em conformidade com a LGPD?",
-    a: "Sim. Mandor opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para planos Institucional e Corporativo.",
+    a: "Sim. Mandor opera exclusivamente com documentos financeiros e societários dos ativos, sem tratar dados pessoais de terceiros. O escritório continua sendo o controlador dos dados submetidos. Oferecemos DPA para os planos Professional e Enterprise.",
   },
   {
     q: "Quanto tempo leva para começar a operar com o Mandor?",
-    a: "O onboarding leva de 1 a 3 dias úteis para os planos Institucional e Corporativo. Para o plano Pontual, a primeira análise pode ser submetida no mesmo dia do contrato.",
+    a: "O onboarding leva de 1 a 3 dias úteis para os planos Professional e Enterprise. No Essential, a primeira análise pode ser submetida no mesmo dia do contrato.",
   },
   {
     q: "Mandor se integra com ferramentas que já usamos?",
-    a: "Atualmente exporta em PDF, Word e formato editável compatível com Office. Integração via API e conectores para CRMs estão no roadmap. Para planos Corporativo, avaliamos integrações customizadas mediante escopo.",
+    a: "Atualmente exporta em PDF, Word e formato editável compatível com Office. Integração via API e conectores para CRMs estão no roadmap. No plano Enterprise, avaliamos integrações customizadas mediante escopo.",
   },
   {
     q: "Como funciona o cancelamento?",
-    a: "Planos mensais têm cancelamento a qualquer momento com 30 dias de aviso. Não há fidelidade mínima nos planos Pontual e Institucional. Planos Corporativos seguem o contrato negociado.",
+    a: "Os planos mensais podem ser cancelados a qualquer momento com 30 dias de aviso, sem fidelidade mínima. O plano Enterprise segue o contrato negociado.",
   },
   {
     q: "Qual suporte está disponível?",
-    a: "Todos os planos têm suporte por e-mail com resposta em até 24h úteis. O plano Institucional inclui suporte prioritário. O plano Corporativo inclui gestor de conta dedicado e SLA customizado.",
+    a: "Todos os planos têm suporte por e-mail com resposta em até 24h úteis. O plano Professional inclui suporte prioritário. O plano Enterprise inclui gestor de conta dedicado e SLA customizado.",
   },
   {
     q: "Quanto tempo leva para receber a análise?",
-    a: "Até 90 minutos após a submissão dos documentos. Para planos Institucional e Corporativo, entrega garantida no mesmo dia mesmo para casos com documentação incompleta.",
+    a: "Até 90 minutos após a submissão dos documentos. Para os planos Professional e Enterprise, entrega garantida no mesmo dia mesmo para casos com documentação incompleta.",
   },
 ];
 
