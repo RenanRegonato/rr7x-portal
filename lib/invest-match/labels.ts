@@ -91,6 +91,29 @@ export const KANBAN_COLUNAS: Array<{ id: StatusMatch; titulo: string }> = [
   { id: 'fechado',       titulo: 'Fechados' },
 ]
 
+// Fonte única da state machine de status do match. Usada no servidor
+// (validação autoritativa em match-service) e no cliente (Kanban: só permite
+// soltar o card numa coluna se a transição for válida). null = qualquer destino.
+export const TRANSICOES_MATCH: Record<StatusMatch, StatusMatch[]> = {
+  sugerido:       ['aprovado_admin', 'rejeitado_admin', 'descartado'],
+  aprovado_auto:  ['notificado', 'aprovado_admin', 'rejeitado_admin', 'descartado'],
+  aprovado_admin: ['notificado', 'rejeitado_admin', 'descartado'],
+  notificado:     ['em_negociacao', 'rejeitado_investidor', 'rejeitado_projeto', 'descartado'],
+  em_negociacao:  ['nda', 'rejeitado_investidor', 'rejeitado_projeto', 'descartado'],
+  nda:            ['proposta', 'rejeitado_investidor', 'rejeitado_projeto', 'descartado'],
+  proposta:       ['dd', 'rejeitado_investidor', 'rejeitado_projeto', 'descartado'],
+  dd:             ['fechado', 'rejeitado_investidor', 'rejeitado_projeto', 'descartado'],
+  fechado:        [],
+  rejeitado_admin:       ['sugerido'],   // permite reabrir
+  rejeitado_investidor:  ['sugerido'],
+  rejeitado_projeto:     ['sugerido'],
+  descartado:            ['sugerido'],
+}
+
+export function transicaoMatchValida(de: StatusMatch, para: StatusMatch): boolean {
+  return (TRANSICOES_MATCH[de] ?? []).includes(para)
+}
+
 export function formatBRL(v: number | null | undefined): string {
   if (v == null) return '—'
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v)

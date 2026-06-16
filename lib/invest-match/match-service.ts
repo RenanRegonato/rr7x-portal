@@ -3,6 +3,7 @@
 
 import { createAdminClient } from '@/lib/supabase-server'
 import { recordOutcomeFeedback } from './feedback-service'
+import { TRANSICOES_MATCH } from './labels'
 import type { Match, StructuredThesis, StatusMatch } from './types'
 
 // ============================================================
@@ -73,26 +74,10 @@ export async function getMatch(matchId: string, escritorioId: string): Promise<M
 // ============================================================
 // Transição de status (curadoria + pipeline)
 // ============================================================
-// Mapa de transições permitidas (state machine simples — evita pular etapas
-// ou mover pra estados incoerentes). null = qualquer destino aceito.
-const TRANSICOES: Record<string, StatusMatch[]> = {
-  sugerido:       ['aprovado_admin', 'rejeitado_admin', 'descartado'],
-  aprovado_auto:  ['notificado', 'aprovado_admin', 'rejeitado_admin', 'descartado'],
-  aprovado_admin: ['notificado', 'rejeitado_admin', 'descartado'],
-  notificado:     ['em_negociacao', 'rejeitado_investidor', 'rejeitado_projeto', 'descartado'],
-  em_negociacao:  ['nda', 'rejeitado_investidor', 'rejeitado_projeto', 'descartado'],
-  nda:            ['proposta', 'rejeitado_investidor', 'rejeitado_projeto', 'descartado'],
-  proposta:       ['dd', 'rejeitado_investidor', 'rejeitado_projeto', 'descartado'],
-  dd:             ['fechado', 'rejeitado_investidor', 'rejeitado_projeto', 'descartado'],
-  fechado:        [],
-  rejeitado_admin:       ['sugerido'],   // permite reabrir
-  rejeitado_investidor:  ['sugerido'],
-  rejeitado_projeto:     ['sugerido'],
-  descartado:            ['sugerido'],
-}
-
+// State machine de status — fonte única em ./labels (TRANSICOES_MATCH), reusada
+// pelo cliente (Kanban) para validar o drop antes de chamar a API.
 export function transicaoValida(de: string, para: StatusMatch): boolean {
-  const permitidas = TRANSICOES[de]
+  const permitidas = TRANSICOES_MATCH[de as StatusMatch]
   if (!permitidas) return false
   return permitidas.includes(para)
 }
