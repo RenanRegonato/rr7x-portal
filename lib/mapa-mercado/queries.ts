@@ -213,6 +213,29 @@ export async function getResumoMercado(): Promise<{
   return { total: total ?? 0, veiculos: veiculos ?? 0, porTipo }
 }
 
+// Números agregados para a página PÚBLICA do Mapa (prova social). Só dado
+// redistribuível. Leve (4 counts head-only); use com ISR na page.
+export async function getMapaPublicStats(): Promise<{
+  participantes: number
+  gestoras: number
+  veiculos: number
+  conexoes: number
+}> {
+  const admin = createAdminClient()
+  const [p, g, v, c] = await Promise.all([
+    admin.from('mercado_entidades').select('*', { count: 'exact', head: true }).eq('redistribuivel', true),
+    admin.from('mercado_entidades').select('*', { count: 'exact', head: true }).eq('redistribuivel', true).contains('tipos', ['gestora']),
+    admin.from('mercado_veiculos').select('*', { count: 'exact', head: true }).eq('redistribuivel', true),
+    admin.from('mercado_conexoes').select('*', { count: 'exact', head: true }),
+  ])
+  return {
+    participantes: p.count ?? 0,
+    gestoras:      g.count ?? 0,
+    veiculos:      v.count ?? 0,
+    conexoes:      c.count ?? 0,
+  }
+}
+
 // Top entidades por score de relevância (opcionalmente filtrado por tipo).
 // Usado no dashboard quando ainda não há snapshot em mercado_rankings.
 export async function getTopEntidades(

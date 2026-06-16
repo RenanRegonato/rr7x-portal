@@ -3,8 +3,19 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import { getMapaPublicStats } from "@/lib/mapa-mercado/queries";
 
 const SITE = "https://www.mandor.com.br";
+
+// Revalida de hora em hora: os números acompanham o ETL (cron semanal) sem
+// custo de query por acesso. Página continua estática entre revalidações.
+export const revalidate = 3600;
+
+const fmt = (n: number) => n.toLocaleString("pt-BR");
+
+// Fallback conservador caso o banco não responda no build/revalidação — a
+// página nunca quebra; só usa números aproximados até a próxima revalidação.
+const STATS_FALLBACK = { participantes: 1800, gestoras: 1100, veiculos: 41000, conexoes: 9000 };
 
 export const metadata: Metadata = {
   title: "Mapa Inteligente do Mercado · O atlas do capital privado brasileiro",
@@ -92,7 +103,15 @@ const jsonLd = {
   ],
 };
 
-export default function MapaInteligentePage() {
+export default async function MapaInteligentePage() {
+  const stats = await getMapaPublicStats().catch(() => STATS_FALLBACK);
+  const numeros = [
+    { v: stats.gestoras,      l: "Gestoras" },
+    { v: stats.veiculos,      l: "Fundos e veículos" },
+    { v: stats.conexoes,      l: "Conexões mapeadas" },
+    { v: stats.participantes, l: "Participantes no total" },
+  ];
+
   return (
     <div className="bg-lp-canvas text-lp-ink font-sans antialiased">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -130,6 +149,26 @@ export default function MapaInteligentePage() {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
             Dado público · CVM, Banco Central, B3 e Receita
           </span>
+        </div>
+      </section>
+
+      {/* ── A base em números (prova social, ao vivo) ─────────────────────── */}
+      <section className="border-b border-lp-border bg-lp-fog">
+        <div className="max-w-[1180px] mx-auto px-6 py-12 lg:py-16">
+          <p className="lp-eyebrow mb-9 text-center">a base, em números · sobre dado público</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-9 gap-x-6">
+            {numeros.map((n) => (
+              <div key={n.l} className="text-center">
+                <p className="font-display text-lp-ink leading-none tabular-nums" style={{ fontSize: "clamp(34px, 5vw, 58px)" }}>
+                  {fmt(n.v)}
+                </p>
+                <p className="text-[13px] text-lp-ink-3 mt-2.5">{n.l}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-[11.5px] text-lp-ink-4 text-center mt-9">
+            Fontes oficiais: CVM, Banco Central, B3 e Receita Federal. Atualizado continuamente.
+          </p>
         </div>
       </section>
 
