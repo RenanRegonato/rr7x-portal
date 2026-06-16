@@ -17,6 +17,8 @@ const NAV = [
   { href: '/dashboard/admin/aprendizados', label: 'Aprendizados', Icon: IconDoc      },
   { href: '/dashboard/admin/preview',      label: 'Output Demo',  Icon: IconSparkle  },
   { href: '/dashboard/admin/blog',         label: 'Blog',         Icon: IconDoc      },
+  { href: '/dashboard/admin/releases',     label: 'Versões',      Icon: IconSparkle  },
+  { href: '/dashboard/admin/manutencao',   label: 'Manutenção',   Icon: IconSettings },
 ]
 
 export default function AdminNav() {

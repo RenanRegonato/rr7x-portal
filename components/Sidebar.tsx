@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ICONS_BY_NAME } from './Icons'
+import EnvBadge from './EnvBadge'
 import type { UserRole } from '@/lib/get-role'
 
 interface NavItem {
@@ -69,9 +70,7 @@ export default function Sidebar({
       {/* Logo */}
       <div className="flex items-center gap-2 pt-1 pb-0.5">
         <img src="/logo/mandor-horizontal-dark.svg" alt="Mandor" height={28} width={91} className="h-7 w-auto" />
-        <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-2 text-ink-2 border border-border">
-          Beta
-        </span>
+        <EnvBadge/>
       </div>
 
       {/* Workspace */}

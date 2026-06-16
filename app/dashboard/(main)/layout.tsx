@@ -1,10 +1,12 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
 import { getUserContext } from '@/lib/get-role'
 import { hasModulo } from '@/lib/entitlements'
 import { redirect } from 'next/navigation'
 import Sidebar from '@/components/Sidebar'
 import OnboardingTour from '@/components/OnboardingTour'
 import DicaPagina from '@/components/DicaPagina'
+import ReleaseNotice, { type ReleaseData } from '@/components/ReleaseNotice'
+import MaintenanceBanner from '@/components/MaintenanceBanner'
 
 const ROLE_LABEL: Record<string, string> = {
   admin:    'Administrador',
@@ -28,6 +30,34 @@ export default async function DashboardMainLayout({ children }: { children: Reac
     ? await hasModulo(ctx.escritorioId, 'aprendizados')
     : false
 
+  // Última release publicada → aviso "Plataforma Atualizada". Best-effort: nunca
+  // derruba o layout. Só dispara quando o onboarding já foi feito (evita 2 modais).
+  let release: ReleaseData | null = null
+  try {
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from('platform_releases')
+      .select('version, title, release_date, improvements, new_features, fixes')
+      .eq('published', true)
+      .order('published_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    release = (data as ReleaseData | null) ?? null
+  } catch { /* sem release */ }
+  const lastSeen = meta.last_seen_release_version as string | undefined
+  const showRelease = onboardingDone && !!release && lastSeen !== release.version
+
+  // Banner de manutenção para admin (ele tem bypass; o cliente vê /manutencao).
+  let maintenanceOn = false
+  if (ctx?.role === 'admin') {
+    try {
+      const admin = createAdminClient()
+      const { data } = await admin
+        .from('app_settings').select('value').eq('key', 'maintenance').maybeSingle()
+      maintenanceOn = (data?.value as { enabled?: boolean } | undefined)?.enabled === true
+    } catch { /* ignora */ }
+  }
+
   return (
     <div className="min-h-screen grid grid-cols-[240px_1fr]">
       <Sidebar
@@ -36,9 +66,11 @@ export default async function DashboardMainLayout({ children }: { children: Reac
         aprendizadosEnabled={aprendizadosEnabled}
       />
       <main className="flex flex-col min-h-screen overflow-y-auto bg-bg">
+        {maintenanceOn && <MaintenanceBanner/>}
         {children}
       </main>
       <OnboardingTour autoStart={!onboardingDone}/>
+      <ReleaseNotice release={release} autoShow={showRelease}/>
       <DicaPagina/>
     </div>
   )
