@@ -1,9 +1,0 @@
-<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mandor ícone de app">
-  <rect width="512" height="512" rx="114" fill="#0B0C0E"/>
-  <g transform="translate(157,146) scale(5)">
-    <rect x="0" y="0" width="7" height="40" rx="2" fill="#FFFFFF"/>
-    <rect x="10.3" y="8.6" width="7" height="31.4" rx="2" fill="#FFFFFF"/>
-    <rect x="20.6" y="8.6" width="7" height="31.4" rx="2" fill="#FFFFFF"/>
-    <rect x="31" y="0" width="7" height="40" rx="2" fill="#5BA3E8"/>
-  </g>
-</svg>
