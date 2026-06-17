@@ -174,8 +174,8 @@ export default function ContatoPage() {
                 </svg>
               }
               title="Email direto"
-              content="mandor@rr7x.com.br"
-              href="mailto:mandor@rr7x.com.br"
+              content="contato@mandor.com.br"
+              href="mailto:contato@mandor.com.br"
             />
             <ContactCard
               icon={

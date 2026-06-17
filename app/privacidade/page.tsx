@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 };
 
 const LAST_UPDATED = "15 de junho de 2026";
-const CONTACT_EMAIL = "mandor@rr7x.com.br";
+const CONTACT_EMAIL = "contato@mandor.com.br";
 const DPO_NAME = "Renan Luciano Regonato";
-const DPO_EMAIL = "contato@rr7x.com.br";
+const DPO_EMAIL = "contato@mandor.com.br";
 
 export default function PrivacidadePage() {
   return (

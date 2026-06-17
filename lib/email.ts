@@ -21,13 +21,13 @@ async function sendMail(payload: SendPayload) {
   }
   return getResend().emails.send(payload)
 }
-// Fallback é um remetente de domínio VERIFICADO no Resend (rr7x.com.br) — não o
+// Fallback é um remetente de domínio VERIFICADO no Resend (mandor.com.br), não o
 // sandbox 'onboarding@resend.dev', que só entrega para o dono da conta. Assim os
 // e-mails do app chegam em clientes mesmo se RESEND_FROM_EMAIL não estiver setada.
-const FROM   = process.env.RESEND_FROM_EMAIL || 'Mandor <noreply@rr7x.com.br>'
+const FROM   = process.env.RESEND_FROM_EMAIL || 'Mandor <noreply@mandor.com.br>'
 const ADMIN  = 'gestor@renanregonato.com.br'
 // Caixa comercial que recebe contatos do site e avisos de novos cadastros.
-const NOTIFY = 'mandor@rr7x.com.br'
+const NOTIFY = 'contato@mandor.com.br'
 
 export async function sendCompletionEmail(params: {
   to:          string

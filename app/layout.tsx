@@ -116,7 +116,7 @@ const schemaOrg = {
       image: `${SITE_URL}/opengraph-image`,
       description:
         "Plataforma de Deal Intelligence para escritórios de M&A, crédito estruturado e preparação de ativos para o mercado.",
-      email: "mandor@rr7x.com.br",
+      email: "contato@mandor.com.br",
       areaServed: {
         "@type": "Country",
         name: "Brasil",
@@ -127,7 +127,7 @@ const schemaOrg = {
       },
       contactPoint: {
         "@type": "ContactPoint",
-        email: "mandor@rr7x.com.br",
+        email: "contato@mandor.com.br",
         contactType: "customer support",
         availableLanguage: ["Portuguese"],
       },
@@ -184,7 +184,7 @@ const schemaOrg = {
           name: "Plano Enterprise",
           description: "Rede de capital, API, SSO e governança avançada (recursos de rede em evolução)",
           availability: "https://schema.org/InStock",
-          url: "mailto:mandor@rr7x.com.br",
+          url: "mailto:contato@mandor.com.br",
         },
       ],
     },
