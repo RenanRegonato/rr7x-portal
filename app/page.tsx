@@ -374,11 +374,23 @@ export default function LandingPage() {
           A conta não é sobre velocidade. É sobre quantos bons deals você deixa passar enquanto analisa um.
         </p>
         <div className="reveal">
+          {/* Cabeçalho de colunas (desktop). No mobile, cada valor leva rótulo inline. */}
+          <div className="hidden md:grid md:grid-cols-[1.2fr_1fr_1fr] md:gap-6 border-t border-lp-border-strong pt-3 pb-1">
+            <span />
+            <span className="text-[11px] uppercase tracking-widest text-lp-ink-3">Tradicional</span>
+            <span className="text-[11px] uppercase tracking-widest font-medium" style={{ color: "#8C6F45" }}>Mandor</span>
+          </div>
           {comparativo.map((row) => (
-            <div key={row.dim} className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr_1fr] gap-2 md:gap-6 border-t border-lp-border py-5 items-baseline">
-              <span className="text-[14px] text-lp-ink font-medium">{row.dim}</span>
-              <span className="text-[13.5px] text-lp-ink-3">{row.trad}</span>
-              <span className="text-[13.5px] font-medium" style={{ color: "#8C6F45" }}>{row.otto}</span>
+            <div key={row.dim} className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr_1fr] gap-1.5 md:gap-6 border-t border-lp-border py-5 md:items-baseline">
+              <span className="text-[14px] text-lp-ink font-medium mb-1 md:mb-0">{row.dim}</span>
+              <span className="text-[13.5px] text-lp-ink-3 flex items-baseline justify-between md:block">
+                <span className="md:hidden text-[11px] uppercase tracking-widest text-lp-ink-4 mr-3">Tradicional</span>
+                <span>{row.trad}</span>
+              </span>
+              <span className="text-[13.5px] font-medium flex items-baseline justify-between md:block" style={{ color: "#8C6F45" }}>
+                <span className="md:hidden text-[11px] uppercase tracking-widest text-lp-ink-4 mr-3">Mandor</span>
+                <span>{row.otto}</span>
+              </span>
             </div>
           ))}
         </div>
