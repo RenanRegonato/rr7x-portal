@@ -205,20 +205,20 @@ export default function LandingPage() {
             Inteligência institucional para o mercado privado
           </p>
           <h1 className="font-display tracking-tight text-lp-ink" style={{ fontSize: "clamp(42px, 6.6vw, 84px)", lineHeight: 1.03 }}>
-            <span className="block animate-fade-up" style={{ animationDelay: "120ms" }}>Cada deal, lido com</span>
-            <span className="block animate-fade-up" style={{ animationDelay: "240ms" }}>o rigor da sua</span>
-            <span className="block animate-fade-up" style={{ animationDelay: "360ms", fontStyle: "italic" }}>melhor mesa.</span>
+            <span className="block animate-fade-up" style={{ animationDelay: "120ms" }}>No mercado privado,</span>
+            <span className="block animate-fade-up" style={{ animationDelay: "240ms" }}>o tempo gasto no</span>
+            <span className="block animate-fade-up" style={{ animationDelay: "360ms" }}><span style={{ fontStyle: "italic" }}>deal errado</span> não volta.</span>
           </h1>
           <p className="animate-fade-up text-[18px] lg:text-[20px] text-lp-ink-2 leading-relaxed max-w-[600px] mt-9" style={{ animationDelay: "520ms" }}>
-            Uma rede cognitiva analisa cada operação de M&amp;A e crédito e devolve um
-            parecer institucional, rastreável e auditável. Em até 90 minutos.
+            O Mandor diz, em até 90 minutos, se a operação merece avançar. Antes
+            de você queimar semanas, capital e reputação com o investidor.
           </p>
           <div className="animate-fade-up flex flex-col sm:flex-row items-start sm:items-center gap-5 mt-11" style={{ animationDelay: "640ms" }}>
             <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center gap-2 text-[15px] font-medium text-white px-7 py-4 rounded-full" style={{ background: "#8C6F45" }}>
               Solicitar acesso <span aria-hidden>→</span>
             </Link>
             <a href="#comparativo" className="group inline-flex items-center gap-2 text-[15px] font-medium text-lp-ink">
-              Ver comparativo
+              Ver o comparativo
               <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
             </a>
           </div>
@@ -239,17 +239,17 @@ export default function LandingPage() {
 
       {/* ── Statement + números ──────────────────────────────────────────── */}
       <section className="max-w-[1180px] mx-auto px-6 py-28 lg:py-40">
-        <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-7">o gargalo</p>
+        <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-7">o que está em jogo</p>
         <h2 className="reveal-blur font-display tracking-tight text-lp-ink max-w-[980px]" style={{ fontSize: "clamp(30px, 4.4vw, 58px)", lineHeight: 1.12 }}>
           Seu escritório recebe mais deals do que consegue analisar.{" "}
-          <span className="text-lp-ink-3">A análise deixa de ser o gargalo e vira método, rastreável de cada conclusão à sua fonte.</span>
+          <span className="text-lp-ink-3">Cada um que fica na fila é uma operação que o concorrente fecha primeiro.</span>
         </h2>
         <div className="reveal grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6 mt-20 border-t border-lp-border pt-12">
           {[
             { v: "até 90 min", l: "por análise completa" },
-            { v: "40+",        l: "deals analisáveis por mês" },
+            { v: "40+",        l: "deals analisáveis por mês (hoje, só 10 a fundo)" },
             { v: "4×",         l: "capacidade, mesma equipe" },
-            { v: "R$ 6M–12M",  l: "receita incremental/ano" },
+            { v: "R$ 6M–12M",  l: "receita que hoje fica na mesa" },
           ].map((m) => (
             <div key={m.l}>
               <div className="font-display text-lp-ink leading-none" style={{ fontSize: "clamp(34px, 4vw, 52px)" }}>{m.v}</div>
@@ -354,9 +354,12 @@ export default function LandingPage() {
       {/* ── Comparativo ──────────────────────────────────────────────────── */}
       <section id="comparativo" className="max-w-[1180px] mx-auto px-6 py-28 lg:py-36 scroll-mt-20">
         <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-6">comparativo</p>
-        <h2 className="reveal-blur font-display tracking-tight text-lp-ink mb-14" style={{ fontSize: "clamp(28px, 4vw, 52px)", lineHeight: 1.1 }}>
+        <h2 className="reveal-blur font-display tracking-tight text-lp-ink mb-5" style={{ fontSize: "clamp(28px, 4vw, 52px)", lineHeight: 1.1 }}>
           Modelo tradicional <span style={{ fontStyle: "italic" }}>× Mandor.</span>
         </h2>
+        <p className="reveal text-[16px] text-lp-ink-2 leading-relaxed max-w-[600px] mb-14">
+          A conta não é sobre velocidade. É sobre quantos bons deals você deixa passar enquanto analisa um.
+        </p>
         <div className="reveal">
           {comparativo.map((row) => (
             <div key={row.dim} className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr_1fr] gap-2 md:gap-6 border-t border-lp-border py-5 items-baseline">
@@ -419,9 +422,12 @@ export default function LandingPage() {
       <section id="planos" className="bg-lp-fog border-y border-lp-border scroll-mt-20">
         <div className="max-w-[1180px] mx-auto px-6 py-28 lg:py-36">
           <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-6">planos</p>
-          <h2 className="reveal-blur font-display tracking-tight text-lp-ink mb-14" style={{ fontSize: "clamp(28px, 4vw, 52px)", lineHeight: 1.1 }}>
+          <h2 className="reveal-blur font-display tracking-tight text-lp-ink mb-5" style={{ fontSize: "clamp(28px, 4vw, 52px)", lineHeight: 1.1 }}>
             Três modelos de <span style={{ fontStyle: "italic" }}>contratação.</span>
           </h2>
+          <p className="reveal text-[16px] text-lp-ink-2 leading-relaxed max-w-[600px] mb-14">
+            Do parecer que decide um deal à rede que origina os próximos. Comece onde dói mais.
+          </p>
           <div className="reveal grid md:grid-cols-3 gap-5">
             {planos.map((p) => (
               <div key={p.nome} className={`rounded-[18px] p-7 flex flex-col bg-lp-canvas ${p.destaque ? "border-2 lp-card-shadow" : "border border-lp-border"}`} style={p.destaque ? { borderColor: "#8C6F45" } : {}}>
@@ -472,11 +478,11 @@ export default function LandingPage() {
       <section className="lp-dark-section">
         <div className="max-w-[1180px] mx-auto px-6 py-32 lg:py-44 text-center">
           <h2 className="reveal font-display tracking-tight" style={{ fontSize: "clamp(34px, 5.4vw, 68px)", lineHeight: 1.05, color: "#EDE9E5" }}>
-            O ativo certo, no <span className="text-shimmer">timing certo.</span>
+            Cada semana no ritmo de hoje é um bom deal que o mercado fecha <span className="text-shimmer">sem você.</span>
           </h2>
-          <p className="reveal text-[16px] leading-relaxed max-w-[520px] mx-auto mt-7" style={{ color: "#B5B0A6", transitionDelay: "80ms" }}>
-            M&amp;A, crédito estruturado ou preparação para o mercado: solicite acesso e
-            reservamos uma conversa inicial para entender o contexto do escritório.
+          <p className="reveal text-[16px] leading-relaxed max-w-[560px] mx-auto mt-7" style={{ color: "#B5B0A6", transitionDelay: "80ms" }}>
+            M&amp;A, crédito estruturado ou preparação para o mercado. Solicite acesso e
+            reservamos uma conversa para entender o contexto do seu escritório.
           </p>
           <div className="reveal mt-11 flex flex-col sm:flex-row gap-3 justify-center" style={{ transitionDelay: "160ms" }}>
             <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[15px] font-medium text-white px-8 py-4 rounded-full" style={{ background: "#8C6F45" }}>
