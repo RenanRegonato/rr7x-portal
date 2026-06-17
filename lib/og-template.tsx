@@ -25,7 +25,7 @@ export function ogTemplate({
       style={{
         width: 1200,
         height: 630,
-        background: "linear-gradient(160deg, #080E1D 0%, #0D1829 100%)",
+        background: "linear-gradient(160deg, #1A1815 0%, #22201C 100%)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -36,7 +36,7 @@ export function ogTemplate({
       }}
     >
       {/* filete de topo (acento institucional) */}
-      <div style={{ position: "absolute", top: 0, left: 0, width: 1200, height: 6, background: "#1655E8", display: "flex" }} />
+      <div style={{ position: "absolute", top: 0, left: 0, width: 1200, height: 6, background: "#8C6F45", display: "flex" }} />
       {/* glow */}
       <div
         style={{
@@ -46,30 +46,30 @@ export function ogTemplate({
           width: 740,
           height: 740,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(22,85,232,0.20) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(140,111,69,0.22) 0%, transparent 70%)",
           display: "flex",
         }}
       />
 
       {/* wordmark + tag */}
       <div style={{ display: "flex", alignItems: "center", gap: 13, marginBottom: 44 }}>
-        <div style={{ width: 30, height: 30, borderRadius: 8, background: "#1655E8", display: "flex" }} />
-        <span style={{ fontSize: 30, color: "#FFFFFF", fontWeight: 600, letterSpacing: 0.5 }}>Mandor</span>
-        <span style={{ fontSize: 13, color: "#5B74A6", textTransform: "uppercase", letterSpacing: 3, marginLeft: 14 }}>{tag}</span>
+        <div style={{ width: 30, height: 30, borderRadius: 8, background: "#8C6F45", display: "flex" }} />
+        <span style={{ fontSize: 30, color: "#EDE9E5", fontWeight: 600, letterSpacing: 0.5 }}>Mandor</span>
+        <span style={{ fontSize: 13, color: "#9C8A6E", textTransform: "uppercase", letterSpacing: 3, marginLeft: 14 }}>{tag}</span>
       </div>
 
       {/* headline */}
-      <div style={{ display: "flex", flexDirection: "column", fontSize: 58, fontWeight: 700, color: "#EEF3FF", lineHeight: 1.08, letterSpacing: -1.5, maxWidth: 920, marginBottom: 26 }}>
+      <div style={{ display: "flex", flexDirection: "column", fontSize: 58, fontWeight: 700, color: "#EDE9E5", lineHeight: 1.08, letterSpacing: -1.5, maxWidth: 920, marginBottom: 26 }}>
         <span>{titleMain}</span>
-        <span style={{ color: "#93B4F8", fontStyle: "italic" }}>{titleAccent}</span>
+        <span style={{ color: "#C9A87A", fontStyle: "italic" }}>{titleAccent}</span>
       </div>
 
       {/* sub */}
-      <div style={{ fontSize: 23, color: "#7A92BE", maxWidth: 780, lineHeight: 1.5, marginBottom: 44, display: "flex" }}>{sub}</div>
+      <div style={{ fontSize: 23, color: "#B5B0A6", maxWidth: 780, lineHeight: 1.5, marginBottom: 44, display: "flex" }}>{sub}</div>
 
       {/* selo */}
-      <div style={{ display: "flex", alignItems: "center", gap: 11, fontSize: 15, color: "#C8D4EC", border: "1px solid #1E2E4A", borderRadius: 999, padding: "10px 18px", alignSelf: "flex-start" }}>
-        <div style={{ width: 9, height: 9, borderRadius: 999, background: "#5BA3E8", display: "flex" }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 11, fontSize: 15, color: "#C8C2B6", border: "1px solid #38342D", borderRadius: 999, padding: "10px 18px", alignSelf: "flex-start" }}>
+        <div style={{ width: 9, height: 9, borderRadius: 999, background: "#C9A87A", display: "flex" }} />
         {stamp}
       </div>
     </div>

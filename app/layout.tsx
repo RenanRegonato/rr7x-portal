@@ -66,10 +66,10 @@ export const metadata: Metadata = {
       "Inteligência institucional para M&A e crédito. Diagnóstico completo, rastreável e auditável, em até 90 minutos.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Mandor · Deal Intelligence",
+        alt: "Mandor · Inteligência institucional para M&A e crédito",
       },
     ],
   },
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${SITE_NAME} · Deal Intelligence`,
     description: "10 especialistas em IA. Diagnóstico completo em até 90 minutos.",
-    images: ["/og-image.png"],
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,
