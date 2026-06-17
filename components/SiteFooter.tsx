@@ -34,8 +34,8 @@ export default function SiteFooter() {
             <p className="text-[12px] leading-relaxed mb-3 max-w-[240px]" style={{ color: "#7C7A74" }}>
               Inteligência que diz, em 90 minutos, se o deal merece o seu tempo.
             </p>
-            <a href="mailto:mandor@rr7x.com.br" className="text-[12px] hover:underline block" style={{ color: "#B5B0A6" }}>
-              mandor@rr7x.com.br
+            <a href="mailto:contato@mandor.com.br" className="text-[12px] hover:underline block" style={{ color: "#B5B0A6" }}>
+              contato@mandor.com.br
             </a>
             <div className="flex flex-col gap-2 mt-4">
               <a

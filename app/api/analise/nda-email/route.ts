@@ -10,10 +10,10 @@ function getResend(): Resend {
   if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY)
   return _resend
 }
-// Alinhado ao fallback de lib/email.ts: o domínio rr7x.com.br é verificado no
+// Alinhado ao fallback de lib/email.ts: o domínio mandor.com.br é verificado no
 // Resend. O sandbox 'onboarding@resend.dev' só entrega ao dono da conta e
 // causaria 403 ao enviar NDA para destinatário externo.
-const FROM     = process.env.RESEND_FROM_EMAIL || 'Mandor <noreply@rr7x.com.br>'
+const FROM     = process.env.RESEND_FROM_EMAIL || 'Mandor <noreply@mandor.com.br>'
 
 function extractNdaSection(contratosOutput: string): string {
   const ndaMatch = contratosOutput.match(/##?\s*(?:NDA|Acordo de Confidencialidade|Non-Disclosure)[^\n]*([\s\S]+?)(?=^##|\Z)/im)

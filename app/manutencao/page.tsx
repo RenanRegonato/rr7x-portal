@@ -31,7 +31,7 @@ export default async function ManutencaoPage() {
       <h1 className="font-display text-[26px] font-medium mb-3">Manutenção em andamento</h1>
       <p className="text-[15px] text-ink-2 leading-relaxed max-w-[460px]">{message}</p>
       <p className="text-[12px] text-ink-3 mt-10">
-        Em caso de urgência, fale com a equipe: contato@rr7x.com.br
+        Em caso de urgência, fale com a equipe: contato@mandor.com.br
       </p>
     </div>
   )

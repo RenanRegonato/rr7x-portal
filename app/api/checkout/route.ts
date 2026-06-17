@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const { plano } = await req.json()
 
   if (plano === 'enterprise') {
-    return NextResponse.json({ url: 'mailto:mandor@rr7x.com.br?subject=Enterprise Deal Intelligence' })
+    return NextResponse.json({ url: 'mailto:contato@mandor.com.br?subject=Enterprise Deal Intelligence' })
   }
 
   const planoConfig = PLANOS[plano as keyof typeof PLANOS]

@@ -513,7 +513,7 @@ export default function LandingPage() {
             <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center justify-center gap-2 text-[15px] font-medium text-white px-8 py-4 rounded-full" style={{ background: "#8C6F45" }}>
               Solicitar acesso <span aria-hidden>→</span>
             </Link>
-            <a href="mailto:mandor@rr7x.com.br?subject=Quero%20conhecer%20Mandor" className="inline-flex items-center justify-center text-[15px] font-medium px-8 py-4 rounded-full lp-dark-btn">
+            <a href="mailto:contato@mandor.com.br?subject=Quero%20conhecer%20Mandor" className="inline-flex items-center justify-center text-[15px] font-medium px-8 py-4 rounded-full lp-dark-btn">
               Falar com nossa equipe
             </a>
           </div>
