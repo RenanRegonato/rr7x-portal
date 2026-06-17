@@ -7,7 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { PLANOS_VITRINE } from "@/lib/planos-vitrine";
 
 export const metadata: Metadata = {
-  title: "Mandor | Análise de M&A e crédito que decide o deal em 90 min",
+  title: "Mandor | Due diligence e análise de M&A e crédito estruturado",
   description:
     "No mercado privado, o tempo no deal errado não volta. O Mandor entrega o parecer institucional de M&A e crédito, rastreável e auditável, em até 90 minutos.",
   alternates: { canonical: "/" },
