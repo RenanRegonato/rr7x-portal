@@ -32,7 +32,7 @@ export default function SiteFooter() {
               <img src="/logo/mandor-horizontal-dark.svg" alt="Mandor" className="h-7 w-auto" />
             </div>
             <p className="text-[12px] leading-relaxed mb-3 max-w-[240px]" style={{ color: "#7C7A74" }}>
-              Inteligência institucional para M&amp;A, crédito estruturado e preparação de deals.
+              Inteligência que diz, em 90 minutos, se o deal merece o seu tempo.
             </p>
             <a href="mailto:mandor@rr7x.com.br" className="text-[12px] hover:underline block" style={{ color: "#B5B0A6" }}>
               mandor@rr7x.com.br
