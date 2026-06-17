@@ -11,6 +11,19 @@ export const metadata: Metadata = {
   description:
     "No mercado privado, o tempo no deal errado não volta. O Mandor entrega o parecer institucional de M&A e crédito, rastreável e auditável, em até 90 minutos.",
   alternates: { canonical: "/" },
+  openGraph: {
+    title: "No mercado privado, o tempo no deal errado não volta.",
+    description:
+      "O Mandor entrega o parecer institucional de M&A e crédito, rastreável e auditável, em até 90 minutos.",
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "No mercado privado, o tempo no deal errado não volta.",
+    description:
+      "O Mandor entrega o parecer institucional de M&A e crédito, em até 90 minutos.",
+    images: ["/opengraph-image"],
+  },
 };
 
 const faqSchema = {
