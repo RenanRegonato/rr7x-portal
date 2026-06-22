@@ -2,15 +2,13 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { resolveEscritorioId } from '@/lib/invest-match/auth-helpers'
-import { getTese, listMatches } from '@/lib/invest-match/match-service'
+import { getTese, listMatches, listSugestoesMercado } from '@/lib/invest-match/match-service'
 import {
   ESTAGIO_LABEL, TIPO_INVESTIDOR_LABEL, STATUS_MATCH, TIPO_DEAL_LABEL,
   formatBRL, scoreBg,
 } from '@/lib/invest-match/labels'
 import { IconArrowLeft, IconSparkle, IconHandshake, IconArrowRight } from '@/components/Icons'
-import { getAlvosCaptacao } from '@/lib/mapa-mercado/queries'
-import { canMapaCompleto } from '@/lib/mapa-mercado/access'
-import { TIPO_LABEL } from '@/lib/mapa-mercado/types'
+import { TIPO_LABEL, type EntidadeTipo } from '@/lib/mapa-mercado/types'
 import MatchActions from '@/components/invest-match/MatchActions'
 import ScoreBreakdown from '@/components/invest-match/ScoreBreakdown'
 import RematchButton from '@/components/invest-match/RematchButton'
@@ -37,11 +35,11 @@ export default async function TeseDetailPage({ params }: PageProps) {
 
   const { rows: matches } = await listMatches({ escritorioId, teseId: id, limit: 100, offset: 0 })
 
-  // Alvos de captação no mercado: gestoras que operam o mandato deste deal.
-  // Recurso do Mapa completo (Professional+); admin tem acesso irrestrito.
-  const podeMapa = await canMapaCompleto()
-  const tiposVeiculo = veiculosDoMandato(tese.tipo_deal, tese.setor_primario, tese.sub_setores)
-  const alvos = podeMapa ? await getAlvosCaptacao(tiposVeiculo, { limit: 12 }) : []
+  // Sugestões de Conexão de Mercado: participantes do Mapa do Mercado (dado
+  // público) com aderência à tese. Geradas junto com o matching e persistidas.
+  // Disponível para todos os planos — é o que dá valor a escritório com base
+  // privada pequena. NÃO são matches confirmados.
+  const sugestoes = await listSugestoesMercado(id, escritorioId)
 
   const nome = tese.empresa_nome
 
@@ -104,70 +102,22 @@ export default async function TeseDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Alvos de captação no mercado (Mapa → originação) */}
-      <div className="bg-surface border border-border rounded-xl p-5">
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="text-sm font-semibold text-ink">Alvos de captação no mercado ({alvos.length})</h2>
-          <span className="text-[10px] uppercase tracking-wider text-ink-3 font-semibold">Mapa do Mercado</span>
-        </div>
-        <p className="text-[12px] text-ink-3 mb-4">
-          Gestoras que já operam o mandato deste deal ({tiposVeiculo.join(', ')}), do mais experiente ao menos.
-          Derivado do histórico público da CVM. Não é recomendação de investimento.
-        </p>
-        {!podeMapa ? (
-          <p className="text-sm text-ink-3">
-            Alvos de captação fazem parte do <strong>Mapa completo</strong> (plano Professional). Fale com o seu gestor para habilitar.
-          </p>
-        ) : alvos.length === 0 ? (
-          <p className="text-sm text-ink-3">
-            Nenhum alvo identificado para este mandato. Verifique se o ETL do Mapa do Mercado já rodou.
-          </p>
-        ) : (
-          <ul className="divide-y divide-border">
-            {alvos.map(a => {
-              const nomeA = a.nome_fantasia || a.razao_social
-              const novoHref = `/dashboard/invest-match/investidores/novo?${new URLSearchParams({
-                nome: a.razao_social, tipo: 'gestora', uf: a.uf ?? '',
-              }).toString()}`
-              return (
-                <li key={a.entidade_id} className="py-3 flex items-center gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-ink truncate">{nomeA}</span>
-                      {a.score_relevancia != null && (
-                        <span className="text-[11px] font-semibold tabular-nums px-1.5 py-0.5 rounded-full bg-accent-soft text-accent-ink">{Math.round(a.score_relevancia)}</span>
-                      )}
-                    </div>
-                    <div className="text-[11px] text-ink-3 truncate">
-                      {a.tipos.map(t => TIPO_LABEL[t] ?? t).join(' · ')}{a.uf ? ` · ${a.uf}` : ''}
-                      {' · '}<span className="text-ink-2 font-medium">{a.veiculos_no_mandato}</span> veículos no mandato
-                      {' '}(de {a.total_veiculos})
-                    </div>
-                  </div>
-                  <Link href={`/dashboard/mapa-inteligente/entidade/${a.entidade_id}/grafo`} className="text-xs text-ink-2 hover:text-ink hidden sm:inline">Conexões</Link>
-                  <Link
-                    href={novoHref}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-accent-strong/40 text-accent-ink text-xs font-medium hover:bg-accent-soft/50 shrink-0"
-                  >
-                    <IconHandshake size={13}/> Cadastrar <IconArrowRight size={12}/>
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </div>
-
-      {/* Matches */}
+      {/* Match Confirmado — base privada do escritório */}
       <div>
-        <h2 className="text-sm font-semibold text-ink mb-3">
-          Matches ({matches.length})
-        </h2>
+        <div className="flex items-center gap-2 mb-1">
+          <h2 className="text-sm font-semibold text-ink">Match Confirmado ({matches.length})</h2>
+          <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-accent-strong border border-accent-strong/30 rounded-full px-2 py-0.5 font-semibold">
+            <IconHandshake size={11}/> Rede privada
+          </span>
+        </div>
+        <p className="text-[12px] text-ink-3 mb-3">
+          Investidores cadastrados pelo seu escritório, cruzados com a tese. Relacionamento existente, alta probabilidade de abordagem imediata.
+        </p>
         {matches.length === 0 ? (
           <div className="bg-surface border border-border rounded-xl p-8 text-center">
             <p className="text-sm text-ink-2">
-              Nenhum match ainda. Clique em <strong>Rodar matching</strong> ou cadastre mais investidores
-              com tese declarada compatível.
+              Nenhum investidor da sua base bateu com esta tese ainda. Cadastre investidores com tese
+              declarada compatível, ou veja as <strong>Sugestões de Conexão de Mercado</strong> abaixo.
             </p>
           </div>
         ) : (
@@ -241,33 +191,69 @@ export default async function TeseDetailPage({ params }: PageProps) {
           </div>
         )}
       </div>
+
+      {/* Sugestões de Conexão de Mercado — Mapa do Mercado (dado público) */}
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <h2 className="text-sm font-semibold text-ink">Sugestões de Conexão de Mercado ({sugestoes.length})</h2>
+          <span className="text-[10px] uppercase tracking-wider text-ink-3 border border-border rounded-full px-2 py-0.5 font-semibold">
+            Mapa do Mercado
+          </span>
+        </div>
+        <p className="text-[12px] text-ink-3 mb-2">
+          Participantes do mercado com aderência à tese deste deal, identificados no Mapa do Mercado da Mandor (dado público).
+        </p>
+        <div className="text-[11px] text-ink-3 bg-bg/50 border border-border rounded-lg px-3 py-2 mb-4 leading-relaxed">
+          Não fazem parte da sua rede privada · sem relacionamento validado · sem contato confirmado.
+          É uma recomendação estratégica por aderência, não um match confirmado.
+        </div>
+        {sugestoes.length === 0 ? (
+          <p className="text-sm text-ink-3">
+            Nenhuma sugestão identificada ainda. Elas são geradas junto com o matching. Rode o matching ou
+            verifique se o ETL do Mapa do Mercado já foi executado.
+          </p>
+        ) : (
+          <ul className="bg-surface border border-border rounded-xl divide-y divide-border">
+            {sugestoes.map(s => {
+              const nomeS = s.nome_fantasia || s.razao_social
+              const tipoEntidade = s.tipos[0] ?? 'gestora'
+              const novoHref = `/dashboard/invest-match/investidores/novo?${new URLSearchParams({
+                nome: s.razao_social, tipo: tipoEntidade, uf: s.uf ?? '',
+              }).toString()}`
+              return (
+                <li key={s.id} className="py-3 px-4 flex items-center gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-ink truncate">{nomeS}</span>
+                      <span
+                        className="text-[11px] font-semibold tabular-nums px-1.5 py-0.5 rounded-full bg-ink-3/10 text-ink-2"
+                        title="Aderência à tese — sugestão de mercado, não é score de match confirmado"
+                      >
+                        {Math.round(s.aderencia)}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-ink-3 truncate">
+                      {s.motivo || s.tipos.map(t => TIPO_LABEL[t as EntidadeTipo] ?? t).join(' · ')}
+                      {s.uf ? ` · ${s.uf}` : ''}
+                    </div>
+                  </div>
+                  <Link href={`/dashboard/mapa-inteligente/entidade/${s.entidade_id}`} className="text-xs text-ink-2 hover:text-ink hidden sm:inline">Ver no Mapa</Link>
+                  <Link
+                    href={novoHref}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-ink-2 text-xs font-medium hover:border-accent-strong/40 hover:text-accent-strong shrink-0"
+                  >
+                    <IconHandshake size={13}/> Adicionar à base <IconArrowRight size={12}/>
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </div>
     </div>
   )
 }
 
-
-// Mapeia o tipo de deal + setor para os tipos de veículo CVM que costumam
-// financiar/estruturar aquele mandato. Base dos "alvos de captação".
-// Foco no instrumento real do mandato (FIDC p/ crédito estruturado, FIP p/
-// equity) em vez de fundo genérico — senão a lista vira "as maiores gestoras".
-const DEAL_PARA_VEICULOS: Record<string, string[]> = {
-  debt:                ['FIDC'],
-  convertible:         ['FIDC', 'FIP'],
-  special_situations:  ['FIDC', 'FIP'],
-  earn_out:            ['FIP'],
-  equity:              ['FIP'],
-  growth_equity:       ['FIP'],
-  m_and_a_sale:        ['FIP'],
-  m_and_a_acquisition: ['FIP'],
-}
-
-function veiculosDoMandato(tipoDeal: string | null, setor: string, subSetores: string[]): string[] {
-  const base = new Set<string>(DEAL_PARA_VEICULOS[tipoDeal ?? ''] ?? ['FIDC', 'FIP'])
-  const txt = `${setor} ${(subSetores ?? []).join(' ')}`.toLowerCase()
-  if (txt.includes('imob') || txt.includes('real estate')) base.add('FII')
-  if (txt.includes('agro')) base.add('FIAGRO')
-  return [...base]
-}
 
 function Field({ label, value }: { label: string; value: string }) {
   return (

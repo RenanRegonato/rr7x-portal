@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase-server'
 import { judgeMatch, type MatchJudgeInput, type MatchJudgeOutput } from '@/lib/agents/match-judge'
+import { gerarSugestoesMercado } from './sugestoes-mercado'
 import type { MatchScoreBreakdown } from './types'
 
 // Motor de matching v2 — orquestra as 5 camadas.
@@ -78,6 +79,18 @@ export async function runMatching(params: RunMatchingParams): Promise<RunMatchin
     if (error || !data) throw new Error(`Tese ${teseId} não encontrada: ${error?.message}`)
     return data as TeseRow
   }) as TeseRow
+
+  // ---------------------------------------------------------
+  // 0.5) Sugestões de Conexão de Mercado (Mapa do Mercado, dado público)
+  // ---------------------------------------------------------
+  // Roda ANTES do early-return de candidatos: o escritório pode ter 0
+  // investidores privados e ainda assim merece sugestões do mercado — é
+  // justamente quem tem a base menor que mais se beneficia. Não confunde com
+  // match: vai para tabela separada (mercado_sugestoes).
+  await step.run('sugestoes-mercado', async () => {
+    const n = await gerarSugestoesMercado({ tese, logger })
+    return { sugestoes: n }
+  })
 
   // ---------------------------------------------------------
   // 1+2) Hard filter + structured score (RPC)

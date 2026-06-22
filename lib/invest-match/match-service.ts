@@ -56,6 +56,35 @@ export async function listMatches(ctx: ListMatchesCtx): Promise<{ rows: MatchEnr
 
 
 // ============================================================
+// LIST sugestões de mercado (Mapa do Mercado) de uma tese
+// ============================================================
+// NÃO são matches: relacionamento público não-validado, tabela separada.
+export interface SugestaoMercado {
+  id:            string
+  entidade_id:   string
+  razao_social:  string
+  nome_fantasia: string | null
+  tipos:         string[]
+  uf:            string | null
+  aderencia:     number
+  origem_sinal:  string[]
+  motivo:        string | null
+}
+
+export async function listSugestoesMercado(teseId: string, escritorioId: string): Promise<SugestaoMercado[]> {
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('mercado_sugestoes')
+    .select('id, entidade_id, razao_social, nome_fantasia, tipos, uf, aderencia, origem_sinal, motivo')
+    .eq('tese_id', teseId)
+    .eq('escritorio_id', escritorioId)
+    .order('aderencia', { ascending: false })
+  if (error) throw new Error(`listSugestoesMercado: ${error.message}`)
+  return (data ?? []) as SugestaoMercado[]
+}
+
+
+// ============================================================
 // GET match by id (enriquecido)
 // ============================================================
 export async function getMatch(matchId: string, escritorioId: string): Promise<MatchEnriquecido | null> {
