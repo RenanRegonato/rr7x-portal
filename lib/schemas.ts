@@ -42,6 +42,11 @@ export const AnaliseCreateSchema = z.object({
   passivos:              shortStr(500).optional(),
   informacoesAdicionais: shortStr(15000).optional(),
   resumoAtivo:           shortStr(15000).optional(),
+  // Estrutura de crédito (FIDC / Securitização / Portfólio de Crédito) — opcionais.
+  cedente:               shortStr(300).optional(),
+  tipoRecebivel:         shortStr(200).optional(),
+  estruturaCotas:        shortStr(500).optional(),
+  serieEmissao:          shortStr(200).optional(),
   // linkDocumentos: REMOVIDO. Campo do antigo fluxo de Google Drive, não é mais
   // coletado. Como o schema não é .strict(), se um cliente com JS em cache antigo
   // ainda enviar esse campo, ele é simplesmente ignorado em vez de derrubar a

@@ -15,6 +15,13 @@ export interface DealIntake {
   informacoesAdicionais?: string
   resumoAtivo?: string
   linkDocumentos?: string
+  // Estrutura de crédito — preenchidos só em deals de crédito estruturado
+  // (FIDC / Securitização / Portfólio de Crédito). Alimentam o vocabulário dos
+  // agentes de crédito (estruturação, KYC) com cedente, lastro e estrutura de cotas.
+  cedente?: string
+  tipoRecebivel?: string
+  estruturaCotas?: string
+  serieEmissao?: string
   // Proprietário
   nomeProprietario?: string
   cpfCnpjProprietario?: string
