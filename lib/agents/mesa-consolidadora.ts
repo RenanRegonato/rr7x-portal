@@ -1,5 +1,6 @@
 import { callLLM } from '@/lib/llm/call'
 import { PROMPT_INJECTION_GUARD, wrapClientData } from '@/lib/llm/prompt-safety'
+import { TESE_DEAL_DIRETRIZ } from '@/lib/tese-deal'
 
 // Mesa Consolidadora (Fase 10) — revisor final institucional.
 // Roda DEPOIS de todos os agentes especialistas, do Consistency Engine
@@ -88,6 +89,10 @@ Retorne SOMENTE JSON puro, sem markdown, sem cercas, sem texto antes/depois:
   ],
   "recomendacao_assessor": "1 parágrafo: ação concreta para o assessor agora (o que validar, o que pedir adicional, o que condicionar, etc.)"
 }
+
+# Tese do Deal (contexto do assessor)
+
+A linha "Resumo ativo" presente no Intake original é a Tese do Deal informada pelo assessor. ${TESE_DEAL_DIRETRIZ}
 
 ${PROMPT_INJECTION_GUARD}`
 
