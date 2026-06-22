@@ -26,12 +26,22 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const { data: analise } = await admin
     .from('analises')
-    .select('user_id')
+    .select('user_id, triagem_docs_status')
     .eq('id', id)
     .single()
   if (!analise) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
   if (analise.user_id !== user.id && !(await isAdminViewer(user.id))) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+  }
+
+  // Gate de documentos críticos: não inicia (nem reprocessa) o pipeline enquanto
+  // houver documento com falha aguardando triagem. A liberação acontece pelo
+  // endpoint de triagem (lib/triagem/gate), não por aqui.
+  if (analise.triagem_docs_status === 'pendente') {
+    return NextResponse.json(
+      { error: 'Análise aguardando triagem de documentos com falha.', triagem: 'pendente' },
+      { status: 409 },
+    )
   }
 
   const body = await req.json().catch(() => ({})) as { mode?: 'continuar' | 'reprocessar' }

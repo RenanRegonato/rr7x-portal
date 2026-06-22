@@ -5,7 +5,7 @@ import { computeFinancials, metricsToConsolidatedFacts } from '@/lib/extract/fin
 import { evaluateRisk, triggersToFacts } from '@/lib/extract/risk-engine'
 import { createAdminClient } from '@/lib/supabase-server'
 import { sendIngestionCompleteEmail } from '@/lib/email'
-import { inngest } from '@/lib/inngest'
+import { evaluateTriagemGate } from '@/lib/triagem/gate'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Step = any
@@ -268,12 +268,12 @@ async function persistFactBank(
     }
   })
 
-  // Dispara o pipeline de análise multi-agente server-side (Inngest). Antes isso
-  // era dirigido pelo navegador do dono; agora roda no servidor e qualquer viewer
-  // autorizado acompanha o progresso por polling.
+  // Gate de documentos críticos: em vez de disparar o pipeline direto, reavalia
+  // se há documento com falha não resolvido. Se houver, SEGURA a análise
+  // (triagem pendente); senão, libera e dispara o pipeline. Ver lib/triagem/gate.
   await step.run('kickoff-analysis-pipeline', async () => {
-    await inngest.send({ name: 'analise/pipeline.run_requested', data: { analiseId } })
-    return { ok: true, analiseId }
+    const gate = await evaluateTriagemGate(analiseId)
+    return { ...gate, analiseId }
   })
 
   return { ok: true, fact_bank: factBank }

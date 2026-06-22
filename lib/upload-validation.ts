@@ -14,16 +14,22 @@
 //   - SVG (pode embutir <script>) — XSS no logo
 //   - arquivos sem extensão (ambíguos)
 
+// IMPORTANTE: a whitelist deve refletir SOMENTE os formatos que o pipeline de
+// ingestão consegue efetivamente LER (ver categorize() em app/api/analise/[id]/ingest/route.ts
+// e extractTextFromDocument em lib/ingestion/process-document.ts). Aceitar um formato
+// que a ingestão não extrai faz o arquivo subir, ser marcado "completed" e contribuir
+// ZERO para a análise, sem o usuário perceber. Por isso ficaram de fora:
+//   - .doc (Word binário legado — mammoth só lê .docx)
+//   - .ppt/.pptx (PowerPoint — sem extrator; exporte para PDF)
+//   - .rtf (sem extrator confiável)
+//   - .heic/.heif (foto de iPhone — OCR só cobre jpg/jpeg/png/webp/gif)
 const DOC_EXTENSIONS = new Set([
   'pdf',
-  'doc', 'docx',
+  'docx',
   'xls', 'xlsx',
-  'ppt', 'pptx',
   'csv', 'tsv',
-  'txt', 'md', 'rtf',
-  'json',
+  'txt', 'md', 'json',
   'png', 'jpg', 'jpeg', 'webp', 'gif',
-  'heic', 'heif',
 ])
 
 const LOGO_EXTENSIONS = new Set([
