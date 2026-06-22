@@ -95,14 +95,16 @@ async function gerarSugestoesMercado(tese) {
   await sb.from('mercado_sugestoes').delete().eq('tese_id', tese.id)
   if (agg.size === 0) return 0
   const setor = tese.setor_primario
+  const isCredito = ['credito_estruturado', 'debt', 'special_situations', 'convertible'].includes(tese.tipo_deal ?? '')
+  const estrutCap = isCredito ? 35 : 18, estrutMult = isCredito ? 7 : 4, baseEstrutOnly = isCredito ? 58 : 40
   const linhas = [...agg.values()].map(s => {
     const semScore = s.sim != null ? s.sim * 100 : 0
     const temEstrut = s.veiculos_no_mandato != null && s.veiculos_no_mandato > 0
-    const estrutBonus = temEstrut ? Math.min(18, Math.log1p(s.veiculos_no_mandato) * 4) : 0
+    const estrutBonus = temEstrut ? Math.min(estrutCap, Math.log1p(s.veiculos_no_mandato) * estrutMult) : 0
     const origem = []
     if (s.sim != null) origem.push('semantico')
     if (temEstrut) origem.push('estrutural')
-    let aderencia = s.sim != null ? semScore + estrutBonus : 40 + estrutBonus
+    let aderencia = s.sim != null ? semScore + estrutBonus : baseEstrutOnly + estrutBonus
     aderencia = Math.max(0, Math.min(100, Math.round(aderencia * 100) / 100))
     const partes = []
     const tiposTxt = (s.tipos || []).map(t => TIPO_LABEL[t] ?? t).slice(0, 2).join(' · ')

@@ -135,15 +135,22 @@ export async function gerarSugestoesMercado(args: {
   }
 
   const setor = tese.setor_primario
+  // O peso do sinal estrutural ("opera o veículo do mandato") depende do mandato.
+  // Em CRÉDITO (financiado por FIDC), operar o veículo do mandato é o sinal MAIS
+  // relevante: é quem de fato estrutura/funda a operação, então o estrutural ganha
+  // peso e pode liderar. Em equity/M&A (FIP), a tese (semântico) segue como driver
+  // e o estrutural fica como bônus limitado, para a lista não saturar com "os
+  // maiores administradores de FIDC" afogando o sinal de tese.
+  const isCredito = ['credito_estruturado', 'debt', 'special_situations', 'convertible'].includes(tese.tipo_deal ?? '')
+  const estrutCap      = isCredito ? 35 : 18
+  const estrutMult     = isCredito ? 7  : 4
+  const baseEstrutOnly = isCredito ? 58 : 40
   const linhas = [...agg.values()]
     .map(s => {
-      // A aderência de TESE (semântico) é o driver. O estrutural ("opera o
-      // veículo do mandato") entra como BÔNUS limitado — senão a lista satura e
-      // vira "os maiores administradores de FIDC", afogando o sinal de tese.
       const semScore  = s.sim != null ? s.sim * 100 : 0
       const temEstrut = s.veiculos_no_mandato != null && s.veiculos_no_mandato > 0
       const estrutBonus = temEstrut
-        ? Math.min(18, Math.log1p(s.veiculos_no_mandato as number) * 4)
+        ? Math.min(estrutCap, Math.log1p(s.veiculos_no_mandato as number) * estrutMult)
         : 0
 
       const origem: string[] = []
@@ -152,12 +159,12 @@ export async function gerarSugestoesMercado(args: {
 
       let aderencia: number
       if (s.sim != null) {
-        // Tese é o sinal principal; estrutural corrobora (bônus).
+        // Semântico + bônus estrutural (maior em crédito).
         aderencia = semScore + estrutBonus
       } else {
-        // Só estrutural (não bateu na tese): opera o mandato mas sem aderência
-        // semântica — entra abaixo, como pista de mercado, não como recomendação forte.
-        aderencia = 40 + estrutBonus
+        // Só estrutural: em crédito, opera o veículo do mandato e merece destaque;
+        // em equity/M&A, entra como pista de mercado, abaixo da tese.
+        aderencia = baseEstrutOnly + estrutBonus
       }
       aderencia = Math.max(0, Math.min(100, Math.round(aderencia * 100) / 100))
 
