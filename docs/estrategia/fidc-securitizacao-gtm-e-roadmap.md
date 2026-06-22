@@ -50,7 +50,7 @@ Ordem proposta, do que mais reusa o que já existe ao que mais constrói.
 
 | # | Item | Esforço | Impacto GTM | Reuso |
 |---|---|---|---|---|
-| 1 | **Entrada de deal dedicada FIDC/Sec.** Novo tipo de ativo + campos (cedente, originador, tipo de recebível, estrutura de cotas, série). Roteia para os agentes de crédito que já existem. | Médio | Alto | Pipeline, benchmarks, KYC, estruturação de crédito (tudo pronto) |
+| 1 | ✅ **Entrada de deal dedicada FIDC/Sec (entregue 22/06).** Tipos de ativo "FIDC / Crédito Estruturado" e "Securitização (CRI / CRA)" + campos condicionais (cedente/originador, tipo de recebível, estrutura de cotas/tranches, série/emissão), persistidos no `deal_intake`. `formatIntake` injeta bloco "Estrutura de Crédito" para a Mesa de Crédito, estruturação e KYC; o nome do tipo direciona o `tipo_deal` do Invest Match para crédito estruturado. Sem migration. | Médio | Alto | Pipeline, benchmarks, KYC, estruturação de crédito (tudo pronto) |
 | 2 | **Tipo de investidor FIDC/securitizadora no Invest Match.** Estende `TipoInvestidor` e o matching/sugestões para reconhecer a categoria explicitamente. | Baixo-Médio | Médio-Alto | Motor de matching e Mapa do Mercado já existem |
 | 3 | **Camada de adequação CVM 175/22** na análise do deal de crédito (elegibilidade de cota, classes, concentração), no molde do módulo Reforma Tributária. | Alto | Alto | Padrão do módulo Reforma Tributária + benchmarks FIDC |
 | 4 | **Monitoramento contínuo de carteira** (não só deal pontual), usando o entitlement `monitoramento` já existente. | Alto | Médio | Entitlement + Diagnóstico Financeiro + cron/Inngest |
@@ -59,9 +59,11 @@ Ordem proposta, do que mais reusa o que já existe ao que mais constrói.
 
 ## 6. Próximo passo recomendado
 
-Item 1 (entrada de deal dedicada FIDC/Sec) é o quick-win de maior alavancagem: destrava a linguagem e a percepção de "produto feito para mim" sem reconstruir nada, porque os agentes de crédito, os benchmarks e o KYC já existem. É majoritariamente UX de cadastro + roteamento, mais a injeção do vocabulário certo no contexto dos agentes.
+O item 1 (entrada de deal dedicada FIDC/Sec) foi entregue em 22/06: destravou a linguagem e a percepção de "produto feito para mim" sem reconstruir nada, reusando agentes de crédito, benchmarks e KYC que já existiam. Falta validar ao vivo (abrir um deal de teste do tipo FIDC em escritório isolado e conferir que o bloco de estrutura de crédito chega ao relatório).
 
-Item 2 é o complemento de menor esforço e fecha o ciclo originação-distribuição com a linguagem do segmento.
+O próximo passo é o **item 2 (tipo de investidor FIDC/securitizadora no Invest Match)**: complemento de menor esforço que fecha o ciclo originação-distribuição com a linguagem do segmento, estendendo `TipoInvestidor` em `lib/invest-match/types.ts` e o matching/sugestões para reconhecer a categoria explicitamente.
+
+Depois dele, o item 3 (camada de adequação CVM 175/22) é o de maior impacto de autoridade, no molde do módulo Reforma Tributária.
 
 ## Referências
 - Memorando de origem: `~/Desktop/analise site e plataforma.docx` (externo ao repo).
