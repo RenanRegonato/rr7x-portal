@@ -172,6 +172,58 @@ export default async function MapaInteligentePage() {
         </div>
       </section>
 
+      {/* ── De acordo com seu tipo de operação ────────────────────────────── */}
+      <section className="border-t border-lp-border">
+        <div className="max-w-[1280px] mx-auto px-6">
+          <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 pt-16">de acordo com seu tipo de operação</p>
+          {[
+            {
+              k: "01",
+              titulo: "M&A e Aquisições",
+              descricao: "Para uma venda ou compra de empresa, o Mapa mostra os fundos de private equity, grupos econômicos e strategic buyers que atuam naquele setor e tamanho de ticket. Revela quem já investiu naquela vertical, conexões com bancos de investimento e histórico de saídas.",
+              foco: ["Fundos de PE por setor e ticket", "Strategic buyers ativos no segmento", "Bancos de investimento parceiros"],
+            },
+            {
+              k: "02",
+              titulo: "FIDC e Crédito Estruturado",
+              descricao: "Para um fundo de crédito, o Mapa identifica as gestoras que operem aquele tipo de recebível (factoring, crédito ao consumidor, PJ), administradoras fiduciárias especializadas e bancos que distribuem esse segmento. Mostra capacidade de cada gestora e ticket médio alocado.",
+              foco: ["Gestoras de crédito por tipo de recebível", "Administradoras fiduciárias especializadas", "Bancos distribuidores de FIDC"],
+            },
+            {
+              k: "03",
+              titulo: "Securitização (CRI / CRA)",
+              descricao: "Para uma securitização de imóvel ou direitos creditórios, o Mapa aponta distribuidoras autorizadas, investidores qualificados com histórico naquele tipo de ativo, e bancos estruturadores de CRI/CRA. Mostra quem já securitizou imóvel comercial, infraestrutura ou recebíveis similares.",
+              foco: ["Distribuidoras autorizadas por especialidade", "Investidores institucionais de CRI/CRA", "Bancos estruturadores precedentes"],
+            },
+          ].map((v) => (
+            <div key={v.k} className="reveal border-b border-lp-border py-14 lg:py-16">
+              <div className="grid lg:grid-cols-[120px_1fr] gap-6 lg:gap-12">
+                <span className="font-display text-[20px] text-lp-ink-4">{v.k}</span>
+                <div>
+                  <h3 className="font-display tracking-tight text-lp-ink mb-4" style={{ fontSize: "clamp(26px, 3.2vw, 40px)", lineHeight: 1.08 }}>
+                    {v.titulo}
+                  </h3>
+                  <p className="text-[15px] text-lp-ink-2 leading-relaxed max-w-[640px] mb-6">
+                    {v.descricao}
+                  </p>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-lp-ink-3 mb-3">O Mapa mostra</p>
+                    <ul className="space-y-2">
+                      {v.foco.map((f) => (
+                        <li key={f} className="flex items-start gap-2.5 text-[13.5px] text-lp-ink-2">
+                          <span className="flex-shrink-0 mt-0.5 text-[11px] font-bold" style={{ color: "#8C6F45" }}>•</span>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── Como funciona ─────────────────────────────────────────────────── */}
       <section className="max-w-[1280px] mx-auto px-6 py-20 lg:py-24">
         <div className="reveal-blur max-w-[660px] mb-12">

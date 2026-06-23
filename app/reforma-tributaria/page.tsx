@@ -135,6 +135,58 @@ export default function ReformaTributariaPage() {
         </div>
       </section>
 
+      {/* ── Para qual tipo de operação ───────────────────────────────────── */}
+      <section className="border-t border-lp-border">
+        <div className="max-w-[1280px] mx-auto px-6">
+          <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 pt-16">para qual tipo de operação</p>
+          {[
+            {
+              k: "01",
+              titulo: "M&A e Aquisições",
+              descricao: "Na compra de uma empresa, a Reforma Tributária pode alterar radicalmente valuation e timing. Benefícios de ICMS em fase de extinção, nova cadeia de crédito e impacto no fluxo pós-fechamento são riscos que ninguém monetiza sem diagnóstico claro.",
+              riscos: ["Benefícios de ICMS que expiram na transição", "Imposto Seletivo incidindo em setores não previsto", "Crédito do comprador suspenso por falhas na cadeia do vendedor"],
+            },
+            {
+              k: "02",
+              titulo: "FIDC e Crédito Estruturado",
+              descricao: "Um fundo de crédito estruturado é sensível a qualquer mudança de regime de imposto sobre operações. Split payment, retenção de crédito e conformidade da cedente são variáveis que afetam rentabilidade de tranches e viabilidade de resgate.",
+              riscos: ["Split payment reduzindo fluxo de caixa do lastro", "Cedente no Simples sem direito a crédito completo", "Risco de retenção de imposto em cadeia de recebíveis"],
+            },
+            {
+              k: "03",
+              titulo: "Securitização (CRI / CRA)",
+              descricao: "Em uma securitização de direitos creditórios, o imposto pesa sobre o cedente original e sobre cada etapa da circulação de recebíveis. A LC 214/2025 traz mudanças que afetam a taxa interna de retorno da operação e a viabilidade do rating.",
+              riscos: ["Imposto Seletivo incidindo sobre produtos financiados", "Split payment suspenso por não conformidade do originador", "Nova base de cálculo de IBS impactando pricing"],
+            },
+          ].map((v) => (
+            <div key={v.k} className="reveal border-b border-lp-border py-14 lg:py-16">
+              <div className="grid lg:grid-cols-[120px_1fr] gap-6 lg:gap-12">
+                <span className="font-display text-[20px] text-lp-ink-4">{v.k}</span>
+                <div>
+                  <h3 className="font-display tracking-tight text-lp-ink mb-4" style={{ fontSize: "clamp(26px, 3.2vw, 40px)", lineHeight: 1.08 }}>
+                    {v.titulo}
+                  </h3>
+                  <p className="text-[15px] text-lp-ink-2 leading-relaxed max-w-[640px] mb-6">
+                    {v.descricao}
+                  </p>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-lp-ink-3 mb-3">Riscos tributários específicos</p>
+                    <ul className="space-y-2">
+                      {v.riscos.map((r) => (
+                        <li key={r} className="flex items-start gap-2.5 text-[13.5px] text-lp-ink-2">
+                          <span className="flex-shrink-0 mt-0.5 text-[11px] font-bold" style={{ color: "#8C6F45" }}>•</span>
+                          {r}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── O que o Mandor diagnostica ────────────────────────────────────── */}
       <section className="max-w-[1280px] mx-auto px-6 py-20 lg:py-24">
         <div className="reveal-blur max-w-[640px] mb-12">
