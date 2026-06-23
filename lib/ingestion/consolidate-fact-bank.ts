@@ -117,7 +117,7 @@ export async function consolidateFactBank({ analiseId, step, logger }: Consolida
   logger.info('Loaded facts', { analiseId, count: facts.length })
 
   if (facts.length === 0) {
-    return await persistFactBank(admin, analiseId, step, {
+    return await persistFactBank(admin, analiseId, step, logger, {
       facts: [],
       stats: { total_facts_in: 0, total_facts_out: 0, conflicts: 0, duplicates_merged: 0 },
       consolidation_model: 'no-facts',
@@ -199,7 +199,7 @@ export async function consolidateFactBank({ analiseId, step, logger }: Consolida
   if (riscos.length)      allFacts.push(...riscos)
 
   // 4) Persiste
-  return await persistFactBank(admin, analiseId, step, {
+  return await persistFactBank(admin, analiseId, step, logger, {
     facts: allFacts,
     stats: {
       total_facts_in:    facts.length,
@@ -215,6 +215,7 @@ async function persistFactBank(
   admin:     ReturnType<typeof createAdminClient>,
   analiseId: string,
   step:      Step,
+  logger:    Logger,
   factBank:  Record<string, unknown>,
 ) {
   await step.run('save-fact-bank', async () => {
@@ -265,6 +266,23 @@ async function persistFactBank(
       const err = e as Error
       console.error('[consolidate-fact-bank] resend failed:', err)
       return { status: 'failed', reason: 'resend_error', error: err.message, to: email, from: process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev' }
+    }
+  })
+
+  // Dispara categorização de chunks em background (paralelo ao pipeline)
+  // Isso garante que quando agentes consultarem chunks, já têm categoria indexada.
+  // Best-effort: se falhar, agentes funcionam normalmente (fallback a não categorizados).
+  await step.run('kickoff-chunk-categorization', async () => {
+    try {
+      const { inngest } = await import('@/lib/inngest')
+      await inngest.send({
+        name: 'analise/chunks.categorize_requested',
+        data: { analiseId },
+      })
+      return { queued: true, analiseId }
+    } catch (err) {
+      logger?.warn('Falha ao disparar categorização de chunks', { analiseId, err })
+      return { queued: false, error: err instanceof Error ? err.message : 'unknown' }
     }
   })
 

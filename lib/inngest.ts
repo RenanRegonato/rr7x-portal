@@ -28,6 +28,11 @@ export type Events = {
       analiseId: string
     }
   }
+  'analise/chunks.categorize_requested': {
+    data: {
+      analiseId?: string  // se vazio, categoriza TODOS chunks não categorizados
+    }
+  }
   'invest-match/thesis.created': {
     data: {
       teseId:    string
