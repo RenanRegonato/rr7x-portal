@@ -3,6 +3,7 @@ import { inngest } from '@/lib/inngest'
 import { processDocument, failDocumentAndMaybeConsolidate } from '@/lib/ingestion/process-document'
 import { consolidateFactBank } from '@/lib/ingestion/consolidate-fact-bank'
 import { categorizeChunksJob } from '@/lib/ingestion/categorize-chunks-job'
+import { kgExtractJob } from '@/lib/knowledge-graph/kg-extract-job'
 import { runMatching, runReverseMatching } from '@/lib/invest-match/matching-engine'
 import { notifyAssessorOfMatches } from '@/lib/invest-match/notify'
 import { runAnalysisPipeline } from '@/lib/analise/run-pipeline'
@@ -75,6 +76,22 @@ export const categorizeChunksFn = inngest.createFunction(
     const { analiseId } = event.data as { analiseId?: string }
     logger.info('Categorizing chunks', { analiseId: analiseId ?? 'all' })
     return await categorizeChunksJob({ analiseId, step, logger })
+  },
+)
+
+// Função 2c: extrai Knowledge Graph (entidades e relacionamentos)
+export const kgExtractFn = inngest.createFunction(
+  {
+    id:          'kg-extract',
+    name:        'Extract Knowledge Graph — entities and relationships for KYC',
+    triggers:    [{ event: 'analise/kg.extract_requested' }],
+    concurrency: { limit: 2 }, // 2 análises em paralelo
+    retries:     2,
+  },
+  async ({ event, step, logger }) => {
+    const { analiseId } = event.data as { analiseId: string }
+    logger.info('Extracting Knowledge Graph', { analiseId })
+    return await kgExtractJob({ analiseId, step, logger })
   },
 )
 
@@ -303,5 +320,5 @@ export const mapaMercadoEtlBcbFn = inngest.createFunction(
 // signingKey lido automaticamente de INNGEST_SIGNING_KEY env var
 export const { GET, POST, PUT } = serve({
   client:    inngest,
-  functions: [processDocumentFn, consolidateFactBankFn, categorizeChunksFn, runThesisMatchingFn, reverseMatchingFn, runAnalysisPipelineFn, ingestionWatchdogFn, dealMonitorFn, mapaMercadoEtlCvmFn, mapaMercadoEnrichReceitaFn, mapaMercadoEmbedFn, mapaMercadoEtlBcbFn],
+  functions: [processDocumentFn, consolidateFactBankFn, categorizeChunksFn, kgExtractFn, runThesisMatchingFn, reverseMatchingFn, runAnalysisPipelineFn, ingestionWatchdogFn, dealMonitorFn, mapaMercadoEtlCvmFn, mapaMercadoEnrichReceitaFn, mapaMercadoEmbedFn, mapaMercadoEtlBcbFn],
 })

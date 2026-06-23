@@ -286,6 +286,23 @@ async function persistFactBank(
     }
   })
 
+  // Dispara extração de Knowledge Graph (entidades + relacionamentos)
+  // Roda após categorização (dependência implícita: KG precisa de chunks categorizados)
+  // Best-effort: falha não bloqueia o pipeline.
+  await step.run('kickoff-kg-extraction', async () => {
+    try {
+      const { inngest } = await import('@/lib/inngest')
+      await inngest.send({
+        name: 'analise/kg.extract_requested',
+        data: { analiseId },
+      })
+      return { queued: true, analiseId }
+    } catch (err) {
+      logger?.warn('Falha ao disparar extração KG', { analiseId, err })
+      return { queued: false, error: err instanceof Error ? err.message : 'unknown' }
+    }
+  })
+
   // Gate de documentos críticos: em vez de disparar o pipeline direto, reavalia
   // se há documento com falha não resolvido. Se houver, SEGURA a análise
   // (triagem pendente); senão, libera e dispara o pipeline. Ver lib/triagem/gate.
