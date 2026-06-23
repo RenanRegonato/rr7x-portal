@@ -299,27 +299,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Statement + números ──────────────────────────────────────────── */}
-      <section className="max-w-[1180px] mx-auto px-6 py-28 lg:py-40">
-        <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-7">o que está em jogo</p>
-        <h2 className="reveal-blur font-display tracking-tight text-lp-ink max-w-[980px]" style={{ fontSize: "clamp(30px, 4.4vw, 58px)", lineHeight: 1.12 }}>
-          Seu escritório recebe mais deals do que consegue analisar.{" "}
-          <span className="text-lp-ink-3">Cada um que fica na fila é uma operação que o concorrente fecha primeiro.</span>
-        </h2>
-        <div className="reveal grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6 mt-20 border-t border-lp-border pt-12">
-          {[
-            { v: "até 90 min", l: "por análise completa" },
-            { v: "40+",        l: "deals analisáveis por mês (hoje, só 10 a fundo)" },
-            { v: "4×",         l: "capacidade, mesma equipe" },
-            { v: "R$ 6M–12M",  l: "receita que hoje fica na mesa" },
-          ].map((m) => (
-            <div key={m.l}>
-              <div className="font-display text-lp-ink leading-none" style={{ fontSize: "clamp(34px, 4vw, 52px)" }}>{m.v}</div>
-              <div className="text-[13px] text-lp-ink-3 mt-3 max-w-[160px]">{m.l}</div>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* ── Módulos (linhas editoriais) ──────────────────────────────────── */}
       <section className="border-t border-lp-border">
@@ -343,21 +322,56 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── A rede cognitiva (10 inteligências) ──────────────────────────── */}
-      <section id="inteligencias" className="max-w-[1180px] mx-auto px-6 py-28 lg:py-36 scroll-mt-20">
-        <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-6">a rede cognitiva</p>
-        <h2 className="reveal-blur font-display tracking-tight text-lp-ink max-w-[820px] mb-16" style={{ fontSize: "clamp(28px, 4vw, 52px)", lineHeight: 1.1 }}>
-          Dez inteligências em rede.{" "}
-          <span style={{ fontStyle: "italic" }}>Um único dossiê.</span>
-        </h2>
-        <div className="reveal grid sm:grid-cols-2 lg:grid-cols-2 gap-x-14 gap-y-px">
-          {inteligencias.map((a) => (
-            <div key={a.num} className="grid grid-cols-[44px_1fr] gap-5 items-start border-t border-lp-border py-7">
-              <span className="font-display text-[18px] text-lp-ink-4 pt-0.5">{a.num}</span>
-              <div>
-                <p className="text-[10.5px] font-medium tracking-[0.18em] uppercase text-lp-ink-3 mb-1.5">{a.dominio}</p>
-                <h3 className="text-[16px] font-semibold text-lp-ink mb-2">{a.funcao}</h3>
-                <p className="text-[14px] text-lp-ink-3 leading-relaxed">{a.descricao}</p>
+      {/* ── Verticais de negócio ────────────────────────────────────────── */}
+      <section className="border-t border-lp-border">
+        <div className="max-w-[1180px] mx-auto px-6">
+          <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 pt-16">para quem serve</p>
+          {[
+            {
+              k: "01",
+              titulo: "M&A e Aquisições",
+              subtitulo: "Boutiques de M&A, investidores, grupos econômicos",
+              descricao: "Da prospecção ao fechamento. Diagnóstico financeiro, valuation, mapa jurídico, posicionamento do ativo e pipeline de compradores. Parecer institucional que move negociação.",
+              destaques: ["Valuation por múltiplos e DCF", "Tese e posicionamento do ativo", "Mapa de riscos e remediações", "Pipeline de compradores qualificados"],
+              href: "#",
+            },
+            {
+              k: "02",
+              titulo: "FIDC e Securitização",
+              subtitulo: "Administradoras, gestoras de crédito, originadoras",
+              descricao: "Estrutura aprovável. Análise de lastro, avaliação de risco de sacado/cedente, adequação de tranches, parecer de governança. Documentação completa para CVM.",
+              destaques: ["Análise de recebíveis e concentração", "Viabilidade de tranches e pricing", "Parecer de adequação ANBIMA", "Documentação CVM pronta"],
+              href: "#",
+            },
+            {
+              k: "03",
+              titulo: "Securitização (CRI / CRA)",
+              subtitulo: "Originadoras, banco de investimento, estruturadores",
+              descricao: "Cessão fiduciária validada. Análise de fluxos, avaliação de imóvel/direitos, estrutura de cotas, pricing justo. Due diligence que satisfaz investidor.",
+              destaques: ["Due diligence de ativos (imóvel/direitos)", "Pricing e modelagem de fluxos", "Análise de risco da operação", "Parecer técnico para investors"],
+              href: "#",
+            },
+          ].map((v) => (
+            <div key={v.k} className="reveal border-b border-lp-border py-14 lg:py-20">
+              <div className="grid lg:grid-cols-[120px_1fr] gap-6 lg:gap-12">
+                <span className="font-display text-[20px] text-lp-ink-4">{v.k}</span>
+                <div>
+                  <h3 className="font-display tracking-tight text-lp-ink mb-2" style={{ fontSize: "clamp(28px, 3.6vw, 44px)", lineHeight: 1.08 }}>
+                    {v.titulo}
+                  </h3>
+                  <p className="text-[13px] text-lp-ink-3 uppercase tracking-widest mb-4">{v.subtitulo}</p>
+                  <p className="text-[16px] text-lp-ink-2 leading-relaxed max-w-[640px] mb-6">
+                    {v.descricao}
+                  </p>
+                  <ul className="grid sm:grid-cols-2 gap-3 mb-6">
+                    {v.destaques.map((d) => (
+                      <li key={d} className="flex items-start gap-2.5 text-[14px] text-lp-ink-2">
+                        <span className="flex-shrink-0 mt-0.5 text-[12px] font-bold" style={{ color: "#8C6F45" }}>✓</span>
+                        {d}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           ))}
