@@ -16,8 +16,8 @@ const MAPA_TIPO_PARA_INVESTIDOR: Record<string, string> = {
   boutique_investimento:          'gestora',
   banco:                          'financeira',
   family_office:                  'family_office',
-  escritorio_credito_estruturado: 'pj',
-  securitizadora:                 'pj',
+  securitizadora:                 'securitizadora',
+  escritorio_credito_estruturado: 'administradora_fiduciaria',
   consultoria:                    'pj',
 }
 

@@ -23,6 +23,8 @@ export type TipoInvestidor =
   | 'estrategico_corporativo'
   | 'gestora'
   | 'clube_investimento'
+  | 'securitizadora'          // CRI/CRA/CCB: emite e estrutura cessões fiduciárias
+  | 'administradora_fiduciaria' // FIDC: administra o fundo e supervisiona o lastro
 
 export type TipoDeal =
   | 'equity'
@@ -33,6 +35,7 @@ export type TipoDeal =
   | 'earn_out'
   | 'growth_equity'
   | 'special_situations'
+  | 'credito_estruturado'     // FIDC/CRI/CRA: cessão de recebíveis / crédito estruturado
 
 export type ControleOferecido = 'minority' | 'majority' | 'full'
 

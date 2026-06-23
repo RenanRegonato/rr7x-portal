@@ -9,13 +9,14 @@ import { z } from 'zod'
 const TIPO_INVESTIDOR = [
   'pessoa_fisica', 'holding_familiar', 'family_office', 'fundo', 'financeira',
   'pj', 'estrategico_corporativo', 'gestora', 'clube_investimento',
+  'securitizadora', 'administradora_fiduciaria',
 ] as const
 
 const ESTAGIOS = ['ideia', 'mvp', 'early_revenue', 'growth', 'mature', 'turnaround'] as const
 
 const TIPOS_DEAL = [
   'equity', 'debt', 'convertible', 'm_and_a_sale', 'm_and_a_acquisition',
-  'earn_out', 'growth_equity', 'special_situations',
+  'earn_out', 'growth_equity', 'special_situations', 'credito_estruturado',
 ] as const
 
 const CONTROLES = ['minority', 'majority', 'full'] as const

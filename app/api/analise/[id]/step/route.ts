@@ -240,6 +240,42 @@ function formatIntake(intake: Record<string, string>): string {
   const credito: string[] = []
   if (intake.cedente)        credito.push(`Cedente / Originador: ${intake.cedente}`)
   if (intake.tipoRecebivel)  credito.push(`Tipo de recebível (lastro): ${intake.tipoRecebivel}`)
+  // Status do recebível determina classificação CVM e perfil de risco:
+  if (intake.statusRecebivel) {
+    const statusLabel: Record<string, string> = {
+      performado:       'Performado (serviço/venda já ocorreu)',
+      a_performar:      'A performar (depende de prestação futura — risco maior)',
+      vencido_nao_pago: 'Vencido e não pago — FIDC NÃO PADRONIZADO (CVM 444/2006): exige investidor profissional; risco de fraude/lastro elevado; diligência reforçada obrigatória',
+    }
+    credito.push(`Status do recebível: ${statusLabel[intake.statusRecebivel] ?? intake.statusRecebivel}`)
+  }
+  // Estrutura cedente × sacado define onde reside o risco de crédito:
+  if (intake.estruturaCedenteSacado) {
+    const estLabel: Record<string, string> = {
+      monocedente_multisacados:  'Monocedente / Multisacados — risco distribuído nos sacados (devedores), não no cedente; avaliar pulverização e inadimplência da carteira',
+      multicedentes_monosacado:  'Multicedentes / Monosacado (FIDC Fornecedores) — risco concentrado num único sacado; análise de crédito do sacado-âncora é determinante',
+      multicedentes_multisacados: 'Multicedentes / Multisacados (Fomento Mercantil) — risco pulverizado nos dois lados; avaliar critérios de elegibilidade e cobrança',
+    }
+    credito.push(`Estrutura cedente × sacado: ${estLabel[intake.estruturaCedenteSacado] ?? intake.estruturaCedenteSacado}`)
+  }
+  // Cedente como cotista subordinado = alinhamento de interesses:
+  if (intake.cedenteCotistaSubordinado) {
+    const cotLabel: Record<string, string> = {
+      sim:         'Sim — cedente participa como cotista subordinado (boa prática: assume primeiro os riscos das suas originações)',
+      nao:         'Não — cedente NÃO participa como cotista subordinado (yellow flag de governança: verificar outros mecanismos de alinhamento)',
+      nao_definido: 'A definir',
+    }
+    credito.push(`Cedente cotista subordinado: ${cotLabel[intake.cedenteCotistaSubordinado] ?? intake.cedenteCotistaSubordinado}`)
+  }
+  // Tipo de oferta determina número máximo de investidores e requisitos regulatórios:
+  if (intake.tipoOferta) {
+    const ofertaLabel: Record<string, string> = {
+      icvm_400:    'ICVM 400 — Oferta pública (rating de agência classificadora obrigatório; prospecto obrigatório)',
+      icvm_476:    'ICVM 476 — Oferta restrita (máx 75 investidores profissionais; dispensa prospecto e rating; sem registro CVM)',
+      nao_definido: 'A definir',
+    }
+    credito.push(`Tipo de oferta: ${ofertaLabel[intake.tipoOferta] ?? intake.tipoOferta}`)
+  }
   if (intake.estruturaCotas) credito.push(`Estrutura de cotas / tranches: ${intake.estruturaCotas}`)
   if (intake.serieEmissao)   credito.push(`Série / emissão: ${intake.serieEmissao}`)
   if (credito.length > 0) parts.push('Estrutura de Crédito:\n  ' + credito.join('\n  '))

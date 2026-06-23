@@ -104,7 +104,7 @@ Seu trabalho é EXTRAIR e SINTETIZAR campos qualitativos da tese — os campos n
 - **vertical_tags**: tags livres relevantes pra match semântico — máx 5 (ex: 'ESG', 'IoT', 'GenAI', 'regulado_anvisa', 'export', 'concentracao_geografica')
 
 ## Deal
-- **tipo_deal**: inferir do intake.objetivo + mesa_revisao. Valores válidos: equity | debt | convertible | m_and_a_sale | m_and_a_acquisition | earn_out | growth_equity | special_situations.
+- **tipo_deal**: inferir do intake.objetivo + mesa_revisao. Valores válidos: equity | debt | credito_estruturado | convertible | m_and_a_sale | m_and_a_acquisition | earn_out | growth_equity | special_situations. Use **credito_estruturado** quando o ativo for FIDC, CRI, CRA ou qualquer cessão de recebíveis (intake.tipoAtivo contém "FIDC", "Securitização" ou "Crédito Estruturado").
 - **controle_oferecido**: minority (<50%) | majority (50-99%) | full (100%). Se incerto, escolher conforme equity_oferecido_pct quando declarado.
 - **horizonte_saida_anos**: 3-10 anos típico. Se não declarado, inferir do estágio.
 - **urgencia**: baixa | media | alta. Pistas: mesa_revisao.recomendacao_assessor, intake.objetivo (urgência declarada), passivos próximos.
@@ -208,8 +208,8 @@ Construa agora a TESE ESTRUTURADA conforme instruído. Retorne SOMENTE o JSON. C
 
 
 const VALID_TIPO_DEAL: TipoDeal[] = [
-  'equity', 'debt', 'convertible', 'm_and_a_sale', 'm_and_a_acquisition',
-  'earn_out', 'growth_equity', 'special_situations',
+  'equity', 'debt', 'credito_estruturado', 'convertible', 'm_and_a_sale',
+  'm_and_a_acquisition', 'earn_out', 'growth_equity', 'special_situations',
 ]
 const VALID_CONTROLE: ControleOferecido[] = ['minority', 'majority', 'full']
 const VALID_URGENCIA: Urgencia[] = ['baixa', 'media', 'alta']

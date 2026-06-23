@@ -13,12 +13,12 @@ import { z } from 'zod'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const TIPOS_ATIVO = ['Empresa (M&A)', 'Imóvel / Real Estate', 'Startup / Scale-up', 'FIDC / Crédito Estruturado', 'Securitização (CRI / CRA)', 'Portfólio de Crédito', 'Franquia', 'Agronegócio', 'Outro']
+const TIPOS_ATIVO = ['Empresa (M&A)', 'Imóvel / Real Estate', 'Startup / Scale-up', 'FIDC / Crédito Estruturado', 'FIDC de Infraestrutura (incentivado)', 'Securitização (CRI / CRA)', 'Portfólio de Crédito', 'Franquia', 'Agronegócio', 'Outro']
 // Tipos de ativo que abrem os campos de estrutura de crédito (cedente, recebível,
 // estrutura de cotas, série). Mantém o vocabulário do gestor de crédito/FIDC.
-const CREDIT_TYPES = new Set(['FIDC / Crédito Estruturado', 'Securitização (CRI / CRA)', 'Portfólio de Crédito'])
+const CREDIT_TYPES = new Set(['FIDC / Crédito Estruturado', 'FIDC de Infraestrutura (incentivado)', 'Securitização (CRI / CRA)', 'Portfólio de Crédito'])
 const isCreditAsset = (tipo: string) => CREDIT_TYPES.has(tipo)
-const TIPOS_RECEBIVEL = ['Duplicatas / Notas comerciais', 'Cartão de crédito', 'Consignado', 'Cheques', 'Contratos / Prestação de serviços', 'CCB / Crédito bancário', 'Imobiliário', 'Multicedente / Multissacado', 'Precatórios', 'Outro']
+const TIPOS_RECEBIVEL = ['Duplicatas / Notas comerciais', 'Cartão de crédito', 'Consignado', 'Cheques', 'Contratos / Prestação de serviços', 'CCB / Crédito bancário', 'Imobiliário', 'Precatórios', 'Outro']
 const ESTAGIOS   = ['Projeto Pré-Operacional', 'Estruturando', 'Estruturado', 'Em comercialização', 'Em negociação / Closing']
 const OBJETIVOS  = ['Vender 100%', 'Vender participação', 'Captar investimento', 'Estruturar crédito', 'Preparar para o mercado', 'Diagnóstico / Due Diligence']
 const NIVEIS_INFO = ['Baixo (poucos dados formais)', 'Médio (dados parciais)', 'Alto (DRE, balanço e documentos disponíveis)']
@@ -65,10 +65,14 @@ const SECTIONS = [
 const FIELD_LABELS: Record<string, { label: string; step: number }> = {
   nomeAtivo:             { label: 'Nome do ativo',                step: 2 },
   tipoAtivo:             { label: 'Tipo de ativo',                step: 2 },
-  cedente:               { label: 'Cedente / Originador',         step: 2 },
-  tipoRecebivel:         { label: 'Tipo de recebível',            step: 2 },
-  estruturaCotas:        { label: 'Estrutura de cotas',           step: 2 },
-  serieEmissao:          { label: 'Série / emissão',              step: 2 },
+  cedente:                    { label: 'Cedente / Originador',              step: 2 },
+  tipoRecebivel:              { label: 'Tipo de recebível',                step: 2 },
+  statusRecebivel:            { label: 'Status do recebível',              step: 2 },
+  estruturaCedenteSacado:     { label: 'Estrutura cedente × sacado',       step: 2 },
+  cedenteCotistaSubordinado:  { label: 'Cedente cotista subordinado',       step: 2 },
+  tipoOferta:                 { label: 'Tipo de oferta',                   step: 2 },
+  estruturaCotas:             { label: 'Estrutura de cotas',               step: 2 },
+  serieEmissao:               { label: 'Série / emissão',                  step: 2 },
   estagio:               { label: 'Estágio atual',                step: 3 },
   localizacao:           { label: 'Localização (cidade/estado)',  step: 3 },
   objetivo:              { label: 'Objetivo da operação',         step: 4 },
@@ -151,10 +155,14 @@ function NovaAnaliseInner() {
     ticketEstimado:       '',
     resumoAtivo:          '',
     // ── Estrutura de crédito (só para FIDC / Securitização / Portfólio) ──────
-    cedente:              '',
-    tipoRecebivel:        '',
-    estruturaCotas:       '',
-    serieEmissao:         '',
+    cedente:                   '',
+    tipoRecebivel:             '',
+    statusRecebivel:           '',
+    estruturaCedenteSacado:    '',
+    cedenteCotistaSubordinado: '',
+    tipoOferta:                '',
+    estruturaCotas:            '',
+    serieEmissao:              '',
     // ── Proprietário ───────────────────────────────────────────────────────
     nomeProprietario:     searchParams.get('nomeProprietario') ?? '',
     cpfCnpjProprietario:  '',
@@ -799,7 +807,48 @@ function StepContent({
               </OttoSelect>
             </Field>
           </div>
-          <Field label="Estrutura de cotas / tranches" help="Distribuição sênior / mezanino / subordinada e subordinação">
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Status do recebível" help="Determina a classificação padronizado / não padronizado (CVM)">
+              <OttoSelect value={form.statusRecebivel} onChange={e => set('statusRecebivel', e.target.value)}>
+                <option value="">Não informado</option>
+                <option value="performado">Performado — serviço/venda já ocorreu</option>
+                <option value="a_performar">A performar — ainda vai ocorrer</option>
+                <option value="vencido_nao_pago">Vencido e não pago (FIDC NP)</option>
+              </OttoSelect>
+            </Field>
+            <Field label="Estrutura cedente × sacado" help="Define onde está o risco de crédito">
+              <OttoSelect value={form.estruturaCedenteSacado} onChange={e => set('estruturaCedenteSacado', e.target.value)}>
+                <option value="">Não informado</option>
+                <option value="monocedente_multisacados">Monocedente / Multisacados</option>
+                <option value="multicedentes_monosacado">Multicedentes / Monosacado (FIDC Fornecedores)</option>
+                <option value="multicedentes_multisacados">Multicedentes / Multisacados (Fomento Mercantil)</option>
+              </OttoSelect>
+            </Field>
+          </div>
+          {form.statusRecebivel === 'vencido_nao_pago' && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] text-amber-800">
+              Recebíveis vencidos e não pagos são classificados como <strong>FIDC Não Padronizado</strong> pela CVM — restrito a investidores profissionais. O Invest Match filtrará automaticamente.
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Cedente cotista subordinado?" help="Cedente investindo nas cotas subordinadas = alinhamento de interesses (boa prática de governança)">
+              <OttoSelect value={form.cedenteCotistaSubordinado} onChange={e => set('cedenteCotistaSubordinado', e.target.value)}>
+                <option value="">Não informado</option>
+                <option value="sim">Sim — cedente participa como cotista subordinado</option>
+                <option value="nao">Não — cedente não participa</option>
+                <option value="nao_definido">A definir</option>
+              </OttoSelect>
+            </Field>
+            <Field label="Tipo de oferta" help="ICVM 476: máx 75 investidores profissionais, sem prospecto nem rating obrigatório">
+              <OttoSelect value={form.tipoOferta} onChange={e => set('tipoOferta', e.target.value)}>
+                <option value="">Não informado</option>
+                <option value="icvm_400">ICVM 400 — Oferta pública (rating obrigatório)</option>
+                <option value="icvm_476">ICVM 476 — Oferta restrita (até 75 profissionais)</option>
+                <option value="nao_definido">A definir</option>
+              </OttoSelect>
+            </Field>
+          </div>
+          <Field label="Estrutura de cotas / tranches" help="Distribuição sênior / mezanino / subordinada e índice de subordinação">
             <OttoInput
               value={form.estruturaCotas}
               onChange={e => set('estruturaCotas', e.target.value)}
