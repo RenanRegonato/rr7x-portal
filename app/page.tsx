@@ -218,13 +218,13 @@ export default function LandingPage() {
             Inteligência institucional para o mercado privado
           </p>
           <h1 className="font-display tracking-tight text-lp-ink" style={{ fontSize: "clamp(42px, 6.6vw, 84px)", lineHeight: 1.03 }}>
-            <span className="block animate-fade-up" style={{ animationDelay: "120ms" }}>Os três gargalos que</span>
-            <span className="block animate-fade-up" style={{ animationDelay: "240ms" }}>limitam seu escritório</span>
-            <span className="block animate-fade-up" style={{ animationDelay: "360ms" }}>resolvidos em um só lugar.</span>
+            <span className="block animate-fade-up" style={{ animationDelay: "120ms" }}>Os três Sinais de Fricção</span>
+            <span className="block animate-fade-up" style={{ animationDelay: "240ms" }}>que travam seu escritório.</span>
+            <span className="block animate-fade-up" style={{ animationDelay: "360ms" }}>Resolvidos em um só sistema.</span>
           </h1>
           <p className="animate-fade-up text-[18px] lg:text-[20px] text-lp-ink-2 leading-relaxed max-w-[600px] mt-9" style={{ animationDelay: "520ms" }}>
-            Conhecimento que sai com o sócio. Oportunidades que dependem da agenda de alguém.
-            Volume que cresce mais rápido que a equipe. O Mandor transforma os três em processo.
+            Conhecimento preso na operação do sócio. Oportunidades que não escalam por dependência humana.
+            Crescimento que ultrapassa a capacidade de execução. O Mandor converte esses pontos de fricção em estrutura operacional contínua.
           </p>
           <div className="animate-fade-up flex flex-col sm:flex-row items-start sm:items-center gap-5 mt-11" style={{ animationDelay: "640ms" }}>
             <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center gap-2 text-[15px] font-medium text-white px-7 py-4 rounded-full" style={{ background: "#8C6F45" }}>
@@ -257,30 +257,30 @@ export default function LandingPage() {
           {[
             {
               num: "01",
-              gargalo: "Inteligência fica nas pessoas, não na instituição",
+              sinalFriccao: "Inteligência fica nas pessoas, não na instituição",
               problema: "Conhecimento sai do escritório quando um sócio sai. Novos profissionais começam do zero.",
               solucao: "Aprendizados do Escritório",
               descricao: "Converte experiência em patrimônio intelectual. Cada operação analisada fortalece a inteligência da empresa.",
             },
             {
               num: "02",
-              gargalo: "Conexão entre oportunidades e interessados depende da agenda",
+              sinalFriccao: "Conexão entre oportunidades e interessados depende da agenda",
               problema: "Muitas oportunidades morrem porque o comprador/investidor certo não foi encontrado. O processo é manual.",
               solucao: "Invest Match",
               descricao: "Transforma originação em processo. Identifica compradores e investidores aderentes. Prioriza por probabilidade de interesse.",
             },
             {
               num: "03",
-              gargalo: "Volume cresce mais rápido que a capacidade",
+              sinalFriccao: "Volume cresce mais rápido que a capacidade",
               problema: "Mercado gera mais oportunidades do que as equipes conseguem analisar a fundo. Gargalo operacional.",
               solucao: "Rede Cognitiva",
               descricao: "Análise padronizada e escalável. O mesmo critério aplicado na primeira análise vale na centésima.",
             },
           ].map((g) => (
             <div key={g.num} className="reveal">
-              <span className="text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-4 block">Gargalo {g.num}</span>
+              <span className="text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-4 block">Sinal de Fricção {g.num}</span>
               <h3 className="font-display tracking-tight text-lp-ink mb-4" style={{ fontSize: "clamp(22px, 2.8vw, 32px)", lineHeight: 1.1 }}>
-                {g.gargalo}
+                {g.sinalFriccao}
               </h3>
               <p className="text-[14px] text-lp-ink-3 leading-relaxed mb-6">
                 {g.problema}
