@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { isAdmin } from '@/lib/get-role'
+import { isAdminViewer } from '@/lib/get-role'
 import { inngest } from '@/lib/inngest'
 
 export async function POST(req: NextRequest) {
@@ -17,8 +17,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
   }
 
-  const admin = await isAdmin(user.id)
-  if (!admin) {
+  const isAdmin = await isAdminViewer(user.id)
+  if (!isAdmin) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
   }
 
