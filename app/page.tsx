@@ -253,7 +253,7 @@ export default function LandingPage() {
       {/* ── Gargalos → Soluções ───────────────────────────────────────────── */}
       <section id="gargalos" className="max-w-[1180px] mx-auto px-6 py-28 lg:py-40 scroll-mt-20">
         <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-7">como o Mandor resolve</p>
-        <div className="reveal grid md:grid-cols-3 gap-12 lg:gap-16">
+        <div className="reveal grid md:grid-cols-3 gap-8 lg:gap-10">
           {[
             {
               num: "01",
@@ -349,6 +349,14 @@ export default function LandingPage() {
               subtitulo: "Originadoras, banco de investimento, estruturadores",
               descricao: "Cessão fiduciária validada. Análise de fluxos, avaliação de imóvel/direitos, estrutura de cotas, pricing justo. Due diligence que satisfaz investidor.",
               destaques: ["Due diligence de ativos (imóvel/direitos)", "Pricing e modelagem de fluxos", "Análise de risco da operação", "Parecer técnico para investors"],
+              href: "#",
+            },
+            {
+              k: "04",
+              titulo: "Preparação de Ativo para Mercado",
+              subtitulo: "Grupos econômicos, PE, gestoras de investimento",
+              descricao: "Ativo pronto para venda. Diagnóstico 360º (financeiro, jurídico, tributário, operacional), roadmap de remediações, documentação de venda. Maximize o valuation.",
+              destaques: ["Diagnóstico operacional completo", "Identificação de oportunidades de valor", "Roadmap de remediações prioritárias", "Documentação pronta para data room"],
               href: "#",
             },
           ].map((v) => (
