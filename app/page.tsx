@@ -300,33 +300,12 @@ export default function LandingPage() {
       </section>
 
 
-      {/* ── Módulos (linhas editoriais) ──────────────────────────────────── */}
+      {/* ── Verticais de negócio (CARDS) ────────────────────────────────────────── */}
       <section className="border-t border-lp-border">
-        <div className="max-w-[1180px] mx-auto px-6">
-          <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 pt-16">módulos em destaque</p>
-          {modulos.map((m) => (
-            <Link key={m.k} href={m.href} className="reveal group block border-b border-lp-border py-14 lg:py-20 transition-colors hover:bg-lp-fog/60">
-              <div className="grid lg:grid-cols-[120px_1fr_auto] gap-6 lg:gap-12 items-baseline">
-                <span className="font-display text-[20px] text-lp-ink-4">{m.k}</span>
-                <div>
-                  <h3 className="font-display tracking-tight text-lp-ink mb-4" style={{ fontSize: "clamp(28px, 3.6vw, 44px)", lineHeight: 1.08 }}>{m.t}</h3>
-                  <p className="text-[16px] text-lp-ink-2 leading-relaxed max-w-[640px]">{m.d}</p>
-                </div>
-                <span className="inline-flex items-center gap-2 text-[14px] font-medium" style={{ color: "#8C6F45" }}>
-                  Conhecer
-                  <span aria-hidden className="transition-transform group-hover:translate-x-1.5">→</span>
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Verticais de negócio ────────────────────────────────────────── */}
-      <section className="border-t border-lp-border">
-        <div className="max-w-[1180px] mx-auto px-6">
-          <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 pt-16">para quem serve</p>
-          {[
+        <div className="max-w-[1180px] mx-auto px-6 py-28 lg:py-40">
+          <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-12">para quem serve</p>
+          <div className="reveal grid md:grid-cols-2 gap-8 lg:gap-10">
+            {[
             {
               k: "01",
               titulo: "M&A e Aquisições",
@@ -359,29 +338,48 @@ export default function LandingPage() {
               destaques: ["Diagnóstico operacional completo", "Identificação de oportunidades de valor", "Roadmap de remediações prioritárias", "Documentação pronta para data room"],
               href: "#",
             },
-          ].map((v) => (
-            <div key={v.k} className="reveal border-b border-lp-border py-14 lg:py-20">
-              <div className="grid lg:grid-cols-[120px_1fr] gap-6 lg:gap-12">
-                <span className="font-display text-[20px] text-lp-ink-4">{v.k}</span>
+            ].map((v) => (
+              <Link key={v.k} href={v.href} className="reveal group block bg-lp-fog border border-lp-border rounded-lg p-8 transition-all hover:border-lp-border-strong hover:shadow-sm">
+                <span className="inline-block font-display text-[16px] text-lp-accent font-medium mb-4">{v.k}</span>
+                <h3 className="font-display tracking-tight text-lp-ink mb-2" style={{ fontSize: "clamp(22px, 2.5vw, 28px)", lineHeight: 1.1 }}>
+                  {v.titulo}
+                </h3>
+                <p className="text-[13px] text-lp-ink-3 uppercase tracking-widest mb-4">{v.subtitulo}</p>
+                <p className="text-[15px] text-lp-ink-2 leading-relaxed mb-6">
+                  {v.descricao}
+                </p>
+                <ul className="space-y-2">
+                  {v.destaques.map((d) => (
+                    <li key={d} className="flex items-start gap-2.5 text-[13.5px] text-lp-ink-2">
+                      <span className="flex-shrink-0 mt-0.5 text-[11px] font-bold" style={{ color: "#8C6F45" }}>✓</span>
+                      {d}
+                    </li>
+                  ))}
+                </ul>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Módulos (linhas editoriais) ──────────────────────────────────── */}
+      <section className="border-t border-lp-border">
+        <div className="max-w-[1180px] mx-auto px-6">
+          <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 pt-16">módulos em destaque</p>
+          {modulos.map((m) => (
+            <Link key={m.k} href={m.href} className="reveal group block border-b border-lp-border py-14 lg:py-20 transition-colors hover:bg-lp-fog/60">
+              <div className="grid lg:grid-cols-[120px_1fr_auto] gap-6 lg:gap-12 items-baseline">
+                <span className="font-display text-[20px] text-lp-ink-4">{m.k}</span>
                 <div>
-                  <h3 className="font-display tracking-tight text-lp-ink mb-2" style={{ fontSize: "clamp(28px, 3.6vw, 44px)", lineHeight: 1.08 }}>
-                    {v.titulo}
-                  </h3>
-                  <p className="text-[13px] text-lp-ink-3 uppercase tracking-widest mb-4">{v.subtitulo}</p>
-                  <p className="text-[16px] text-lp-ink-2 leading-relaxed max-w-[640px] mb-6">
-                    {v.descricao}
-                  </p>
-                  <ul className="grid sm:grid-cols-2 gap-3 mb-6">
-                    {v.destaques.map((d) => (
-                      <li key={d} className="flex items-start gap-2.5 text-[14px] text-lp-ink-2">
-                        <span className="flex-shrink-0 mt-0.5 text-[12px] font-bold" style={{ color: "#8C6F45" }}>✓</span>
-                        {d}
-                      </li>
-                    ))}
-                  </ul>
+                  <h3 className="font-display tracking-tight text-lp-ink mb-4" style={{ fontSize: "clamp(28px, 3.6vw, 44px)", lineHeight: 1.08 }}>{m.t}</h3>
+                  <p className="text-[16px] text-lp-ink-2 leading-relaxed max-w-[640px]">{m.d}</p>
                 </div>
+                <span className="inline-flex items-center gap-2 text-[14px] font-medium" style={{ color: "#8C6F45" }}>
+                  Conhecer
+                  <span aria-hidden className="transition-transform group-hover:translate-x-1.5">→</span>
+                </span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
