@@ -96,7 +96,13 @@ export interface PrestadorDeEntidade {
   veiculo_nome: string
   veiculo_tipo: VeiculoTipo
   veiculo_categoria: string | null
+  veiculo_situacao: string | null
   papel: PrestadorPapel
+}
+
+const SITUACOES_ENCERRADAS = new Set(['CANCELADA', 'LIQUIDADA', 'ENCERRADA', 'CANCELADO', 'LIQUIDADO', 'ENCERRADO'])
+export function veiculoEncerrado(situacao: string | null): boolean {
+  return !!situacao && SITUACOES_ENCERRADAS.has(situacao.toUpperCase())
 }
 
 // Perfil derivado (a "tese de atuação") de uma entidade, a partir dos veículos

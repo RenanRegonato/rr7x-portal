@@ -109,7 +109,7 @@ export async function getVeiculosDaEntidade(entidadeId: string, limit = 500): Pr
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('mercado_veiculo_prestadores')
-    .select('papel, veiculo:mercado_veiculos!inner(id, nome, tipo, categoria_cvm, redistribuivel)')
+    .select('papel, veiculo:mercado_veiculos!inner(id, nome, tipo, categoria_cvm, situacao, redistribuivel)')
     .eq('entidade_id', entidadeId)
     .eq('ativo', true)
     .limit(limit)
@@ -117,7 +117,7 @@ export async function getVeiculosDaEntidade(entidadeId: string, limit = 500): Pr
     console.error('[mapa-mercado] getVeiculosDaEntidade erro:', error.message)
     return []
   }
-  type Row = { papel: string; veiculo: { id: string; nome: string; tipo: string; categoria_cvm: string | null; redistribuivel: boolean } | null }
+  type Row = { papel: string; veiculo: { id: string; nome: string; tipo: string; categoria_cvm: string | null; situacao: string | null; redistribuivel: boolean } | null }
   return ((data ?? []) as unknown as Row[])
     .filter(r => r.veiculo && r.veiculo.redistribuivel)
     .map(r => ({
@@ -125,6 +125,7 @@ export async function getVeiculosDaEntidade(entidadeId: string, limit = 500): Pr
       veiculo_nome:      r.veiculo!.nome,
       veiculo_tipo:      r.veiculo!.tipo as PrestadorDeEntidade['veiculo_tipo'],
       veiculo_categoria: r.veiculo!.categoria_cvm,
+      veiculo_situacao:  r.veiculo!.situacao,
       papel:             r.papel as PrestadorDeEntidade['papel'],
     }))
 }

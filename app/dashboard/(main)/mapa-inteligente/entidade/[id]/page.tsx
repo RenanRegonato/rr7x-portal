@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { getEntidade, getVeiculosDaEntidade, contarVeiculosDaEntidade, getConexoes, getMetricas, montarPerfil } from '@/lib/mapa-mercado/queries'
-import { TIPO_LABEL, PAPEL_LABEL, CONEXAO_LABEL, type EntidadeTipo } from '@/lib/mapa-mercado/types'
+import { TIPO_LABEL, PAPEL_LABEL, CONEXAO_LABEL, veiculoEncerrado, type EntidadeTipo } from '@/lib/mapa-mercado/types'
 import { IconArrowLeft, IconArrowRight, IconHandshake } from '@/components/Icons'
 import NotaMercado from '../../_components/NotaMercado'
 
@@ -37,6 +37,8 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
   ])
 
   const nome = entidade.nome_fantasia || entidade.razao_social
+  const veiculosAtivos    = veiculos.filter(v => !veiculoEncerrado(v.veiculo_situacao))
+  const veiculosEncerrados = veiculos.filter(v => veiculoEncerrado(v.veiculo_situacao))
   const perfil = montarPerfil(totalVeiculos, veiculos)
   // Último valor por métrica financeira (BCB)
   const FIN_ORDEM: { k: string; label: string }[] = [
@@ -182,31 +184,65 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Veículos */}
-        <section className="bg-surface border border-border rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-ink mb-3">
+        <section className="bg-surface border border-border rounded-xl p-5 space-y-5">
+          <h2 className="text-sm font-semibold text-ink">
             Veículos ({totalVeiculos.toLocaleString('pt-BR')}{totalVeiculos > veiculos.length ? ` · mostrando ${veiculos.length}` : ''})
           </h2>
           {veiculos.length === 0 ? (
             <p className="text-ink-3 text-sm">Nenhum veículo vinculado.</p>
           ) : (
-            <ul className="divide-y divide-border">
-              {veiculos.slice(0, 40).map(v => (
-                <li key={`${v.veiculo_id}-${v.papel}`}>
-                  <Link
-                    href={`/dashboard/mapa-inteligente/veiculo/${v.veiculo_id}`}
-                    className="py-2 flex items-center gap-3 hover:bg-surface-hover rounded-lg px-1 transition"
-                  >
-                    <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-2 text-ink-2 border border-border flex-none">{v.veiculo_tipo}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm text-ink truncate">{v.veiculo_nome}</div>
-                      {v.veiculo_categoria && <div className="text-[11px] text-ink-3 truncate">{v.veiculo_categoria}</div>}
-                    </div>
-                    <span className="text-xs text-ink-3 flex-none">{PAPEL_LABEL[v.papel] ?? v.papel}</span>
-                    <IconArrowRight size={12}/>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <>
+              {veiculosAtivos.length > 0 && (
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-3 mb-2">
+                    Ativos ({veiculosAtivos.length})
+                  </div>
+                  <ul className="divide-y divide-border">
+                    {veiculosAtivos.slice(0, 40).map(v => (
+                      <li key={`${v.veiculo_id}-${v.papel}`}>
+                        <Link
+                          href={`/dashboard/mapa-inteligente/veiculo/${v.veiculo_id}`}
+                          className="py-2 flex items-center gap-3 hover:bg-surface-hover rounded-lg px-1 transition"
+                        >
+                          <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-2 text-ink-2 border border-border flex-none">{v.veiculo_tipo}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm text-ink truncate">{v.veiculo_nome}</div>
+                            {v.veiculo_categoria && <div className="text-[11px] text-ink-3 truncate">{v.veiculo_categoria}</div>}
+                          </div>
+                          <span className="text-xs text-ink-3 flex-none">{PAPEL_LABEL[v.papel] ?? v.papel}</span>
+                          <IconArrowRight size={12}/>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {veiculosEncerrados.length > 0 && (
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-3 mb-2">
+                    Histórico — encerrados ({veiculosEncerrados.length})
+                  </div>
+                  <ul className="divide-y divide-border opacity-60">
+                    {veiculosEncerrados.slice(0, 20).map(v => (
+                      <li key={`${v.veiculo_id}-${v.papel}`}>
+                        <Link
+                          href={`/dashboard/mapa-inteligente/veiculo/${v.veiculo_id}`}
+                          className="py-2 flex items-center gap-3 hover:bg-surface-hover rounded-lg px-1 transition"
+                        >
+                          <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-2 text-ink-2 border border-border flex-none">{v.veiculo_tipo}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm text-ink truncate line-through">{v.veiculo_nome}</div>
+                            {v.veiculo_situacao && <div className="text-[11px] text-ink-3 truncate">{v.veiculo_situacao}</div>}
+                          </div>
+                          <span className="text-xs text-ink-3 flex-none">{PAPEL_LABEL[v.papel] ?? v.papel}</span>
+                          <IconArrowRight size={12}/>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
           )}
         </section>
 
