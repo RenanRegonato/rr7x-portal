@@ -30,7 +30,7 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
   if (!entidade) notFound()
 
   const [veiculos, totalVeiculos, conexoes, metricas] = await Promise.all([
-    getVeiculosDaEntidade(id, 500),
+    getVeiculosDaEntidade(id),
     contarVeiculosDaEntidade(id),
     getConexoes(id),
     getMetricas(id),
@@ -186,7 +186,7 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
         {/* Veículos */}
         <section className="bg-surface border border-border rounded-xl p-5 space-y-5">
           <h2 className="text-sm font-semibold text-ink">
-            Veículos ({totalVeiculos.toLocaleString('pt-BR')}{totalVeiculos > veiculos.length ? ` · mostrando ${veiculos.length}` : ''})
+            Veículos ({totalVeiculos.toLocaleString('pt-BR')})
           </h2>
           {veiculos.length === 0 ? (
             <p className="text-ink-3 text-sm">Nenhum veículo vinculado.</p>
@@ -198,7 +198,7 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
                     Ativos ({veiculosAtivos.length})
                   </div>
                   <ul className="divide-y divide-border">
-                    {veiculosAtivos.slice(0, 40).map(v => (
+                    {veiculosAtivos.slice(0, 100).map(v => (
                       <li key={`${v.veiculo_id}-${v.papel}`}>
                         <Link
                           href={`/dashboard/mapa-inteligente/veiculo/${v.veiculo_id}`}
@@ -223,7 +223,7 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
                     Histórico — encerrados ({veiculosEncerrados.length})
                   </div>
                   <ul className="divide-y divide-border opacity-60">
-                    {veiculosEncerrados.slice(0, 20).map(v => (
+                    {veiculosEncerrados.slice(0, 50).map(v => (
                       <li key={`${v.veiculo_id}-${v.papel}`}>
                         <Link
                           href={`/dashboard/mapa-inteligente/veiculo/${v.veiculo_id}`}

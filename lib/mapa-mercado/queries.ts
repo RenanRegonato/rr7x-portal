@@ -105,7 +105,10 @@ export async function getEntidade(id: string): Promise<Entidade | null> {
 // Veículos em que a entidade atua (com o papel exercido) — base do perfil.
 // Capado (default 500) para entidades com muitíssimos veículos (ex.: grandes
 // administradores). O total real vem de contarVeiculosDaEntidade.
-export async function getVeiculosDaEntidade(entidadeId: string, limit = 500): Promise<PrestadorDeEntidade[]> {
+export async function getVeiculosDaEntidade(
+  entidadeId: string,
+  limit = 2000,
+): Promise<PrestadorDeEntidade[]> {
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('mercado_veiculo_prestadores')
