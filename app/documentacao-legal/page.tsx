@@ -49,217 +49,231 @@ export default function DocumentacaoLegalPage() {
         <div className="space-y-12">
 
           <T num="1" title="Os 4 Pilares de Confiança">
-            <p>O Mandor opera com segurança, responsabilidade, conformidade e transparência como fundações não negociáveis.</p>
+            <p>
+              O Mandor opera com segurança, responsabilidade, conformidade e transparência como fundações não negociáveis.
+            </p>
 
-            <Ts title="🔐 Segurança">
+            <Ts title="Segurança">
               <ul>
-                <li><strong>AES-256</strong> criptografia (dados em repouso)</li>
-                <li><strong>TLS 1.3</strong> criptografia (dados em trânsito)</li>
-                <li><strong>Supabase</strong> infrastructure (uptime 99.9%)</li>
-                <li>Backup automático diário + failover multi-region</li>
-                <li>Acesso isolado por cliente — nem a equipe Mandor vê seus dados sem autorização</li>
+                <li>Criptografia AES-256 para dados em repouso;</li>
+                <li>Criptografia TLS 1.3 para dados em trânsito;</li>
+                <li>Infraestrutura Supabase com uptime 99.9%;</li>
+                <li>Backup automático diário com failover multi-region;</li>
+                <li>Acesso isolado por cliente. A equipe Mandor não acessa seus dados sem autorização.</li>
               </ul>
             </Ts>
 
-            <Ts title="⚖️ Responsabilidade">
+            <Ts title="Responsabilidade">
               <ul>
-                <li>Parecer com <strong>4 camadas de validação</strong> (IA + automático + human + auditoria)</li>
-                <li>Limite de responsabilidade claro e documentado em contrato</li>
-                <li><strong>Professional Liability Insurance</strong> de R$ 5M para clientes Enterprise</li>
-                <li>Especialista humano valida parecer antes de entregar (Enterprise)</li>
-                <li>Trilha de auditoria completa: quem fez, quando, como e por quê</li>
+                <li>Parecer submetido a 4 camadas de validação: análise IA, validação automática, revisão humana (Enterprise) e auditoria;</li>
+                <li>Limite de responsabilidade claro e documentado em contrato;</li>
+                <li>Professional Liability Insurance de R$ 5 milhões para clientes Enterprise;</li>
+                <li>Especialista humano valida parecer antes da entrega em planos Enterprise;</li>
+                <li>Trilha de auditoria completa acessível ao cliente.</li>
               </ul>
             </Ts>
 
-            <Ts title="🏛️ Conformidade">
+            <Ts title="Conformidade">
               <ul>
-                <li>✅ <strong>LGPD compliant</strong> (Brasil) — auditado</li>
-                <li>✅ <strong>GDPR ready</strong> (EU) — em compliance</li>
-                <li>🔄 <strong>SOC 2 Type II</strong> (em audit, Q3 2026)</li>
-                <li>🔄 <strong>ISO 27001</strong> (em audit, Q4 2026)</li>
+                <li>Conformidade com LGPD (Brasil) — auditada;</li>
+                <li>Conformidade com GDPR (UE);</li>
+                <li>Certificação SOC 2 Type II em auditoria (prevista Q3 2026);</li>
+                <li>Certificação ISO 27001 em auditoria (prevista Q4 2026).</li>
               </ul>
             </Ts>
 
-            <Ts title="📝 Transparência">
+            <Ts title="Transparência">
               <ul>
-                <li>Cada parecer documenta qual agente fez o quê</li>
-                <li>Trilha de auditoria acessível: quem, quando, como</li>
-                <li>Source de cada afirmação marcado (documento + página + seção)</li>
-                <li>Sempre dizemos "não encontrado" se falta informação — sem omissões silenciosas</li>
+                <li>Cada parecer documenta quais agentes processaram cada seção;</li>
+                <li>Trilha de auditoria completa com registro de quem, quando e como;</li>
+                <li>Source de cada informação rastreável até documento, página e seção original;</li>
+                <li>Parecer sempre registra quando informação não foi encontrada nos documentos fornecidos.</li>
               </ul>
             </Ts>
           </T>
 
-          <T num="2" title="O Que é Mandor (e O Que Não é)">
-            <p>Entenda exatamente as capacidades e limitações da plataforma.</p>
+          <T num="2" title="O Que é Mandor">
+            <p>
+              O Mandor é uma ferramenta de análise operacional para M&A, crédito estruturado e preparação de ativos, utilizando inteligência artificial especializada em análise financeira, jurídica e tributária.
+            </p>
+            <p>
+              Mandor oferece:
+            </p>
+            <ul>
+              <li>Análise diagnóstica baseada em documentos fornecidos pelo cliente;</li>
+              <li>Aceleração de decisão (análise em até 90 minutos no lugar de semanas);</li>
+              <li>Identificação de riscos e oportunidades;</li>
+              <li>Geração de documentos institucionais (teaser, pitchbook, relatórios);</li>
+              <li>Plataforma de matching de investidores (Invest Match);</li>
+              <li>Mapeamento inteligente do mercado.</li>
+            </ul>
+          </T>
 
-            <Ts title="✅ MANDOR É:">
-              <ul>
-                <li>Ferramenta de análise operacional (M&A, crédito, diagnóstico)</li>
-                <li>IA especializada em financeiro, jurídico e tributário</li>
-                <li>Acelerador de decisão (reduz semanas a 90 minutos)</li>
-                <li>Identificadora de riscos e oportunidades</li>
-                <li>Geradora de documentos de captação (teasers, pitchbooks)</li>
-                <li>Plataforma de matching de investidores</li>
-                <li>Mapeamento inteligente de mercado</li>
-                <li>Parecer com trilha de auditoria completa</li>
-              </ul>
-            </Ts>
-
-            <Ts title="❌ MANDOR NÃO É:">
-              <ul>
-                <li>Parecer jurídico (você precisa de advogado)</li>
-                <li>Parecer fiscal/tributário (você precisa validar com contador)</li>
-                <li>Auditoria ou diligência completa</li>
-                <li>Garantia de sucesso operacional</li>
-                <li>Recomendação de investimento regulada</li>
-                <li>Conselheiro de M&A ou investimento</li>
-                <li>Substituto de especialista humano</li>
-                <li>Certificação de viabilidade</li>
-              </ul>
-            </Ts>
-
-            <p className="text-[14px] text-lp-ink-2 leading-relaxed bg-lp-fog p-4 rounded-[12px] border border-lp-border">
-              <strong>Responsabilidade do Cliente:</strong> Parecer Mandor é opinião técnica baseada em documentos fornecidos. Você é responsável por validar parecer com especialista apropriado (advogado, contador, especialista de setor) antes de tomar qualquer decisão.
+          <T num="3" title="O Que Mandor Não é">
+            <p>
+              É importante compreender as limitações e o escopo do parecer Mandor:
+            </p>
+            <ul>
+              <li>Mandor não fornece parecer jurídico. Parecer jurídico deve ser obtido com advogado especializado;</li>
+              <li>Mandor não fornece parecer fiscal ou tributário. Parecer fiscal deve ser obtido com contador ou especialista tributário;</li>
+              <li>Mandor não substitui auditoria ou diligência completa. Parecer é diagnóstico acelerado, não substitui especialista;</li>
+              <li>Mandor não garante sucesso operacional. Transação pode não fechar mesmo com parecer positivo;</li>
+              <li>Mandor não fornece recomendação de investimento conforme regulação CVM.</li>
+            </ul>
+            <p>
+              O cliente é responsável por validar o parecer Mandor com especialista apropriado (advogado, contador, especialista de setor) antes de tomar qualquer decisão com implicações legais, fiscais ou financeiras.
             </p>
           </T>
 
-          <T num="3" title="Como Protegemos Seus Dados">
-            <Ts title="Isolamento de Dados">
-              <p>Seu escritório vê apenas suas operações. Dados de outro cliente <strong>nunca</strong> vão para você. Cada cliente tem chave de acesso única e isolada no banco de dados.</p>
+          <T num="4" title="Proteção de Dados">
+            <Ts title="Isolamento">
+              <p>
+                Seu escritório acessa apenas suas próprias operações e documentos. Dados de outro cliente nunca são visíveis. Cada cliente possui chave de acesso única isolada no banco de dados.
+              </p>
             </Ts>
 
             <Ts title="Criptografia">
-              <p>Dados são criptografados com <strong>AES-256</strong> em repouso. Backups são automaticamente criptografados. Chaves são rotacionadas a cada 90 dias.</p>
+              <p>
+                Dados pessoais e documentos de clientes são criptografados com AES-256 em repouso. Backups são criptografados. Chaves de criptografia são rotacionadas a cada 90 dias.
+              </p>
             </Ts>
 
-            <Ts title="Retenção de Dados">
+            <Ts title="Retenção">
+              <p>
+                Documentos enviados para análise são retidos por 12 meses, após o qual são deletados. Logs operacionais são retidos por 90 dias, depois anonimizados. Parecer é retido indefinidamente como propriedade do cliente.
+              </p>
+            </Ts>
+
+            <Ts title="Confidencialidade">
+              <p>
+                Documentos e dados do cliente são tratados como confidenciais. Nenhum compartilhamento com terceiros sem consentimento explícito do cliente. Conformidade com LGPD e GDPR é obrigatória em todos os aspectos.
+              </p>
+            </Ts>
+
+            <Ts title="Direitos (clientes EU)">
               <ul>
-                <li><strong>Documentos:</strong> retidos 12 meses (depois deletado)</li>
-                <li><strong>Logs operacionais:</strong> retidos 90 dias (depois anonimizados)</li>
-                <li><strong>Parecer:</strong> retido indefinidamente (é sua propriedade)</li>
+                <li>Direito de acesso: exporte seus dados a qualquer momento via painel;</li>
+                <li>Direito à exclusão: delete sua conta e dados armazenados. Parecer permanece sua propriedade;</li>
+                <li>Direito à portabilidade: receba dados em formato estruturado (JSON/CSV);</li>
+                <li>Data Processing Agreement (DPA) em vigor com Standard Contractual Clauses para transferência internacional.</li>
+              </ul>
+            </Ts>
+          </T>
+
+          <T num="5" title="Responsabilidade">
+            <Ts title="Mandor é responsável por">
+              <ul>
+                <li>Análise competente baseada em documentos fornecidos pelo cliente;</li>
+                <li>Validação de consistência em 4 camadas (IA, automática, humana, auditoria);</li>
+                <li>Parecer completo e rastreável com trilha de auditoria;</li>
+                <li>Suporte ao cliente conforme SLA contratado;</li>
+                <li>Segurança e privacidade dos dados do cliente.</li>
               </ul>
             </Ts>
 
-            <Ts title="Direitos GDPR (Clientes EU)">
+            <Ts title="Mandor não é responsável por">
               <ul>
-                <li><strong>Direito ao acesso:</strong> exporte seus dados a qualquer momento</li>
-                <li><strong>Direito à exclusão:</strong> delete sua conta e dados (parecer permanece como seu)</li>
-                <li><strong>Direito à portabilidade:</strong> receba dados em formato estruturado</li>
-                <li><strong>DPA em vigor:</strong> Standard Contractual Clauses com Supabase e processadores</li>
+                <li>Documentação incompleta, imprecisa ou falsificada fornecida pelo cliente;</li>
+                <li>Decisão do cliente de prosseguir ou não com a operação;</li>
+                <li>Resultado operacional (fechamento ou não da transação);</li>
+                <li>Ações de terceiros baseadas em parecer Mandor;</li>
+                <li>Lucros cessantes ou danos indiretos, especiais ou punitivos.</li>
               </ul>
             </Ts>
 
-            <p className="text-[14px] text-lp-ink-2 leading-relaxed bg-lp-fog p-4 rounded-[12px] border border-lp-border">
-              <strong>Confidencialidade:</strong> Mandor trata documentos do cliente como confidencial. Nenhum compartilhamento com terceiros sem consentimento explícito. Conformidade LGPD + GDPR em todos os aspectos.
+            <Ts title="Limite de responsabilidade — Planos Essential/Professional">
+              <p>
+                Responsabilidade total capped em R$ 0 (zero). Parecer é fornecido "AS IS". Cliente assume integral responsabilidade por validar parecer com especialista antes de usar em operação.
+              </p>
+            </Ts>
+
+            <Ts title="Limite de responsabilidade — Plano Enterprise">
+              <p>
+                Responsabilidade total capped no valor coberto por Professional Liability Insurance (R$ 5.000.000).
+              </p>
+              <ul>
+                <li>Cobertura aplica-se a erro crítico comprovado em parecer Mandor (omissão de risco material identificável nos documentos);</li>
+                <li>Não cobre negligência do cliente, uso fora do escopo contratado ou cliente que escolhe não seguir recomendação Mandor;</li>
+                <li>Reclamação deve ser feita dentro de 30 dias da entrega do parecer;</li>
+                <li>Certificado de seguro entregue junto ao contrato Enterprise.</li>
+              </ul>
+            </Ts>
+          </T>
+
+          <T num="6" title="Validação Enterprise">
+            <p>
+              Parecer Enterprise passa por validação humana em adição à análise IA.
             </p>
-          </T>
-
-          <T num="4" title="Responsabilidade & Limitações">
-            <Ts title="✓ Mandor É Responsável Por:">
-              <ul>
-                <li>Análise competente baseada em documentos fornecidos</li>
-                <li>Validação de consistência em 4 camadas</li>
-                <li>Parecer completo com trilha de auditoria</li>
-                <li>Suporte ao cliente conforme SLA contratado</li>
-                <li>Segurança e privacidade dos seus dados</li>
-              </ul>
-            </Ts>
-
-            <Ts title="✗ Mandor NÃO É Responsável Por:">
-              <ul>
-                <li>Documentação incompleta ou imprecisa fornecida por você</li>
-                <li>Sua decisão de avançar ou não com a operação</li>
-                <li>Resultado da operação (fechar ou não)</li>
-                <li>Ações de terceiros baseadas em parecer Mandor</li>
-                <li>Lucros cessantes, danos indiretos ou punitivos</li>
-                <li>Validação que você não fez com especialista apropriado</li>
-              </ul>
-            </Ts>
-
-            <Ts title="Essential / Professional">
-              <p>Responsabilidade <strong>capped at R$ 0 (zero)</strong>. Parecer fornecido "AS IS". Você é integralmente responsável por validar parecer com especialista antes de usar.</p>
-            </Ts>
-
-            <Ts title="Enterprise">
-              <p>Responsabilidade <strong>capped at Professional Liability Insurance (R$ 5.000.000)</strong>.</p>
-              <ul>
-                <li><strong>Cobre:</strong> Erro crítico comprovado em parecer Mandor (risco material omitido)</li>
-                <li><strong>Não cobre:</strong> Negligência do cliente, uso fora escopo, cliente ignorar recomendação</li>
-                <li><strong>Prazo:</strong> Reclamação deve ser feita dentro 30 dias da entrega parecer</li>
-                <li><strong>Prova:</strong> Certificado de seguro entregue com contrato</li>
-              </ul>
-            </Ts>
-          </T>
-
-          <T num="5" title="Validação & Assurance (Enterprise)">
-            <p>Clientes Enterprise recebem parecer validado por especialista humano, em adição à análise de IA.</p>
 
             <Ts title="4 Camadas de Validação">
               <ol style={{ listStyleType: "decimal", paddingLeft: "1.25rem", lineHeight: "1.7" }}>
-                <li><strong>Análise de IA</strong> — 10 agentes especializados processam em paralelo</li>
-                <li><strong>Validação automática</strong> — checagem de consistência e completude</li>
-                <li><strong>Review humano</strong> — especialista valida análise IA</li>
-                <li><strong>Auditoria</strong> — trilha completa de quem fez o quê e quando</li>
+                <li>Análise IA: 10 agentes especializados processam documento em paralelo;</li>
+                <li>Validação automática: checagem de consistência interna e completude;</li>
+                <li>Revisão humana: especialista qualificado revisa análise IA e marca concordância ou ajustes;</li>
+                <li>Auditoria: log completo de quem processou, quando e como.</li>
               </ol>
             </Ts>
 
-            <Ts title="Responsabilidade do Especialista Validador">
-              <p>Especialista humano que valida o parecer é responsável por revisar análise IA, marcar concordância ou ajustes necessários, e assinar parecer conforme protocolo Mandor. Seu nome e credencial aparecem no parecer.</p>
+            <Ts title="Especialista Validador">
+              <p>
+                Especialista que valida o parecer é responsável por revisar análise IA, marcar pontos de concordância ou ajuste necessário, e assinar parecer conforme protocolo Mandor. Nome e credencial do especialista aparecem no parecer.
+              </p>
             </Ts>
           </T>
 
-          <T num="6" title="Perguntas Frequentes">
+          <T num="7" title="Perguntas Frequentes">
             <FaqItem
               pergunta="Meus dados são vistos pela equipe Mandor?"
-              resposta="Não. Dados são isolados por cliente no banco de dados. A equipe Mandor pode acessar apenas se você solicitar suporte direto para troubleshooting, e todo acesso é loggado e auditado."
+              resposta="Não. Dados estão isolados por cliente no banco de dados. Equipe Mandor acessa apenas se você requisitar suporte técnico direto para troubleshooting, e todo acesso é registrado em log."
             />
 
             <FaqItem
               pergunta="Posso deletar meus dados?"
-              resposta="Sim. Você pode requisitar exclusão de sua conta e dados armazenados. O parecer que você recebeu fica em seu poder (é sua propriedade intelectual)."
+              resposta="Sim. Você pode requisitar exclusão de sua conta e dados armazenados via contato. Parecer que você recebeu permanece sua propriedade intelectual e não é deletado."
             />
 
             <FaqItem
-              pergunta="Qual é a cobertura de seguro?"
-              resposta="Professional Indemnity Insurance de R$ 5.000.000 para clientes Enterprise. Cobre erros críticos comprovados em parecer Mandor. Não cobre negligência do cliente ou uso fora do escopo contratado."
+              pergunta="Qual é a cobertura do seguro?"
+              resposta="Professional Indemnity Insurance de R$ 5 milhões para clientes Enterprise. Cobre erro crítico comprovado em parecer. Não cobre negligência do cliente ou uso fora de escopo."
             />
 
             <FaqItem
-              pergunta="Vocês vendem meus dados?"
-              resposta="Nunca. Dados são confidenciais por padrão. Não compartilhamos com terceiros. Conformidade LGPD + GDPR é obrigatória."
+              pergunta="Vocês vendem ou compartilham meus dados?"
+              resposta="Nunca. Dados são confidenciais. Nenhum compartilhamento com terceiros sem consentimento explícito. Conformidade com LGPD e GDPR é obrigatória."
             />
 
             <FaqItem
-              pergunta="Qual é a política de retenção?"
-              resposta="Documentos: 12 meses. Logs operacionais: 90 dias. Parecer: indefinido (é sua propriedade). Você pode requisitar exclusão a qualquer momento."
+              pergunta="Qual é a política de retenção de dados?"
+              resposta="Documentos são retidos por 12 meses após análise, depois deletados. Logs são retidos por 90 dias, depois anonimizados. Parecer é retido indefinidamente como sua propriedade."
             />
 
             <FaqItem
-              pergunta="Como validam que parecer está correto?"
-              resposta="4 camadas: (1) Análise IA por 10 agentes paralelos, (2) Validação automática de consistência, (3) Human review (Enterprise), (4) Auditoria completa. Cada passo é rastreável."
+              pergunta="Como validam que o parecer está correto?"
+              resposta="Parecer passa por 4 camadas: análise IA (10 agentes), validação automática, revisão humana (Enterprise), auditoria. Cada passo é rastreável."
             />
 
             <FaqItem
               pergunta="O parecer Mandor é parecer jurídico?"
-              resposta="Não. Parecer Mandor é opinião técnica e análise diagnóstica. Você deve validar com advogado, contador e especialista de setor antes de tomar qualquer decisão com implicações legais, fiscais ou financeiras."
+              resposta="Não. Parecer Mandor é análise técnica e diagnóstico. Você deve validar com advogado, contador e especialista antes de qualquer decisão com implicações legais, fiscais ou financeiras."
             />
 
             <FaqItem
-              pergunta="Vocês avalizam o sucesso da operação?"
-              resposta="Não. Parecer Mandor recomenda ação (vai/não vai) com base em documentos, mas não garante resultado operacional. Operação pode não fechar mesmo com parecer positivo, e isso é risco do mercado, não de Mandor."
+              pergunta="Vocês garantem sucesso da operação?"
+              resposta="Não. Parecer Mandor recomenda prosseguir ou não com base em documentos, mas não garante resultado operacional. Transação pode não fechar mesmo com parecer positivo."
             />
           </T>
 
-          <T num="7" title="Contato e Reportes">
-            <p>Para dúvidas ou problemas, entre em contato através dos canais apropriados:</p>
+          <T num="8" title="Contato">
+            <p>
+              Para dúvidas, problemas ou reportes:
+            </p>
             <ul>
-              <li><strong>Erro no parecer:</strong> <a href="mailto:legal@mandor.com.br" className="text-lp-accent hover:underline">legal@mandor.com.br</a></li>
-              <li><strong>Risco de segurança:</strong> <a href="mailto:security@mandor.com.br" className="text-lp-accent hover:underline">security@mandor.com.br</a> (confidencial)</li>
-              <li><strong>Compliance:</strong> <a href="mailto:compliance@mandor.com.br" className="text-lp-accent hover:underline">compliance@mandor.com.br</a></li>
+              <li>Erro no parecer: <a href="mailto:legal@mandor.com.br" className="text-lp-accent hover:underline">legal@mandor.com.br</a></li>
+              <li>Risco de segurança: <a href="mailto:security@mandor.com.br" className="text-lp-accent hover:underline">security@mandor.com.br</a></li>
+              <li>Conformidade ou LGPD: <a href="mailto:compliance@mandor.com.br" className="text-lp-accent hover:underline">compliance@mandor.com.br</a></li>
             </ul>
             <p className="text-[13px] text-lp-ink-3 mt-4">
-              <strong>SLA:</strong> Garantimos resposta nas próximas 24-48 horas para qualquer report. Última atualização: {LAST_UPDATED}.
+              Garantimos resposta dentro de 24-48 horas para qualquer report. Última atualização: {LAST_UPDATED}.
             </p>
           </T>
 
