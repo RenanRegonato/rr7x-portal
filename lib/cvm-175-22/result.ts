@@ -55,9 +55,10 @@ export interface CVMInput {
   cotaSeniorPct?:     number                        // % sênior (soma com mez+sub deve ser 100)
   cotaMezaninoPct?:   number                        // % mezanino
   cotaSubordinadaPct?: number                       // % subordinada
-  revolvenciaCra?:    string                        // com_revolvencia | sem_revolvencia
-  atividadeDevedor?:  string
-  segmentoCra?:       string
+  revolvenciaCra?:         string    // com_revolvencia | sem_revolvencia
+  criteriosUnderwriting?:  string    // obrigatório quando com_revolvencia
+  atividadeDevedor?:       string
+  segmentoCra?:            string
 }
 
 export const CVM_175_22_PENDING_NOTE =

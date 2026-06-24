@@ -61,6 +61,7 @@ export const AnaliseCreateSchema = z.object({
   // Classificação ANBIMA — CRA (Certificados de Recebíveis do Agronegócio) — opcionais.
   atividadeDevedor:           z.enum(['cooperativa', 'produtor_rural', 'terceiro_fornecedor', 'terceiro_comprador', '']).optional(),
   revolvencia:                z.enum(['com_revolvencia', 'sem_revolvencia', '']).optional(),
+  criteriosUnderwriting:      shortStr(2000).optional(),  // obrigatório quando revolvencia = com_revolvencia
   segmentoAgro:               z.enum(['graos', 'usina', 'logistica', 'hibrido', 'outro', '']).optional(),
   // linkDocumentos: REMOVIDO. Campo do antigo fluxo de Google Drive, não é mais
   // coletado. Como o schema não é .strict(), se um cliente com JS em cache antigo
@@ -111,6 +112,15 @@ export const AnaliseCreateSchema = z.object({
       code: z.ZodIssueCode.custom,
       path: ['cotaSeniorPct'],
       message: `A soma das cotas (${total}%) deve ser exatamente 100%. Ajuste os valores antes de continuar.`,
+    })
+  }
+
+  // CRA com revolvência: critérios de underwriting são obrigatórios.
+  if (data.revolvencia === 'com_revolvencia' && !data.criteriosUnderwriting?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['criteriosUnderwriting'],
+      message: 'Carteira com revolvência exige critérios de underwriting documentados. Descreva os critérios de admissão de novos créditos.',
     })
   }
 })

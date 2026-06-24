@@ -63,6 +63,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     cotaSubordinadaPct:      intake.cotaSubordinadaPct !== undefined && intake.cotaSubordinadaPct !== '' ? Number(intake.cotaSubordinadaPct) : undefined,
     // CRA
     revolvenciaCra:          intake.revolvencia || undefined,
+    criteriosUnderwriting:   intake.criteriosUnderwriting || undefined,
     atividadeDevedor:        intake.atividadeDevedor || undefined,
     segmentoCra:             intake.segmentoAgro || undefined,
   }

@@ -181,6 +181,41 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
 
     await maybeRunAgent('orchestration')
 
+    // FIDC NP (Não Padronizado): injeta contexto específico nos outputs para que
+    // KYC, Estruturação e Mesa saibam que estão avaliando carteira de recebíveis
+    // vencidos — regulação distinta, público restrito a investidores profissionais.
+    await step.run('fidc-np-gate', async () => {
+      const intake = (analise.deal_intake ?? {}) as Record<string, string>
+      if (intake.statusRecebivel !== 'vencido_nao_pago') return { skip: true }
+
+      const contexto =
+        '⚠️ FIDC NÃO PADRONIZADO (FIDC NP) — Regras Específicas CVM\n\n' +
+        'Esta estrutura contém recebíveis VENCIDOS E NÃO PAGOS. Isso a classifica como ' +
+        'FIDC Não Padronizado conforme Instrução CVM 356/01 (art. 40, §único) e Resolução CVM 175/22.\n\n' +
+        'Implicações obrigatórias a analisar:\n' +
+        '• Distribuição EXCLUSIVA a investidores profissionais (CVM 30/21, art. 11)\n' +
+        '• Subordinação mínima elevada: recomendada ≥ 40% (risco de inadimplência estrutural)\n' +
+        '• Análise de taxa de recuperação histórica do cedente é CRÍTICA\n' +
+        '• Política de precificação dos ativos inadimplentes deve ser auditável\n' +
+        '• Provisionamento: carteira deve ter reserva para devedores duvidosos (PCLD)\n' +
+        '• Agente de cobrança especializado em recuperação de crédito é obrigatório\n' +
+        '• Relatórios mensais de performance (taxa de recuperação, evolução do estoque NP) obrigatórios\n\n' +
+        'O Agente de Estruturação deve avaliar se a política de cobrança e recuperação está adequada. ' +
+        'O KYC deve verificar o histórico de recuperação do cedente. ' +
+        'A Mesa deve refletir a classificação FIDC NP no parecer final e no Invest Match.'
+
+      const current = await readOutputs(admin, analiseId)
+      await admin
+        .from('analises')
+        .update({
+          outputs: { ...current, contexto_fidc_np: contexto },
+          atualizado_em: new Date().toISOString(),
+        })
+        .eq('id', analiseId)
+
+      return { fidc_np: true }
+    })
+
     // Asset Preparation (opcional — roda se campos preenchidos)
     await step.run('asset-prep', async () => {
       return await runAssetPrep({ analiseId, step, logger })
@@ -254,6 +289,18 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
 
         const result = parseCVMResult(cvmRaw)
         if (!result) return { skipped: true, reason: 'parse_falhou' }
+
+        // Regra determinística: concentração > 20% sem subordinação ≥ 40% é FALHA
+        // independente do que o LLM reportou no score. ANBIMA e CVM 175/22 são explícitos.
+        const intake = (analise.deal_intake ?? {}) as Record<string, string>
+        const isConcentrado = intake.concentracaoCri === 'concentrado'
+        const subPct = Number(intake.cotaSubordinadaPct ?? 0) + Number(intake.cotaMezaninoPct ?? 0)
+        const subInsuficiente = isConcentrado && subPct < 40 && (intake.cotaSubordinadaPct !== undefined || intake.cotaMezaninoPct !== undefined)
+
+        if (subInsuficiente && !result.bloqueios.includes('Concentração > 20% sem subordinação mínima de 40%')) {
+          result.bloqueios.push('Concentração > 20% sem subordinação mínima de 40% — FALHA ANBIMA (regra determinística)')
+          result.elegibilidade_score = Math.min(result.elegibilidade_score, 35)
+        }
 
         const bloqueado = result.elegibilidade_score < 50 || result.bloqueios.length > 0
         if (!bloqueado) return { bloqueado: false, score: result.elegibilidade_score }

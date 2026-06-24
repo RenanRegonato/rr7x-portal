@@ -89,6 +89,7 @@ const FIELD_LABELS: Record<string, { label: string; step: number }> = {
   segmentoImobiliario:        { label: 'Segmento imobiliário',             step: 2 },
   atividadeDevedor:           { label: 'Atividade do devedor (CRA)',       step: 2 },
   revolvencia:                { label: 'Revolvência (CRA)',                step: 2 },
+  criteriosUnderwriting:      { label: 'Critérios de underwriting (CRA)',  step: 2 },
   segmentoAgro:               { label: 'Segmento agrícola',                step: 2 },
   estagio:               { label: 'Estágio atual',                step: 3 },
   localizacao:           { label: 'Localização (cidade/estado)',  step: 3 },
@@ -204,6 +205,7 @@ function NovaAnaliseInner() {
     // ── Classificação ANBIMA — CRA ──────────────────────────────────────────
     atividadeDevedor:          '',
     revolvencia:               '',
+    criteriosUnderwriting:     '',
     segmentoAgro:              '',
     // ── Proprietário ───────────────────────────────────────────────────────
     nomeProprietario:     searchParams.get('nomeProprietario') ?? '',
@@ -348,6 +350,9 @@ function NovaAnaliseInner() {
           const total = (parseFloat(form.cotaSeniorPct || '0') + parseFloat(form.cotaMezaninoPct || '0') + parseFloat(form.cotaSubordinadaPct || '0'))
           if (total !== 100) return `A soma das cotas (${total}%) deve ser exatamente 100% para prosseguir.`
         }
+      }
+      if (form.revolvencia === 'com_revolvencia' && !form.criteriosUnderwriting.trim()) {
+        return 'Carteiras com revolvência exigem critérios de underwriting documentados antes de prosseguir.'
       }
     }
     if (step === 3) {
@@ -1028,7 +1033,7 @@ function StepContent({
                     <option value="terceiro_comprador">Terceiro Comprador</option>
                   </OttoSelect>
                 </Field>
-                <Field label="Revolvência" help="Se a carteira permite novas admissões">
+                <Field label="Revolvência" help="Se a carteira permite novas admissões de novos créditos após emissão">
                   <OttoSelect value={form.revolvencia} onChange={e => set('revolvencia', e.target.value)}>
                     <option value="">Não informado</option>
                     <option value="com_revolvencia">Com revolvência</option>
@@ -1036,6 +1041,23 @@ function StepContent({
                   </OttoSelect>
                 </Field>
               </div>
+              {form.revolvencia === 'com_revolvencia' && (
+                <Field
+                  label="Critérios de underwriting / admissão *"
+                  help="Obrigatório para carteiras com revolvência — descreva os critérios mínimos para admissão de novos créditos (score mínimo, prazo máximo, concentração por devedor, etc.)"
+                >
+                  <textarea
+                    className="w-full rounded-[8px] border border-border bg-surface px-3 py-2 text-[13px] text-ink placeholder:text-ink-3 focus:outline-none focus:ring-1 focus:ring-accent resize-none"
+                    rows={3}
+                    value={form.criteriosUnderwriting}
+                    onChange={e => set('criteriosUnderwriting', e.target.value)}
+                    placeholder="Ex.: Score mínimo 650, prazo máximo 36 meses, concentração máx 5% por devedor, inadimplência > 60 dias implica exclusão da carteira..."
+                  />
+                  {!form.criteriosUnderwriting.trim() && (
+                    <p className="text-[11px] text-red-500 mt-1">Obrigatório para carteiras com revolvência.</p>
+                  )}
+                </Field>
+              )}
               <Field label="Segmento agrícola" help="Determina o ciclo e sazonalidade">
                 <OttoSelect value={form.segmentoAgro} onChange={e => set('segmentoAgro', e.target.value)}>
                   <option value="">Não informado</option>

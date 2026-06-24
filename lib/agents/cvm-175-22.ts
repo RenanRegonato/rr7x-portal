@@ -78,6 +78,11 @@ function buildUserPrompt(input: CVMInput): string {
 
   parts.push('\n## Classificação ANBIMA (CRA)')
   if (input.revolvenciaCra) parts.push(`- Revolvência: ${input.revolvenciaCra}`)
+  if (input.criteriosUnderwriting) {
+    parts.push(`- Critérios de underwriting declarados: ${input.criteriosUnderwriting}`)
+  } else if (input.revolvenciaCra === 'com_revolvencia') {
+    parts.push('- Critérios de underwriting: NÃO INFORMADOS (lacuna crítica para carteira revolvente)')
+  }
   if (input.atividadeDevedor) parts.push(`- Atividade do Devedor: ${input.atividadeDevedor}`)
   if (input.segmentoCra) parts.push(`- Segmento Agrícola: ${input.segmentoCra}`)
 

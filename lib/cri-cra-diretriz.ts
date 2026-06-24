@@ -125,11 +125,15 @@ function buildCRADiretriz(intake: Record<string, string> | DealIntake): CRADiret
 
   // Lógica de revolvência
   if (intake.revolvencia === 'com_revolvencia') {
+    const criterios = (intake as Record<string, string>).criteriosUnderwriting?.trim()
     cra.riscosElegibilidade?.push(
-      'Carteira com revolvência: permite novas admissões — exige gate de underwriting robusto'
+      criterios
+        ? `Carteira com revolvência — critérios de underwriting declarados: "${criterios}"`
+        : 'Carteira com revolvência SEM critérios de underwriting documentados — LACUNA CRÍTICA'
     )
     cra.alertasAnacomp?.push(
-      'Monitoramento mensal de composição da carteira obrigatório (cedente responsável)'
+      'Monitoramento mensal de composição da carteira obrigatório (cedente responsável)',
+      criterios ? 'Validar se critérios de underwriting declarados são suficientes para mitigar risco de deterioração da carteira' : 'EXIGIR critérios de underwriting antes de emissão'
     )
   } else if (intake.revolvencia === 'sem_revolvencia') {
     cra.riscosElegibilidade?.push(
