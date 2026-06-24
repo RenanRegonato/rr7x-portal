@@ -192,7 +192,10 @@ function NovaAnaliseInner() {
     estruturaCedenteSacado:    '',
     cedenteCotistaSubordinado: '',
     tipoOferta:                '',
-    estruturaCotas:            '',
+    estruturaCotas:            '',  // legado
+    cotaSeniorPct:             '',
+    cotaMezaninoPct:           '',
+    cotaSubordinadaPct:        '',
     serieEmissao:              '',
     // ── Classificação ANBIMA — CRI ──────────────────────────────────────────
     categoriaCri:              '',
@@ -902,12 +905,57 @@ function StepContent({
               </OttoSelect>
             </Field>
           </div>
-          <Field label="Estrutura de cotas / tranches" help="Distribuição sênior / mezanino / subordinada e índice de subordinação">
-            <OttoInput
-              value={form.estruturaCotas}
-              onChange={e => set('estruturaCotas', e.target.value)}
-              placeholder="Ex.: Sênior 80% / Mezanino 10% / Subordinada 10%"
-            />
+          <Field label="Estrutura de cotas / tranches" help="Distribuição por tranche — a soma deve ser exatamente 100%">
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-[11px] text-ink-3 mb-1">Sênior (%)</label>
+                  <OttoInput
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={form.cotaSeniorPct}
+                    onChange={e => set('cotaSeniorPct', e.target.value)}
+                    placeholder="Ex.: 80"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] text-ink-3 mb-1">Mezanino (%)</label>
+                  <OttoInput
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={form.cotaMezaninoPct}
+                    onChange={e => set('cotaMezaninoPct', e.target.value)}
+                    placeholder="Ex.: 10"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] text-ink-3 mb-1">Subordinada (%)</label>
+                  <OttoInput
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={form.cotaSubordinadaPct}
+                    onChange={e => set('cotaSubordinadaPct', e.target.value)}
+                    placeholder="Ex.: 10"
+                  />
+                </div>
+              </div>
+              {(() => {
+                const s = parseFloat(form.cotaSeniorPct || '0')
+                const m = parseFloat(form.cotaMezaninoPct || '0')
+                const sub = parseFloat(form.cotaSubordinadaPct || '0')
+                const total = s + m + sub
+                const algumPreenchido = form.cotaSeniorPct || form.cotaMezaninoPct || form.cotaSubordinadaPct
+                if (!algumPreenchido) return null
+                return (
+                  <p className={`text-[11px] font-medium ${total === 100 ? 'text-green-600' : 'text-red-500'}`}>
+                    {total === 100 ? '✓ Soma: 100%' : `Soma: ${total}% — deve ser exatamente 100%`}
+                  </p>
+                )
+              })()}
+            </div>
           </Field>
           <Field label="Série / emissão" help="Identificação da série ou emissão, se já definida">
             <OttoInput

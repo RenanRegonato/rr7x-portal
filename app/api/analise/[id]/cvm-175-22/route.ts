@@ -58,6 +58,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     segmentoCri:             intake.segmentoImobiliario || undefined,
     cedenteCotistaSubordinado: intake.cedenteCotistaSubordinado || undefined,
     estruturaCotas:          intake.estruturaCotas || undefined,
+    cotaSeniorPct:           intake.cotaSeniorPct !== undefined && intake.cotaSeniorPct !== '' ? Number(intake.cotaSeniorPct) : undefined,
+    cotaMezaninoPct:         intake.cotaMezaninoPct !== undefined && intake.cotaMezaninoPct !== '' ? Number(intake.cotaMezaninoPct) : undefined,
+    cotaSubordinadaPct:      intake.cotaSubordinadaPct !== undefined && intake.cotaSubordinadaPct !== '' ? Number(intake.cotaSubordinadaPct) : undefined,
     // CRA
     revolvenciaCra:          intake.revolvencia || undefined,
     atividadeDevedor:        intake.atividadeDevedor || undefined,

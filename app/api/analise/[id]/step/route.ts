@@ -277,7 +277,14 @@ function formatIntake(intake: Record<string, string>): string {
     }
     credito.push(`Tipo de oferta: ${ofertaLabel[intake.tipoOferta] ?? intake.tipoOferta}`)
   }
-  if (intake.estruturaCotas) credito.push(`Estrutura de cotas / tranches: ${intake.estruturaCotas}`)
+  if (intake.cotaSeniorPct !== undefined && intake.cotaSeniorPct !== '') {
+    const s = Number(intake.cotaSeniorPct ?? 0)
+    const m = Number(intake.cotaMezaninoPct ?? 0)
+    const sub = Number(intake.cotaSubordinadaPct ?? 0)
+    credito.push(`Estrutura de cotas: Sênior ${s}% / Mezanino ${m}% / Subordinada ${sub}% (subordinação total: ${m + sub}%)`)
+  } else if (intake.estruturaCotas) {
+    credito.push(`Estrutura de cotas / tranches: ${intake.estruturaCotas}`)
+  }
   if (intake.serieEmissao)   credito.push(`Série / emissão: ${intake.serieEmissao}`)
   if (credito.length > 0) parts.push('Estrutura de Crédito:\n  ' + credito.join('\n  '))
   // "Informações Adicionais" só quando trouxer conteúdo distinto da Tese do Deal.

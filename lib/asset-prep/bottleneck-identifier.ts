@@ -38,7 +38,7 @@ export async function identificarGargalos(
 ): Promise<GarganlosResult> {
   const intakeFormatado = formatarIntakeParaAgentes(intake)
   const documentosBloco = documentosResumo
-    ? `\nDocumentos analisados:\n${documentosResumo.substring(0, 2000)}`
+    ? `\nDocumentos analisados:\n${documentosResumo}`
     : ''
   const parecerBloco = parecer_tecnico
     ? `\nParêcer técnico prélio:\n${parecer_tecnico.substring(0, 1500)}`

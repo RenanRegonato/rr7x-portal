@@ -65,7 +65,14 @@ function buildUserPrompt(input: CVMInput): string {
   if (input.cedenteCotistaSubordinado) {
     parts.push(`- Cedente cotista subordinado: ${input.cedenteCotistaSubordinado}`)
   }
-  if (input.estruturaCotas) {
+  if (input.cotaSeniorPct !== undefined || input.cotaMezaninoPct !== undefined || input.cotaSubordinadaPct !== undefined) {
+    const s = input.cotaSeniorPct ?? 0
+    const m = input.cotaMezaninoPct ?? 0
+    const sub = input.cotaSubordinadaPct ?? 0
+    const total = s + m + sub
+    parts.push(`- Estrutura de cotas: Sênior ${s}% / Mezanino ${m}% / Subordinada ${sub}% (soma: ${total}%)`)
+    if (total !== 100) parts.push(`  ⚠️ Atenção: soma das cotas é ${total}% — deveria ser 100%`)
+  } else if (input.estruturaCotas) {
     parts.push(`- Estrutura de cotas: ${input.estruturaCotas}`)
   }
 

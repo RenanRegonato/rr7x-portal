@@ -3,6 +3,7 @@ import { INTERNAL_PIPELINE_TOKEN_HEADER } from '@/lib/internal-auth'
 import { sendCompletionEmail } from '@/lib/email'
 import { resolveEscritorioId, isReformaTributariaEnabled } from '@/lib/reforma-tributaria/auth-helpers'
 import { runAssetPrep } from '@/lib/analise/run-asset-prep'
+import { parseCVMResult } from '@/lib/cvm-175-22/result'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Step = any
@@ -207,11 +208,46 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
     }
 
     // Validação CVM 175/22: elegibilidade de CRI/CRA. Roda automaticamente para
-    // Securitização; não bloqueia pipeline (informativa).
+    // Securitização. Se score < 50 ou há bloqueios críticos, injeta alerta nos
+    // outputs — mesa_revisao e relatorio_consolidado o leem e refletem no parecer.
     if (runCVM17522) {
       await step.run('cvm-175-22', async () => {
         await runCheckEndpoint(analiseId, 'cvm-175-22')
         return { ok: true }
+      })
+
+      await step.run('cvm-gate', async () => {
+        const currentOutputs = await readOutputs(admin, analiseId)
+        const cvmRaw = currentOutputs['cvm_175_22']
+        if (!cvmRaw) return { skipped: true, reason: 'sem_output_cvm' }
+
+        const result = parseCVMResult(cvmRaw)
+        if (!result) return { skipped: true, reason: 'parse_falhou' }
+
+        const bloqueado = result.elegibilidade_score < 50 || result.bloqueios.length > 0
+        if (!bloqueado) return { bloqueado: false, score: result.elegibilidade_score }
+
+        const linhasBloqueios = result.bloqueios.length > 0
+          ? `\n\nBloqueios críticos exigidos antes de emissão:\n${result.bloqueios.map(b => `• ${b}`).join('\n')}`
+          : ''
+
+        const bloqueioMsg =
+          `⛔ ESTRUTURA BLOQUEADA — Elegibilidade CVM 175/22: ${result.elegibilidade_score}/100\n` +
+          `${result.resumo_executivo}` +
+          `${linhasBloqueios}\n\n` +
+          `Esta estrutura NÃO está apta para emissão de CRI/CRA no estado atual. ` +
+          `Resolva os bloqueios listados acima antes de prosseguir ao mercado.`
+
+        const latestOutputs = await readOutputs(admin, analiseId)
+        await admin
+          .from('analises')
+          .update({
+            outputs: { ...latestOutputs, bloqueio_cvm_175_22: bloqueioMsg },
+            atualizado_em: new Date().toISOString(),
+          })
+          .eq('id', analiseId)
+
+        return { bloqueado: true, score: result.elegibilidade_score, num_bloqueios: result.bloqueios.length }
       })
     }
 

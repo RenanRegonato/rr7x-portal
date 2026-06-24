@@ -37,7 +37,7 @@ export async function recomendarMarketFit(
 ): Promise<MarketFitResult> {
   const intakeFormatado = formatarIntakeParaAgentes(intake)
   const documentosBloco = documentosResumo
-    ? `\nDocumentos analisados:\n${documentosResumo.substring(0, 1500)}`
+    ? `\nDocumentos analisados:\n${documentosResumo}`
     : ''
   const elegibilidadeBloco = elegibilidade
     ? `\nElegibilidade anterior:\n${elegibilidade.substring(0, 1000)}`

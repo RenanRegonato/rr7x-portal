@@ -9,6 +9,7 @@
 import { createAdminClient } from '@/lib/supabase-server'
 import { executarAssetPrepAnalysis, type AssetPrepAnalysisResult } from '@/lib/asset-prep/service'
 import { AssetPrepIntakeData } from '@/lib/asset-prep/directives'
+import { readAnalyseDocs } from '@/lib/doc-reader'
 
 interface RunAssetPrepParams {
   analiseId: string
@@ -16,7 +17,6 @@ interface RunAssetPrepParams {
   step: any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logger: any
-  documentosResumo?: string
 }
 
 /**
@@ -62,7 +62,7 @@ function formatResultForOutput(result: AssetPrepAnalysisResult): string {
 /**
  * Executa Asset Preparation e salva resultado em analises.outputs['asset_prep']
  */
-export async function runAssetPrep({ analiseId, step, logger, documentosResumo }: RunAssetPrepParams) {
+export async function runAssetPrep({ analiseId, step, logger }: RunAssetPrepParams) {
   const admin = createAdminClient()
 
   logger.info('Asset Prep: iniciando análise', { analiseId })
@@ -71,7 +71,7 @@ export async function runAssetPrep({ analiseId, step, logger, documentosResumo }
     // Carrega análise
     const { data: analise, error: loadError } = await admin
       .from('analises')
-      .select('id, nome_ativo, deal_intake, outputs')
+      .select('id, nome_ativo, deal_intake, outputs, user_id')
       .eq('id', analiseId)
       .single()
 
@@ -81,6 +81,27 @@ export async function runAssetPrep({ analiseId, step, logger, documentosResumo }
 
     const intake = (analise.deal_intake ?? {}) as Record<string, string>
     const nomeAtivo = analise.nome_ativo ?? 'Ativo'
+
+    // Lê documentos completos do Storage para os agentes de Asset Prep.
+    // Sem truncamento — agentes precisam do conteúdo integral para análise de prontidão.
+    let documentosResumo: string | undefined
+    try {
+      const docSummary = await readAnalyseDocs((analise as { user_id: string }).user_id, analiseId)
+      const textDocs = docSummary.processed.filter(d => d.status === 'ok' && d.content)
+      if (textDocs.length > 0) {
+        documentosResumo = textDocs
+          .map(d => `=== ${d.name} (${d.sizeKb}KB) ===\n${d.content}`)
+          .join('\n\n')
+      }
+      if (docSummary.errors.length > 0) {
+        logger.warn('Asset Prep: erros ao ler documentos', { analiseId, errors: docSummary.errors })
+      }
+    } catch (docErr) {
+      logger.warn('Asset Prep: falha ao carregar documentos, prosseguindo sem eles', {
+        analiseId,
+        error: (docErr as Error).message,
+      })
+    }
 
     // Verifica se Asset Prep foi solicitado (pelo menos um campo preenchido)
     const temCamposAssetPrep = [

@@ -49,7 +49,10 @@ export const AnaliseCreateSchema = z.object({
   estruturaCedenteSacado:     z.enum(['monocedente_multisacados', 'multicedentes_monosacado', 'multicedentes_multisacados', '']).optional(),
   cedenteCotistaSubordinado:  z.enum(['sim', 'nao', 'nao_definido', '']).optional(),
   tipoOferta:                 z.enum(['icvm_400', 'icvm_476', 'nao_definido', '']).optional(),
-  estruturaCotas:             shortStr(500).optional(),
+  estruturaCotas:             shortStr(500).optional(),  // legado — mantido para deals existentes
+  cotaSeniorPct:              z.coerce.number().min(0).max(100).optional(),
+  cotaMezaninoPct:            z.coerce.number().min(0).max(100).optional(),
+  cotaSubordinadaPct:         z.coerce.number().min(0).max(100).optional(),
   serieEmissao:               shortStr(200).optional(),
   // Classificação ANBIMA — CRI (Certificados de Recebíveis Imobiliários) — opcionais.
   categoriaCri:               z.enum(['residencial', 'corporativo', 'hibrido', '']).optional(),

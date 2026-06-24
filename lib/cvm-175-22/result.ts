@@ -51,7 +51,10 @@ export interface CVMInput {
   concentracaoCri?:   string                        // pulverizado | concentrado
   segmentoCri?:       string
   cedenteCotistaSubordinado?: string                // sim | nao
-  estruturaCotas?:    string                        // ex.: "Sênior 80% / Mez 10% / Sub 10%"
+  estruturaCotas?:    string                        // legado: string livre
+  cotaSeniorPct?:     number                        // % sênior (soma com mez+sub deve ser 100)
+  cotaMezaninoPct?:   number                        // % mezanino
+  cotaSubordinadaPct?: number                       // % subordinada
   revolvenciaCra?:    string                        // com_revolvencia | sem_revolvencia
   atividadeDevedor?:  string
   segmentoCra?:       string

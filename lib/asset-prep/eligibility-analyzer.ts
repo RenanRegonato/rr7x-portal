@@ -46,7 +46,7 @@ export async function analisarElegibilidade(
 ): Promise<ElegibilidadeResult> {
   const intakeFormatado = formatarIntakeParaAgentes(intake)
   const documentosBloco = documentosResumo
-    ? `\nDocumentos analisados:\n${documentosResumo.substring(0, 2000)}`
+    ? `\nDocumentos analisados:\n${documentosResumo}`
     : ''
 
   const systemPrompt = `Você é um analista especializado em elegibilidade de ativos para captação.
