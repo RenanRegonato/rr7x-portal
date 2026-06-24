@@ -86,4 +86,5 @@ export interface PipelineOutputs {
   blind_teaser?: string
   sell_side_pitchbook?: string
   reforma_tributaria?: string
+  asset_prep?: string
 }

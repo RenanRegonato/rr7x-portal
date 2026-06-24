@@ -533,7 +533,7 @@ function summarizeIntake(intake: DealIntake): string {
 /** Concatena outputs dos agentes relevantes pra tese (com limite por agente). */
 function extractRelevantOutputs(outputs: PipelineOutputs): string {
   const RELEVANT: Array<keyof PipelineOutputs> = [
-    'diagnostico', 'analise_ma', 'originacao', 'maturidade', 'revisao',
+    'diagnostico', 'analise_ma', 'originacao', 'maturidade', 'revisao', 'asset_prep',
   ]
   const MAX_PER_AGENT = 2500
 

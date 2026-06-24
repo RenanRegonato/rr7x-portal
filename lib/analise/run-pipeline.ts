@@ -217,10 +217,18 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
     })
 
     // Asset Preparation (opcional — roda se campos preenchidos)
-    await step.run('asset-prep', async () => {
+    const assetPrepResult = await step.run('asset-prep', async () => {
       return await runAssetPrep({ analiseId, step, logger })
     })
 
+    // Gate de Asset Prep: se score < 30 ou há gargalos críticos, pausa o pipeline.
+    // A análise de ativo não está pronta para captação — Waves 1 e 2 são puladas.
+    const assetPrepBlocked = await step.run('check-asset-prep-gate', async () => {
+      if (!assetPrepResult || assetPrepResult.skipped) return false
+      return assetPrepResult.blocked === true
+    })
+
+    if (!assetPrepBlocked) {
     // Wave 1 (sequencial)
     await maybeRunAgent('pesquisa')
     await maybeRunAgent('diagnostico')
@@ -262,6 +270,8 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
     if (runMA)        await maybeRunAgent('analise_ma')
     if (runEstrutura) await maybeRunAgent('estruturacao')
     await maybeRunAgent('originacao')
+
+    } // end if (!assetPrepBlocked)
 
     // Adequação à Reforma Tributária (Ferrante) — módulo premium, best-effort:
     // lê diagnóstico/estruturação/originação + fact bank. Uma falha aqui não

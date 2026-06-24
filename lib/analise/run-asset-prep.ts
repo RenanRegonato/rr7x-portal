@@ -10,6 +10,7 @@ import { createAdminClient } from '@/lib/supabase-server'
 import { executarAssetPrepAnalysis, type AssetPrepAnalysisResult } from '@/lib/asset-prep/service'
 import { AssetPrepIntakeData } from '@/lib/asset-prep/directives'
 import { readAnalyseDocs } from '@/lib/doc-reader'
+import { avaliarGateAssetPrep } from '@/lib/asset-prep/gate'
 
 interface RunAssetPrepParams {
   analiseId: string
@@ -134,18 +135,38 @@ export async function runAssetPrep({ analiseId, step, logger }: RunAssetPrepPara
       score: result.score_consolidado,
     })
 
+    // Avalia gate antes de salvar
+    const gate = avaliarGateAssetPrep(result.validation, result.gargalos)
+
     // Formata para armazenamento
     const outputText = formatResultForOutput(result)
 
-    // Salva resultado em analises.outputs['asset_prep']
+    // Salva resultado em analises.outputs['asset_prep'] (e bloqueio_asset_prep se bloqueado)
     const currentOutputs = (analise.outputs ?? {}) as Record<string, string>
+    const updatedOutputs: Record<string, string> = {
+      ...currentOutputs,
+      asset_prep: outputText,
+    }
+
+    if (!gate.pode_prosseguir) {
+      updatedOutputs['bloqueio_asset_prep'] = JSON.stringify({
+        bloqueado: true,
+        motivo: gate.motivo_bloqueio,
+        gargalos_criticos: gate.gargalos_criticos,
+        score: result.score_consolidado,
+      })
+      logger.warn('Asset Prep: gate bloqueado', {
+        analiseId,
+        motivo: gate.motivo_bloqueio,
+        gargalos_criticos: gate.gargalos_criticos,
+        score: result.score_consolidado,
+      })
+    }
+
     await admin
       .from('analises')
       .update({
-        outputs: {
-          ...currentOutputs,
-          asset_prep: outputText,
-        },
+        outputs: updatedOutputs,
         atualizado_em: new Date().toISOString(),
       })
       .eq('id', analiseId)
@@ -154,6 +175,7 @@ export async function runAssetPrep({ analiseId, step, logger }: RunAssetPrepPara
 
     return {
       ok: true,
+      blocked: !gate.pode_prosseguir,
       status: result.status_pronto,
       score: result.score_consolidado,
       gargalos_criticos: result.gargalos.criticos.length,

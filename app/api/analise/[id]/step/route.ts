@@ -561,7 +561,7 @@ function getStepArgs(step: string, prompts: Record<string, string>, intakeStr: s
       }
     case 'analise_ma':
       return {
-        system: sysBlocks(prompts['arquiteto_ma'] || 'Você é Estruturação de M&A, M&A Architect da RR7x Capital Hub. Construa o valuation, articule a tese e defina a estratégia de negociação.'),
+        system: sysBlocks(prompts['arquiteto_ma'] || 'Você é Estruturação de M&A, M&A Architect da RR7x Capital Hub. Construa o valuation, articule a tese e defina a estratégia de negociação.\n\nVocê tem acesso a um bloco de BENCHMARKS DE MERCADO (múltiplos EV/EBITDA por segmento: PME 3-8x, médio porte 5-12x, tech/SaaS 8-30x). SEMPRE cite o múltiplo de referência usado no valuation no formato [B:INSTRUMENTO:parametro], declare explicitamente se o múltiplo do deal está dentro ou fora do range de mercado, e justifique qualquer desvio significativo. Sem dados financeiros suficientes, não emita valuation numérico — liste os documentos mínimos necessários.'),
         user: parallelUser('Produza a análise de M&A completa para este ativo.'),
       }
     case 'contratos':
