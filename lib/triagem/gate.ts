@@ -11,6 +11,7 @@
 
 import { createAdminClient } from '@/lib/supabase-server'
 import { inngest } from '@/lib/inngest'
+import { getDocsCriticos, identifyDocCritico } from '@/lib/documentos/criticidade-cri-cra'
 
 export type RelevanciaDoc = 'relevante' | 'nao_relevante'
 export type ResolucaoDoc  = 'reenviado' | 'substituido' | 'texto_colado' | 'justificado'
@@ -94,4 +95,72 @@ export async function evaluateTriagemGate(analiseId: string): Promise<GateResult
     .eq('id', analiseId)
   await inngest.send({ name: 'analise/pipeline.run_requested', data: { analiseId } })
   return { triagem_status: 'liberada', bloqueantes: 0, kickedOff: true }
+}
+
+/**
+ * Extensão: valida documentos críticos específicos de CRI/CRA.
+ *
+ * Quando tipo_ativo = Securitização (CRI/CRA), verifica se há documentos
+ * críticos (ex.: "Contrato Imobiliário", "Avaliação Imóvel") entre os uploads.
+ * Se nenhum doc crítico foi identificado, marca como bloqueante.
+ *
+ * Heurística: procura no arquivo_nome por keywords do documento crítico.
+ * Ex.: "contrato_imovel.pdf" combina com "Contrato Imobiliário".
+ *
+ * Retorna lista de docs críticos NÃO encontrados.
+ */
+export async function checkDocsCriticosCRICRA(
+  analiseId: string,
+): Promise<{ criticos_ausentes: string[]; bloqueante: boolean }> {
+  const admin = createAdminClient()
+
+  // Lê tipo_ativo do intake
+  const { data: analise } = await admin
+    .from('analises')
+    .select('deal_intake')
+    .eq('id', analiseId)
+    .single()
+
+  const tipoAtivo = (analise?.deal_intake as Record<string, string> | undefined)?.tipoAtivo ?? ''
+
+  // Se não é Securitização, não aplica
+  if (!tipoAtivo.includes('Securitização')) {
+    return { criticos_ausentes: [], bloqueante: false }
+  }
+
+  // Pega lista de docs críticos esperados
+  const docsCriticos = getDocsCriticos(tipoAtivo)
+  if (docsCriticos.length === 0) {
+    return { criticos_ausentes: [], bloqueante: false }
+  }
+
+  // Lê documentos já enviados (sucesso: status='completed' com chunks > 0)
+  const { data: docsEnviados } = await admin
+    .from('analise_documents')
+    .select('file_name, status, total_chunks')
+    .eq('analise_id', analiseId)
+    .eq('status', 'completed')
+
+  const docsSucesso = (docsEnviados ?? []) as Array<{ file_name: string; status: string; total_chunks: number | null }>
+  const docsSucessoComConteudo = docsSucesso.filter(d => (d.total_chunks ?? 0) > 0)
+
+  // Tenta identificar docs críticos enviados
+  const criticosIdentificados = new Set<string>()
+  for (const doc of docsSucessoComConteudo) {
+    const identificado = identifyDocCritico(doc.file_name, tipoAtivo)
+    if (identificado) {
+      criticosIdentificados.add(identificado)
+    }
+  }
+
+  // Docs críticos NÃO encontrados
+  const criticosAusentes = docsCriticos
+    .filter(dc => dc.severidade === 'critico')
+    .map(dc => dc.nome)
+    .filter(nome => !criticosIdentificados.has(nome))
+
+  return {
+    criticos_ausentes: criticosAusentes,
+    bloqueante: criticosAusentes.length > 0,
+  }
 }

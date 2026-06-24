@@ -9,6 +9,7 @@ import { IconArrowRight, IconSparkle } from '@/components/Icons'
 import SaldoPacoteAviso from '@/components/SaldoPacoteAviso'
 import { AnaliseCreateSchema } from '@/lib/schemas'
 import { maskCpfCnpj, maskTelefone } from '@/lib/masks'
+import { getDocsCriticos, formatDocsCriticosUI } from '@/lib/documentos/criticidade-cri-cra'
 import { z } from 'zod'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -1112,12 +1113,70 @@ function StepContent({
   )
 
   // ── Step 7: Documentos ────────────────────────────────────────────────────
-  if (step === 7) return (
+  if (step === 7) {
+    const isCreditAsset = CREDIT_TYPES.has(form.tipoAtivo)
+    const docsCriticos = isCreditAsset ? getDocsCriticos(form.tipoAtivo) : []
+    const { criticos, altos } = isCreditAsset ? formatDocsCriticosUI(form.tipoAtivo) : { criticos: [], altos: [] }
+
+    return (
     <div>
       <p className="text-[13px] text-ink-3 mb-4">
         Suba todos os documentos disponíveis: balanços, DRE, contratos, laudos, apresentações, cap table.
         Aceita PDF, Word, Excel, CSV, PNG, JPG. Quanto mais completa a documentação, mais precisa a análise.
       </p>
+
+      {/* ── Documentos Esperados para CRI/CRA ──────────────────────────── */}
+      {docsCriticos.length > 0 && (
+        <div className="mb-6 p-5 rounded-[12px] border border-accent-soft bg-accent-soft/20">
+          <h3 className="text-[12px] font-semibold text-accent-strong uppercase tracking-wider mb-4">
+            📋 Documentos Esperados para {form.tipoAtivo}
+          </h3>
+
+          {criticos.length > 0 && (
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold text-ink mb-2">🔴 Críticos (obrigatórios)</p>
+              <div className="space-y-2">
+                {criticos.map((doc, idx) => (
+                  <div key={idx} className="text-[11px] bg-white rounded border border-accent-soft p-2.5">
+                    <p className="font-medium text-ink">{doc.nome}</p>
+                    <p className="text-ink-3 mt-0.5">{doc.descricao}</p>
+                    {doc.exemplo && (
+                      <p className="text-ink-3 text-[10px] mt-1">
+                        <span className="font-semibold">Ex.:</span> {doc.exemplo}
+                      </p>
+                    )}
+                    {doc.dica && (
+                      <p className="text-accent-strong text-[10px] mt-1 italic">
+                        💡 {doc.dica}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {altos.length > 0 && (
+            <div>
+              <p className="text-[11px] font-semibold text-ink mb-2">🟡 Recomendados (altos)</p>
+              <div className="space-y-2">
+                {altos.map((doc, idx) => (
+                  <div key={idx} className="text-[11px] bg-white rounded border border-amber-200 p-2.5">
+                    <p className="font-medium text-ink">{doc.nome}</p>
+                    <p className="text-ink-3 mt-0.5">{doc.descricao}</p>
+                    {doc.dica && (
+                      <p className="text-amber-700 text-[10px] mt-1 italic">
+                        💡 {doc.dica}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       <div
         onDragOver={e => { e.preventDefault(); setDragging(true) }}
         onDragLeave={() => setDragging(false)}
@@ -1157,7 +1216,8 @@ function StepContent({
         </div>
       )}
     </div>
-  )
+    )
+  }
 
   return null
 }
