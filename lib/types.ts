@@ -34,6 +34,14 @@ export interface DealIntake {
   tipoOferta?: 'icvm_400' | 'icvm_476' | 'nao_definido' | ''
   estruturaCotas?: string
   serieEmissao?: string
+  // Classificação ANBIMA — CRI (Certificados de Recebíveis Imobiliários)
+  categoriaCri?: 'residencial' | 'corporativo' | 'hibrido' | ''
+  concentracaoCri?: 'pulverizado' | 'concentrado' | ''
+  segmentoImobiliario?: 'apartamento' | 'loteamento' | 'industrial' | 'logistico' | 'comercial' | 'shopping' | 'infraestrutura' | 'hotel' | 'outro' | ''
+  // Classificação ANBIMA — CRA (Certificados de Recebíveis do Agronegócio)
+  atividadeDevedor?: 'cooperativa' | 'produtor_rural' | 'terceiro_fornecedor' | 'terceiro_comprador' | ''
+  revolvencia?: 'com_revolvencia' | 'sem_revolvencia' | ''
+  segmentoAgro?: 'graos' | 'usina' | 'logistica' | 'hibrido' | 'outro' | ''
   // Proprietário
   nomeProprietario?: string
   cpfCnpjProprietario?: string

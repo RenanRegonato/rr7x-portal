@@ -19,6 +19,14 @@ const TIPOS_ATIVO = ['Empresa (M&A)', 'Imóvel / Real Estate', 'Startup / Scale-
 const CREDIT_TYPES = new Set(['FIDC / Crédito Estruturado', 'FIDC de Infraestrutura (incentivado)', 'Securitização (CRI / CRA)', 'Portfólio de Crédito'])
 const isCreditAsset = (tipo: string) => CREDIT_TYPES.has(tipo)
 const TIPOS_RECEBIVEL = ['Duplicatas / Notas comerciais', 'Cartão de crédito', 'Consignado', 'Cheques', 'Contratos / Prestação de serviços', 'CCB / Crédito bancário', 'Imobiliário', 'Precatórios', 'Outro']
+// Classificação ANBIMA — CRI (Certificados de Recebíveis Imobiliários)
+const CATEGORIAS_CRI = ['Residencial', 'Corporativo', 'Híbrido']
+const CONCENTRACOES = ['Pulverizado (≤ 20% por devedor)', 'Concentrado (> 20% por devedor)']
+const SEGMENTOS_CRI = ['Apartamentos ou casas', 'Loteamento', 'Industrial', 'Logístico', 'Comercial / Corporativo', 'Shopping / Lojas', 'Infraestrutura', 'Hotel', 'Outro']
+// Classificação ANBIMA — CRA (Certificados de Recebíveis do Agronegócio)
+const ATIVIDADES_DEVEDOR = ['Cooperativa', 'Produtor Rural', 'Terceiro Fornecedor', 'Terceiro Comprador']
+const REVOLVENCIAS = ['Com revolvência', 'Sem revolvência']
+const SEGMENTOS_AGRO = ['Grãos', 'Usina', 'Logística', 'Híbrido', 'Outro']
 const ESTAGIOS   = ['Projeto Pré-Operacional', 'Estruturando', 'Estruturado', 'Em comercialização', 'Em negociação / Closing']
 const OBJETIVOS  = ['Vender 100%', 'Vender participação', 'Captar investimento', 'Estruturar crédito', 'Preparar para o mercado', 'Diagnóstico / Due Diligence']
 const NIVEIS_INFO = ['Baixo (poucos dados formais)', 'Médio (dados parciais)', 'Alto (DRE, balanço e documentos disponíveis)']
@@ -73,6 +81,12 @@ const FIELD_LABELS: Record<string, { label: string; step: number }> = {
   tipoOferta:                 { label: 'Tipo de oferta',                   step: 2 },
   estruturaCotas:             { label: 'Estrutura de cotas',               step: 2 },
   serieEmissao:               { label: 'Série / emissão',                  step: 2 },
+  categoriaCri:               { label: 'Categoria CRI',                    step: 2 },
+  concentracaoCri:            { label: 'Concentração CRI',                 step: 2 },
+  segmentoImobiliario:        { label: 'Segmento imobiliário',             step: 2 },
+  atividadeDevedor:           { label: 'Atividade do devedor (CRA)',       step: 2 },
+  revolvencia:                { label: 'Revolvência (CRA)',                step: 2 },
+  segmentoAgro:               { label: 'Segmento agrícola',                step: 2 },
   estagio:               { label: 'Estágio atual',                step: 3 },
   localizacao:           { label: 'Localização (cidade/estado)',  step: 3 },
   objetivo:              { label: 'Objetivo da operação',         step: 4 },
@@ -163,6 +177,14 @@ function NovaAnaliseInner() {
     tipoOferta:                '',
     estruturaCotas:            '',
     serieEmissao:              '',
+    // ── Classificação ANBIMA — CRI ──────────────────────────────────────────
+    categoriaCri:              '',
+    concentracaoCri:           '',
+    segmentoImobiliario:       '',
+    // ── Classificação ANBIMA — CRA ──────────────────────────────────────────
+    atividadeDevedor:          '',
+    revolvencia:               '',
+    segmentoAgro:              '',
     // ── Proprietário ───────────────────────────────────────────────────────
     nomeProprietario:     searchParams.get('nomeProprietario') ?? '',
     cpfCnpjProprietario:  '',
@@ -862,6 +884,75 @@ function StepContent({
               placeholder="Ex.: 1ª série / 2ª emissão"
             />
           </Field>
+
+          {/* ── Classificação ANBIMA para CRI ──────────────────────────────── */}
+          {form.tipoAtivo === 'Securitização (CRI / CRA)' && (
+            <div className="mt-8 pt-5 border-t border-border space-y-5">
+              <div>
+                <h3 className="text-[12px] font-semibold text-ink uppercase tracking-wider">Classificação ANBIMA — CRI</h3>
+                <p className="text-[12px] text-ink-3 mt-1">
+                  Dimensões de risco e elegibilidade conforme Regras ANBIMA para CRI.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Categoria" help="Residencial, Corporativo ou Híbrido">
+                  <OttoSelect value={form.categoriaCri} onChange={e => set('categoriaCri', e.target.value)}>
+                    <option value="">Não informado</option>
+                    {CATEGORIAS_CRI.map(o => <option key={o} value={o.toLowerCase().replace(' ', '_')}>{o}</option>)}
+                  </OttoSelect>
+                </Field>
+                <Field label="Concentração" help="Pulverizado ≤20% ou Concentrado &gt;20% por devedor">
+                  <OttoSelect value={form.concentracaoCri} onChange={e => set('concentracaoCri', e.target.value)}>
+                    <option value="">Não informado</option>
+                    <option value="pulverizado">Pulverizado (≤ 20% por devedor)</option>
+                    <option value="concentrado">Concentrado (&gt; 20% por devedor)</option>
+                  </OttoSelect>
+                </Field>
+              </div>
+              <Field label="Segmento imobiliário" help="Determina o perfil de risco">
+                <OttoSelect value={form.segmentoImobiliario} onChange={e => set('segmentoImobiliario', e.target.value)}>
+                  <option value="">Não informado</option>
+                  {SEGMENTOS_CRI.map(o => <option key={o} value={o.toLowerCase().replace(/\s+/g, '_').replace(/\//g, '_')}>{o}</option>)}
+                </OttoSelect>
+              </Field>
+            </div>
+          )}
+
+          {/* ── Classificação ANBIMA para CRA ──────────────────────────────── */}
+          {form.tipoAtivo === 'Securitização (CRI / CRA)' && (
+            <div className="mt-8 pt-5 border-t border-border space-y-5">
+              <div>
+                <h3 className="text-[12px] font-semibold text-ink uppercase tracking-wider">Classificação ANBIMA — CRA</h3>
+                <p className="text-[12px] text-ink-3 mt-1">
+                  Dimensões específicas de recebíveis do agronegócio.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Atividade do devedor" help="Quem gera o recebível">
+                  <OttoSelect value={form.atividadeDevedor} onChange={e => set('atividadeDevedor', e.target.value)}>
+                    <option value="">Não informado</option>
+                    <option value="cooperativa">Cooperativa</option>
+                    <option value="produtor_rural">Produtor Rural</option>
+                    <option value="terceiro_fornecedor">Terceiro Fornecedor</option>
+                    <option value="terceiro_comprador">Terceiro Comprador</option>
+                  </OttoSelect>
+                </Field>
+                <Field label="Revolvência" help="Se a carteira permite novas admissões">
+                  <OttoSelect value={form.revolvencia} onChange={e => set('revolvencia', e.target.value)}>
+                    <option value="">Não informado</option>
+                    <option value="com_revolvencia">Com revolvência</option>
+                    <option value="sem_revolvencia">Sem revolvência</option>
+                  </OttoSelect>
+                </Field>
+              </div>
+              <Field label="Segmento agrícola" help="Determina o ciclo e sazonalidade">
+                <OttoSelect value={form.segmentoAgro} onChange={e => set('segmentoAgro', e.target.value)}>
+                  <option value="">Não informado</option>
+                  {SEGMENTOS_AGRO.map(o => <option key={o} value={o.toLowerCase().replace(/\s+/g, '_')}>{o}</option>)}
+                </OttoSelect>
+              </Field>
+            </div>
+          )}
         </div>
       )}
     </div>
