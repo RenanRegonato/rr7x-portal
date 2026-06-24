@@ -16,11 +16,11 @@ import { z } from 'zod'
 
 type Pilar = 'ma' | 'fidc' | 'cri_cra' | 'asset_prep'
 
-const PILARES: { value: Pilar; label: string; sub: string; icon: string }[] = [
-  { value: 'ma',         label: 'M&A e Aquisições',           sub: 'Venda de empresa, participação, fusão, due diligence', icon: '🏢' },
-  { value: 'fidc',       label: 'FIDC e Securitização',        sub: 'FIDC, FIDC-IE, portfólio de crédito, lastro de recebíveis', icon: '📦' },
-  { value: 'cri_cra',   label: 'CRI e CRA',                  sub: 'Certificados de recebíveis imobiliários e do agronegócio', icon: '📜' },
-  { value: 'asset_prep', label: 'Preparação de Ativo',         sub: 'Diagnóstico de prontidão e estruturação para o mercado', icon: '🔧' },
+const PILARES: { value: Pilar; label: string; sub: string }[] = [
+  { value: 'ma',         label: 'M&A e Aquisições',    sub: 'Venda de empresa, participação, fusão, due diligence' },
+  { value: 'fidc',       label: 'FIDC e Securitização', sub: 'FIDC, FIDC-IE, portfólio de crédito, lastro de recebíveis' },
+  { value: 'cri_cra',   label: 'CRI e CRA',            sub: 'Certificados de recebíveis imobiliários e do agronegócio' },
+  { value: 'asset_prep', label: 'Preparação de Ativo',  sub: 'Diagnóstico de prontidão e estruturação para o mercado' },
 ]
 
 const TIPOS_MA = ['Empresa (M&A)', 'Imóvel / Real Estate', 'Startup / Scale-up', 'Franquia', 'Agronegócio', 'Outro']
@@ -333,11 +333,11 @@ function NovaAnaliseInner() {
 
   function fileIcon(name: string) {
     const ext = name.split('.').pop()?.toLowerCase()
-    if (ext === 'pdf')                               return '📄'
-    if (['doc', 'docx'].includes(ext ?? ''))         return '📝'
-    if (['xls', 'xlsx', 'csv'].includes(ext ?? ''))  return '📊'
-    if (['png', 'jpg', 'jpeg'].includes(ext ?? ''))  return '🖼️'
-    return '📎'
+    if (ext === 'pdf')                               return 'PDF'
+    if (['doc', 'docx'].includes(ext ?? ''))         return 'DOC'
+    if (['xls', 'xlsx', 'csv'].includes(ext ?? ''))  return 'XLS'
+    if (['png', 'jpg', 'jpeg'].includes(ext ?? ''))  return 'IMG'
+    return 'ARQ'
   }
 
   const pilar = form.pilarOperacao as Pilar | ''
@@ -795,9 +795,7 @@ function StepContent({
             type="button"
             onClick={() => {
               set('pilarOperacao', p.value)
-              // Limpa tipoAtivo ao trocar de pilar
               set('tipoAtivo', '')
-              // Para CRI/CRA, tipoAtivo é fixo
               if (p.value === 'cri_cra') set('tipoAtivo', 'Securitização (CRI / CRA)')
             }}
             className={`text-left p-4 rounded-[12px] border-2 transition-all ${
@@ -807,8 +805,7 @@ function StepContent({
             }`}
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-xl">{p.icon}</span>
-              {form.pilarOperacao === p.value && <span className="text-[10px] text-accent-strong font-bold">✓ Selecionado</span>}
+              {form.pilarOperacao === p.value && <span className="text-[10px] text-accent-strong font-bold">Selecionado</span>}
             </div>
             <p className={`text-[13px] font-semibold mb-1 ${form.pilarOperacao === p.value ? 'text-accent-ink' : 'text-ink'}`}>{p.label}</p>
             <p className="text-[11px] text-ink-3 leading-snug">{p.sub}</p>
@@ -941,7 +938,7 @@ function StepContent({
           ) : (
             <div className="rounded-[10px] border border-border bg-surface-2 px-4 py-3.5 opacity-90">
               <p className="text-[12px] text-ink-2">
-                🔒 Recurso disponível em planos avançados.{' '}
+                Recurso disponível em planos avançados.{' '}
                 <a href="/dashboard/planos" className="text-accent-strong font-medium underline-offset-2 hover:underline">Conheça os planos</a>.
               </p>
             </div>
@@ -1347,17 +1344,17 @@ function StepContent({
         {hasDocs && (
           <div className="mb-6 p-5 rounded-[12px] border border-accent-soft bg-accent-soft/20">
             <h3 className="text-[12px] font-semibold text-accent-strong uppercase tracking-wider mb-4">
-              Documentos esperados para este pilar
+              Documentos esperados
             </h3>
             {criticos.length > 0 && (
               <div className="mb-4">
-                <p className="text-[11px] font-semibold text-ink mb-2">🔴 Críticos (alta relevância)</p>
+                <p className="text-[11px] font-semibold text-ink mb-2">Críticos — alta relevância</p>
                 <div className="space-y-2">
                   {criticos.map((doc, idx) => (
                     <div key={idx} className="text-[11px] bg-white rounded border border-accent-soft p-2.5">
                       <p className="font-medium text-ink">{doc.nome}</p>
                       <p className="text-ink-3 mt-0.5">{doc.descricao}</p>
-                      {doc.dica && <p className="text-accent-strong text-[10px] mt-1 italic">💡 {doc.dica}</p>}
+                      {doc.dica && <p className="text-accent-strong text-[10px] mt-1 italic">{doc.dica}</p>}
                     </div>
                   ))}
                 </div>
@@ -1365,13 +1362,13 @@ function StepContent({
             )}
             {altos.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold text-ink mb-2">🟡 Recomendados</p>
+                <p className="text-[11px] font-semibold text-ink mb-2">Recomendados</p>
                 <div className="space-y-2">
                   {altos.map((doc, idx) => (
                     <div key={idx} className="text-[11px] bg-white rounded border border-amber-200 p-2.5">
                       <p className="font-medium text-ink">{doc.nome}</p>
                       <p className="text-ink-3 mt-0.5">{doc.descricao}</p>
-                      {doc.dica && <p className="text-amber-700 text-[10px] mt-1 italic">💡 {doc.dica}</p>}
+                      {doc.dica && <p className="text-amber-700 text-[10px] mt-1 italic">{doc.dica}</p>}
                     </div>
                   ))}
                 </div>
@@ -1392,7 +1389,8 @@ function StepContent({
           <input ref={fileInputRef} type="file" multiple accept={accepted} className="hidden"
             onChange={e => { if (e.target.files) addFiles(e.target.files); e.target.value = '' }}
           />
-          <div className="text-3xl mb-2">📂</div>
+          <div className="mb-2"/>
+
           <p className="text-ink-2 text-[13px] font-medium">Clique para selecionar ou arraste os arquivos</p>
           <p className="text-ink-3 text-[11px] mt-1">PDF · Word · Excel · CSV · PNG · JPG · máx. {MAX_FILE_MB}MB por arquivo</p>
         </div>
@@ -1401,7 +1399,7 @@ function StepContent({
           <div className="mt-4 space-y-2">
             {files.map((file, i) => (
               <div key={i} className="flex items-center gap-3 bg-surface border border-border rounded-[10px] px-3 py-2.5">
-                <span className="text-base flex-none">{fileIcon(file.name)}</span>
+                <span className="text-[10px] font-bold text-ink-3 bg-surface-2 border border-border rounded px-1.5 py-0.5 flex-none tracking-wide">{fileIcon(file.name)}</span>
                 <span className="text-[13px] text-ink-2 truncate flex-1">{file.name}</span>
                 <span className="text-[11px] text-ink-3 flex-none">{formatBytes(file.size)}</span>
                 <button type="button" onClick={e => { e.stopPropagation(); removeFile(i) }}
