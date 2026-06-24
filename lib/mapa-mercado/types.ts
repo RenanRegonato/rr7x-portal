@@ -100,9 +100,10 @@ export interface PrestadorDeEntidade {
   papel: PrestadorPapel
 }
 
-const SITUACOES_ENCERRADAS = new Set(['CANCELADA', 'LIQUIDADA', 'ENCERRADA', 'CANCELADO', 'LIQUIDADO', 'ENCERRADO'])
+// CVM usa 'ativo' (minúsculo) para fundos em operação; qualquer outro valor é histórico.
 export function veiculoEncerrado(situacao: string | null): boolean {
-  return !!situacao && SITUACOES_ENCERRADAS.has(situacao.toUpperCase())
+  if (!situacao) return false
+  return situacao.toLowerCase() !== 'ativo'
 }
 
 // Perfil derivado (a "tese de atuação") de uma entidade, a partir dos veículos

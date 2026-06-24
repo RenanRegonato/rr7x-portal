@@ -58,11 +58,11 @@ export default async function VeiculoPage({ params }: { params: Promise<{ id: st
               </span>
               {veiculo.situacao && (
                 <span className={`text-[11px] font-medium px-2 py-0.5 rounded border ${
-                  veiculo.situacao.toLowerCase().includes('cancel') || veiculo.situacao.toLowerCase().includes('liquida')
-                    ? 'bg-red-50 text-red-700 border-red-200'
-                    : 'bg-surface-2 text-ink-2 border-border'
+                  veiculo.situacao.toLowerCase() === 'ativo'
+                    ? 'bg-green-50 text-green-700 border-green-200'
+                    : 'bg-red-50 text-red-700 border-red-200'
                 }`}>
-                  {veiculo.situacao}
+                  {veiculo.situacao.toUpperCase()}
                 </span>
               )}
               {veiculo.esg && (
