@@ -65,7 +65,7 @@ export default function PrivacidadePage() {
               <strong>Controlador de dados:</strong> RRX CAPITAL HUB LTDA, inscrita no CNPJ sob o nº
               59.073.078/0001-89, com email de contato{" "}
               <a href={`mailto:${CONTACT_EMAIL}`} className="text-lp-accent hover:underline">{CONTACT_EMAIL}</a>.
-              O Mandor é uma rede cognitiva de inteligência institucional para escritórios de M&amp;A e crédito estruturado.
+              O Mandor é a infraestrutura de memória institucional para M&amp;A, Private Equity e Family Offices: decisões atribuídas, racional preservado.
             </p>
           </Section>
 
