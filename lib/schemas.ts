@@ -93,6 +93,26 @@ export const AnaliseCreateSchema = z.object({
   assetPrepObjetivoCapitacao:   z.enum(['crescimento', 'refinanciamento', 'aquisicao', 'estruturacao', 'outro', '']).optional(),
   assetPrepVolumeCapitacao:     shortStr(100).optional(),
   assetPrepHorizonteCapitacao:  z.enum(['imediato', '3_meses', '6_meses', '12_meses', '']).optional(),
+}).superRefine((data, ctx) => {
+  // Cotas FIDC: se pelo menos um campo preenchido, a soma deve ser exatamente 100%.
+  const CREDIT_TIPOS = ['FIDC / Crédito Estruturado', 'FIDC de Infraestrutura (incentivado)', 'Securitização (CRI / CRA)', 'Portfólio de Crédito']
+  const isCredit = CREDIT_TIPOS.includes(data.tipoAtivo ?? '')
+  if (!isCredit) return
+
+  const s   = data.cotaSeniorPct     ?? 0
+  const m   = data.cotaMezaninoPct   ?? 0
+  const sub = data.cotaSubordinadaPct ?? 0
+  const algumPreenchido = data.cotaSeniorPct !== undefined || data.cotaMezaninoPct !== undefined || data.cotaSubordinadaPct !== undefined
+  if (!algumPreenchido) return
+
+  const total = s + m + sub
+  if (total !== 100) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['cotaSeniorPct'],
+      message: `A soma das cotas (${total}%) deve ser exatamente 100%. Ajuste os valores antes de continuar.`,
+    })
+  }
 })
 
 // POST /api/analise/share

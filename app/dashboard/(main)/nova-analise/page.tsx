@@ -342,6 +342,13 @@ function NovaAnaliseInner() {
     if (step === 2) {
       if (!form.nomeAtivo.trim()) return 'Informe o nome do ativo.'
       if (!form.tipoAtivo)        return 'Selecione o tipo de ativo.'
+      if (isCreditAsset(form.tipoAtivo)) {
+        const algumCota = form.cotaSeniorPct || form.cotaMezaninoPct || form.cotaSubordinadaPct
+        if (algumCota) {
+          const total = (parseFloat(form.cotaSeniorPct || '0') + parseFloat(form.cotaMezaninoPct || '0') + parseFloat(form.cotaSubordinadaPct || '0'))
+          if (total !== 100) return `A soma das cotas (${total}%) deve ser exatamente 100% para prosseguir.`
+        }
+      }
     }
     if (step === 3) {
       if (!form.cidade.trim()) return 'Informe a cidade.'
@@ -355,6 +362,10 @@ function NovaAnaliseInner() {
       if (!form.ticketEstimado.trim())   return 'Informe o ticket estimado.'
       if (!form.nivelInformacao)         return 'Selecione o nível de informação.'
       if (!form.operacaoEmAndamento)     return 'Informe se a operação já está em andamento.'
+      const isMA = ['Vender 100%', 'Vender participação', 'Captar investimento'].some(o => objetivos.includes(o))
+      if (isMA && form.nivelInformacao === 'Baixo (poucos dados formais)') {
+        return 'Análises de M&A exigem no mínimo nível médio de informação (dados parciais). Com nível baixo, não é possível produzir valuation ou tese de investimento confiáveis.'
+      }
     }
     if (step === 6) {
       if (!form.resumoAtivo.trim()) return 'Descreva o ativo e objetivo.'

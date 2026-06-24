@@ -192,6 +192,37 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
     await maybeRunAgent('kyc')
     await maybeRunAgent('contratos')
 
+    // Gate de qualidade M&A: nível de informação mínimo = médio.
+    // Se Baixo, injeta alerta que o agente M&A e a mesa lerão — não bloqueia o
+    // pipeline (análise ainda corre), mas calibra expectativas e conteúdo do parecer.
+    if (runMA) {
+      await step.run('ma-quality-gate', async () => {
+        const intake = (analise.deal_intake ?? {}) as Record<string, string>
+        const nivel  = intake.nivelInformacao ?? ''
+        if (nivel === 'Baixo (poucos dados formais)') {
+          const alerta =
+            '⚠️ ATENÇÃO — Nível de Informação Insuficiente para M&A\n\n' +
+            'Este deal foi classificado com nível BAIXO de informação. ' +
+            'Uma análise de M&A completa requer DRE, balanço patrimonial e documentos societários. ' +
+            'Os agentes devem:\n' +
+            '• Indicar explicitamente as limitações do parecer por falta de dados financeiros\n' +
+            '• NÃO produzir valuation ou múltiplos sem base em números reais\n' +
+            '• Focar na estrutura qualitativa do deal e recomendar due diligence aprofundada\n' +
+            '• Listar documentos mínimos necessários para uma análise definitiva'
+          const current = await readOutputs(admin, analiseId)
+          await admin
+            .from('analises')
+            .update({
+              outputs: { ...current, alerta_qualidade_ma: alerta },
+              atualizado_em: new Date().toISOString(),
+            })
+            .eq('id', analiseId)
+          return { alerta: true, nivel }
+        }
+        return { alerta: false, nivel }
+      })
+    }
+
     // Wave 2 (sequencial, lê outputs da Wave 1)
     if (runMA)        await maybeRunAgent('analise_ma')
     if (runEstrutura) await maybeRunAgent('estruturacao')
