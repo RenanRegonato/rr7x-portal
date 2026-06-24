@@ -300,6 +300,67 @@ export async function getAlvosCaptacao(
   return (data ?? []) as AlvoCaptacao[]
 }
 
+// ─── Ficha do Veículo ────────────────────────────────────────────────────────
+
+export interface VeiculoDetalhe {
+  id: string
+  cnpj: string | null
+  codigo_cvm: string | null
+  nome: string
+  tipo: string
+  categoria_cvm: string | null
+  classe_anbima: string | null
+  situacao: string | null
+  esg: boolean | null
+  fonte: string
+}
+
+export interface PrestadorDoVeiculo {
+  entidade_id: string
+  nome: string
+  tipos: EntidadeTipo[]
+  papel: string
+  uf: string | null
+}
+
+export async function getVeiculo(id: string): Promise<VeiculoDetalhe | null> {
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('mercado_veiculos')
+    .select('id, cnpj, codigo_cvm, nome, tipo, categoria_cvm, classe_anbima, situacao, esg, fonte')
+    .eq('id', id)
+    .eq('redistribuivel', true)
+    .maybeSingle()
+  if (error) {
+    console.error('[mapa-mercado] getVeiculo erro:', error.message)
+    return null
+  }
+  return (data as VeiculoDetalhe) ?? null
+}
+
+export async function getPrestadoresDoVeiculo(veiculoId: string): Promise<PrestadorDoVeiculo[]> {
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('mercado_veiculo_prestadores')
+    .select('papel, entidade:mercado_entidades!inner(id, razao_social, nome_fantasia, tipos, uf, redistribuivel)')
+    .eq('veiculo_id', veiculoId)
+    .eq('ativo', true)
+  if (error) {
+    console.error('[mapa-mercado] getPrestadoresDoVeiculo erro:', error.message)
+    return []
+  }
+  type Row = { papel: string; entidade: { id: string; razao_social: string; nome_fantasia: string | null; tipos: string[]; uf: string | null; redistribuivel: boolean } | null }
+  return ((data ?? []) as unknown as Row[])
+    .filter(r => r.entidade && r.entidade.redistribuivel !== false)
+    .map(r => ({
+      entidade_id: r.entidade!.id,
+      nome:        r.entidade!.nome_fantasia || r.entidade!.razao_social,
+      tipos:       (r.entidade!.tipos ?? []) as EntidadeTipo[],
+      papel:       r.papel,
+      uf:          r.entidade!.uf,
+    }))
+}
+
 export async function getRanking(chave: string, limit = 10): Promise<
   { posicao: number; valor: number | null; entidade_id: string; nome: string }[]
 > {

@@ -191,13 +191,19 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
           ) : (
             <ul className="divide-y divide-border">
               {veiculos.slice(0, 40).map(v => (
-                <li key={`${v.veiculo_id}-${v.papel}`} className="py-2 flex items-center gap-3">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-2 text-ink-2 border border-border flex-none">{v.veiculo_tipo}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm text-ink truncate">{v.veiculo_nome}</div>
-                    {v.veiculo_categoria && <div className="text-[11px] text-ink-3 truncate">{v.veiculo_categoria}</div>}
-                  </div>
-                  <span className="text-xs text-ink-3 flex-none">{PAPEL_LABEL[v.papel] ?? v.papel}</span>
+                <li key={`${v.veiculo_id}-${v.papel}`}>
+                  <Link
+                    href={`/dashboard/mapa-inteligente/veiculo/${v.veiculo_id}`}
+                    className="py-2 flex items-center gap-3 hover:bg-surface-hover rounded-lg px-1 transition"
+                  >
+                    <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-2 text-ink-2 border border-border flex-none">{v.veiculo_tipo}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-ink truncate">{v.veiculo_nome}</div>
+                      {v.veiculo_categoria && <div className="text-[11px] text-ink-3 truncate">{v.veiculo_categoria}</div>}
+                    </div>
+                    <span className="text-xs text-ink-3 flex-none">{PAPEL_LABEL[v.papel] ?? v.papel}</span>
+                    <IconArrowRight size={12}/>
+                  </Link>
                 </li>
               ))}
             </ul>

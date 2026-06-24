@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { getResumoMercado, getTopEntidades } from '@/lib/mapa-mercado/queries'
 import { TIPO_LABEL } from '@/lib/mapa-mercado/types'
-import { IconSearch, IconBuilding, IconArrowRight } from '@/components/Icons'
+import { IconSearch, IconBuilding, IconArrowRight, IconTrophy } from '@/components/Icons'
 import NotaMercado from './_components/NotaMercado'
 
 export const dynamic = 'force-dynamic'
@@ -72,6 +72,22 @@ export default async function MapaMercadoDashboard() {
           </Link>
         ))}
       </section>
+
+      {/* Atalhos de navegação */}
+      <div className="flex gap-3">
+        <Link
+          href="/dashboard/mapa-inteligente/rankings"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-surface text-sm text-ink hover:border-accent-strong/40 hover:bg-surface-hover transition"
+        >
+          <IconTrophy size={15}/> Rankings
+        </Link>
+        <Link
+          href="/dashboard/mapa-inteligente/buscar"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-surface text-sm text-ink hover:border-accent-strong/40 hover:bg-surface-hover transition"
+        >
+          <IconSearch size={15}/> Busca avançada
+        </Link>
+      </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Ranking */}
