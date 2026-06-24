@@ -7,9 +7,9 @@ import SiteFooter from "@/components/SiteFooter";
 import { PLANOS_VITRINE } from "@/lib/planos-vitrine";
 
 export const metadata: Metadata = {
-  title: "Mandor | Due diligence e análise de M&A e crédito estruturado",
+  title: "Mandor | Infraestrutura de memória institucional para o capital privado",
   description:
-    "No mercado privado, o tempo no deal errado não volta. O Mandor entrega o parecer institucional de M&A e crédito, rastreável e auditável, em até 90 minutos.",
+    "Decisões atribuídas. Racional preservado. O Mandor é a infraestrutura de memória institucional para M&A, Private Equity e Family Offices. Análise completa, rastreável e auditável.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "No mercado privado, o tempo no deal errado não volta.",
