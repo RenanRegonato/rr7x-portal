@@ -1,6 +1,10 @@
 export interface DealIntake {
   nomeAtivo: string
   tipoAtivo: string
+  // Pilar estratégico — campo de roteamento primário do novo fluxo de Originação Estruturada.
+  // Identifica o pilar antes de qualquer campo específico e orienta agentes, docs e validações.
+  pilarOperacao?: 'ma' | 'fidc' | 'cri_cra' | 'asset_prep'
+  setorAtivo?: string  // Setor econômico (principalmente para M&A)
   estagio: string
   objetivo: string
   // Opt-in do módulo premium Adequação à Reforma Tributária (Ferrante):

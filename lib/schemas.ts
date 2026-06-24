@@ -29,6 +29,8 @@ const optTelefone = z.union([
 export const AnaliseCreateSchema = z.object({
   nomeAtivo:             shortStr(200).min(1, 'Nome do ativo é obrigatório'),
   tipoAtivo:             shortStr(100).min(1),
+  pilarOperacao:         z.enum(['ma', 'fidc', 'cri_cra', 'asset_prep']).optional(),
+  setorAtivo:            shortStr(200).optional(),
   estagio:               shortStr(100).min(1),
   objetivo:              shortStr(2000).min(1),
   // Opt-in do módulo premium Adequação à Reforma Tributária (Ferrante).

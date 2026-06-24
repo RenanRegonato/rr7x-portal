@@ -14,91 +14,117 @@ import { z } from 'zod'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const TIPOS_ATIVO = ['Empresa (M&A)', 'Imóvel / Real Estate', 'Startup / Scale-up', 'FIDC / Crédito Estruturado', 'FIDC de Infraestrutura (incentivado)', 'Securitização (CRI / CRA)', 'Portfólio de Crédito', 'Franquia', 'Agronegócio', 'Outro']
-// Tipos de ativo que abrem os campos de estrutura de crédito (cedente, recebível,
-// estrutura de cotas, série). Mantém o vocabulário do gestor de crédito/FIDC.
-const CREDIT_TYPES = new Set(['FIDC / Crédito Estruturado', 'FIDC de Infraestrutura (incentivado)', 'Securitização (CRI / CRA)', 'Portfólio de Crédito'])
-const isCreditAsset = (tipo: string) => CREDIT_TYPES.has(tipo)
-const TIPOS_RECEBIVEL = ['Duplicatas / Notas comerciais', 'Cartão de crédito', 'Consignado', 'Cheques', 'Contratos / Prestação de serviços', 'CCB / Crédito bancário', 'Imobiliário', 'Precatórios', 'Outro']
-// Classificação ANBIMA — CRI (Certificados de Recebíveis Imobiliários)
-const CATEGORIAS_CRI = ['Residencial', 'Corporativo', 'Híbrido']
-const CONCENTRACOES = ['Pulverizado (≤ 20% por devedor)', 'Concentrado (> 20% por devedor)']
-const SEGMENTOS_CRI = ['Apartamentos ou casas', 'Loteamento', 'Industrial', 'Logístico', 'Comercial / Corporativo', 'Shopping / Lojas', 'Infraestrutura', 'Hotel', 'Outro']
-// Classificação ANBIMA — CRA (Certificados de Recebíveis do Agronegócio)
-const ATIVIDADES_DEVEDOR = ['Cooperativa', 'Produtor Rural', 'Terceiro Fornecedor', 'Terceiro Comprador']
-const REVOLVENCIAS = ['Com revolvência', 'Sem revolvência']
-const SEGMENTOS_AGRO = ['Grãos', 'Usina', 'Logística', 'Híbrido', 'Outro']
-const ESTAGIOS   = ['Projeto Pré-Operacional', 'Estruturando', 'Estruturado', 'Em comercialização', 'Em negociação / Closing']
-const OBJETIVOS  = ['Vender 100%', 'Vender participação', 'Captar investimento', 'Estruturar crédito', 'Preparar para o mercado', 'Diagnóstico / Due Diligence']
-const NIVEIS_INFO = ['Baixo (poucos dados formais)', 'Médio (dados parciais)', 'Alto (DRE, balanço e documentos disponíveis)']
-const OPERACAO   = ['Sim: já há operação/receita', 'Não: projeto pré-operacional (sem histórico financeiro)']
-const MICRO_HINTS = [
-  'O ativo já foi apresentado ao mercado anteriormente?',
-  'Qual é o nível de urgência da operação?',
-  'A tese de valor é clara ou ainda está sendo estruturada?',
-  'Existem conflitos societários entre sócios?',
-  'Já houve contato com investidores ou compradores?',
-  'Há pendências ou particularidades nos documentos anexados?',
-  'Alguma situação excepcional que não aparece formalmente nos anexos?',
-]
-// Mantém em sincronia com a whitelist do servidor (lib/upload-validation.ts) e com
-// o que a ingestão consegue ler (categorize em app/api/analise/[id]/ingest/route.ts).
-const ACCEPTED   = '.pdf,.docx,.xls,.xlsx,.csv,.tsv,.txt,.md,.json,.png,.jpg,.jpeg,.webp,.gif'
-const ACCEPTED_EXTS = new Set(['pdf','docx','xls','xlsx','csv','tsv','txt','md','json','png','jpg','jpeg','webp','gif'])
-const MAX_FILE_MB = 20
-const DRAFT_KEY     = 'otto-intake-draft'
-const DRAFT_VERSION = 4   // v4: descarta rascunhos com campos do antigo fluxo de Drive (linkDocumentos)
+type Pilar = 'ma' | 'fidc' | 'cri_cra' | 'asset_prep'
 
-// ─── Section & step definitions ───────────────────────────────────────────────
+const PILARES: { value: Pilar; label: string; sub: string; icon: string }[] = [
+  { value: 'ma',         label: 'M&A e Aquisições',           sub: 'Venda de empresa, participação, fusão, due diligence', icon: '🏢' },
+  { value: 'fidc',       label: 'FIDC e Securitização',        sub: 'FIDC, FIDC-IE, portfólio de crédito, lastro de recebíveis', icon: '📦' },
+  { value: 'cri_cra',   label: 'CRI e CRA',                  sub: 'Certificados de recebíveis imobiliários e do agronegócio', icon: '📜' },
+  { value: 'asset_prep', label: 'Preparação de Ativo',         sub: 'Diagnóstico de prontidão e estruturação para o mercado', icon: '🔧' },
+]
+
+const TIPOS_MA = ['Empresa (M&A)', 'Imóvel / Real Estate', 'Startup / Scale-up', 'Franquia', 'Agronegócio', 'Outro']
+const TIPOS_FIDC = ['FIDC / Crédito Estruturado', 'FIDC de Infraestrutura (incentivado)', 'Portfólio de Crédito']
+
+const TIPOS_RECEBIVEL = ['Duplicatas / Notas comerciais', 'Cartão de crédito', 'Consignado', 'Cheques', 'Contratos / Prestação de serviços', 'CCB / Crédito bancário', 'Imobiliário', 'Precatórios', 'Outro']
+const CATEGORIAS_CRI  = ['Residencial', 'Corporativo', 'Híbrido']
+const SEGMENTOS_CRI   = ['Apartamentos ou casas', 'Loteamento', 'Industrial', 'Logístico', 'Comercial / Corporativo', 'Shopping / Lojas', 'Infraestrutura', 'Hotel', 'Outro']
+const ATIVIDADES_DEVEDOR = ['Cooperativa', 'Produtor Rural', 'Terceiro Fornecedor', 'Terceiro Comprador']
+const SEGMENTOS_AGRO  = ['Grãos', 'Usina', 'Logística', 'Híbrido', 'Outro']
+const ESTAGIOS        = ['Projeto Pré-Operacional', 'Estruturando', 'Estruturado', 'Em comercialização', 'Em negociação / Closing']
+const NIVEIS_INFO     = ['Baixo (poucos dados formais)', 'Médio (dados parciais)', 'Alto (DRE, balanço e documentos disponíveis)']
+const OPERACAO        = ['Sim: já há operação/receita', 'Não: projeto pré-operacional (sem histórico financeiro)']
+
+const SETORES_MA = ['Tecnologia / SaaS', 'Agronegócio', 'Saúde / Pharma', 'Indústria / Manufatura', 'Varejo / Consumo', 'Serviços / Educação', 'Imóveis / Real Estate', 'Energia / Infraestrutura', 'Financeiro / Fintechs', 'Outro']
+
+const TIPOS_TRANSACAO_MA = ['Vender 100%', 'Vender participação', 'Captar investimento', 'Fusão / Incorporação', 'Diagnóstico / Due Diligence']
+
+// Micro-hints da Tese adaptados por pilar
+const MICRO_HINTS: Record<Pilar, string[]> = {
+  ma: [
+    'O ativo já foi ao mercado anteriormente?',
+    'Nível de urgência da operação?',
+    'Há conflitos societários entre sócios?',
+    'Já houve contato com compradores ou investidores?',
+    'Há pendências documentais já conhecidas?',
+    'Situações excepcionais que não aparecem formalmente?',
+  ],
+  fidc: [
+    'Qual é o histórico de inadimplência do cedente?',
+    'Há concentração relevante por sacado?',
+    'A estrutura de cotas já foi negociada com o gestor?',
+    'Há garantias adicionais além do lastro?',
+    'Critérios de elegibilidade dos recebíveis já definidos?',
+  ],
+  cri_cra: [
+    'O imóvel/devedor já tem outros ônus?',
+    'Há operação anterior a reabrir ou é nova emissão?',
+    'O rating já foi discutido com alguma agência?',
+    'Há garantias reais além da securitização?',
+    'Prazo previsto de distribuição?',
+  ],
+  asset_prep: [
+    'Principal gap para o mercado de capitais (governança, financeiro, jurídico)?',
+    'Já houve tentativa anterior de captação? O que travou?',
+    'O horizonte de captação é rígido ou flexível?',
+    'Há sócios ou investidores que precisam ser desligados antes?',
+    'Alguma reestruturação em andamento?',
+  ],
+}
+
+const ACCEPTED     = '.pdf,.docx,.xls,.xlsx,.csv,.tsv,.txt,.md,.json,.png,.jpg,.jpeg,.webp,.gif'
+const ACCEPTED_EXTS = new Set(['pdf','docx','xls','xlsx','csv','tsv','txt','md','json','png','jpg','jpeg','webp','gif'])
+const MAX_FILE_MB  = 20
+const DRAFT_KEY    = 'otto-intake-draft'
+const DRAFT_VERSION = 5  // v5: novo fluxo por pilar (Originação Estruturada)
+
+// ─── Steps & Sections ─────────────────────────────────────────────────────────
 
 const STEPS = [
-  { label: 'Proprietário',           section: 0 },
-  { label: 'Mandato',                section: 1 },
-  { label: 'Identificação do Ativo', section: 2 },
-  { label: 'Localização & Estágio',  section: 2 },
-  { label: 'Objetivo da Operação',   section: 2 },
-  { label: 'Dados Financeiros',      section: 2 },
-  { label: 'Tese do Deal',           section: 2 },
-  { label: 'Documentos',             section: 2 },
-  { label: 'Asset Preparation',      section: 3 },
+  { label: 'Proprietário',               section: 0 },
+  { label: 'Mandato',                    section: 1 },
+  { label: 'Classificação Estratégica', section: 2 },
+  { label: 'Estrutura da Operação',      section: 2 },
+  { label: 'Contexto & Estágio',         section: 2 },
+  { label: 'Tese da Operação',           section: 2 },
+  { label: 'Documentos',                 section: 2 },
 ]
 
 const SECTIONS = [
   { label: 'Proprietário', start: 0, end: 0 },
   { label: 'Mandato',      start: 1, end: 1 },
-  { label: 'Ativo',        start: 2, end: 7 },
-  { label: 'Asset Preparation', start: 8, end: 8 },
+  { label: 'Operação',     start: 2, end: 6 },
 ]
 
-// Mapeia cada campo do AnaliseCreateSchema para um rótulo legível e a etapa
-// onde ele é editado — usado para transformar o 400 genérico "Dados inválidos"
-// numa mensagem que aponta exatamente o que corrigir e onde.
+// ─── Field labels for error messages ─────────────────────────────────────────
+
 const FIELD_LABELS: Record<string, { label: string; step: number }> = {
   nomeAtivo:             { label: 'Nome do ativo',                step: 2 },
   tipoAtivo:             { label: 'Tipo de ativo',                step: 2 },
-  cedente:                    { label: 'Cedente / Originador',              step: 2 },
-  tipoRecebivel:              { label: 'Tipo de recebível',                step: 2 },
-  statusRecebivel:            { label: 'Status do recebível',              step: 2 },
-  estruturaCedenteSacado:     { label: 'Estrutura cedente × sacado',       step: 2 },
-  cedenteCotistaSubordinado:  { label: 'Cedente cotista subordinado',       step: 2 },
-  tipoOferta:                 { label: 'Tipo de oferta',                   step: 2 },
-  estruturaCotas:             { label: 'Estrutura de cotas',               step: 2 },
-  serieEmissao:               { label: 'Série / emissão',                  step: 2 },
-  categoriaCri:               { label: 'Categoria CRI',                    step: 2 },
-  concentracaoCri:            { label: 'Concentração CRI',                 step: 2 },
-  segmentoImobiliario:        { label: 'Segmento imobiliário',             step: 2 },
-  atividadeDevedor:           { label: 'Atividade do devedor (CRA)',       step: 2 },
-  revolvencia:                { label: 'Revolvência (CRA)',                step: 2 },
-  criteriosUnderwriting:      { label: 'Critérios de underwriting (CRA)',  step: 2 },
-  segmentoAgro:               { label: 'Segmento agrícola',                step: 2 },
-  estagio:               { label: 'Estágio atual',                step: 3 },
-  localizacao:           { label: 'Localização (cidade/estado)',  step: 3 },
+  pilarOperacao:         { label: 'Pilar da operação',            step: 2 },
+  cedente:               { label: 'Cedente / Originador',         step: 3 },
+  tipoRecebivel:         { label: 'Tipo de recebível',            step: 3 },
+  statusRecebivel:       { label: 'Status do recebível',          step: 3 },
+  estruturaCedenteSacado:    { label: 'Estrutura cedente × sacado',   step: 3 },
+  cedenteCotistaSubordinado: { label: 'Cedente cotista subordinado',   step: 3 },
+  tipoOferta:            { label: 'Tipo de oferta',               step: 3 },
+  estruturaCotas:        { label: 'Estrutura de cotas',           step: 3 },
+  serieEmissao:          { label: 'Série / emissão',              step: 3 },
+  categoriaCri:          { label: 'Categoria CRI',                step: 3 },
+  concentracaoCri:       { label: 'Concentração CRI',             step: 3 },
+  segmentoImobiliario:   { label: 'Segmento imobiliário',         step: 3 },
+  atividadeDevedor:      { label: 'Atividade do devedor (CRA)',   step: 3 },
+  revolvencia:           { label: 'Revolvência (CRA)',            step: 3 },
+  criteriosUnderwriting: { label: 'Critérios de underwriting',    step: 3 },
+  segmentoAgro:          { label: 'Segmento agrícola',            step: 3 },
+  estagio:               { label: 'Estágio atual',                step: 4 },
+  localizacao:           { label: 'Localização (cidade/estado)',  step: 4 },
   objetivo:              { label: 'Objetivo da operação',         step: 4 },
-  ticketEstimado:        { label: 'Ticket estimado',              step: 5 },
-  nivelInformacao:       { label: 'Nível de informação',          step: 5 },
-  operacaoEmAndamento:   { label: 'Operação em andamento',        step: 5 },
-  resumoAtivo:           { label: 'Tese do Deal',                 step: 6 },
-  informacoesAdicionais: { label: 'Tese do Deal',                 step: 6 },
+  ticketEstimado:        { label: 'Ticket estimado',              step: 4 },
+  nivelInformacao:       { label: 'Nível de informação',          step: 4 },
+  operacaoEmAndamento:   { label: 'Operação em andamento',        step: 4 },
+  resumoAtivo:           { label: 'Tese da Operação',             step: 5 },
+  informacoesAdicionais: { label: 'Tese da Operação',             step: 5 },
   nomeProprietario:      { label: 'Nome do proprietário',         step: 0 },
   cpfCnpjProprietario:   { label: 'CPF / CNPJ do proprietário',   step: 0 },
   telefoneProprietario:  { label: 'Telefone do proprietário',     step: 0 },
@@ -111,27 +137,12 @@ const FIELD_LABELS: Record<string, { label: string; step: number }> = {
   parceiroTelefone:      { label: 'Telefone do parceiro',         step: 1 },
   parceiroEmail:         { label: 'Email do parceiro',            step: 1 },
   obsMandato:            { label: 'Observações do mandato',       step: 1 },
-  assetPrepTipoAtivo:           { label: 'Tipo de ativo (Asset Prep)',    step: 8 },
-  assetPrepReceitaAnual:        { label: 'Receita anual',                  step: 8 },
-  assetPrepEbitda:              { label: 'EBITDA',                         step: 8 },
-  assetPrepPatrimonioLiquido:   { label: 'Patrimônio líquido',             step: 8 },
-  assetPrepAlavancagem:         { label: 'Alavancagem',                    step: 8 },
-  assetPrepPosicaoMercado:      { label: 'Posição de mercado',             step: 8 },
-  assetPrepAtratividade:        { label: 'Atratividade de mercado',        step: 8 },
-  assetPrepMaturidade:          { label: 'Maturidade operacional',         step: 8 },
-  assetPrepTemGovernanca:       { label: 'Tem governança?',                step: 8 },
-  assetPrepTemBoard:            { label: 'Tem board/conselho?',            step: 8 },
-  assetPrepHistoricoAnosOperacao: { label: 'Histórico operacional (anos)',  step: 8 },
-  assetPrepObjetivoCapitacao:   { label: 'Objetivo da captação',           step: 8 },
-  assetPrepVolumeCapitacao:     { label: 'Volume de captação',             step: 8 },
-  assetPrepHorizonteCapitacao:  { label: 'Horizonte de captação',          step: 8 },
 }
 
 const EMAIL_FIELDS    = new Set(['emailProprietario', 'assessorEmail', 'parceiroEmail'])
 const CPFCNPJ_FIELDS  = new Set(['cpfCnpjProprietario'])
 const TELEFONE_FIELDS = new Set(['telefoneProprietario', 'assessorTelefone', 'parceiroTelefone'])
 
-// Transforma os erros do Zod (cliente) numa frase única em PT, com campo + etapa.
 function describeIntakeErrors(error: z.ZodError): string {
   const parts = error.issues.map(iss => {
     const key   = String(iss.path[0] ?? '')
@@ -143,7 +154,6 @@ function describeIntakeErrors(error: z.ZodError): string {
     else if (EMAIL_FIELDS.has(key))                   why = 'e-mail inválido'
     else if (CPFCNPJ_FIELDS.has(key))                 why = 'CPF ou CNPJ inválido'
     else if (TELEFONE_FIELDS.has(key))                why = 'telefone inválido (DDD + número)'
-    else if (key === 'linkDocumentos')                why = 'URL inválida'
     const where = info ? ` — etapa ${info.step + 1}` : ''
     return `${label}: ${why}${where}`
   })
@@ -153,7 +163,7 @@ function describeIntakeErrors(error: z.ZodError): string {
     : `Corrija os campos antes de ativar: ${unique.join('; ')}.`
 }
 
-// ─── Page (inner — needs useSearchParams) ────────────────────────────────────
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 function NovaAnaliseInner() {
   const router       = useRouter()
@@ -164,8 +174,6 @@ function NovaAnaliseInner() {
   const [loading,       setLoading]       = useState(false)
   const [loadingLabel,  setLoadingLabel]  = useState('')
   const [error,         setError]         = useState('')
-  const [objetivos,     setObjetivos]     = useState<string[]>([])
-  // Adequação à Reforma Tributária (Ferrante) — opt-in premium na abertura.
   const [reformaTributaria, setReformaTributaria] = useState<'na' | 'possui' | 'diagnosticar'>('na')
   const [rtUnlocked,    setRtUnlocked]    = useState(false)
   const [files,         setFiles]         = useState<File[]>([])
@@ -175,25 +183,21 @@ function NovaAnaliseInner() {
   const [lgpdConsent,    setLgpdConsent]    = useState(false)
 
   const [form, setForm] = useState({
-    // ── Ativo ──────────────────────────────────────────────────────────────
+    // ── Classificação ──────────────────────────────────────────────────────
+    pilarOperacao:        searchParams.get('pilarOperacao') ?? '' as string,
     nomeAtivo:            searchParams.get('nomeAtivo') ?? '',
     tipoAtivo:            searchParams.get('tipoAtivo') ?? '',
-    cidade:               '',
-    estado:               '',
-    pais:                 'Brasil',
-    estagio:              '',
-    nivelInformacao:      '',
-    operacaoEmAndamento:  '',
-    ticketEstimado:       '',
-    resumoAtivo:          '',
-    // ── Estrutura de crédito (só para FIDC / Securitização / Portfólio) ──────
+    setorAtivo:           '',
+    tipoTransacaoMA:      '',   // M&A: mapeado para objetivo no submit
+    criOuCra:             '',   // 'cri' | 'cra' — distingue o sub-tipo dentro do pilar cri_cra
+    // ── Estrutura de crédito ────────────────────────────────────────────────
     cedente:                   '',
     tipoRecebivel:             '',
     statusRecebivel:           '',
     estruturaCedenteSacado:    '',
     cedenteCotistaSubordinado: '',
     tipoOferta:                '',
-    estruturaCotas:            '',  // legado
+    estruturaCotas:            '',
     cotaSeniorPct:             '',
     cotaMezaninoPct:           '',
     cotaSubordinadaPct:        '',
@@ -207,13 +211,23 @@ function NovaAnaliseInner() {
     revolvencia:               '',
     criteriosUnderwriting:     '',
     segmentoAgro:              '',
-    // ── Proprietário ───────────────────────────────────────────────────────
+    // ── Contexto & Estágio ──────────────────────────────────────────────────
+    cidade:               '',
+    estado:               '',
+    pais:                 'Brasil',
+    estagio:              '',
+    nivelInformacao:      '',
+    operacaoEmAndamento:  '',
+    ticketEstimado:       '',
+    // ── Tese ────────────────────────────────────────────────────────────────
+    resumoAtivo:          '',
+    // ── Proprietário ────────────────────────────────────────────────────────
     nomeProprietario:     searchParams.get('nomeProprietario') ?? '',
     cpfCnpjProprietario:  '',
     telefoneProprietario: searchParams.get('telefoneProprietario') ?? '',
     emailProprietario:    '',
     obsProprietario:      '',
-    // ── Mandato ────────────────────────────────────────────────────────────
+    // ── Mandato ─────────────────────────────────────────────────────────────
     assessorNome:         searchParams.get('assessorNome') ?? '',
     assessorTelefone:     '',
     assessorEmail:        '',
@@ -221,7 +235,7 @@ function NovaAnaliseInner() {
     parceiroTelefone:     '',
     parceiroEmail:        '',
     obsMandato:           '',
-    // ── Asset Preparation ──────────────────────────────────────────────────
+    // ── Asset Preparation ───────────────────────────────────────────────────
     assetPrepTipoAtivo:           '',
     assetPrepReceitaAnual:        '',
     assetPrepEbitda:              '',
@@ -249,8 +263,6 @@ function NovaAnaliseInner() {
     } catch {}
   }, [])
 
-  // Entitlement do módulo Reforma Tributária: libera o opt-in só p/ escritórios
-  // com o pacote (ou admin). Falha silenciosa = bloqueado (mostra upsell).
   useEffect(() => {
     fetch('/api/reforma-tributaria/entitlement')
       .then(r => r.json())
@@ -263,16 +275,12 @@ function NovaAnaliseInner() {
       const raw = localStorage.getItem(DRAFT_KEY)
       if (!raw) return
       const d = JSON.parse(raw)
-      // Restaura só campos que o formulário atual conhece. Rascunhos antigos
-      // podem conter campos já removidos (ex.: linkDocumentos, do antigo fluxo
-      // de Google Drive) que quebrariam a validação ao serem reenviados.
       if (d.form) setForm(prev => {
         const known = Object.fromEntries(
           Object.entries(d.form as Record<string, unknown>).filter(([k]) => k in prev)
         )
         return { ...prev, ...known }
       })
-      if (d.objetivos) setObjetivos(d.objetivos)
       if (d.reformaTributaria) setReformaTributaria(d.reformaTributaria)
       if (d.step != null) setStep(d.step)
       setDraftRestored(true)
@@ -287,15 +295,11 @@ function NovaAnaliseInner() {
 
   useEffect(() => {
     if (!form.nomeAtivo) return
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ version: DRAFT_VERSION, form, objetivos, reformaTributaria, step }))
-  }, [form, objetivos, reformaTributaria, step])
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ version: DRAFT_VERSION, form, reformaTributaria, step }))
+  }, [form, reformaTributaria, step])
 
   function set(field: string, value: string) {
     setForm(prev => ({ ...prev, [field]: value }))
-  }
-
-  function toggleObjetivo(o: string) {
-    setObjetivos(prev => prev.includes(o) ? prev.filter(x => x !== o) : [...prev, o])
   }
 
   function addFiles(incoming: FileList | File[]) {
@@ -307,7 +311,7 @@ function NovaAnaliseInner() {
       }
       const ext = f.name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? ''
       if (!ACCEPTED_EXTS.has(ext)) {
-        setError(`"${f.name}" está em formato não suportado e foi ignorado. Converta para PDF (ex.: PowerPoint, .doc antigo ou foto HEIC) e tente novamente.`)
+        setError(`"${f.name}" está em formato não suportado e foi ignorado. Converta para PDF e tente novamente.`)
         return false
       }
       return true
@@ -336,48 +340,53 @@ function NovaAnaliseInner() {
     return '📎'
   }
 
+  const pilar = form.pilarOperacao as Pilar | ''
+  const isCreditPilar = pilar === 'fidc' || pilar === 'cri_cra'
+
   function validateStep(): string | null {
-    // step 0 = Proprietário — all optional
     if (step === 1) {
       if (!form.assessorNome.trim()) return 'Informe o nome do assessor responsável.'
     }
     if (step === 2) {
-      if (!form.nomeAtivo.trim()) return 'Informe o nome do ativo.'
-      if (!form.tipoAtivo)        return 'Selecione o tipo de ativo.'
-      if (isCreditAsset(form.tipoAtivo)) {
+      if (!form.pilarOperacao) return 'Selecione o pilar da operação.'
+      if (!form.nomeAtivo.trim()) return 'Informe o nome do ativo ou operação.'
+      if (!form.tipoAtivo) return 'Selecione o tipo específico da operação.'
+    }
+    if (step === 3) {
+      // Validações específicas de crédito
+      if (isCreditPilar) {
         const algumCota = form.cotaSeniorPct || form.cotaMezaninoPct || form.cotaSubordinadaPct
         if (algumCota) {
           const total = (parseFloat(form.cotaSeniorPct || '0') + parseFloat(form.cotaMezaninoPct || '0') + parseFloat(form.cotaSubordinadaPct || '0'))
-          if (total !== 100) return `A soma das cotas (${total}%) deve ser exatamente 100% para prosseguir.`
+          if (total !== 100) return `A soma das cotas (${total}%) deve ser exatamente 100%.`
+        }
+        if (form.revolvencia === 'com_revolvencia' && !form.criteriosUnderwriting.trim()) {
+          return 'Carteiras com revolvência exigem critérios de underwriting documentados.'
         }
       }
-      if (form.revolvencia === 'com_revolvencia' && !form.criteriosUnderwriting.trim()) {
-        return 'Carteiras com revolvência exigem critérios de underwriting documentados antes de prosseguir.'
-      }
-    }
-    if (step === 3) {
-      if (!form.cidade.trim()) return 'Informe a cidade.'
-      if (!form.estado.trim()) return 'Informe o estado.'
-      if (!form.estagio)       return 'Selecione o estágio atual.'
     }
     if (step === 4) {
-      if (objetivos.length === 0) return 'Selecione ao menos um objetivo.'
-    }
-    if (step === 5) {
+      if (!form.cidade.trim())           return 'Informe a cidade.'
+      if (!form.estado.trim())           return 'Informe o estado.'
+      if (!form.estagio)                 return 'Selecione o estágio atual.'
       if (!form.ticketEstimado.trim())   return 'Informe o ticket estimado.'
       if (!form.nivelInformacao)         return 'Selecione o nível de informação.'
       if (!form.operacaoEmAndamento)     return 'Informe se a operação já está em andamento.'
-      const isMA = ['Vender 100%', 'Vender participação', 'Captar investimento'].some(o => objetivos.includes(o))
-      if (isMA && form.nivelInformacao === 'Baixo (poucos dados formais)') {
-        return 'Análises de M&A exigem no mínimo nível médio de informação (dados parciais). Com nível baixo, não é possível produzir valuation ou tese de investimento confiáveis.'
+      // M&A exige nível médio ou alto
+      if (pilar === 'ma' && form.nivelInformacao === 'Baixo (poucos dados formais)') {
+        return 'Análises de M&A exigem no mínimo nível médio de informação.'
+      }
+      // M&A exige tipo de transação
+      if (pilar === 'ma' && !form.tipoTransacaoMA) {
+        return 'Selecione o tipo de transação.'
       }
     }
-    if (step === 6) {
-      if (!form.resumoAtivo.trim()) return 'Descreva o ativo e objetivo.'
+    if (step === 5) {
+      if (!form.resumoAtivo.trim()) return 'A Tese da Operação é obrigatória. Descreva o contexto da operação.'
     }
-    if (step === 7) {
+    if (step === 6) {
       if (files.length === 0) return 'Adicione ao menos um documento.'
-      if (!lgpdConsent)       return 'Confirme o consentimento para processamento de dados antes de continuar.'
+      if (!lgpdConsent)       return 'Confirme o consentimento LGPD antes de continuar.'
     }
     return null
   }
@@ -398,26 +407,50 @@ function NovaAnaliseInner() {
     const err = validateStep()
     if (err) { setError(err); return }
 
+    // Derive objetivo e tipoAtivo final baseado no pilar
+    let objetivoFinal = ''
+    let tipoAtivoFinal = form.tipoAtivo
+    if (pilar === 'ma') {
+      objetivoFinal = form.tipoTransacaoMA || 'M&A'
+    } else if (pilar === 'fidc') {
+      objetivoFinal = 'Estruturar crédito'
+    } else if (pilar === 'cri_cra') {
+      objetivoFinal = 'Estruturar crédito'
+      tipoAtivoFinal = 'Securitização (CRI / CRA)'
+    } else if (pilar === 'asset_prep') {
+      objetivoFinal = 'Preparar para o mercado'
+      // Mapeia assetPrepTipoAtivo → tipoAtivo se não foi selecionado outro
+      if (!tipoAtivoFinal && form.assetPrepTipoAtivo) {
+        const map: Record<string, string> = {
+          imobiliario: 'Imóvel / Real Estate',
+          saas: 'Startup / Scale-up',
+          recebivel: 'FIDC / Crédito Estruturado',
+          agro: 'Agronegócio',
+          industrial: 'Empresa (M&A)',
+          infraestrutura: 'Empresa (M&A)',
+          outro: 'Outro',
+        }
+        tipoAtivoFinal = map[form.assetPrepTipoAtivo] ?? 'Outro'
+      }
+    }
+
     const payload = {
       ...form,
-      objetivo:              objetivos.join(', '),
-      // Só persiste o opt-in se o escritório tem o módulo liberado (defesa client-side;
-      // a gating real do motor acontece server-side na Fase 2).
+      tipoAtivo:             tipoAtivoFinal || form.tipoAtivo || 'Outro',
+      objetivo:              objetivoFinal,
       reformaTributaria:     rtUnlocked ? reformaTributaria : 'na',
       localizacao:           `${form.cidade} – ${form.estado}, ${form.pais}`,
       informacoesAdicionais: form.resumoAtivo,
       lgpdConsentimento:     `Consentimento LGPD registrado em ${new Date().toISOString()} — dados processados por IA para análise de deal conforme LGPD art. 7º, inc. V (execução de contrato).`,
     }
 
-    // Defesa: o formulário não coleta mais linkDocumentos (era do antigo fluxo
-    // de Google Drive). Se ele ainda estiver no estado por causa de um rascunho
-    // restaurado, removemos antes de validar/enviar — senão um valor que não é
-    // URL barra o submit com "linkDocumentos: URL inválida".
     delete (payload as Record<string, unknown>).linkDocumentos
+    // Campos internos de UI que não vão para o schema
+    delete (payload as Record<string, unknown>).tipoTransacaoMA
+    delete (payload as Record<string, unknown>).criOuCra
+    delete (payload as Record<string, unknown>).cidade
+    delete (payload as Record<string, unknown>).estado
 
-    // Valida com o MESMO schema do backend antes de enviar. Sem isso, um e-mail
-    // malformado ou um texto acima do limite passava pela validação por etapa e
-    // só era barrado no servidor com o 400 genérico "Dados inválidos".
     const check = AnaliseCreateSchema.safeParse(payload)
     if (!check.success) {
       setError(describeIntakeErrors(check.error))
@@ -436,7 +469,6 @@ function NovaAnaliseInner() {
     const data = await res.json()
 
     if (!res.ok) {
-      // Se o backend devolveu detalhes de validação por campo, aponta qual.
       const fieldErrors = data.details as Record<string, string[]> | undefined
       let msg = data.error ?? 'Erro ao criar análise.'
       if (fieldErrors && Object.keys(fieldErrors).length > 0) {
@@ -456,9 +488,6 @@ function NovaAnaliseInner() {
 
     setLoadingLabel('Preparando envio dos documentos...')
     const supabase = createClient()
-    // Upload protegido: uma falha de rede num arquivo não pode deixar a UI
-    // congelada em "Enviando...". Em erro, mostra mensagem clara e reabilita o botão.
-    // A análise já foi criada acima — ao tentar de novo, reenvie deste formulário.
     try {
       const urlRes = await fetch('/api/upload-url', {
         method:  'POST',
@@ -483,10 +512,6 @@ function NovaAnaliseInner() {
       return
     }
 
-    // Dispara ingestão assíncrona (Fase 13) — Inngest processa em background.
-    // Não bloqueia o redirect: a página da análise faz polling em /ingest/status.
-    // Se o disparo falhar (ex.: Inngest fora), análise continua acessível e
-    // pode rodar no fluxo legado (drive_intake re-lê PDFs do Storage).
     if (files.length > 0) {
       setLoadingLabel('Iniciando processamento dos documentos em background...')
       try {
@@ -508,7 +533,7 @@ function NovaAnaliseInner() {
     <div className="flex flex-col min-h-screen">
       <Topbar
         variant="context"
-        title="Deal Intake"
+        title="Originação Estruturada"
         onBack={step === 0 ? () => router.push('/dashboard') : handleBack}
         right={<span className="text-[12px] text-ink-3">Etapa {step + 1} de {STEPS.length}</span>}
       />
@@ -532,7 +557,7 @@ function NovaAnaliseInner() {
             const isDone   = step > sec.end
             const count    = sec.end - sec.start + 1
             return (
-              <div key={si} className={si === 2 ? 'flex-[6]' : 'flex-1'}>
+              <div key={si} className={si === 2 ? 'flex-[5]' : 'flex-1'}>
                 <div className="flex items-center gap-1.5 mb-1.5">
                   {isDone && <span className="text-[10px] text-ok font-bold leading-none">✓</span>}
                   <span className={`text-[10px] font-semibold uppercase tracking-wider ${
@@ -541,13 +566,10 @@ function NovaAnaliseInner() {
                 </div>
                 <div className="flex gap-0.5">
                   {Array.from({ length: count }, (_, j) => (
-                    <div
-                      key={j}
-                      className={`flex-1 h-[3px] rounded-sm transition-colors ${
-                        step > sec.start + j ? 'bg-accent-strong' :
-                        step === sec.start + j ? 'bg-accent' : 'bg-border'
-                      }`}
-                    />
+                    <div key={j} className={`flex-1 h-[3px] rounded-sm transition-colors ${
+                      step > sec.start + j ? 'bg-accent-strong' :
+                      step === sec.start + j ? 'bg-accent' : 'bg-border'
+                    }`}/>
                   ))}
                 </div>
               </div>
@@ -566,8 +588,6 @@ function NovaAnaliseInner() {
             step={step}
             form={form}
             set={set}
-            objetivos={objetivos}
-            toggleObjetivo={toggleObjetivo}
             reformaTributaria={reformaTributaria}
             setReformaTributaria={setReformaTributaria}
             rtUnlocked={rtUnlocked}
@@ -582,7 +602,6 @@ function NovaAnaliseInner() {
             accepted={ACCEPTED}
           />
 
-          {/* Consentimento LGPD — exibe apenas no último step */}
           {isLast && (
             <div className={`mt-6 rounded-[10px] border p-4 transition-colors ${lgpdConsent ? 'bg-ok/5 border-ok/30' : 'bg-surface border-border'}`}>
               <label className="flex items-start gap-3 cursor-pointer">
@@ -624,14 +643,13 @@ function NovaAnaliseInner() {
                 Voltar
               </button>
             )}
-
             {isLast ? (
               <button
                 onClick={handleSubmit}
                 disabled={loading}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-accent-strong text-white font-semibold text-[13px] hover:opacity-90 disabled:opacity-50"
               >
-                {loading ? <>{loadingLabel || 'Processando...'}</> : <><IconSparkle size={14}/> Ativar squad</>}
+                {loading ? <>{loadingLabel || 'Processando...'}</> : <><IconSparkle size={14}/> Ativar análise</>}
               </button>
             ) : (
               <button
@@ -645,14 +663,12 @@ function NovaAnaliseInner() {
         </div>
 
         <p className="text-center text-[12px] text-ink-3 mt-4">
-          Mandor valida o preenchimento e ativa os 10 especialistas automaticamente. Entrega em até 90 minutos.
+          O Mandor valida o preenchimento e ativa os especialistas automaticamente. Entrega em até 90 minutos.
         </p>
       </div>
     </div>
   )
 }
-
-// ─── Export with Suspense (useSearchParams requirement) ───────────────────────
 
 export default function NovaAnalisePage() {
   return (
@@ -665,7 +681,7 @@ export default function NovaAnalisePage() {
 // ─── Step Content ─────────────────────────────────────────────────────────────
 
 function StepContent({
-  step, form, set, objetivos, toggleObjetivo,
+  step, form, set,
   reformaTributaria, setReformaTributaria, rtUnlocked,
   files, dragging, setDragging, addFiles, removeFile,
   formatBytes, fileIcon, fileInputRef, accepted,
@@ -673,8 +689,6 @@ function StepContent({
   step:           number
   form:           Record<string, string>
   set:            (field: string, value: string) => void
-  objetivos:      string[]
-  toggleObjetivo: (o: string) => void
   reformaTributaria:    'na' | 'possui' | 'diagnosticar'
   setReformaTributaria: (v: 'na' | 'possui' | 'diagnosticar') => void
   rtUnlocked:           boolean
@@ -688,392 +702,556 @@ function StepContent({
   fileInputRef:   React.RefObject<HTMLInputElement | null>
   accepted:       string
 }) {
+  const pilar = form.pilarOperacao as Pilar | ''
 
-  // ── Step 0: Proprietário ─────────────────────────────────────────────────
+  // ── Step 0: Proprietário ────────────────────────────────────────────────────
   if (step === 0) return (
     <div className="space-y-5">
       <p className="text-[13px] text-ink-2 -mt-2">
-        Dados do detentor do ativo: aparece nos documentos de captação e no relatório.
+        Dados do detentor do ativo: aparecem nos documentos de captação e no relatório.
       </p>
       <div className="grid grid-cols-2 gap-4">
         <Field label="Nome completo">
-          <OttoInput
-            value={form.nomeProprietario}
-            onChange={e => set('nomeProprietario', e.target.value)}
-            placeholder="Ex.: João Rodrigues da Silva"
-          />
+          <OttoInput value={form.nomeProprietario} onChange={e => set('nomeProprietario', e.target.value)} placeholder="Ex.: João Rodrigues da Silva"/>
         </Field>
         <Field label="CPF / CNPJ">
-          <OttoInput
-            value={form.cpfCnpjProprietario}
-            onChange={e => set('cpfCnpjProprietario', maskCpfCnpj(e.target.value))}
-            inputMode="numeric"
-            maxLength={18}
-            placeholder="000.000.000-00"
-          />
+          <OttoInput value={form.cpfCnpjProprietario} onChange={e => set('cpfCnpjProprietario', maskCpfCnpj(e.target.value))} inputMode="numeric" maxLength={18} placeholder="000.000.000-00"/>
         </Field>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <Field label="Telefone / WhatsApp">
-          <OttoInput
-            type="tel"
-            value={form.telefoneProprietario}
-            onChange={e => set('telefoneProprietario', maskTelefone(e.target.value))}
-            inputMode="numeric"
-            maxLength={15}
-            placeholder="(11) 99999-9999"
-          />
+          <OttoInput type="tel" value={form.telefoneProprietario} onChange={e => set('telefoneProprietario', maskTelefone(e.target.value))} inputMode="numeric" maxLength={15} placeholder="(11) 99999-9999"/>
         </Field>
         <Field label="Email">
-          <OttoInput
-            type="email"
-            value={form.emailProprietario}
-            onChange={e => set('emailProprietario', e.target.value)}
-            placeholder="joao@empresa.com"
-          />
+          <OttoInput type="email" value={form.emailProprietario} onChange={e => set('emailProprietario', e.target.value)} placeholder="joao@empresa.com"/>
         </Field>
       </div>
-      <Field
-        label="Informações complementares"
-        help="Perfil, expectativas, contexto familiar, restrições, histórico relevante"
-      >
-        <OttoTextarea
-          value={form.obsProprietario}
-          onChange={e => set('obsProprietario', e.target.value)}
-          rows={4}
-          placeholder="Ex.: Proprietário de 2ª geração, busca liquidez parcial. Prefere não expor a identidade do ativo inicialmente. Tem sócio minoritário que não está alinhado..."
-        />
+      <Field label="Informações complementares" help="Perfil, expectativas, contexto familiar, restrições, histórico relevante">
+        <OttoTextarea value={form.obsProprietario} onChange={e => set('obsProprietario', e.target.value)} rows={4} placeholder="Ex.: Proprietário de 2ª geração, busca liquidez parcial. Prefere não expor a identidade do ativo inicialmente..."/>
       </Field>
     </div>
   )
 
-  // ── Step 1: Mandato ───────────────────────────────────────────────────────
+  // ── Step 1: Mandato ─────────────────────────────────────────────────────────
   if (step === 1) return (
     <div className="space-y-6">
       <p className="text-[13px] text-ink-2 -mt-2">
         Formaliza a origem e a responsabilidade comercial do deal dentro do escritório.
       </p>
-
-      {/* Assessor */}
       <div>
         <h3 className="text-[12px] font-semibold text-ink uppercase tracking-wider mb-3">Assessor responsável pela captação *</h3>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Field label="Nome completo *">
-              <OttoInput
-                value={form.assessorNome}
-                onChange={e => set('assessorNome', e.target.value)}
-                placeholder="Ex.: Maria Costa"
-              />
+              <OttoInput value={form.assessorNome} onChange={e => set('assessorNome', e.target.value)} placeholder="Ex.: Maria Costa"/>
             </Field>
             <Field label="Telefone / WhatsApp">
-              <OttoInput
-                type="tel"
-                value={form.assessorTelefone}
-                onChange={e => set('assessorTelefone', maskTelefone(e.target.value))}
-                inputMode="numeric"
-                maxLength={15}
-                placeholder="(11) 99999-9999"
-              />
+              <OttoInput type="tel" value={form.assessorTelefone} onChange={e => set('assessorTelefone', maskTelefone(e.target.value))} inputMode="numeric" maxLength={15} placeholder="(11) 99999-9999"/>
             </Field>
           </div>
           <Field label="Email">
-            <OttoInput
-              type="email"
-              value={form.assessorEmail}
-              onChange={e => set('assessorEmail', e.target.value)}
-              placeholder="assessor@escritorio.com.br"
-            />
+            <OttoInput type="email" value={form.assessorEmail} onChange={e => set('assessorEmail', e.target.value)} placeholder="assessor@escritorio.com.br"/>
           </Field>
         </div>
       </div>
-
-      {/* Parceiro intermediário */}
       <div className="border-t border-border pt-5">
         <div className="flex items-baseline gap-2 mb-3">
           <h3 className="text-[12px] font-semibold text-ink uppercase tracking-wider">Parceiro intermediário</h3>
           <span className="text-[11px] text-ink-3">opcional</span>
         </div>
-        <p className="text-[12px] text-ink-3 mb-4">
-          Quem originou ou indicou este ativo ao escritório. Inclua apenas se houver vínculo comercial formal.
-        </p>
+        <p className="text-[12px] text-ink-3 mb-4">Quem originou ou indicou este ativo ao escritório. Inclua apenas se houver vínculo comercial formal.</p>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Field label="Nome do parceiro">
-              <OttoInput
-                value={form.parceiroNome}
-                onChange={e => set('parceiroNome', e.target.value)}
-                placeholder="Ex.: Carlos Intermediador"
-              />
+              <OttoInput value={form.parceiroNome} onChange={e => set('parceiroNome', e.target.value)} placeholder="Ex.: Carlos Intermediador"/>
             </Field>
             <Field label="Telefone / WhatsApp">
-              <OttoInput
-                type="tel"
-                value={form.parceiroTelefone}
-                onChange={e => set('parceiroTelefone', maskTelefone(e.target.value))}
-                inputMode="numeric"
-                maxLength={15}
-                placeholder="(11) 99999-9999"
-              />
+              <OttoInput type="tel" value={form.parceiroTelefone} onChange={e => set('parceiroTelefone', maskTelefone(e.target.value))} inputMode="numeric" maxLength={15} placeholder="(11) 99999-9999"/>
             </Field>
           </div>
           <Field label="Email">
-            <OttoInput
-              type="email"
-              value={form.parceiroEmail}
-              onChange={e => set('parceiroEmail', e.target.value)}
-              placeholder="parceiro@email.com"
-            />
+            <OttoInput type="email" value={form.parceiroEmail} onChange={e => set('parceiroEmail', e.target.value)} placeholder="parceiro@email.com"/>
           </Field>
           <Field label="Observações do mandato" help="Condições acordadas, comissão, restrições de divulgação">
-            <OttoTextarea
-              value={form.obsMandato}
-              onChange={e => set('obsMandato', e.target.value)}
-              rows={3}
-              placeholder="Ex.: Deal originado via rede de parceiros XYZ. Comissão acordada: 1,5% sobre o transaction value..."
-            />
+            <OttoTextarea value={form.obsMandato} onChange={e => set('obsMandato', e.target.value)} rows={3} placeholder="Ex.: Deal originado via rede de parceiros XYZ. Comissão acordada: 1,5% sobre o transaction value..."/>
           </Field>
         </div>
       </div>
     </div>
   )
 
-  // ── Step 2: Identificação do Ativo ───────────────────────────────────────
+  // ── Step 2: Classificação Estratégica ──────────────────────────────────────
   if (step === 2) return (
-    <div className="space-y-5">
-      <Field label="Nome do Ativo *" help="Como você identifica este deal internamente">
-        <OttoInput
-          value={form.nomeAtivo}
-          onChange={e => set('nomeAtivo', e.target.value)}
-          placeholder="Ex: Rede de Franquias ABC / Imóvel Lapa SP"
-        />
-      </Field>
-      <Field label="Tipo de Ativo *">
-        <OttoSelect value={form.tipoAtivo} onChange={e => set('tipoAtivo', e.target.value)}>
-          <option value="">Selecione...</option>
-          {TIPOS_ATIVO.map(o => <option key={o}>{o}</option>)}
-        </OttoSelect>
-      </Field>
+    <div className="space-y-6">
+      <p className="text-[13px] text-ink-2 -mt-2">
+        Identifica o pilar da operação e roteia toda a análise para o caminho correto.
+      </p>
 
-      {/* ── Estrutura de crédito — só para FIDC / Securitização / Portfólio ──── */}
-      {isCreditAsset(form.tipoAtivo) && (
-        <div className="mt-2 pt-5 border-t border-border space-y-5">
-          <div>
-            <h3 className="text-[12px] font-semibold text-ink uppercase tracking-wider">Estrutura de crédito</h3>
-            <p className="text-[12px] text-ink-3 mt-1">
-              Contexto do lastro e da operação para a Mesa de Crédito. Tudo opcional: a análise se
-              adapta ao que estiver disponível.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Cedente / Originador" help="Quem origina os recebíveis">
-              <OttoInput
-                value={form.cedente}
-                onChange={e => set('cedente', e.target.value)}
-                placeholder="Ex.: Varejista ABC Ltda"
-              />
-            </Field>
-            <Field label="Tipo de recebível" help="Natureza do lastro">
-              <OttoSelect value={form.tipoRecebivel} onChange={e => set('tipoRecebivel', e.target.value)}>
-                <option value="">Selecione...</option>
-                {TIPOS_RECEBIVEL.map(o => <option key={o}>{o}</option>)}
-              </OttoSelect>
-            </Field>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Status do recebível" help="Determina a classificação padronizado / não padronizado (CVM)">
-              <OttoSelect value={form.statusRecebivel} onChange={e => set('statusRecebivel', e.target.value)}>
-                <option value="">Não informado</option>
-                <option value="performado">Performado — serviço/venda já ocorreu</option>
-                <option value="a_performar">A performar — ainda vai ocorrer</option>
-                <option value="vencido_nao_pago">Vencido e não pago (FIDC NP)</option>
-              </OttoSelect>
-            </Field>
-            <Field label="Estrutura cedente × sacado" help="Define onde está o risco de crédito">
-              <OttoSelect value={form.estruturaCedenteSacado} onChange={e => set('estruturaCedenteSacado', e.target.value)}>
-                <option value="">Não informado</option>
-                <option value="monocedente_multisacados">Monocedente / Multisacados</option>
-                <option value="multicedentes_monosacado">Multicedentes / Monosacado (FIDC Fornecedores)</option>
-                <option value="multicedentes_multisacados">Multicedentes / Multisacados (Fomento Mercantil)</option>
-              </OttoSelect>
-            </Field>
-          </div>
-          {form.statusRecebivel === 'vencido_nao_pago' && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] text-amber-800">
-              Recebíveis vencidos e não pagos são classificados como <strong>FIDC Não Padronizado</strong> pela CVM — restrito a investidores profissionais. O Invest Match filtrará automaticamente.
+      {/* 4 pillar cards */}
+      <div className="grid grid-cols-2 gap-3">
+        {PILARES.map(p => (
+          <button
+            key={p.value}
+            type="button"
+            onClick={() => {
+              set('pilarOperacao', p.value)
+              // Limpa tipoAtivo ao trocar de pilar
+              set('tipoAtivo', '')
+              // Para CRI/CRA, tipoAtivo é fixo
+              if (p.value === 'cri_cra') set('tipoAtivo', 'Securitização (CRI / CRA)')
+            }}
+            className={`text-left p-4 rounded-[12px] border-2 transition-all ${
+              form.pilarOperacao === p.value
+                ? 'border-accent-strong bg-accent-soft'
+                : 'border-border bg-surface hover:border-border-strong'
+            }`}
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xl">{p.icon}</span>
+              {form.pilarOperacao === p.value && <span className="text-[10px] text-accent-strong font-bold">✓ Selecionado</span>}
             </div>
-          )}
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Cedente cotista subordinado?" help="Cedente investindo nas cotas subordinadas = alinhamento de interesses (boa prática de governança)">
-              <OttoSelect value={form.cedenteCotistaSubordinado} onChange={e => set('cedenteCotistaSubordinado', e.target.value)}>
-                <option value="">Não informado</option>
-                <option value="sim">Sim — cedente participa como cotista subordinado</option>
-                <option value="nao">Não — cedente não participa</option>
-                <option value="nao_definido">A definir</option>
-              </OttoSelect>
-            </Field>
-            <Field label="Tipo de oferta" help="ICVM 476: máx 75 investidores profissionais, sem prospecto nem rating obrigatório">
-              <OttoSelect value={form.tipoOferta} onChange={e => set('tipoOferta', e.target.value)}>
-                <option value="">Não informado</option>
-                <option value="icvm_400">ICVM 400 — Oferta pública (rating obrigatório)</option>
-                <option value="icvm_476">ICVM 476 — Oferta restrita (até 75 profissionais)</option>
-                <option value="nao_definido">A definir</option>
-              </OttoSelect>
-            </Field>
-          </div>
-          <Field label="Estrutura de cotas / tranches" help="Distribuição por tranche — a soma deve ser exatamente 100%">
-            <div className="space-y-3">
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-[11px] text-ink-3 mb-1">Sênior (%)</label>
-                  <OttoInput
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={form.cotaSeniorPct}
-                    onChange={e => set('cotaSeniorPct', e.target.value)}
-                    placeholder="Ex.: 80"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] text-ink-3 mb-1">Mezanino (%)</label>
-                  <OttoInput
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={form.cotaMezaninoPct}
-                    onChange={e => set('cotaMezaninoPct', e.target.value)}
-                    placeholder="Ex.: 10"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] text-ink-3 mb-1">Subordinada (%)</label>
-                  <OttoInput
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={form.cotaSubordinadaPct}
-                    onChange={e => set('cotaSubordinadaPct', e.target.value)}
-                    placeholder="Ex.: 10"
-                  />
-                </div>
-              </div>
-              {(() => {
-                const s = parseFloat(form.cotaSeniorPct || '0')
-                const m = parseFloat(form.cotaMezaninoPct || '0')
-                const sub = parseFloat(form.cotaSubordinadaPct || '0')
-                const total = s + m + sub
-                const algumPreenchido = form.cotaSeniorPct || form.cotaMezaninoPct || form.cotaSubordinadaPct
-                if (!algumPreenchido) return null
-                return (
-                  <p className={`text-[11px] font-medium ${total === 100 ? 'text-green-600' : 'text-red-500'}`}>
-                    {total === 100 ? '✓ Soma: 100%' : `Soma: ${total}% — deve ser exatamente 100%`}
-                  </p>
-                )
-              })()}
-            </div>
-          </Field>
-          <Field label="Série / emissão" help="Identificação da série ou emissão, se já definida">
+            <p className={`text-[13px] font-semibold mb-1 ${form.pilarOperacao === p.value ? 'text-accent-ink' : 'text-ink'}`}>{p.label}</p>
+            <p className="text-[11px] text-ink-3 leading-snug">{p.sub}</p>
+          </button>
+        ))}
+      </div>
+
+      {/* Nome do ativo — só aparece após selecionar pilar */}
+      {form.pilarOperacao && (
+        <div className="pt-2 border-t border-border space-y-4">
+          <Field label="Nome da operação *" help="Como você identifica este deal internamente">
             <OttoInput
-              value={form.serieEmissao}
-              onChange={e => set('serieEmissao', e.target.value)}
-              placeholder="Ex.: 1ª série / 2ª emissão"
+              value={form.nomeAtivo}
+              onChange={e => set('nomeAtivo', e.target.value)}
+              placeholder={
+                pilar === 'ma'         ? 'Ex.: Rede de Franquias ABC' :
+                pilar === 'fidc'       ? 'Ex.: FIDC Varejista XYZ' :
+                pilar === 'cri_cra'    ? 'Ex.: CRI Residencial Lapa / CRA Grãos GO' :
+                'Ex.: Tech Solutions — diagnóstico de prontidão'
+              }
             />
           </Field>
 
-          {/* ── Classificação ANBIMA para CRI ──────────────────────────────── */}
-          {form.tipoAtivo === 'Securitização (CRI / CRA)' && (
-            <div className="mt-8 pt-5 border-t border-border space-y-5">
-              <div>
-                <h3 className="text-[12px] font-semibold text-ink uppercase tracking-wider">Classificação ANBIMA — CRI</h3>
-                <p className="text-[12px] text-ink-3 mt-1">
-                  Dimensões de risco e elegibilidade conforme Regras ANBIMA para CRI.
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Categoria" help="Residencial, Corporativo ou Híbrido">
-                  <OttoSelect value={form.categoriaCri} onChange={e => set('categoriaCri', e.target.value)}>
-                    <option value="">Não informado</option>
-                    {CATEGORIAS_CRI.map(o => <option key={o} value={o.toLowerCase().replace(' ', '_')}>{o}</option>)}
-                  </OttoSelect>
-                </Field>
-                <Field label="Concentração" help="Pulverizado ≤20% ou Concentrado &gt;20% por devedor">
-                  <OttoSelect value={form.concentracaoCri} onChange={e => set('concentracaoCri', e.target.value)}>
-                    <option value="">Não informado</option>
-                    <option value="pulverizado">Pulverizado (≤ 20% por devedor)</option>
-                    <option value="concentrado">Concentrado (&gt; 20% por devedor)</option>
-                  </OttoSelect>
-                </Field>
-              </div>
-              <Field label="Segmento imobiliário" help="Determina o perfil de risco">
-                <OttoSelect value={form.segmentoImobiliario} onChange={e => set('segmentoImobiliario', e.target.value)}>
-                  <option value="">Não informado</option>
-                  {SEGMENTOS_CRI.map(o => <option key={o} value={o.toLowerCase().replace(/\s+/g, '_').replace(/\//g, '_')}>{o}</option>)}
-                </OttoSelect>
-              </Field>
-            </div>
+          {/* Sub-tipo por pilar */}
+          {pilar === 'ma' && (
+            <Field label="Tipo de ativo *">
+              <OttoSelect value={form.tipoAtivo} onChange={e => set('tipoAtivo', e.target.value)}>
+                <option value="">Selecione...</option>
+                {TIPOS_MA.map(o => <option key={o}>{o}</option>)}
+              </OttoSelect>
+            </Field>
           )}
-
-          {/* ── Classificação ANBIMA para CRA ──────────────────────────────── */}
-          {form.tipoAtivo === 'Securitização (CRI / CRA)' && (
-            <div className="mt-8 pt-5 border-t border-border space-y-5">
-              <div>
-                <h3 className="text-[12px] font-semibold text-ink uppercase tracking-wider">Classificação ANBIMA — CRA</h3>
-                <p className="text-[12px] text-ink-3 mt-1">
-                  Dimensões específicas de recebíveis do agronegócio.
-                </p>
+          {pilar === 'fidc' && (
+            <Field label="Tipo de estrutura *">
+              <OttoSelect value={form.tipoAtivo} onChange={e => set('tipoAtivo', e.target.value)}>
+                <option value="">Selecione...</option>
+                {TIPOS_FIDC.map(o => <option key={o}>{o}</option>)}
+              </OttoSelect>
+            </Field>
+          )}
+          {pilar === 'cri_cra' && (
+            <Field label="Certificado *" help="Define a legislação aplicável e os campos ANBIMA obrigatórios">
+              <div className="grid grid-cols-2 gap-3">
+                {(['cri', 'cra'] as const).map(v => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => set('criOuCra', v)}
+                    className={`py-3 rounded-[10px] border text-[13px] font-medium transition-all ${
+                      form.criOuCra === v
+                        ? 'border-accent-strong bg-accent-soft text-accent-ink'
+                        : 'border-border bg-surface text-ink-2 hover:border-border-strong'
+                    }`}
+                  >
+                    {v === 'cri' ? 'CRI — Imobiliário' : 'CRA — Agronegócio'}
+                  </button>
+                ))}
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Atividade do devedor" help="Quem gera o recebível">
-                  <OttoSelect value={form.atividadeDevedor} onChange={e => set('atividadeDevedor', e.target.value)}>
-                    <option value="">Não informado</option>
-                    <option value="cooperativa">Cooperativa</option>
-                    <option value="produtor_rural">Produtor Rural</option>
-                    <option value="terceiro_fornecedor">Terceiro Fornecedor</option>
-                    <option value="terceiro_comprador">Terceiro Comprador</option>
-                  </OttoSelect>
-                </Field>
-                <Field label="Revolvência" help="Se a carteira permite novas admissões de novos créditos após emissão">
-                  <OttoSelect value={form.revolvencia} onChange={e => set('revolvencia', e.target.value)}>
-                    <option value="">Não informado</option>
-                    <option value="com_revolvencia">Com revolvência</option>
-                    <option value="sem_revolvencia">Sem revolvência</option>
-                  </OttoSelect>
-                </Field>
-              </div>
-              {form.revolvencia === 'com_revolvencia' && (
-                <Field
-                  label="Critérios de underwriting / admissão *"
-                  help="Obrigatório para carteiras com revolvência — descreva os critérios mínimos para admissão de novos créditos (score mínimo, prazo máximo, concentração por devedor, etc.)"
-                >
-                  <textarea
-                    className="w-full rounded-[8px] border border-border bg-surface px-3 py-2 text-[13px] text-ink placeholder:text-ink-3 focus:outline-none focus:ring-1 focus:ring-accent resize-none"
-                    rows={3}
-                    value={form.criteriosUnderwriting}
-                    onChange={e => set('criteriosUnderwriting', e.target.value)}
-                    placeholder="Ex.: Score mínimo 650, prazo máximo 36 meses, concentração máx 5% por devedor, inadimplência > 60 dias implica exclusão da carteira..."
-                  />
-                  {!form.criteriosUnderwriting.trim() && (
-                    <p className="text-[11px] text-red-500 mt-1">Obrigatório para carteiras com revolvência.</p>
-                  )}
-                </Field>
-              )}
-              <Field label="Segmento agrícola" help="Determina o ciclo e sazonalidade">
-                <OttoSelect value={form.segmentoAgro} onChange={e => set('segmentoAgro', e.target.value)}>
-                  <option value="">Não informado</option>
-                  {SEGMENTOS_AGRO.map(o => <option key={o} value={o.toLowerCase().replace(/\s+/g, '_')}>{o}</option>)}
-                </OttoSelect>
-              </Field>
-            </div>
+            </Field>
+          )}
+          {pilar === 'asset_prep' && (
+            <Field label="Tipo de ativo *">
+              <OttoSelect value={form.tipoAtivo} onChange={e => { set('tipoAtivo', e.target.value); set('assetPrepTipoAtivo', e.target.value) }}>
+                <option value="">Selecione...</option>
+                <option value="imobiliario">Imobiliário</option>
+                <option value="saas">SaaS / Tecnologia</option>
+                <option value="recebivel">Recebível / Crédito</option>
+                <option value="agro">Agronegócio</option>
+                <option value="industrial">Industrial</option>
+                <option value="infraestrutura">Infraestrutura</option>
+                <option value="outro">Outro</option>
+              </OttoSelect>
+            </Field>
           )}
         </div>
       )}
     </div>
   )
 
-  // ── Step 3: Localização & Estágio ─────────────────────────────────────────
-  if (step === 3) return (
+  // ── Step 3: Estrutura da Operação ──────────────────────────────────────────
+  if (step === 3) {
+    // ── M&A ──
+    if (pilar === 'ma') return (
+      <div className="space-y-5">
+        <p className="text-[13px] text-ink-2 -mt-2">Campos específicos para M&A. Tudo opcional — preencha o que estiver disponível.</p>
+
+        <Field label="Tipo de transação *">
+          <OttoSelect value={form.tipoTransacaoMA} onChange={e => set('tipoTransacaoMA', e.target.value)}>
+            <option value="">Selecione...</option>
+            {TIPOS_TRANSACAO_MA.map(o => <option key={o}>{o}</option>)}
+          </OttoSelect>
+        </Field>
+
+        <Field label="Setor de atuação" help="Auxilia os agentes de benchmarking e valuation setorial">
+          <OttoSelect value={form.setorAtivo} onChange={e => set('setorAtivo', e.target.value)}>
+            <option value="">Selecione (opcional)...</option>
+            {SETORES_MA.map(o => <option key={o}>{o}</option>)}
+          </OttoSelect>
+        </Field>
+
+        {/* Reforma Tributária — opt-in premium */}
+        <div className="pt-5 border-t border-border">
+          <div className="flex items-center gap-2 mb-1.5">
+            <p className="text-[13px] font-semibold text-ink">Adequação à Reforma Tributária</p>
+            <span className="text-[9px] font-semibold uppercase tracking-wide text-accent-strong border border-accent-strong/40 rounded px-1.5 py-0.5">Premium</span>
+          </div>
+          <p className="text-[12px] text-ink-3 mb-4 leading-relaxed">
+            Rastreio de conformidade tributária e impactos da Reforma (EC 132/2023) sobre a operação.
+          </p>
+          {rtUnlocked ? (
+            <div className="grid gap-2">
+              {([
+                { v: 'na' as const,           t: 'Não incluir nesta análise',             d: 'O diagnóstico tributário não será gerado.' },
+                { v: 'possui' as const,       t: 'Empresa já possui análise de adequação', d: 'Marca como já adequada; sem novo diagnóstico.' },
+                { v: 'diagnosticar' as const, t: 'Ativar Módulo Reforma Tributária',       d: 'Diagnóstico completo de adequação (EC 132/2023).' },
+              ]).map(opt => (
+                <button key={opt.v} type="button" onClick={() => setReformaTributaria(opt.v)}
+                  className={`text-left px-3.5 py-3 rounded-[10px] border text-[13px] transition-all ${
+                    reformaTributaria === opt.v ? 'border-accent-strong bg-accent-soft text-accent-ink font-medium' : 'border-border bg-surface text-ink-2 hover:border-border-strong'
+                  }`}
+                >
+                  <span className="flex items-center">
+                    {reformaTributaria === opt.v && <span className="text-accent-strong mr-1.5 font-bold">✓</span>}
+                    {opt.t}
+                  </span>
+                  <span className="block text-[11px] text-ink-3 mt-0.5 font-normal">{opt.d}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-[10px] border border-border bg-surface-2 px-4 py-3.5 opacity-90">
+              <p className="text-[12px] text-ink-2">
+                🔒 Recurso disponível em planos avançados.{' '}
+                <a href="/dashboard/planos" className="text-accent-strong font-medium underline-offset-2 hover:underline">Conheça os planos</a>.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+
+    // ── FIDC ──
+    if (pilar === 'fidc') return (
+      <div className="space-y-5">
+        <p className="text-[13px] text-ink-2 -mt-2">Contexto do lastro e da operação para a Mesa de Crédito. Tudo opcional.</p>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Cedente / Originador" help="Quem origina os recebíveis">
+            <OttoInput value={form.cedente} onChange={e => set('cedente', e.target.value)} placeholder="Ex.: Varejista ABC Ltda"/>
+          </Field>
+          <Field label="Tipo de recebível" help="Natureza do lastro">
+            <OttoSelect value={form.tipoRecebivel} onChange={e => set('tipoRecebivel', e.target.value)}>
+              <option value="">Selecione...</option>
+              {TIPOS_RECEBIVEL.map(o => <option key={o}>{o}</option>)}
+            </OttoSelect>
+          </Field>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Status do recebível" help="Determina a classificação padronizado / não padronizado (CVM)">
+            <OttoSelect value={form.statusRecebivel} onChange={e => set('statusRecebivel', e.target.value)}>
+              <option value="">Não informado</option>
+              <option value="performado">Performado — serviço/venda já ocorreu</option>
+              <option value="a_performar">A performar — ainda vai ocorrer</option>
+              <option value="vencido_nao_pago">Vencido e não pago (FIDC NP)</option>
+            </OttoSelect>
+          </Field>
+          <Field label="Estrutura cedente × sacado" help="Define onde está o risco de crédito">
+            <OttoSelect value={form.estruturaCedenteSacado} onChange={e => set('estruturaCedenteSacado', e.target.value)}>
+              <option value="">Não informado</option>
+              <option value="monocedente_multisacados">Monocedente / Multisacados</option>
+              <option value="multicedentes_monosacado">Multicedentes / Monosacado (FIDC Fornecedores)</option>
+              <option value="multicedentes_multisacados">Multicedentes / Multisacados (Fomento Mercantil)</option>
+            </OttoSelect>
+          </Field>
+        </div>
+
+        {form.statusRecebivel === 'vencido_nao_pago' && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] text-amber-800">
+            Recebíveis vencidos e não pagos são classificados como <strong>FIDC Não Padronizado</strong> pela CVM — restrito a investidores profissionais.
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Cedente cotista subordinado?" help="Alinhamento de interesses — boa prática de governança">
+            <OttoSelect value={form.cedenteCotistaSubordinado} onChange={e => set('cedenteCotistaSubordinado', e.target.value)}>
+              <option value="">Não informado</option>
+              <option value="sim">Sim — cedente participa como cotista subordinado</option>
+              <option value="nao">Não — cedente não participa</option>
+              <option value="nao_definido">A definir</option>
+            </OttoSelect>
+          </Field>
+          <Field label="Tipo de oferta" help="ICVM 476: máx 75 investidores profissionais, sem prospecto nem rating obrigatório">
+            <OttoSelect value={form.tipoOferta} onChange={e => set('tipoOferta', e.target.value)}>
+              <option value="">Não informado</option>
+              <option value="icvm_400">ICVM 400 — Oferta pública (rating obrigatório)</option>
+              <option value="icvm_476">ICVM 476 — Oferta restrita (até 75 profissionais)</option>
+              <option value="nao_definido">A definir</option>
+            </OttoSelect>
+          </Field>
+        </div>
+
+        <Field label="Estrutura de cotas / tranches" help="Distribuição por tranche — a soma deve ser exatamente 100%">
+          <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="block text-[11px] text-ink-3 mb-1">Sênior (%)</label>
+                <OttoInput type="number" min={0} max={100} value={form.cotaSeniorPct} onChange={e => set('cotaSeniorPct', e.target.value)} placeholder="Ex.: 80"/>
+              </div>
+              <div>
+                <label className="block text-[11px] text-ink-3 mb-1">Mezanino (%)</label>
+                <OttoInput type="number" min={0} max={100} value={form.cotaMezaninoPct} onChange={e => set('cotaMezaninoPct', e.target.value)} placeholder="Ex.: 10"/>
+              </div>
+              <div>
+                <label className="block text-[11px] text-ink-3 mb-1">Subordinada (%)</label>
+                <OttoInput type="number" min={0} max={100} value={form.cotaSubordinadaPct} onChange={e => set('cotaSubordinadaPct', e.target.value)} placeholder="Ex.: 10"/>
+              </div>
+            </div>
+            {(() => {
+              const s = parseFloat(form.cotaSeniorPct || '0')
+              const m = parseFloat(form.cotaMezaninoPct || '0')
+              const sub = parseFloat(form.cotaSubordinadaPct || '0')
+              const total = s + m + sub
+              const algum = form.cotaSeniorPct || form.cotaMezaninoPct || form.cotaSubordinadaPct
+              if (!algum) return null
+              return <p className={`text-[11px] font-medium ${total === 100 ? 'text-green-600' : 'text-red-500'}`}>
+                {total === 100 ? '✓ Soma: 100%' : `Soma: ${total}% — deve ser exatamente 100%`}
+              </p>
+            })()}
+          </div>
+        </Field>
+
+        <Field label="Série / emissão" help="Identificação da série ou emissão, se já definida">
+          <OttoInput value={form.serieEmissao} onChange={e => set('serieEmissao', e.target.value)} placeholder="Ex.: 1ª série / 2ª emissão"/>
+        </Field>
+      </div>
+    )
+
+    // ── CRI / CRA ──
+    if (pilar === 'cri_cra') return (
+      <div className="space-y-5">
+        <p className="text-[13px] text-ink-2 -mt-2">Classificação ANBIMA e dimensões de risco e elegibilidade. Tudo opcional.</p>
+
+        {/* CRI */}
+        {(form.criOuCra === 'cri' || !form.criOuCra) && (
+          <div className="space-y-4">
+            <h3 className="text-[12px] font-semibold text-ink uppercase tracking-wider">Classificação ANBIMA — CRI</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Categoria" help="Residencial, Corporativo ou Híbrido">
+                <OttoSelect value={form.categoriaCri} onChange={e => set('categoriaCri', e.target.value)}>
+                  <option value="">Não informado</option>
+                  {CATEGORIAS_CRI.map(o => <option key={o} value={o.toLowerCase().replace(' ', '_')}>{o}</option>)}
+                </OttoSelect>
+              </Field>
+              <Field label="Concentração" help="Pulverizado ≤20% ou Concentrado >20% por devedor">
+                <OttoSelect value={form.concentracaoCri} onChange={e => set('concentracaoCri', e.target.value)}>
+                  <option value="">Não informado</option>
+                  <option value="pulverizado">Pulverizado (≤ 20% por devedor)</option>
+                  <option value="concentrado">Concentrado (&gt; 20% por devedor)</option>
+                </OttoSelect>
+              </Field>
+            </div>
+            <Field label="Segmento imobiliário" help="Determina o perfil de risco">
+              <OttoSelect value={form.segmentoImobiliario} onChange={e => set('segmentoImobiliario', e.target.value)}>
+                <option value="">Não informado</option>
+                {SEGMENTOS_CRI.map(o => <option key={o} value={o.toLowerCase().replace(/\s+/g, '_').replace(/\//g, '_')}>{o}</option>)}
+              </OttoSelect>
+            </Field>
+          </div>
+        )}
+
+        {/* CRA */}
+        {(form.criOuCra === 'cra' || !form.criOuCra) && (
+          <div className={`space-y-4 ${!form.criOuCra ? 'pt-5 border-t border-border' : ''}`}>
+            <h3 className="text-[12px] font-semibold text-ink uppercase tracking-wider">Classificação ANBIMA — CRA</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Atividade do devedor" help="Quem gera o recebível">
+                <OttoSelect value={form.atividadeDevedor} onChange={e => set('atividadeDevedor', e.target.value)}>
+                  <option value="">Não informado</option>
+                  {ATIVIDADES_DEVEDOR.map(o => <option key={o} value={o.toLowerCase().replace(' ', '_')}>{o}</option>)}
+                </OttoSelect>
+              </Field>
+              <Field label="Revolvência" help="Se a carteira permite admissão de novos créditos após emissão">
+                <OttoSelect value={form.revolvencia} onChange={e => set('revolvencia', e.target.value)}>
+                  <option value="">Não informado</option>
+                  <option value="com_revolvencia">Com revolvência</option>
+                  <option value="sem_revolvencia">Sem revolvência</option>
+                </OttoSelect>
+              </Field>
+            </div>
+            {form.revolvencia === 'com_revolvencia' && (
+              <Field label="Critérios de underwriting / admissão *" help="Obrigatório para carteiras com revolvência">
+                <OttoTextarea
+                  rows={3}
+                  value={form.criteriosUnderwriting}
+                  onChange={e => set('criteriosUnderwriting', e.target.value)}
+                  placeholder="Ex.: Score mínimo 650, prazo máximo 36 meses, concentração máx 5% por devedor..."
+                />
+                {!form.criteriosUnderwriting.trim() && (
+                  <p className="text-[11px] text-red-500 mt-1">Obrigatório para carteiras com revolvência.</p>
+                )}
+              </Field>
+            )}
+            <Field label="Segmento agrícola" help="Determina o ciclo e sazonalidade">
+              <OttoSelect value={form.segmentoAgro} onChange={e => set('segmentoAgro', e.target.value)}>
+                <option value="">Não informado</option>
+                {SEGMENTOS_AGRO.map(o => <option key={o} value={o.toLowerCase().replace(/\s+/g, '_')}>{o}</option>)}
+              </OttoSelect>
+            </Field>
+          </div>
+        )}
+
+        {/* Estrutura de cotas (comum CRI/CRA) */}
+        <div className="pt-5 border-t border-border">
+          <Field label="Série / emissão" help="Identificação da série ou emissão, se já definida">
+            <OttoInput value={form.serieEmissao} onChange={e => set('serieEmissao', e.target.value)} placeholder="Ex.: 1ª série / 2ª emissão"/>
+          </Field>
+        </div>
+      </div>
+    )
+
+    // ── Asset Preparation ──
+    if (pilar === 'asset_prep') return (
+      <div className="space-y-6">
+        <p className="text-[13px] text-ink-2 -mt-2">
+          Dados para avaliar a prontidão do ativo para o mercado de capitais. Deixe em branco o que não souber.
+        </p>
+
+        <div className="bg-surface rounded-[10px] p-4 border border-border space-y-3">
+          <h4 className="text-[12px] font-semibold text-ink uppercase tracking-wider">Dados Financeiros</h4>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Receita anual (R$ milhões)">
+              <OttoInput type="text" placeholder="Ex.: 50" value={form.assetPrepReceitaAnual} onChange={e => set('assetPrepReceitaAnual', e.target.value)}/>
+            </Field>
+            <Field label="EBITDA (R$ milhões)">
+              <OttoInput type="text" placeholder="Ex.: 12.5" value={form.assetPrepEbitda} onChange={e => set('assetPrepEbitda', e.target.value)}/>
+            </Field>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Patrimônio Líquido (R$ milhões)">
+              <OttoInput type="text" placeholder="Ex.: 100" value={form.assetPrepPatrimonioLiquido} onChange={e => set('assetPrepPatrimonioLiquido', e.target.value)}/>
+            </Field>
+            <Field label="Alavancagem (ex: 1.5x)">
+              <OttoInput type="text" placeholder="Ex.: 1.5x" value={form.assetPrepAlavancagem} onChange={e => set('assetPrepAlavancagem', e.target.value)}/>
+            </Field>
+          </div>
+        </div>
+
+        <div className="bg-surface rounded-[10px] p-4 border border-border space-y-3">
+          <h4 className="text-[12px] font-semibold text-ink uppercase tracking-wider">Maturidade & Governança</h4>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Maturidade operacional">
+              <OttoSelect value={form.assetPrepMaturidade} onChange={e => set('assetPrepMaturidade', e.target.value)}>
+                <option value="">— Opcional</option>
+                <option value="pre_operacional">Pré-operacional</option>
+                <option value="ramp_up">Ramp-up</option>
+                <option value="maduro">Maduro</option>
+                <option value="estavel">Estável</option>
+              </OttoSelect>
+            </Field>
+            <Field label="Histórico operacional (anos)">
+              <OttoInput type="text" placeholder="Ex.: 5" value={form.assetPrepHistoricoAnosOperacao} onChange={e => set('assetPrepHistoricoAnosOperacao', e.target.value)}/>
+            </Field>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Tem governança formal?">
+              <OttoSelect value={form.assetPrepTemGovernanca} onChange={e => set('assetPrepTemGovernanca', e.target.value)}>
+                <option value="">— Opcional</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="nao_definido">Não definido</option>
+              </OttoSelect>
+            </Field>
+            <Field label="Tem board ou conselho?">
+              <OttoSelect value={form.assetPrepTemBoard} onChange={e => set('assetPrepTemBoard', e.target.value)}>
+                <option value="">— Opcional</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="nao_definido">Não definido</option>
+              </OttoSelect>
+            </Field>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Posição no mercado">
+              <OttoSelect value={form.assetPrepPosicaoMercado} onChange={e => set('assetPrepPosicaoMercado', e.target.value)}>
+                <option value="">— Opcional</option>
+                <option value="lider">Líder</option>
+                <option value="consolidada">Consolidada</option>
+                <option value="emergente">Emergente</option>
+                <option value="startup">Startup</option>
+              </OttoSelect>
+            </Field>
+            <Field label="Atratividade do mercado">
+              <OttoSelect value={form.assetPrepAtratividade} onChange={e => set('assetPrepAtratividade', e.target.value)}>
+                <option value="">— Opcional</option>
+                <option value="alta">Alta</option>
+                <option value="media">Média</option>
+                <option value="baixa">Baixa</option>
+              </OttoSelect>
+            </Field>
+          </div>
+        </div>
+
+        <div className="bg-surface rounded-[10px] p-4 border border-border space-y-3">
+          <h4 className="text-[12px] font-semibold text-ink uppercase tracking-wider">Objetivo de Captação</h4>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Objetivo">
+              <OttoSelect value={form.assetPrepObjetivoCapitacao} onChange={e => set('assetPrepObjetivoCapitacao', e.target.value)}>
+                <option value="">— Opcional</option>
+                <option value="crescimento">Crescimento</option>
+                <option value="refinanciamento">Refinanciamento</option>
+                <option value="aquisicao">Aquisição</option>
+                <option value="estruturacao">Estruturação</option>
+                <option value="outro">Outro</option>
+              </OttoSelect>
+            </Field>
+            <Field label="Volume (R$ milhões)">
+              <OttoInput type="text" placeholder="Ex.: 25" value={form.assetPrepVolumeCapitacao} onChange={e => set('assetPrepVolumeCapitacao', e.target.value)}/>
+            </Field>
+          </div>
+          <Field label="Horizonte da captação">
+            <OttoSelect value={form.assetPrepHorizonteCapitacao} onChange={e => set('assetPrepHorizonteCapitacao', e.target.value)}>
+              <option value="">— Opcional</option>
+              <option value="imediato">Imediato (&lt; 30 dias)</option>
+              <option value="3_meses">3 meses</option>
+              <option value="6_meses">6 meses</option>
+              <option value="12_meses">12 meses</option>
+            </OttoSelect>
+          </Field>
+        </div>
+      </div>
+    )
+
+    return null
+  }
+
+  // ── Step 4: Contexto & Estágio ──────────────────────────────────────────────
+  if (step === 4) return (
     <div className="space-y-5">
+      <p className="text-[13px] text-ink-2 -mt-2">
+        Dimensionamento e momento da operação.
+      </p>
+
       <div className="grid grid-cols-3 gap-3">
         <Field label="Cidade *">
           <OttoInput value={form.cidade} onChange={e => set('cidade', e.target.value)} placeholder="São Paulo"/>
@@ -1085,435 +1263,154 @@ function StepContent({
           <OttoInput value={form.pais} onChange={e => set('pais', e.target.value)} placeholder="Brasil"/>
         </Field>
       </div>
+
       <Field label="Estágio Atual *">
         <OttoSelect value={form.estagio} onChange={e => set('estagio', e.target.value)}>
           <option value="">Selecione...</option>
           {ESTAGIOS.map(o => <option key={o}>{o}</option>)}
         </OttoSelect>
       </Field>
-    </div>
-  )
 
-  // ── Step 4: Objetivo da Operação ──────────────────────────────────────────
-  if (step === 4) return (
-    <div>
-      <p className="text-[13px] text-ink-3 mb-4">Selecione um ou mais objetivos para este mandato.</p>
-      <div className="grid grid-cols-2 gap-2">
-        {OBJETIVOS.map(o => (
-          <button
-            key={o}
-            type="button"
-            onClick={() => toggleObjetivo(o)}
-            className={`text-left px-3.5 py-3 rounded-[10px] border text-[13px] transition-all ${
-              objetivos.includes(o)
-                ? 'border-accent-strong bg-accent-soft text-accent-ink font-medium'
-                : 'border-border bg-surface text-ink-2 hover:border-border-strong'
-            }`}
-          >
-            {objetivos.includes(o) && <span className="text-accent-strong mr-1.5 font-bold">✓</span>}
-            {o}
-          </button>
-        ))}
-      </div>
-      {objetivos.length > 0 && (
-        <p className="text-[12px] text-accent-ink mt-3">
-          {objetivos.length} selecionado(s): {objetivos.join(' · ')}
-        </p>
-      )}
-
-      {/* ── Módulo premium: Adequação à Reforma Tributária (Ferrante) ───────── */}
-      <div className="mt-7 pt-6 border-t border-border">
-        <div className="flex items-center gap-2 mb-1.5">
-          <p className="text-[13px] font-semibold text-ink">Adequação à Reforma Tributária</p>
-          <span className="text-[9px] font-semibold uppercase tracking-wide text-accent-strong border border-accent-strong/40 rounded px-1.5 py-0.5">Premium</span>
-        </div>
-        <p className="text-[12px] text-ink-3 mb-4 leading-relaxed">
-          Rastreio de conformidade tributária, riscos fiscais e impactos da Reforma (EC 132/2023)
-          sobre o ativo, para captação, M&A e due diligence.
-        </p>
-
-        {rtUnlocked ? (
-          <div className="grid gap-2">
-            {([
-              { v: 'na',            t: 'Não incluir nesta análise',                 d: 'O diagnóstico tributário não será gerado.' },
-              { v: 'possui',        t: 'Empresa já possui análise de adequação',    d: 'Marca como já adequada; sem novo diagnóstico.' },
-              { v: 'diagnosticar',  t: 'Ativar o Módulo Reforma Tributária',        d: 'Diagnóstico completo de adequação à Reforma (EC 132/2023) e recomendações.' },
-            ] as const).map(opt => (
-              <button
-                key={opt.v}
-                type="button"
-                onClick={() => setReformaTributaria(opt.v)}
-                className={`text-left px-3.5 py-3 rounded-[10px] border text-[13px] transition-all ${
-                  reformaTributaria === opt.v
-                    ? 'border-accent-strong bg-accent-soft text-accent-ink font-medium'
-                    : 'border-border bg-surface text-ink-2 hover:border-border-strong'
-                }`}
-              >
-                <span className="flex items-center">
-                  {reformaTributaria === opt.v && <span className="text-accent-strong mr-1.5 font-bold">✓</span>}
-                  {opt.t}
-                </span>
-                <span className="block text-[11px] text-ink-3 mt-0.5 font-normal">{opt.d}</span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-[10px] border border-border bg-surface-2 px-4 py-3.5 opacity-90">
-            <p className="text-[12px] text-ink-2">
-              🔒 Recurso disponível em planos avançados.{' '}
-              <a href="/dashboard/planos" className="text-accent-strong font-medium underline-offset-2 hover:underline">
-                Conheça os planos
-              </a>.
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-
-  // ── Step 5: Dados Financeiros ─────────────────────────────────────────────
-  if (step === 5) return (
-    <div className="space-y-5">
       <Field label="Ticket Estimado *" help="Valor esperado da transação ou captação">
-        <OttoInput
-          value={form.ticketEstimado}
-          onChange={e => set('ticketEstimado', e.target.value)}
-          placeholder="Ex: R$ 20M a R$ 30M"
-        />
+        <OttoInput value={form.ticketEstimado} onChange={e => set('ticketEstimado', e.target.value)} placeholder="Ex.: R$ 20M a R$ 30M"/>
       </Field>
+
       <Field label="Nível de Informação Disponível *">
         <OttoSelect value={form.nivelInformacao} onChange={e => set('nivelInformacao', e.target.value)}>
           <option value="">Selecione...</option>
           {NIVEIS_INFO.map(o => <option key={o}>{o}</option>)}
         </OttoSelect>
       </Field>
-      <Field
-        label="A operação já está em andamento? *"
-        help="Projetos pré-operacionais ainda não têm histórico financeiro (DRE, balancete, DFRE). A análise se adapta ao estágio e não penaliza a ausência desses documentos."
-      >
+
+      <Field label="A operação já está em andamento? *" help="Projetos pré-operacionais ainda não têm histórico financeiro. A análise se adapta ao estágio.">
         <OttoSelect value={form.operacaoEmAndamento} onChange={e => set('operacaoEmAndamento', e.target.value)}>
           <option value="">Selecione...</option>
           {OPERACAO.map(o => <option key={o}>{o}</option>)}
         </OttoSelect>
       </Field>
+
+      {/* Tipo de transação para M&A — caso ainda não preenchido no step 3 */}
+      {pilar === 'ma' && !form.tipoTransacaoMA && (
+        <Field label="Tipo de transação *">
+          <OttoSelect value={form.tipoTransacaoMA} onChange={e => set('tipoTransacaoMA', e.target.value)}>
+            <option value="">Selecione...</option>
+            {TIPOS_TRANSACAO_MA.map(o => <option key={o}>{o}</option>)}
+          </OttoSelect>
+        </Field>
+      )}
     </div>
   )
 
-  // ── Step 6: Tese do Deal ──────────────────────────────────────────────────
-  if (step === 6) return (
-    <div>
-      <p className="text-[13px] text-ink-3 mb-4">
-        Este é o campo mais importante do cadastro. Use-o para contextualizar o que pode não estar
-        evidente nos documentos: o objetivo da operação, as partes envolvidas, a estrutura da
-        negociação, particularidades e pendências documentais já conhecidas, e situações excepcionais
-        que não aparecem formalmente nos anexos. Quanto mais detalhe, mais precisa a análise. Divergências
-        já explicadas aqui (por exemplo, uma matrícula desatualizada que será reenviada) deixam de virar
-        apontamento indevido.
-      </p>
-      <div className="flex flex-wrap gap-1.5 mb-3">
-        {MICRO_HINTS.map(h => (
-          <span key={h} className="text-[11px] text-ink-3 bg-bg-tint border border-border rounded px-2 py-1">{h}</span>
-        ))}
-      </div>
-      <OttoTextarea
-        value={form.resumoAtivo}
-        onChange={e => set('resumoAtivo', e.target.value)}
-        rows={8}
-        placeholder="Ex: Empresa familiar, 2ª geração, sócios alinhados. Nunca foi ao mercado. Urgência moderada, sócio majoritário quer liquidez nos próximos 18 meses. Obs.: a matrícula anexada está desatualizada, versão atualizada será enviada na sequência."
-      />
-    </div>
-  )
-
-  // ── Step 7: Documentos ────────────────────────────────────────────────────
-  if (step === 7) {
-    const isCreditAsset = CREDIT_TYPES.has(form.tipoAtivo)
-    const docsCriticos = isCreditAsset ? getDocsCriticos(form.tipoAtivo) : []
-    const { criticos, altos } = isCreditAsset ? formatDocsCriticosUI(form.tipoAtivo) : { criticos: [], altos: [] }
-
+  // ── Step 5: Tese da Operação ────────────────────────────────────────────────
+  if (step === 5) {
+    const hints = pilar ? MICRO_HINTS[pilar] : MICRO_HINTS.ma
     return (
-    <div>
-      <p className="text-[13px] text-ink-3 mb-4">
-        Suba todos os documentos disponíveis: balanços, DRE, contratos, laudos, apresentações, cap table.
-        Aceita PDF, Word, Excel, CSV, PNG, JPG. Quanto mais completa a documentação, mais precisa a análise.
-      </p>
-
-      {/* ── Documentos Esperados para CRI/CRA ──────────────────────────── */}
-      {docsCriticos.length > 0 && (
-        <div className="mb-6 p-5 rounded-[12px] border border-accent-soft bg-accent-soft/20">
-          <h3 className="text-[12px] font-semibold text-accent-strong uppercase tracking-wider mb-4">
-            📋 Documentos Esperados para {form.tipoAtivo}
-          </h3>
-
-          {criticos.length > 0 && (
-            <div className="mb-4">
-              <p className="text-[11px] font-semibold text-ink mb-2">🔴 Críticos (obrigatórios)</p>
-              <div className="space-y-2">
-                {criticos.map((doc, idx) => (
-                  <div key={idx} className="text-[11px] bg-white rounded border border-accent-soft p-2.5">
-                    <p className="font-medium text-ink">{doc.nome}</p>
-                    <p className="text-ink-3 mt-0.5">{doc.descricao}</p>
-                    {doc.exemplo && (
-                      <p className="text-ink-3 text-[10px] mt-1">
-                        <span className="font-semibold">Ex.:</span> {doc.exemplo}
-                      </p>
-                    )}
-                    {doc.dica && (
-                      <p className="text-accent-strong text-[10px] mt-1 italic">
-                        💡 {doc.dica}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {altos.length > 0 && (
-            <div>
-              <p className="text-[11px] font-semibold text-ink mb-2">🟡 Recomendados (altos)</p>
-              <div className="space-y-2">
-                {altos.map((doc, idx) => (
-                  <div key={idx} className="text-[11px] bg-white rounded border border-amber-200 p-2.5">
-                    <p className="font-medium text-ink">{doc.nome}</p>
-                    <p className="text-ink-3 mt-0.5">{doc.descricao}</p>
-                    {doc.dica && (
-                      <p className="text-amber-700 text-[10px] mt-1 italic">
-                        💡 {doc.dica}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      <div
-        onDragOver={e => { e.preventDefault(); setDragging(true) }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={e => { e.preventDefault(); setDragging(false); addFiles(e.dataTransfer.files) }}
-        onClick={() => fileInputRef.current?.click()}
-        className={`border-2 border-dashed rounded-[14px] p-10 text-center cursor-pointer transition-all ${
-          dragging ? 'border-accent-strong bg-accent-soft/30' : 'border-border hover:border-border-strong hover:bg-surface-hover'
-        }`}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept={accepted}
-          className="hidden"
-          onChange={e => { if (e.target.files) addFiles(e.target.files); e.target.value = '' }}
-        />
-        <div className="text-3xl mb-2">📂</div>
-        <p className="text-ink-2 text-[13px] font-medium">Clique para selecionar ou arraste os arquivos</p>
-        <p className="text-ink-3 text-[11px] mt-1">PDF · Word · Excel · CSV · PNG · JPG · máx. {MAX_FILE_MB}MB por arquivo</p>
-      </div>
-      {files.length > 0 && (
-        <div className="mt-4 space-y-2">
-          {files.map((file, i) => (
-            <div key={i} className="flex items-center gap-3 bg-surface border border-border rounded-[10px] px-3 py-2.5">
-              <span className="text-base flex-none">{fileIcon(file.name)}</span>
-              <span className="text-[13px] text-ink-2 truncate flex-1">{file.name}</span>
-              <span className="text-[11px] text-ink-3 flex-none">{formatBytes(file.size)}</span>
-              <button
-                type="button"
-                onClick={e => { e.stopPropagation(); removeFile(i) }}
-                className="text-ink-3 hover:text-[oklch(0.6_0.16_25)] transition-colors text-[13px] flex-none"
-              >✕</button>
-            </div>
+      <div>
+        <p className="text-[13px] text-ink-3 mb-4">
+          Este é o campo mais importante do cadastro. Descreva o contexto que não está nos documentos:
+          objetivo da operação, partes envolvidas, estrutura pretendida, pendências já conhecidas e
+          situações excepcionais. Divergências explicadas aqui (ex.: &quot;a matrícula enviada está
+          desatualizada&quot;) deixam de virar apontamento indevido na análise.
+        </p>
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {hints.map(h => (
+            <span key={h} className="text-[11px] text-ink-3 bg-bg-tint border border-border rounded px-2 py-1">{h}</span>
           ))}
-          <p className="text-[12px] text-accent-ink pt-1">{files.length} arquivo(s) selecionado(s)</p>
         </div>
-      )}
-    </div>
+        <OttoTextarea
+          value={form.resumoAtivo}
+          onChange={e => set('resumoAtivo', e.target.value)}
+          rows={8}
+          placeholder={
+            pilar === 'ma'         ? 'Ex.: Empresa familiar, 2ª geração, sócios alinhados. Nunca foi ao mercado. Urgência moderada. A DRE enviada é gerencial (não auditada) — auditoria em andamento, finaliza em 60 dias.' :
+            pilar === 'fidc'       ? 'Ex.: FIDC para originação de recebíveis de uma rede varejista. Cedente com 5 anos de histórico, inadimplência abaixo de 2%. Cotas sênior parcialmente negociadas com gestora X.' :
+            pilar === 'cri_cra'    ? 'Ex.: CRI lastreado em contratos de locação corporativa de imóvel comercial em SP. Devedor com rating AA. Emissão prevista para Q3. Matrícula em atualização.' :
+            'Ex.: Empresa de logística, 8 anos de operação, busca captação para expansão. Governança informal, sem board formalizado — em processo de constituição. DRE gerencial disponível.'
+          }
+        />
+      </div>
     )
   }
 
-  // ── Step 8: Asset Preparation ──────────────────────────────────────────────
-  if (step === 8) {
-    const ASSET_TYPES_AP = ['Imobiliário', 'SaaS / Tecnologia', 'Recebível / Crédito', 'Agronegócio', 'Industrial', 'Infraestrutura', 'Outro']
-    const MARKET_POSITION = ['Lider', 'Consolidada', 'Emergente', 'Startup']
-    const ATTRACTIVENESS = ['Alta', 'Média', 'Baixa']
-    const MATURITY = ['Pré-operacional', 'Ramp-up', 'Maduro', 'Estável']
-    const CAP_OBJECTIVE = ['Crescimento', 'Refinanciamento', 'Aquisição', 'Estruturação', 'Outro']
-    const CAP_TIMELINE = ['Imediato (< 30 dias)', '3 meses', '6 meses', '12 meses']
+  // ── Step 6: Documentos ──────────────────────────────────────────────────────
+  if (step === 6) {
+    const { criticos, altos } = formatDocsCriticosUI(form.tipoAtivo, form.pilarOperacao)
+    const hasDocs = criticos.length > 0 || altos.length > 0
 
     return (
-      <div className="space-y-6">
-        <div>
-          <p className="text-[13px] text-ink-3 mb-4">
-            Esta seção optativa ajuda a avaliar a prontidão do ativo para acessar o mercado de capitais.
-            Informações sobre financeiro, governança, mercado e objetivos de captação. Deixe em branco o que não souber.
-          </p>
+      <div>
+        <p className="text-[13px] text-ink-3 mb-4">
+          Suba todos os documentos disponíveis. Aceita PDF, Word, Excel, CSV, imagens.
+          Quanto mais completa a documentação, mais precisa a análise.
+        </p>
+
+        {hasDocs && (
+          <div className="mb-6 p-5 rounded-[12px] border border-accent-soft bg-accent-soft/20">
+            <h3 className="text-[12px] font-semibold text-accent-strong uppercase tracking-wider mb-4">
+              Documentos esperados para este pilar
+            </h3>
+            {criticos.length > 0 && (
+              <div className="mb-4">
+                <p className="text-[11px] font-semibold text-ink mb-2">🔴 Críticos (alta relevância)</p>
+                <div className="space-y-2">
+                  {criticos.map((doc, idx) => (
+                    <div key={idx} className="text-[11px] bg-white rounded border border-accent-soft p-2.5">
+                      <p className="font-medium text-ink">{doc.nome}</p>
+                      <p className="text-ink-3 mt-0.5">{doc.descricao}</p>
+                      {doc.dica && <p className="text-accent-strong text-[10px] mt-1 italic">💡 {doc.dica}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {altos.length > 0 && (
+              <div>
+                <p className="text-[11px] font-semibold text-ink mb-2">🟡 Recomendados</p>
+                <div className="space-y-2">
+                  {altos.map((doc, idx) => (
+                    <div key={idx} className="text-[11px] bg-white rounded border border-amber-200 p-2.5">
+                      <p className="font-medium text-ink">{doc.nome}</p>
+                      <p className="text-ink-3 mt-0.5">{doc.descricao}</p>
+                      {doc.dica && <p className="text-amber-700 text-[10px] mt-1 italic">💡 {doc.dica}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div
+          onDragOver={e => { e.preventDefault(); setDragging(true) }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={e => { e.preventDefault(); setDragging(false); addFiles(e.dataTransfer.files) }}
+          onClick={() => fileInputRef.current?.click()}
+          className={`border-2 border-dashed rounded-[14px] p-10 text-center cursor-pointer transition-all ${
+            dragging ? 'border-accent-strong bg-accent-soft/30' : 'border-border hover:border-border-strong hover:bg-surface-hover'
+          }`}
+        >
+          <input ref={fileInputRef} type="file" multiple accept={accepted} className="hidden"
+            onChange={e => { if (e.target.files) addFiles(e.target.files); e.target.value = '' }}
+          />
+          <div className="text-3xl mb-2">📂</div>
+          <p className="text-ink-2 text-[13px] font-medium">Clique para selecionar ou arraste os arquivos</p>
+          <p className="text-ink-3 text-[11px] mt-1">PDF · Word · Excel · CSV · PNG · JPG · máx. {MAX_FILE_MB}MB por arquivo</p>
         </div>
 
-        {/* Tipo de Ativo (Asset Prep) */}
-        <Field label="Tipo de ativo">
-          <OttoSelect
-            value={form.assetPrepTipoAtivo}
-            onChange={e => set('assetPrepTipoAtivo', e.target.value as any)}
-          >
-            <option value="">— Selecione (opcional)</option>
-            {ASSET_TYPES_AP.map(t => (
-              <option key={t} value={t.toLowerCase().replace(/\s+/g, '_')}>{t}</option>
+        {files.length > 0 && (
+          <div className="mt-4 space-y-2">
+            {files.map((file, i) => (
+              <div key={i} className="flex items-center gap-3 bg-surface border border-border rounded-[10px] px-3 py-2.5">
+                <span className="text-base flex-none">{fileIcon(file.name)}</span>
+                <span className="text-[13px] text-ink-2 truncate flex-1">{file.name}</span>
+                <span className="text-[11px] text-ink-3 flex-none">{formatBytes(file.size)}</span>
+                <button type="button" onClick={e => { e.stopPropagation(); removeFile(i) }}
+                  className="text-ink-3 hover:text-[oklch(0.6_0.16_25)] transition-colors text-[13px] flex-none">✕</button>
+              </div>
             ))}
-          </OttoSelect>
-        </Field>
-
-        {/* Financeiro */}
-        <div className="bg-surface rounded-[10px] p-4 border border-border">
-          <h4 className="text-[12px] font-semibold text-ink mb-3 uppercase tracking-wider">💰 Dados Financeiros</h4>
-          <div className="space-y-3">
-            <Field label="Receita anual (R$ milhões)">
-              <OttoInput
-                type="text"
-                placeholder="ex: 50"
-                value={form.assetPrepReceitaAnual}
-                onChange={e => set('assetPrepReceitaAnual', e.target.value)}
-              />
-            </Field>
-            <Field label="EBITDA (R$ milhões)">
-              <OttoInput
-                type="text"
-                placeholder="ex: 12.5"
-                value={form.assetPrepEbitda}
-                onChange={e => set('assetPrepEbitda', e.target.value)}
-              />
-            </Field>
-            <Field label="Patrimônio Líquido (R$ milhões)">
-              <OttoInput
-                type="text"
-                placeholder="ex: 100"
-                value={form.assetPrepPatrimonioLiquido}
-                onChange={e => set('assetPrepPatrimonioLiquido', e.target.value)}
-              />
-            </Field>
-            <Field label="Alavancagem (ex: 1.5x, 2x)">
-              <OttoInput
-                type="text"
-                placeholder="ex: 1.5x"
-                value={form.assetPrepAlavancagem}
-                onChange={e => set('assetPrepAlavancagem', e.target.value)}
-              />
-            </Field>
+            <p className="text-[12px] text-accent-ink pt-1">{files.length} arquivo(s) selecionado(s)</p>
           </div>
-        </div>
-
-        {/* Mercado */}
-        <div className="bg-surface rounded-[10px] p-4 border border-border">
-          <h4 className="text-[12px] font-semibold text-ink mb-3 uppercase tracking-wider">📊 Posição de Mercado</h4>
-          <div className="space-y-3">
-            <Field label="Posição no mercado">
-              <OttoSelect
-                value={form.assetPrepPosicaoMercado}
-                onChange={e => set('assetPrepPosicaoMercado', e.target.value as any)}
-              >
-                <option value="">— Selecione (opcional)</option>
-                {MARKET_POSITION.map(p => (
-                  <option key={p} value={p.toLowerCase().replace(/\s+/g, '_')}>{p}</option>
-                ))}
-              </OttoSelect>
-            </Field>
-            <Field label="Atratividade do mercado">
-              <OttoSelect
-                value={form.assetPrepAtratividade}
-                onChange={e => set('assetPrepAtratividade', e.target.value as any)}
-              >
-                <option value="">— Selecione (opcional)</option>
-                {ATTRACTIVENESS.map(a => (
-                  <option key={a} value={a.toLowerCase()}>{a}</option>
-                ))}
-              </OttoSelect>
-            </Field>
-          </div>
-        </div>
-
-        {/* Operacional */}
-        <div className="bg-surface rounded-[10px] p-4 border border-border">
-          <h4 className="text-[12px] font-semibold text-ink mb-3 uppercase tracking-wider">⚙️ Operacional</h4>
-          <div className="space-y-3">
-            <Field label="Maturidade operacional">
-              <OttoSelect
-                value={form.assetPrepMaturidade}
-                onChange={e => set('assetPrepMaturidade', e.target.value as any)}
-              >
-                <option value="">— Selecione (opcional)</option>
-                {MATURITY.map(m => (
-                  <option key={m} value={m.toLowerCase().replace(/\s+/g, '_')}>{m}</option>
-                ))}
-              </OttoSelect>
-            </Field>
-            <Field label="Histórico operacional (anos)">
-              <OttoInput
-                type="text"
-                placeholder="ex: 5"
-                value={form.assetPrepHistoricoAnosOperacao}
-                onChange={e => set('assetPrepHistoricoAnosOperacao', e.target.value)}
-              />
-            </Field>
-            <Field label="Tem governança formal?">
-              <OttoSelect
-                value={form.assetPrepTemGovernanca}
-                onChange={e => set('assetPrepTemGovernanca', e.target.value as any)}
-              >
-                <option value="">— Selecione (opcional)</option>
-                <option value="sim">Sim</option>
-                <option value="nao">Não</option>
-                <option value="nao_definido">Não definido</option>
-              </OttoSelect>
-            </Field>
-            <Field label="Tem board ou conselho?">
-              <OttoSelect
-                value={form.assetPrepTemBoard}
-                onChange={e => set('assetPrepTemBoard', e.target.value as any)}
-              >
-                <option value="">— Selecione (opcional)</option>
-                <option value="sim">Sim</option>
-                <option value="nao">Não</option>
-                <option value="nao_definido">Não definido</option>
-              </OttoSelect>
-            </Field>
-          </div>
-        </div>
-
-        {/* Objetivos de Captação */}
-        <div className="bg-surface rounded-[10px] p-4 border border-border">
-          <h4 className="text-[12px] font-semibold text-ink mb-3 uppercase tracking-wider">🎯 Captação de Capital</h4>
-          <div className="space-y-3">
-            <Field label="Objetivo da captação">
-              <OttoSelect
-                value={form.assetPrepObjetivoCapitacao}
-                onChange={e => set('assetPrepObjetivoCapitacao', e.target.value as any)}
-              >
-                <option value="">— Selecione (opcional)</option>
-                {CAP_OBJECTIVE.map(o => (
-                  <option key={o} value={o.toLowerCase().replace(/\s+/g, '_')}>{o}</option>
-                ))}
-              </OttoSelect>
-            </Field>
-            <Field label="Volume de captação (R$ milhões)">
-              <OttoInput
-                type="text"
-                placeholder="ex: 25"
-                value={form.assetPrepVolumeCapitacao}
-                onChange={e => set('assetPrepVolumeCapitacao', e.target.value)}
-              />
-            </Field>
-            <Field label="Horizonte da captação">
-              <OttoSelect
-                value={form.assetPrepHorizonteCapitacao}
-                onChange={e => set('assetPrepHorizonteCapitacao', e.target.value as any)}
-              >
-                <option value="">— Selecione (opcional)</option>
-                {CAP_TIMELINE.map(t => (
-                  <option key={t} value={t.split(' ')[0].toLowerCase()}>{t}</option>
-                ))}
-              </OttoSelect>
-            </Field>
-          </div>
-        </div>
+        )}
       </div>
     )
   }

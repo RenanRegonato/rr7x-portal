@@ -103,24 +103,99 @@ export function getDocsCriticosAgricolas(): DocumentoCritico[] {
 }
 
 /**
- * Retorna lista de docs críticos conforme tipo_ativo.
+ * Lista documentos críticos esperados para M&A.
  */
-export function getDocsCriticos(tipoAtivo: string): DocumentoCritico[] {
-  if (tipoAtivo?.includes('CRI')) {
-    return getDocsCriticosImobiliarios()
+export function getDocsCriticosMA(): DocumentoCritico[] {
+  return [
+    {
+      nome: 'DRE — Demonstração de Resultado do Exercício',
+      descricao: 'Últimos 2-3 exercícios; auditada é ideal, gerencial também aceita',
+      severidade: 'critico',
+      exemplo: 'DRE anual auditada, DRE gerencial dos últimos 3 anos',
+      dica: 'Se não auditada, explique na Tese da Operação — o sistema registra como ressalva, não como red flag.',
+    },
+    {
+      nome: 'Balanço Patrimonial',
+      descricao: 'Posição de ativos, passivos e patrimônio líquido',
+      severidade: 'critico',
+      exemplo: 'Balanço dos últimos 2 exercícios (auditado ou contábil)',
+      dica: 'Divergências entre DRE e balanço são apontadas automaticamente. Explique na Tese se houver.',
+    },
+    {
+      nome: 'Contrato Social / Estatuto',
+      descricao: 'Documento constitutivo + última alteração com estrutura societária vigente',
+      severidade: 'critico',
+      exemplo: 'Contrato social consolidado ou estatuto atualizado com cap table',
+    },
+    {
+      nome: 'Certidões Negativas (CND)',
+      descricao: 'Situação fiscal, trabalhista e previdenciária da empresa',
+      severidade: 'alto',
+      exemplo: 'CND Federal (Receita), PGFN, CND Estadual, CND Trabalhista (TST)',
+      dica: 'Pendências conhecidas devem ser explicadas na Tese para contextualizar o risco.',
+    },
+    {
+      nome: 'Apresentação do Negócio (Pitch Deck)',
+      descricao: 'Visão geral da empresa, produto/serviço, mercado e estratégia',
+      severidade: 'alto',
+      exemplo: 'Pitch deck, IM (Information Memorandum) ou apresentação institucional',
+    },
+  ]
+}
+
+/**
+ * Lista documentos críticos esperados para Asset Preparation.
+ */
+export function getDocsCriticosAssetPrep(): DocumentoCritico[] {
+  return [
+    {
+      nome: 'DRE ou Demonstrativo Financeiro',
+      descricao: 'Qualquer dado financeiro disponível — gerencial, parcial ou projetado',
+      severidade: 'critico',
+      exemplo: 'DRE gerencial, planilha de receitas, projeção financeira',
+      dica: 'Mesmo que incompleto, envie o que tiver. O diagnóstico se adapta ao nível de informação.',
+    },
+    {
+      nome: 'Contrato Social / Estatuto',
+      descricao: 'Documento constitutivo da entidade',
+      severidade: 'critico',
+      exemplo: 'Contrato social, estatuto, ata de constituição',
+    },
+    {
+      nome: 'Apresentação do Ativo',
+      descricao: 'Qualquer documento que descreva o negócio, produto ou ativo',
+      severidade: 'alto',
+      exemplo: 'Pitch deck, apresentação comercial, one-pager',
+      dica: 'Quanto mais contexto, mais preciso o diagnóstico de prontidão para o mercado.',
+    },
+  ]
+}
+
+/**
+ * Retorna lista de docs críticos conforme tipo_ativo ou pilar.
+ */
+export function getDocsCriticos(tipoAtivo: string, pilarOperacao?: string): DocumentoCritico[] {
+  // Pilar explícito tem prioridade
+  if (pilarOperacao === 'ma') return getDocsCriticosMA()
+  if (pilarOperacao === 'asset_prep') return getDocsCriticosAssetPrep()
+  if (pilarOperacao === 'cri_cra' || tipoAtivo?.includes('Securitização')) {
+    // UI permite distinguir CRI de CRA pelo subtipo — aqui retornamos ambos como fallback
+    return [...getDocsCriticosImobiliarios(), ...getDocsCriticosAgricolas()]
   }
-  if (tipoAtivo?.includes('CRA')) {
-    return getDocsCriticosAgricolas()
+  if (pilarOperacao === 'fidc' || CREDIT_TIPOS_FIDC.has(tipoAtivo)) {
+    return [] // FIDC não tem lista de docs críticos padronizados — depende do lastro
   }
-  if (tipoAtivo?.includes('Securitização')) {
-    // Se for genérico "Securitização", retorna os 2
-    return [
-      ...getDocsCriticosImobiliarios(),
-      ...getDocsCriticosAgricolas(),
-    ]
+
+  // Fallback por tipoAtivo (compatibilidade com deals antigos)
+  if (tipoAtivo?.includes('CRI')) return getDocsCriticosImobiliarios()
+  if (tipoAtivo?.includes('CRA')) return getDocsCriticosAgricolas()
+  if (['Empresa (M&A)', 'Startup / Scale-up', 'Franquia', 'Agronegócio'].includes(tipoAtivo)) {
+    return getDocsCriticosMA()
   }
   return []
 }
+
+const CREDIT_TIPOS_FIDC = new Set(['FIDC / Crédito Estruturado', 'FIDC de Infraestrutura (incentivado)', 'Portfólio de Crédito'])
 
 /**
  * Identifica qual documento crítico foi enviado.
@@ -153,11 +228,11 @@ function extrairKeywords(docName: string): string[] {
 /**
  * Helper: formata a lista para exibir na UI.
  */
-export function formatDocsCriticosUI(tipoAtivo: string): {
+export function formatDocsCriticosUI(tipoAtivo: string, pilarOperacao?: string): {
   criticos: DocumentoCritico[]
   altos: DocumentoCritico[]
 } {
-  const docs = getDocsCriticos(tipoAtivo)
+  const docs = getDocsCriticos(tipoAtivo, pilarOperacao)
   return {
     criticos: docs.filter(d => d.severidade === 'critico'),
     altos: docs.filter(d => d.severidade === 'alto'),
