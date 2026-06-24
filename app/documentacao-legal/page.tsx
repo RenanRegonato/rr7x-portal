@@ -258,7 +258,8 @@ export default function DocumentacaoLegalPage() {
                   </div>
                 </div>
               </div>
-            </section>
+            </div>
+          </section>
 
           {/* SEÇÃO 5: VALIDAÇÃO (ENTERPRISE) */}
           <section>
