@@ -60,12 +60,14 @@ const STEPS = [
   { label: 'Dados Financeiros',      section: 2 },
   { label: 'Tese do Deal',           section: 2 },
   { label: 'Documentos',             section: 2 },
+  { label: 'Asset Preparation',      section: 3 },
 ]
 
 const SECTIONS = [
   { label: 'Proprietário', start: 0, end: 0 },
   { label: 'Mandato',      start: 1, end: 1 },
   { label: 'Ativo',        start: 2, end: 7 },
+  { label: 'Asset Preparation', start: 8, end: 8 },
 ]
 
 // Mapeia cada campo do AnaliseCreateSchema para um rótulo legível e a etapa
@@ -108,6 +110,20 @@ const FIELD_LABELS: Record<string, { label: string; step: number }> = {
   parceiroTelefone:      { label: 'Telefone do parceiro',         step: 1 },
   parceiroEmail:         { label: 'Email do parceiro',            step: 1 },
   obsMandato:            { label: 'Observações do mandato',       step: 1 },
+  assetPrepTipoAtivo:           { label: 'Tipo de ativo (Asset Prep)',    step: 8 },
+  assetPrepReceitaAnual:        { label: 'Receita anual',                  step: 8 },
+  assetPrepEbitda:              { label: 'EBITDA',                         step: 8 },
+  assetPrepPatrimonioLiquido:   { label: 'Patrimônio líquido',             step: 8 },
+  assetPrepAlavancagem:         { label: 'Alavancagem',                    step: 8 },
+  assetPrepPosicaoMercado:      { label: 'Posição de mercado',             step: 8 },
+  assetPrepAtratividade:        { label: 'Atratividade de mercado',        step: 8 },
+  assetPrepMaturidade:          { label: 'Maturidade operacional',         step: 8 },
+  assetPrepTemGovernanca:       { label: 'Tem governança?',                step: 8 },
+  assetPrepTemBoard:            { label: 'Tem board/conselho?',            step: 8 },
+  assetPrepHistoricoAnosOperacao: { label: 'Histórico operacional (anos)',  step: 8 },
+  assetPrepObjetivoCapitacao:   { label: 'Objetivo da captação',           step: 8 },
+  assetPrepVolumeCapitacao:     { label: 'Volume de captação',             step: 8 },
+  assetPrepHorizonteCapitacao:  { label: 'Horizonte de captação',          step: 8 },
 }
 
 const EMAIL_FIELDS    = new Set(['emailProprietario', 'assessorEmail', 'parceiroEmail'])
@@ -200,6 +216,21 @@ function NovaAnaliseInner() {
     parceiroTelefone:     '',
     parceiroEmail:        '',
     obsMandato:           '',
+    // ── Asset Preparation ──────────────────────────────────────────────────
+    assetPrepTipoAtivo:           '',
+    assetPrepReceitaAnual:        '',
+    assetPrepEbitda:              '',
+    assetPrepPatrimonioLiquido:   '',
+    assetPrepAlavancagem:         '',
+    assetPrepPosicaoMercado:      '',
+    assetPrepAtratividade:        '',
+    assetPrepMaturidade:          '',
+    assetPrepTemGovernanca:       '',
+    assetPrepTemBoard:            '',
+    assetPrepHistoricoAnosOperacao: '',
+    assetPrepObjetivoCapitacao:   '',
+    assetPrepVolumeCapitacao:     '',
+    assetPrepHorizonteCapitacao:  '',
   })
 
   useEffect(() => {
@@ -1216,6 +1247,193 @@ function StepContent({
         </div>
       )}
     </div>
+    )
+  }
+
+  // ── Step 8: Asset Preparation ──────────────────────────────────────────────
+  if (step === 8) {
+    const ASSET_TYPES_AP = ['Imobiliário', 'SaaS / Tecnologia', 'Recebível / Crédito', 'Agronegócio', 'Industrial', 'Infraestrutura', 'Outro']
+    const MARKET_POSITION = ['Lider', 'Consolidada', 'Emergente', 'Startup']
+    const ATTRACTIVENESS = ['Alta', 'Média', 'Baixa']
+    const MATURITY = ['Pré-operacional', 'Ramp-up', 'Maduro', 'Estável']
+    const CAP_OBJECTIVE = ['Crescimento', 'Refinanciamento', 'Aquisição', 'Estruturação', 'Outro']
+    const CAP_TIMELINE = ['Imediato (< 30 dias)', '3 meses', '6 meses', '12 meses']
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <p className="text-[13px] text-ink-3 mb-4">
+            Esta seção optativa ajuda a avaliar a prontidão do ativo para acessar o mercado de capitais.
+            Informações sobre financeiro, governança, mercado e objetivos de captação. Deixe em branco o que não souber.
+          </p>
+        </div>
+
+        {/* Tipo de Ativo (Asset Prep) */}
+        <Field label="Tipo de ativo">
+          <OttoSelect
+            value={form.assetPrepTipoAtivo}
+            onChange={e => set('assetPrepTipoAtivo', e.target.value as any)}
+          >
+            <option value="">— Selecione (opcional)</option>
+            {ASSET_TYPES_AP.map(t => (
+              <option key={t} value={t.toLowerCase().replace(/\s+/g, '_')}>{t}</option>
+            ))}
+          </OttoSelect>
+        </Field>
+
+        {/* Financeiro */}
+        <div className="bg-surface rounded-[10px] p-4 border border-border">
+          <h4 className="text-[12px] font-semibold text-ink mb-3 uppercase tracking-wider">💰 Dados Financeiros</h4>
+          <div className="space-y-3">
+            <Field label="Receita anual (R$ milhões)">
+              <OttoInput
+                type="text"
+                placeholder="ex: 50"
+                value={form.assetPrepReceitaAnual}
+                onChange={e => set('assetPrepReceitaAnual', e.target.value)}
+              />
+            </Field>
+            <Field label="EBITDA (R$ milhões)">
+              <OttoInput
+                type="text"
+                placeholder="ex: 12.5"
+                value={form.assetPrepEbitda}
+                onChange={e => set('assetPrepEbitda', e.target.value)}
+              />
+            </Field>
+            <Field label="Patrimônio Líquido (R$ milhões)">
+              <OttoInput
+                type="text"
+                placeholder="ex: 100"
+                value={form.assetPrepPatrimonioLiquido}
+                onChange={e => set('assetPrepPatrimonioLiquido', e.target.value)}
+              />
+            </Field>
+            <Field label="Alavancagem (ex: 1.5x, 2x)">
+              <OttoInput
+                type="text"
+                placeholder="ex: 1.5x"
+                value={form.assetPrepAlavancagem}
+                onChange={e => set('assetPrepAlavancagem', e.target.value)}
+              />
+            </Field>
+          </div>
+        </div>
+
+        {/* Mercado */}
+        <div className="bg-surface rounded-[10px] p-4 border border-border">
+          <h4 className="text-[12px] font-semibold text-ink mb-3 uppercase tracking-wider">📊 Posição de Mercado</h4>
+          <div className="space-y-3">
+            <Field label="Posição no mercado">
+              <OttoSelect
+                value={form.assetPrepPosicaoMercado}
+                onChange={e => set('assetPrepPosicaoMercado', e.target.value as any)}
+              >
+                <option value="">— Selecione (opcional)</option>
+                {MARKET_POSITION.map(p => (
+                  <option key={p} value={p.toLowerCase().replace(/\s+/g, '_')}>{p}</option>
+                ))}
+              </OttoSelect>
+            </Field>
+            <Field label="Atratividade do mercado">
+              <OttoSelect
+                value={form.assetPrepAtratividade}
+                onChange={e => set('assetPrepAtratividade', e.target.value as any)}
+              >
+                <option value="">— Selecione (opcional)</option>
+                {ATTRACTIVENESS.map(a => (
+                  <option key={a} value={a.toLowerCase()}>{a}</option>
+                ))}
+              </OttoSelect>
+            </Field>
+          </div>
+        </div>
+
+        {/* Operacional */}
+        <div className="bg-surface rounded-[10px] p-4 border border-border">
+          <h4 className="text-[12px] font-semibold text-ink mb-3 uppercase tracking-wider">⚙️ Operacional</h4>
+          <div className="space-y-3">
+            <Field label="Maturidade operacional">
+              <OttoSelect
+                value={form.assetPrepMaturidade}
+                onChange={e => set('assetPrepMaturidade', e.target.value as any)}
+              >
+                <option value="">— Selecione (opcional)</option>
+                {MATURITY.map(m => (
+                  <option key={m} value={m.toLowerCase().replace(/\s+/g, '_')}>{m}</option>
+                ))}
+              </OttoSelect>
+            </Field>
+            <Field label="Histórico operacional (anos)">
+              <OttoInput
+                type="text"
+                placeholder="ex: 5"
+                value={form.assetPrepHistoricoAnosOperacao}
+                onChange={e => set('assetPrepHistoricoAnosOperacao', e.target.value)}
+              />
+            </Field>
+            <Field label="Tem governança formal?">
+              <OttoSelect
+                value={form.assetPrepTemGovernanca}
+                onChange={e => set('assetPrepTemGovernanca', e.target.value as any)}
+              >
+                <option value="">— Selecione (opcional)</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="nao_definido">Não definido</option>
+              </OttoSelect>
+            </Field>
+            <Field label="Tem board ou conselho?">
+              <OttoSelect
+                value={form.assetPrepTemBoard}
+                onChange={e => set('assetPrepTemBoard', e.target.value as any)}
+              >
+                <option value="">— Selecione (opcional)</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="nao_definido">Não definido</option>
+              </OttoSelect>
+            </Field>
+          </div>
+        </div>
+
+        {/* Objetivos de Captação */}
+        <div className="bg-surface rounded-[10px] p-4 border border-border">
+          <h4 className="text-[12px] font-semibold text-ink mb-3 uppercase tracking-wider">🎯 Captação de Capital</h4>
+          <div className="space-y-3">
+            <Field label="Objetivo da captação">
+              <OttoSelect
+                value={form.assetPrepObjetivoCapitacao}
+                onChange={e => set('assetPrepObjetivoCapitacao', e.target.value as any)}
+              >
+                <option value="">— Selecione (opcional)</option>
+                {CAP_OBJECTIVE.map(o => (
+                  <option key={o} value={o.toLowerCase().replace(/\s+/g, '_')}>{o}</option>
+                ))}
+              </OttoSelect>
+            </Field>
+            <Field label="Volume de captação (R$ milhões)">
+              <OttoInput
+                type="text"
+                placeholder="ex: 25"
+                value={form.assetPrepVolumeCapitacao}
+                onChange={e => set('assetPrepVolumeCapitacao', e.target.value)}
+              />
+            </Field>
+            <Field label="Horizonte da captação">
+              <OttoSelect
+                value={form.assetPrepHorizonteCapitacao}
+                onChange={e => set('assetPrepHorizonteCapitacao', e.target.value as any)}
+              >
+                <option value="">— Selecione (opcional)</option>
+                {CAP_TIMELINE.map(t => (
+                  <option key={t} value={t.split(' ')[0].toLowerCase()}>{t}</option>
+                ))}
+              </OttoSelect>
+            </Field>
+          </div>
+        </div>
+      </div>
     )
   }
 

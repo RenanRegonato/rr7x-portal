@@ -75,6 +75,21 @@ export const AnaliseCreateSchema = z.object({
   parceiroTelefone:      optTelefone,
   parceiroEmail:         optEmail,
   obsMandato:            shortStr(2000).optional(),
+  // Asset Preparation — diagnóstico de prontidão para captação
+  assetPrepTipoAtivo:           z.enum(['imobiliario', 'saas', 'recebivel', 'agro', 'industrial', 'infraestrutura', 'outro', '']).optional(),
+  assetPrepReceitaAnual:        shortStr(100).optional(),
+  assetPrepEbitda:              shortStr(100).optional(),
+  assetPrepPatrimonioLiquido:   shortStr(100).optional(),
+  assetPrepAlavancagem:         shortStr(100).optional(),
+  assetPrepPosicaoMercado:      z.enum(['lider', 'consolidada', 'emergente', 'startup', '']).optional(),
+  assetPrepAtratividade:        z.enum(['alta', 'media', 'baixa', '']).optional(),
+  assetPrepMaturidade:          z.enum(['pre_operacional', 'ramp_up', 'maduro', 'estavel', '']).optional(),
+  assetPrepTemGovernanca:       z.enum(['sim', 'nao', 'nao_definido', '']).optional(),
+  assetPrepTemBoard:            z.enum(['sim', 'nao', 'nao_definido', '']).optional(),
+  assetPrepHistoricoAnosOperacao: shortStr(100).optional(),
+  assetPrepObjetivoCapitacao:   z.enum(['crescimento', 'refinanciamento', 'aquisicao', 'estruturacao', 'outro', '']).optional(),
+  assetPrepVolumeCapitacao:     shortStr(100).optional(),
+  assetPrepHorizonteCapitacao:  z.enum(['imediato', '3_meses', '6_meses', '12_meses', '']).optional(),
 })
 
 // POST /api/analise/share

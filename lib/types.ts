@@ -56,6 +56,21 @@ export interface DealIntake {
   parceiroTelefone?: string
   parceiroEmail?: string
   obsMandato?: string
+  // Asset Preparation — diagnóstico de prontidão para captação
+  assetPrepTipoAtivo?: 'imobiliario' | 'saas' | 'recebivel' | 'agro' | 'industrial' | 'infraestrutura' | 'outro' | ''
+  assetPrepReceitaAnual?: string  // em milhões de BRL
+  assetPrepEbitda?: string         // em milhões de BRL
+  assetPrepPatrimonioLiquido?: string  // em milhões de BRL
+  assetPrepAlavancagem?: string    // múltiplo (ex: "1.5x")
+  assetPrepPosicaoMercado?: 'lider' | 'consolidada' | 'emergente' | 'startup' | ''
+  assetPrepAtratividade?: 'alta' | 'media' | 'baixa' | ''
+  assetPrepMaturidade?: 'pre_operacional' | 'ramp_up' | 'maduro' | 'estavel' | ''
+  assetPrepTemGovernanca?: 'sim' | 'nao' | 'nao_definido' | ''
+  assetPrepTemBoard?: 'sim' | 'nao' | 'nao_definido' | ''
+  assetPrepHistoricoAnosOperacao?: string  // número de anos
+  assetPrepObjetivoCapitacao?: 'crescimento' | 'refinanciamento' | 'aquisicao' | 'estruturacao' | 'outro' | ''
+  assetPrepVolumeCapitacao?: string  // em milhões de BRL
+  assetPrepHorizonteCapitacao?: 'imediato' | '3_meses' | '6_meses' | '12_meses' | ''
 }
 
 export interface PipelineOutputs {
