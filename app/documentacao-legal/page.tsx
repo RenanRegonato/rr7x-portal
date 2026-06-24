@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Documentação Legal & Compliance | Mandor",
   description:
-    "Segurança, conformidade LGPD/GDPR e responsabilidade profissional do Mandor · análise de M&A e crédito estruturado com cobertura de seguro.",
+    "Segurança, conformidade LGPD/GDPR e responsabilidade do Mandor · análise de M&A, FIDC, Securitização e crédito estruturado.",
   alternates: { canonical: "/documentacao-legal" },
 };
 
@@ -40,7 +40,7 @@ export default function DocumentacaoLegalPage() {
           <h1 className="font-display text-[40px] sm:text-[52px] leading-[1.1] tracking-tight text-lp-ink mb-4">
             Documentação Legal
           </h1>
-          <p className="text-[14px] text-lp-ink-3">Segurança, conformidade e responsabilidade na inteligência de M&A.</p>
+          <p className="text-[14px] text-lp-ink-3">Segurança, conformidade e responsabilidade na análise de ativos e operações.</p>
         </div>
       </section>
 
@@ -65,9 +65,8 @@ export default function DocumentacaoLegalPage() {
 
             <Ts title="Responsabilidade">
               <ul>
-                <li>Parecer submetido a 4 camadas de validação: análise IA, validação automática, revisão humana (Enterprise) e auditoria;</li>
+                <li>Parecer submetido a validação em múltiplas camadas: análise IA, validação automática, revisão humana (Enterprise) e auditoria;</li>
                 <li>Limite de responsabilidade claro e documentado em contrato;</li>
-                <li>Professional Liability Insurance de R$ 5 milhões para clientes Enterprise;</li>
                 <li>Especialista humano valida parecer antes da entrega em planos Enterprise;</li>
                 <li>Trilha de auditoria completa acessível ao cliente.</li>
               </ul>
@@ -94,18 +93,19 @@ export default function DocumentacaoLegalPage() {
 
           <T num="2" title="O Que é Mandor">
             <p>
-              O Mandor é uma ferramenta de análise operacional para M&A, crédito estruturado e preparação de ativos, utilizando inteligência artificial especializada em análise financeira, jurídica e tributária.
+              O Mandor é uma plataforma de análise operacional para M&A, aquisições, FIDC, securitização (CRI/CRA) e preparação de ativos para mercado. Utiliza inteligência artificial especializada em análise financeira, jurídica e tributária.
             </p>
             <p>
               Mandor oferece:
             </p>
             <ul>
-              <li>Análise diagnóstica baseada em documentos fornecidos pelo cliente;</li>
+              <li>Análise diagnóstica de ativos e operações baseada em documentos fornecidos pelo cliente;</li>
               <li>Aceleração de decisão (análise em até 90 minutos no lugar de semanas);</li>
-              <li>Identificação de riscos e oportunidades;</li>
+              <li>Identificação de riscos operacionais e oportunidades;</li>
               <li>Geração de documentos institucionais (teaser, pitchbook, relatórios);</li>
               <li>Plataforma de matching de investidores (Invest Match);</li>
-              <li>Mapeamento inteligente do mercado.</li>
+              <li>Mapeamento inteligente do mercado;</li>
+              <li>Análise de M&A, crédito estruturado e preparação de ativo para ir a mercado.</li>
             </ul>
           </T>
 
@@ -140,7 +140,7 @@ export default function DocumentacaoLegalPage() {
 
             <Ts title="Retenção">
               <p>
-                Documentos enviados para análise são retidos por 12 meses, após o qual são deletados. Logs operacionais são retidos por 90 dias, depois anonimizados. Parecer é retido indefinidamente como propriedade do cliente.
+                Documentos enviados para análise são retidos por 12 meses após análise, depois deletados. Logs operacionais são retidos por 90 dias, depois anonimizados. Parecer é retido indefinidamente como propriedade do cliente.
               </p>
             </Ts>
 
@@ -164,7 +164,7 @@ export default function DocumentacaoLegalPage() {
             <Ts title="Mandor é responsável por">
               <ul>
                 <li>Análise competente baseada em documentos fornecidos pelo cliente;</li>
-                <li>Validação de consistência em 4 camadas (IA, automática, humana, auditoria);</li>
+                <li>Validação de consistência em múltiplas camadas (IA, automática, humana, auditoria);</li>
                 <li>Parecer completo e rastreável com trilha de auditoria;</li>
                 <li>Suporte ao cliente conforme SLA contratado;</li>
                 <li>Segurança e privacidade dos dados do cliente.</li>
@@ -181,22 +181,10 @@ export default function DocumentacaoLegalPage() {
               </ul>
             </Ts>
 
-            <Ts title="Limite de responsabilidade — Planos Essential/Professional">
+            <Ts title="Limite de responsabilidade">
               <p>
-                Responsabilidade total capped em R$ 0 (zero). Parecer é fornecido "AS IS". Cliente assume integral responsabilidade por validar parecer com especialista antes de usar em operação.
+                Responsabilidade total de Mandor é capped conforme documentado em contrato. Cliente assume responsabilidade por validar parecer com especialista antes de usar em operação. Contrato especifica limite de responsabilidade por plano.
               </p>
-            </Ts>
-
-            <Ts title="Limite de responsabilidade — Plano Enterprise">
-              <p>
-                Responsabilidade total capped no valor coberto por Professional Liability Insurance (R$ 5.000.000).
-              </p>
-              <ul>
-                <li>Cobertura aplica-se a erro crítico comprovado em parecer Mandor (omissão de risco material identificável nos documentos);</li>
-                <li>Não cobre negligência do cliente, uso fora do escopo contratado ou cliente que escolhe não seguir recomendação Mandor;</li>
-                <li>Reclamação deve ser feita dentro de 30 dias da entrega do parecer;</li>
-                <li>Certificado de seguro entregue junto ao contrato Enterprise.</li>
-              </ul>
             </Ts>
           </T>
 
@@ -205,7 +193,7 @@ export default function DocumentacaoLegalPage() {
               Parecer Enterprise passa por validação humana em adição à análise IA.
             </p>
 
-            <Ts title="4 Camadas de Validação">
+            <Ts title="Camadas de Validação">
               <ol style={{ listStyleType: "decimal", paddingLeft: "1.25rem", lineHeight: "1.7" }}>
                 <li>Análise IA: 10 agentes especializados processam documento em paralelo;</li>
                 <li>Validação automática: checagem de consistência interna e completude;</li>
@@ -233,12 +221,7 @@ export default function DocumentacaoLegalPage() {
             />
 
             <FaqItem
-              pergunta="Qual é a cobertura do seguro?"
-              resposta="Professional Indemnity Insurance de R$ 5 milhões para clientes Enterprise. Cobre erro crítico comprovado em parecer. Não cobre negligência do cliente ou uso fora de escopo."
-            />
-
-            <FaqItem
-              pergunta="Vocês vendem ou compartilham meus dados?"
+              pergunta="Vocês compartilham ou vendem meus dados?"
               resposta="Nunca. Dados são confidenciais. Nenhum compartilhamento com terceiros sem consentimento explícito. Conformidade com LGPD e GDPR é obrigatória."
             />
 
@@ -249,7 +232,7 @@ export default function DocumentacaoLegalPage() {
 
             <FaqItem
               pergunta="Como validam que o parecer está correto?"
-              resposta="Parecer passa por 4 camadas: análise IA (10 agentes), validação automática, revisão humana (Enterprise), auditoria. Cada passo é rastreável."
+              resposta="Parecer passa por múltiplas camadas: análise IA (10 agentes), validação automática, revisão humana (Enterprise), auditoria. Cada passo é rastreável."
             />
 
             <FaqItem
@@ -260,6 +243,11 @@ export default function DocumentacaoLegalPage() {
             <FaqItem
               pergunta="Vocês garantem sucesso da operação?"
               resposta="Não. Parecer Mandor recomenda prosseguir ou não com base em documentos, mas não garante resultado operacional. Transação pode não fechar mesmo com parecer positivo."
+            />
+
+            <FaqItem
+              pergunta="Qual é a responsabilidade de Mandor?"
+              resposta="Responsabilidade é capped conforme contrato. Cliente sempre responsável por validar parecer com especialista. Contrato especifica limite de responsabilidade por plano."
             />
           </T>
 
