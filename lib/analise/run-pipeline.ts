@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase-server'
 import { INTERNAL_PIPELINE_TOKEN_HEADER } from '@/lib/internal-auth'
 import { sendCompletionEmail } from '@/lib/email'
 import { resolveEscritorioId, isReformaTributariaEnabled } from '@/lib/reforma-tributaria/auth-helpers'
+import { runAssetPrep } from '@/lib/analise/run-asset-prep'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Step = any
@@ -178,6 +179,11 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
     })
 
     await maybeRunAgent('orchestration')
+
+    // Asset Preparation (opcional — roda se campos preenchidos)
+    await step.run('asset-prep', async () => {
+      return await runAssetPrep({ analiseId, step, logger })
+    })
 
     // Wave 1 (sequencial)
     await maybeRunAgent('pesquisa')
