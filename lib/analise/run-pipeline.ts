@@ -135,7 +135,13 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
     logger.info('Reforma Tributária: opt-in ativo mas escritório sem entitlement; pulando Ferrante', { analiseId })
   }
 
-  logger.info('Pipeline start', { analiseId, runMA, runEstrutura, runReformaTributaria })
+  // CVM 175/22: roda automaticamente para deals de Securitização (CRI/CRA).
+  // Não é gated por entitlement (fundamental para conformidade).
+  const tipoAtivo = (analise.deal_intake ?? {}).tipoAtivo ?? ''
+  const isSecuritizacao = tipoAtivo.includes('Securitização')
+  const runCVM17522 = isSecuritizacao
+
+  logger.info('Pipeline start', { analiseId, runMA, runEstrutura, runReformaTributaria, runCVM17522 })
 
   // Marca processando logo no início.
   await step.run('set-processando', async () => {
@@ -190,6 +196,15 @@ export async function runAnalysisPipeline({ analiseId, step, logger }: RunPipeli
     if (runReformaTributaria) {
       await step.run('reforma-tributaria', async () => {
         await runCheckEndpoint(analiseId, 'reforma-tributaria')
+        return { ok: true }
+      })
+    }
+
+    // Validação CVM 175/22: elegibilidade de CRI/CRA. Roda automaticamente para
+    // Securitização; não bloqueia pipeline (informativa).
+    if (runCVM17522) {
+      await step.run('cvm-175-22', async () => {
+        await runCheckEndpoint(analiseId, 'cvm-175-22')
         return { ok: true }
       })
     }
