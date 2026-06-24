@@ -7,16 +7,34 @@
 import { analisarElegibilidade, type ElegibilidadeResult } from './eligibility-analyzer'
 import { identificarGargalos, type GarganlosResult } from './bottleneck-identifier'
 import { recomendarMarketFit, type MarketFitResult } from './market-fit-recommender'
+import {
+  calcularScoresDimensoes,
+  construirMatrizElegibilidade,
+  calcularScoreConsolidado,
+  formatarScoresParaUI,
+  type ScoresDimensoes,
+  type MatrizElegibilidade,
+} from './scoring'
+import { validarAssetPrep, gerarMensagemValidacao, type ValidationResult } from './validation'
 import { AssetPrepIntakeData } from './directives'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export interface AssetPrepAnalysisResult {
+  // Análises dos 3 agentes
   elegibilidade: ElegibilidadeResult
   gargalos: GarganlosResult
   market_fit: MarketFitResult
+
+  // Validação (P3)
+  scores_dimensoes: ScoresDimensoes
+  matriz_elegibilidade: MatrizElegibilidade
+  validation: ValidationResult
+
+  // Consolidação
   parecer_executivo: string
-  score_geral: number  // 0-100: média ponderada das 3 análises
+  mensagem_usuario: string  // mensagem clara sobre status
+  score_consolidado: number  // 0-100
   status_pronto: 'pronto' | 'pronto_condicional' | 'nao_pronto'
   proximos_passos_prioritarios: string[]
 }
@@ -49,23 +67,12 @@ export async function executarAssetPrepAnalysis(
       ),
     ])
 
-    // Consolidar scores
-    const score_elegibilidade = elegibilidade.score
-    const score_gargalos = 100 - (100 - gargalos.totalScore)  // inverte: maior é melhor
-    const score_market_fit = market_fit.recomendacao_principal.fit_score
-
-    const score_geral = Math.round((score_elegibilidade + score_gargalos + score_market_fit) / 3)
-
-    // Determinar status geral
-    let status_pronto: 'pronto' | 'pronto_condicional' | 'nao_pronto' = 'nao_pronto'
-    if (elegibilidade.items.some(i => i.elegivel === 'sim') && gargalos.criticos.length === 0) {
-      status_pronto = 'pronto'
-    } else if (
-      elegibilidade.items.some(i => i.elegivel === 'sim') ||
-      elegibilidade.items.some(i => i.elegivel === 'condicional')
-    ) {
-      status_pronto = 'pronto_condicional'
-    }
+    // ── P3: Validação e Scoring ──────────────────────────────────────────────
+    const scores_dimensoes = calcularScoresDimensoes(intake, gargalos, elegibilidade)
+    const matriz_elegibilidade = construirMatrizElegibilidade(elegibilidade)
+    const validation = validarAssetPrep(scores_dimensoes, matriz_elegibilidade, gargalos, market_fit)
+    const score_consolidado = calcularScoreConsolidado(scores_dimensoes)
+    const mensagem_usuario = gerarMensagemValidacao(validation)
 
     // Próximos passos (priorizado)
     const proximos_passos_prioritarios: string[] = []
@@ -89,31 +96,50 @@ export async function executarAssetPrepAnalysis(
       })
     }
 
+    // Adicionar recomendações da validação
+    proximos_passos_prioritarios.push(...validation.recomendacoes.slice(0, 2))
+
     const parecer_executivo = `
-O ativo está ${status_pronto === 'pronto' ? 'PRONTO' : status_pronto === 'pronto_condicional' ? 'PRONTO COM CONDIÇÕES' : 'NÃO PRONTO'} para acessar o mercado de capitais.
+## Parecer de Asset Preparation
 
-**Elegibilidade:** ${elegibilidade.items.filter(i => i.elegivel === 'sim').length} de ${elegibilidade.items.length} tipos de captação são elegíveis.
+**Status:** ${validation.status.toUpperCase()}
+**Score Consolidado:** ${score_consolidado}/100
 
-**Gargalos:** ${gargalos.criticos.length} crítico(s), ${gargalos.importantes.length} importante(s), ${gargalos.menores.length} menor(es).
+**Dimensões de Prontidão:**
+${Object.entries(scores_dimensoes)
+  .map(([key, value]) => `- ${key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ')}: ${value}/100`)
+  .join('\n')}
 
-**Market Fit Ideal:** ${market_fit.recomendacao_principal.tipo_capital_ideal} (${market_fit.recomendacao_principal.fit_score}% de fit).
+**Elegibilidade para Captação:**
+${Object.entries(matriz_elegibilidade)
+  .map(([key, value]) => {
+    const label = key.replace(/_/g, ' ').toUpperCase()
+    const icon = value === 'sim' ? '✅' : value === 'condicional' ? '⚠️' : '❌'
+    return `${icon} ${label}`
+  })
+  .join('\n')}
 
-${
-  status_pronto === 'pronto'
-    ? 'O ativo está apto para iniciar o roadshow com investidores.'
-    : status_pronto === 'pronto_condicional'
-      ? `Recomendamos resolver os ${gargalos.criticos.length} gargalo(s) crítico(s) antes de apresentar aos investidores.`
-      : `Antes de buscar capital, recomendamos executar o plano de preparação: ${gargalos.criticos.length + gargalos.importantes.length} ação(ões) prioritárias.`
-}
+**Market Fit Ideal:** ${market_fit.recomendacao_principal.tipo_capital_ideal} (${market_fit.recomendacao_principal.fit_score}% fit score)
+
+**Gargalos Identificados:**
+- Críticos: ${gargalos.criticos.length}
+- Importantes: ${gargalos.importantes.length}
+- Menores: ${gargalos.menores.length}
+
+${validation.pronto_para_captacao ? '**Conclusão:** O ativo está apto para acessar o mercado de capitais. Recomendamos iniciar o roadshow com investidores.' : validation.status === 'pronto_condicional' ? `**Conclusão:** O ativo pode acessar o mercado após resolver ${validation.avisos.length + validation.bloqueadores.length} condição(ões).` : `**Conclusão:** Recomendamos executar o plano de preparação antes de buscar capital.`}
 `
 
     return {
       elegibilidade,
       gargalos,
       market_fit,
+      scores_dimensoes,
+      matriz_elegibilidade,
+      validation,
       parecer_executivo: parecer_executivo.trim(),
-      score_geral,
-      status_pronto,
+      mensagem_usuario,
+      score_consolidado,
+      status_pronto: validation.status,
       proximos_passos_prioritarios,
     }
   } catch (error) {
