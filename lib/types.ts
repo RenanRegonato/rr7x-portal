@@ -15,6 +15,33 @@ export interface DealIntake {
   informacoesAdicionais?: string
   resumoAtivo?: string
   linkDocumentos?: string
+  // Estrutura de crédito — preenchidos só em deals de crédito estruturado
+  // (FIDC / Securitização / Portfólio de Crédito). Alimentam o vocabulário dos
+  // agentes de crédito (estruturação, KYC) com cedente, lastro e estrutura de cotas.
+  cedente?: string
+  tipoRecebivel?: string
+  // Classificação do recebível conforme risco e exigibilidade (ANBIMA/CVM):
+  // 'performado' = serviço/venda já ocorreu; 'a_performar' = ainda vai ocorrer;
+  // 'vencido_nao_pago' = inadimplente (FIDC Não Padronizado — exige investidor profissional).
+  statusRecebivel?: 'performado' | 'a_performar' | 'vencido_nao_pago' | ''
+  // Estrutura cedente × sacado define onde reside o risco de crédito e como analisar.
+  estruturaCedenteSacado?: 'monocedente_multisacados' | 'multicedentes_monosacado' | 'multicedentes_multisacados' | ''
+  // Cedente investindo nas cotas subordinadas = alinhamento de interesses (boa prática).
+  // Ausência é yellow flag para o agente de KYC.
+  cedenteCotistaSubordinado?: 'sim' | 'nao' | 'nao_definido' | ''
+  // Tipo de oferta define número máximo de investidores e requisitos de rating/prospecto.
+  // ICVM 476: máx 75 investidores profissionais, sem prospecto/rating obrigatório.
+  tipoOferta?: 'icvm_400' | 'icvm_476' | 'nao_definido' | ''
+  estruturaCotas?: string
+  serieEmissao?: string
+  // Classificação ANBIMA — CRI (Certificados de Recebíveis Imobiliários)
+  categoriaCri?: 'residencial' | 'corporativo' | 'hibrido' | ''
+  concentracaoCri?: 'pulverizado' | 'concentrado' | ''
+  segmentoImobiliario?: 'apartamento' | 'loteamento' | 'industrial' | 'logistico' | 'comercial' | 'shopping' | 'infraestrutura' | 'hotel' | 'outro' | ''
+  // Classificação ANBIMA — CRA (Certificados de Recebíveis do Agronegócio)
+  atividadeDevedor?: 'cooperativa' | 'produtor_rural' | 'terceiro_fornecedor' | 'terceiro_comprador' | ''
+  revolvencia?: 'com_revolvencia' | 'sem_revolvencia' | ''
+  segmentoAgro?: 'graos' | 'usina' | 'logistica' | 'hibrido' | 'outro' | ''
   // Proprietário
   nomeProprietario?: string
   cpfCnpjProprietario?: string

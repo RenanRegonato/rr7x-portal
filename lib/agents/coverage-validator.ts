@@ -1,5 +1,6 @@
 import { callLLM } from '@/lib/llm/call'
-import { PROMPT_INJECTION_GUARD } from '@/lib/llm/prompt-safety'
+import { PROMPT_INJECTION_GUARD, wrapClientData } from '@/lib/llm/prompt-safety'
+import { TESE_DEAL_DIRETRIZ } from '@/lib/tese-deal'
 import type { ChecklistItem, TipoOperacao } from '@/lib/coverage-checklists'
 
 // Coverage Validator (Fase 11) — agente que avalia se cada item da
@@ -73,6 +74,11 @@ Retorne SOMENTE JSON puro, sem markdown, sem cercas:
 
 A lista DEVE conter exatamente um item para cada checklist key recebida (na mesma ordem).
 
+# Tese do Deal (contexto do assessor)
+
+A linha "Resumo ativo" do Intake é a Tese do Deal informada pelo assessor. ${TESE_DEAL_DIRETRIZ}
+Aplicado ao seu papel: se a tese explica que um documento/dado está pendente ou será complementado, não trate o item apenas como "nao_coberto" puro; reflita o contexto na justificativa (pendência conhecida) ao classificar.
+
 ${PROMPT_INJECTION_GUARD}`
 
 function buildUserPrompt(input: CoverageInput): string {
@@ -104,7 +110,7 @@ ${outputs || '(nenhum)'}
 
 # Intake
 
-${input.intake_resumo}
+${wrapClientData('intake', input.intake_resumo)}
 
 ---
 

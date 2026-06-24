@@ -133,6 +133,58 @@ export default function InvestMatchPage() {
         </div>
       </section>
 
+      {/* ── Para qual tipo de transação ───────────────────────────────────── */}
+      <section className="border-t border-lp-border">
+        <div className="max-w-[1280px] mx-auto px-6">
+          <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 pt-16">para qual tipo de transação</p>
+          {[
+            {
+              k: "01",
+              titulo: "M&A e Aquisições",
+              descricao: "Na compra e venda de empresas, o Invest Match constrói a tese sobre valuation, sinergias e posicionamento da empresa no mercado. O motor identifica fundos de private equity, grupos econômicos e strategic buyers que buscam ativos naquele setor e estágio de maturidade.",
+              destaques: ["Matching contra FIPs (fundos de investimento em participações)", "Identificação de strategic buyers competitivos", "Originação reversa para novos GPE"],
+            },
+            {
+              k: "02",
+              titulo: "FIDC e Crédito Estruturado",
+              descricao: "Para fundos de crédito, a tese reflete a qualidade de lastro, rentabilidade esperada e estrutura de tranches. O matching conecta o FIDC a administradoras, investidores de crédito e bancos que operam naquele segmento de recebíveis e classe de risco.",
+              destaques: ["Matching contra FIDCs e gestoras de crédito", "Identificação de investidores de tranches sênior e subordinada", "Alvos de distribuição entre bancos"],
+            },
+            {
+              k: "03",
+              titulo: "Securitização (CRI / CRA)",
+              descricao: "Na securitização de direitos creditórios, a tese mapeia qualidade dos imóveis ou direitos, probabilidade de recebimento e positioning do ofertante. O matching busca distribuidores registrados, investidores institucionais e banco de investimento estruturadores com histórico naquele tipo de ativo.",
+              destaques: ["Matching contra distribuidoras autorizadas CVM", "Identificação de investidores qualificados", "Alvos para pré-colocação"],
+            },
+          ].map((v) => (
+            <div key={v.k} className="reveal border-b border-lp-border py-14 lg:py-16">
+              <div className="grid lg:grid-cols-[120px_1fr] gap-6 lg:gap-12">
+                <span className="font-display text-[20px] text-lp-ink-4">{v.k}</span>
+                <div>
+                  <h3 className="font-display tracking-tight text-lp-ink mb-4" style={{ fontSize: "clamp(26px, 3.2vw, 40px)", lineHeight: 1.08 }}>
+                    {v.titulo}
+                  </h3>
+                  <p className="text-[15px] text-lp-ink-2 leading-relaxed max-w-[640px] mb-6">
+                    {v.descricao}
+                  </p>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-lp-ink-3 mb-3">Matching customizado para</p>
+                    <ul className="space-y-2">
+                      {v.destaques.map((d) => (
+                        <li key={d} className="flex items-start gap-2.5 text-[13.5px] text-lp-ink-2">
+                          <span className="flex-shrink-0 mt-0.5 text-[11px] font-bold" style={{ color: "#8C6F45" }}>•</span>
+                          {d}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── Como funciona ─────────────────────────────────────────────────── */}
       <section className="max-w-[1280px] mx-auto px-6 py-20 lg:py-24">
         <div className="reveal-blur max-w-[640px] mb-12">

@@ -218,20 +218,20 @@ export default function LandingPage() {
             Inteligência institucional para o mercado privado
           </p>
           <h1 className="font-display tracking-tight text-lp-ink" style={{ fontSize: "clamp(42px, 6.6vw, 84px)", lineHeight: 1.03 }}>
-            <span className="block animate-fade-up" style={{ animationDelay: "120ms" }}>No mercado privado,</span>
-            <span className="block animate-fade-up" style={{ animationDelay: "240ms" }}>o tempo gasto no</span>
-            <span className="block animate-fade-up" style={{ animationDelay: "360ms" }}><span style={{ fontStyle: "italic" }}>deal errado</span> não volta.</span>
+            <span className="block animate-fade-up" style={{ animationDelay: "120ms" }}>Os três Sinais de Fricção</span>
+            <span className="block animate-fade-up" style={{ animationDelay: "240ms" }}>que travam seu escritório.</span>
+            <span className="block animate-fade-up" style={{ animationDelay: "360ms" }}>Resolvidos em um só sistema.</span>
           </h1>
           <p className="animate-fade-up text-[18px] lg:text-[20px] text-lp-ink-2 leading-relaxed max-w-[600px] mt-9" style={{ animationDelay: "520ms" }}>
-            O Mandor diz, em até 90 minutos, se a operação merece avançar. Antes
-            de você queimar semanas, capital e reputação com o investidor.
+            Conhecimento preso na operação do sócio. Oportunidades que não escalam por dependência humana.
+            Crescimento que ultrapassa a capacidade de execução. O Mandor converte esses pontos de fricção em estrutura operacional contínua.
           </p>
           <div className="animate-fade-up flex flex-col sm:flex-row items-start sm:items-center gap-5 mt-11" style={{ animationDelay: "640ms" }}>
             <Link href="/auth/signup" className="lp-btn-primary inline-flex items-center gap-2 text-[15px] font-medium text-white px-7 py-4 rounded-full" style={{ background: "#8C6F45" }}>
               Solicitar acesso <span aria-hidden>→</span>
             </Link>
-            <a href="#comparativo" className="group inline-flex items-center gap-2 text-[15px] font-medium text-lp-ink">
-              Ver o comparativo
+            <a href="#gargalos" className="group inline-flex items-center gap-2 text-[15px] font-medium text-lp-ink">
+              Ver as soluções
               <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
             </a>
           </div>
@@ -250,25 +250,115 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Statement + números ──────────────────────────────────────────── */}
-      <section className="max-w-[1180px] mx-auto px-6 py-28 lg:py-40">
-        <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-7">o que está em jogo</p>
-        <h2 className="reveal-blur font-display tracking-tight text-lp-ink max-w-[980px]" style={{ fontSize: "clamp(30px, 4.4vw, 58px)", lineHeight: 1.12 }}>
-          Seu escritório recebe mais deals do que consegue analisar.{" "}
-          <span className="text-lp-ink-3">Cada um que fica na fila é uma operação que o concorrente fecha primeiro.</span>
-        </h2>
-        <div className="reveal grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6 mt-20 border-t border-lp-border pt-12">
+      {/* ── Gargalos → Soluções ───────────────────────────────────────────── */}
+      <section id="gargalos" className="max-w-[1180px] mx-auto px-6 py-28 lg:py-40 scroll-mt-20">
+        <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-7">como o Mandor resolve</p>
+        <div className="reveal grid md:grid-cols-3 gap-8 lg:gap-10">
           {[
-            { v: "até 90 min", l: "por análise completa" },
-            { v: "40+",        l: "deals analisáveis por mês (hoje, só 10 a fundo)" },
-            { v: "4×",         l: "capacidade, mesma equipe" },
-            { v: "R$ 6M–12M",  l: "receita que hoje fica na mesa" },
-          ].map((m) => (
-            <div key={m.l}>
-              <div className="font-display text-lp-ink leading-none" style={{ fontSize: "clamp(34px, 4vw, 52px)" }}>{m.v}</div>
-              <div className="text-[13px] text-lp-ink-3 mt-3 max-w-[160px]">{m.l}</div>
+            {
+              num: "01",
+              sinalFriccao: "Inteligência fica nas pessoas, não na instituição",
+              problema: "Conhecimento sai do escritório quando um sócio sai. Novos profissionais começam do zero.",
+              solucao: "Aprendizados do Escritório",
+              descricao: "Converte experiência em patrimônio intelectual. Cada operação analisada fortalece a inteligência da empresa.",
+            },
+            {
+              num: "02",
+              sinalFriccao: "Conexão entre oportunidades e interessados depende da agenda",
+              problema: "Muitas oportunidades morrem porque o comprador/investidor certo não foi encontrado. O processo é manual.",
+              solucao: "Invest Match",
+              descricao: "Transforma originação em processo. Identifica compradores e investidores aderentes. Prioriza por probabilidade de interesse.",
+            },
+            {
+              num: "03",
+              sinalFriccao: "Volume cresce mais rápido que a capacidade",
+              problema: "Mercado gera mais oportunidades do que as equipes conseguem analisar a fundo. Gargalo operacional.",
+              solucao: "Rede Cognitiva",
+              descricao: "Análise padronizada e escalável. O mesmo critério aplicado na primeira análise vale na centésima.",
+            },
+          ].map((g) => (
+            <div key={g.num} className="reveal">
+              <span className="text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-4 block">Sinal de Fricção {g.num}</span>
+              <h3 className="font-display tracking-tight text-lp-ink mb-4" style={{ fontSize: "clamp(22px, 2.8vw, 32px)", lineHeight: 1.1 }}>
+                {g.sinalFriccao}
+              </h3>
+              <p className="text-[14px] text-lp-ink-3 leading-relaxed mb-6">
+                {g.problema}
+              </p>
+              <div className="border-t border-lp-border pt-6">
+                <p className="text-[12px] font-semibold uppercase tracking-widest text-lp-ink-3 mb-2">Solução</p>
+                <h4 className="font-semibold text-[16px] text-lp-ink mb-2" style={{ color: "#8C6F45" }}>
+                  {g.solucao}
+                </h4>
+                <p className="text-[13.5px] text-lp-ink-2 leading-relaxed">
+                  {g.descricao}
+                </p>
+              </div>
             </div>
           ))}
+        </div>
+      </section>
+
+
+      {/* ── Verticais de negócio (CARDS) ────────────────────────────────────────── */}
+      <section className="border-t border-lp-border">
+        <div className="max-w-[1180px] mx-auto px-6 py-28 lg:py-40">
+          <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-12">para quem serve</p>
+          <div className="reveal grid md:grid-cols-2 gap-8 lg:gap-10">
+            {[
+            {
+              k: "01",
+              titulo: "M&A e Aquisições",
+              subtitulo: "Boutiques de M&A, investidores, grupos econômicos",
+              descricao: "Da prospecção ao fechamento. Diagnóstico financeiro, valuation, mapa jurídico, posicionamento do ativo e pipeline de compradores. Parecer institucional que move negociação.",
+              destaques: ["Valuation por múltiplos e DCF", "Tese e posicionamento do ativo", "Mapa de riscos e remediações", "Pipeline de compradores qualificados"],
+              href: "#",
+            },
+            {
+              k: "02",
+              titulo: "FIDC e Securitização",
+              subtitulo: "Administradoras, gestoras de crédito, originadoras",
+              descricao: "Estrutura aprovável. Análise de lastro, avaliação de risco de sacado/cedente, adequação de tranches, parecer de governança. Documentação completa para CVM.",
+              destaques: ["Análise de recebíveis e concentração", "Viabilidade de tranches e pricing", "Parecer de adequação ANBIMA", "Documentação CVM pronta"],
+              href: "#",
+            },
+            {
+              k: "03",
+              titulo: "Securitização (CRI / CRA)",
+              subtitulo: "Originadoras, banco de investimento, estruturadores",
+              descricao: "Cessão fiduciária validada. Análise de fluxos, avaliação de imóvel/direitos, estrutura de cotas, pricing justo. Due diligence que satisfaz investidor.",
+              destaques: ["Due diligence de ativos (imóvel/direitos)", "Pricing e modelagem de fluxos", "Análise de risco da operação", "Parecer técnico para investors"],
+              href: "#",
+            },
+            {
+              k: "04",
+              titulo: "Preparação de Ativo para Mercado",
+              subtitulo: "Grupos econômicos, PE, gestoras de investimento",
+              descricao: "Ativo pronto para venda. Diagnóstico 360º (financeiro, jurídico, tributário, operacional), roadmap de remediações, documentação de venda. Maximize o valuation.",
+              destaques: ["Diagnóstico operacional completo", "Identificação de oportunidades de valor", "Roadmap de remediações prioritárias", "Documentação pronta para data room"],
+              href: "#",
+            },
+            ].map((v) => (
+              <Link key={v.k} href={v.href} className="reveal group block bg-lp-fog border border-lp-border rounded-lg p-8 transition-all hover:border-lp-border-strong hover:shadow-sm">
+                <span className="inline-block font-display text-[16px] text-lp-accent font-medium mb-4">{v.k}</span>
+                <h3 className="font-display tracking-tight text-lp-ink mb-2" style={{ fontSize: "clamp(22px, 2.5vw, 28px)", lineHeight: 1.1 }}>
+                  {v.titulo}
+                </h3>
+                <p className="text-[13px] text-lp-ink-3 uppercase tracking-widest mb-4">{v.subtitulo}</p>
+                <p className="text-[15px] text-lp-ink-2 leading-relaxed mb-6">
+                  {v.descricao}
+                </p>
+                <ul className="space-y-2">
+                  {v.destaques.map((d) => (
+                    <li key={d} className="flex items-start gap-2.5 text-[13.5px] text-lp-ink-2">
+                      <span className="flex-shrink-0 mt-0.5 text-[11px] font-bold" style={{ color: "#8C6F45" }}>✓</span>
+                      {d}
+                    </li>
+                  ))}
+                </ul>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -290,27 +380,6 @@ export default function LandingPage() {
                 </span>
               </div>
             </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ── A rede cognitiva (10 inteligências) ──────────────────────────── */}
-      <section id="inteligencias" className="max-w-[1180px] mx-auto px-6 py-28 lg:py-36 scroll-mt-20">
-        <p className="reveal text-[12px] font-medium tracking-[0.22em] uppercase text-lp-ink-3 mb-6">a rede cognitiva</p>
-        <h2 className="reveal-blur font-display tracking-tight text-lp-ink max-w-[820px] mb-16" style={{ fontSize: "clamp(28px, 4vw, 52px)", lineHeight: 1.1 }}>
-          Dez inteligências em rede.{" "}
-          <span style={{ fontStyle: "italic" }}>Um único dossiê.</span>
-        </h2>
-        <div className="reveal grid sm:grid-cols-2 lg:grid-cols-2 gap-x-14 gap-y-px">
-          {inteligencias.map((a) => (
-            <div key={a.num} className="grid grid-cols-[44px_1fr] gap-5 items-start border-t border-lp-border py-7">
-              <span className="font-display text-[18px] text-lp-ink-4 pt-0.5">{a.num}</span>
-              <div>
-                <p className="text-[10.5px] font-medium tracking-[0.18em] uppercase text-lp-ink-3 mb-1.5">{a.dominio}</p>
-                <h3 className="text-[16px] font-semibold text-lp-ink mb-2">{a.funcao}</h3>
-                <p className="text-[14px] text-lp-ink-3 leading-relaxed">{a.descricao}</p>
-              </div>
-            </div>
           ))}
         </div>
       </section>

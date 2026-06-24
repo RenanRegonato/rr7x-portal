@@ -1,16 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
 import { inngest } from '@/lib/inngest'
-
-function categorize(name: string): 'pdf' | 'image' | 'docx' | 'excel' | 'text' | 'unsupported' {
-  const ext = name.split('.').pop()?.toLowerCase() ?? ''
-  if (ext === 'pdf') return 'pdf'
-  if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'image'
-  if (['docx', 'doc'].includes(ext)) return 'docx'
-  if (['xlsx', 'xls'].includes(ext)) return 'excel'
-  if (['csv', 'txt', 'md'].includes(ext)) return 'text'
-  return 'unsupported'
-}
+import { categorizeFile as categorize } from '@/lib/documentos/categorize'
 
 export async function POST(
   _req: NextRequest,

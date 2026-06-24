@@ -51,6 +51,8 @@ export const ROUTING: Record<string, ModelChoice> = {
 
   // ── ingestão (non-streaming) ──
   chunk_fact_extract:    haiku(),
+  chunk_categorizer:     haiku(),  // categoriza chunks em domínios (financeiro, jurídico, etc)
+  kg_relationship_extract: haiku(),  // extrai entidades e relacionamentos pra KG
   consolidate_fact_bank: sonnet(),
 
   // ── validadores (non-streaming) ──

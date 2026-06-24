@@ -17,15 +17,17 @@ interface Props {
 
 // === Vocabulários (espelham schemas.ts) ===
 const TIPOS = [
-  { v: 'pessoa_fisica',           l: 'Pessoa física' },
-  { v: 'holding_familiar',        l: 'Holding familiar' },
-  { v: 'family_office',           l: 'Family office' },
-  { v: 'fundo',                   l: 'Fundo' },
-  { v: 'financeira',              l: 'Financeira' },
-  { v: 'pj',                      l: 'Pessoa jurídica' },
-  { v: 'estrategico_corporativo', l: 'Estratégico corporativo' },
-  { v: 'gestora',                 l: 'Gestora' },
-  { v: 'clube_investimento',      l: 'Clube de investimento' },
+  { v: 'pessoa_fisica',              l: 'Pessoa física' },
+  { v: 'holding_familiar',           l: 'Holding familiar' },
+  { v: 'family_office',              l: 'Family office' },
+  { v: 'fundo',                      l: 'Fundo' },
+  { v: 'financeira',                 l: 'Financeira' },
+  { v: 'pj',                         l: 'Pessoa jurídica' },
+  { v: 'estrategico_corporativo',    l: 'Estratégico corporativo' },
+  { v: 'gestora',                    l: 'Gestora' },
+  { v: 'clube_investimento',         l: 'Clube de investimento' },
+  { v: 'securitizadora',             l: 'Securitizadora (CRI / CRA)' },
+  { v: 'administradora_fiduciaria',  l: 'Administradora fiduciária (FIDC)' },
 ] as const
 
 const SETORES = [
@@ -46,6 +48,7 @@ const ESTAGIOS = [
 const TIPOS_DEAL = [
   { v: 'equity',              l: 'Equity' },
   { v: 'debt',                l: 'Dívida' },
+  { v: 'credito_estruturado', l: 'Crédito estruturado (FIDC / CRI / CRA)' },
   { v: 'convertible',         l: 'Conversível' },
   { v: 'm_and_a_sale',        l: 'M&A: Venda' },
   { v: 'm_and_a_acquisition', l: 'M&A: Aquisição' },

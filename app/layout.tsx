@@ -33,15 +33,17 @@ const SITE_NAME = "Mandor";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} · Deal Intelligence para M&A e Crédito Estruturado`,
+    default: `${SITE_NAME} · Infraestrutura de memória institucional para o capital privado`,
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "Inteligência institucional para M&A e crédito estruturado: diagnóstico financeiro completo, rastreável e auditável, em até 90 minutos. DRS, DRE normalizada, EBITDA ajustado, valuation, análise de M&A, estruturação de crédito, adequação à Reforma Tributária, material de originação e o Mapa Inteligente do Mercado.",
+    "Decisões atribuídas. Racional preservado. O Mandor é a infraestrutura de memória institucional para M&A, Private Equity e Family Offices. Análise completa, rastreável e auditável.",
   keywords: [
     "M&A",
+    "Private Equity",
+    "Family Office",
     "crédito estruturado",
-    "deal intelligence",
+    "memória institucional",
     "análise financeira",
     "fusões e aquisições",
     "EBITDA",
@@ -50,8 +52,7 @@ export const metadata: Metadata = {
     "DRS",
     "diagnóstico financeiro",
     "assessoria M&A",
-    "capital hub",
-    "private equity",
+    "capital privado",
   ],
   authors: [{ name: "Mandor" }],
   creator: "Mandor",
@@ -61,22 +62,22 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: `${SITE_NAME} · Deal Intelligence para M&A e Crédito Estruturado`,
+    title: `${SITE_NAME} · Infraestrutura de memória institucional para o capital privado`,
     description:
-      "Inteligência institucional para M&A e crédito. Diagnóstico completo, rastreável e auditável, em até 90 minutos.",
+      "Decisões atribuídas. Racional preservado. Análise institucional para M&A, Private Equity e Family Offices.",
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Mandor · Inteligência institucional para M&A e crédito",
+        alt: "Mandor · Infraestrutura de memória institucional",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} · Deal Intelligence`,
-    description: "10 especialistas em IA. Diagnóstico completo em até 90 minutos.",
+    title: `${SITE_NAME} · Memória institucional para o capital privado`,
+    description: "Decisões atribuídas. Racional preservado.",
     images: ["/opengraph-image"],
   },
   robots: {

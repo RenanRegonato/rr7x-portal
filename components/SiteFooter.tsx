@@ -17,9 +17,10 @@ export default function SiteFooter() {
     { label: "Criar conta", href: "/auth/signup" },
   ];
   const legal = [
-    { label: "Política de Privacidade", href: "/privacidade" },
-    { label: "Termos de Uso",           href: "/termos"      },
-    { label: "Contato",                 href: "/contato"     },
+    { label: "Política de Privacidade",   href: "/privacidade"          },
+    { label: "Termos de Uso",             href: "/termos"               },
+    { label: "Documentação Legal",        href: "/documentacao-legal"    },
+    { label: "Contato",                   href: "/contato"              },
   ];
 
   return (

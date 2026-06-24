@@ -20,6 +20,7 @@ import ClaimsSection from '@/components/ClaimsSection'
 import ConsistencyPanel from '@/components/ConsistencyPanel'
 import MesaVerdictBanner from '@/components/MesaVerdictBanner'
 import AnaliseCustoCard from '@/components/AnaliseCustoCard'
+import TriagemDocumentos from '@/components/TriagemDocumentos'
 import DealAlertas from '@/components/DealAlertas'
 import CoveragePanel from '@/components/CoveragePanel'
 import { FERRANTE_PENDING_NOTE, parseFerranteResult, type FerranteResult, type Severidade } from '@/lib/reforma-tributaria/result'
@@ -214,6 +215,7 @@ export default function AnalisePage() {
   // Ingestão assíncrona (Fase 13): pipeline só inicia quando fact_bank está pronto.
   // Se a análise foi criada antes da Fase 13 (sem ingest disparado), status fica 'idle'
   // e o fluxo legado roda transparentemente — drive_intake lê PDFs do Storage.
+  const [triagemPendente, setTriagemPendente] = useState(false)
   const [ingestStatus, setIngestStatus] = useState<'unknown' | 'idle' | 'in_progress' | 'completed' | 'failed'>('unknown')
   const [ingestProgress, setIngestProgress] = useState<{ total: number; completed: number; failed: number; percent: number }>({ total: 0, completed: 0, failed: 0, percent: 0 })
 
@@ -385,12 +387,22 @@ export default function AnalisePage() {
         }
         const stat = await r.json() as {
           status: 'idle' | 'in_progress' | 'completed' | 'failed'
+          triagem_status?: 'pendente' | 'liberada' | null
           fact_bank_ready: boolean
           progress: { total: number; completed: number; failed: number; percent: number }
         }
         if (cancelled) return
         setIngestStatus(stat.status)
         setIngestProgress(stat.progress)
+
+        // Gate de documentos críticos: ingestão concluída COM falhas → a análise
+        // fica pausada na triagem (o pipeline não foi disparado). Mostra a tela de
+        // triagem e NÃO tenta retomar o pipeline.
+        if (stat.triagem_status === 'pendente') {
+          setTriagemPendente(true)
+          return
+        }
+        setTriagemPendente(false)
 
         if (stat.status === 'in_progress') {
           // Aguarda — não inicia pipeline ainda
@@ -482,6 +494,24 @@ export default function AnalisePage() {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-ink-3 font-display text-[18px]">Carregando análise...</div>
+      </div>
+    )
+  }
+
+  // Gate de documentos críticos: ingestão concluída com documento(s) em falha.
+  // A análise fica pausada até o usuário triar cada falha (relevante? remediar?).
+  if (triagemPendente) {
+    return (
+      <div className="flex-1 flex flex-col">
+        <Topbar
+          variant="context"
+          title={analise.nome_ativo}
+          badge={{ label: 'Revisão de documentos', kind: 'live' }}
+        />
+        <TriagemDocumentos
+          analiseId={id}
+          onLiberado={() => { setTriagemPendente(false); window.location.reload() }}
+        />
       </div>
     )
   }

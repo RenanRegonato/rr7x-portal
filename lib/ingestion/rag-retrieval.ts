@@ -9,18 +9,27 @@ export interface RetrievedChunk {
   chunk_text:    string
   page_start:    number | null
   page_end:      number | null
+  categoria:     string | null
   similarity:    number
 }
+
+export type ChunkCategory = 'financeiro' | 'juridico' | 'tributario' | 'garantias' | 'estrutura' | 'outro'
 
 /**
  * Busca top-K chunks mais relevantes à query dentro de uma análise.
  * Usa a função SQL match_document_chunks() (HNSW + cosine).
+ *
+ * Parâmetro categoria (opcional):
+ * - null/undefined: busca semanticamente em ANY categoria (original behavior)
+ * - 'financeiro'/'juridico'/etc: filtra apenas chunks dessa categoria antes de ordenar
+ *   → economia: menos chunks irrelevantes, menos tokens no prompt
  */
 export async function retrieveRelevantChunks(opts: {
   analiseId:     string
   query:         string
   k?:            number
   minSimilarity?: number
+  categoria?:    ChunkCategory | null  // novo: filtro por categoria
 }): Promise<RetrievedChunk[]> {
   const k = opts.k ?? 8
   const minSim = opts.minSimilarity ?? 0.4
@@ -33,6 +42,7 @@ export async function retrieveRelevantChunks(opts: {
     p_query_embedding: queryEmbedding as unknown as string,
     p_match_count:     k,
     p_similarity_min:  minSim,
+    p_categoria:       opts.categoria ?? null,  // passa categoria se fornecida
   })
 
   if (error) throw new Error(`RAG retrieval falhou: ${error.message}`)

@@ -13,6 +13,8 @@ import { listBenchmarks, formatBenchmarksForPrompt } from '@/lib/benchmarks'
 import { hasModulo } from '@/lib/entitlements'
 import { parseClaims, persistClaims, CLAIMS_DIRECTIVE } from '@/lib/claims'
 import { isEarlyStage, EARLY_STAGE_DIRETRIZ_AGENTE, EARLY_STAGE_RESSALVA } from '@/lib/early-stage'
+import { formatTeseBlock } from '@/lib/tese-deal'
+import { formatCRICRABlock } from '@/lib/cri-cra-diretriz'
 import { isInternalCall } from '@/lib/internal-auth'
 import { logLlmUsage } from '@/lib/llm/usage-logger'
 import { getUserContext } from '@/lib/get-role'
@@ -233,11 +235,65 @@ function formatIntake(intake: Record<string, string>): string {
     `Localização: ${intake.localizacao}`,
     `Ticket Estimado: ${intake.ticketEstimado}`,
   ]
-  if (intake.operacaoEmAndamento)   parts.push(`Operação já em andamento? ${intake.operacaoEmAndamento}`)
-  if (intake.resumoAtivo)           parts.push(`Resumo e Tese do Ativo: ${intake.resumoAtivo}`)
-  if (intake.informacoesAdicionais) parts.push(`Informações Adicionais: ${intake.informacoesAdicionais}`)
+  if (intake.operacaoEmAndamento) parts.push(`Operação já em andamento? ${intake.operacaoEmAndamento}`)
+  // Estrutura de crédito (FIDC / Securitização / Portfólio): dá à Mesa de Crédito,
+  // à estruturação e ao KYC o vocabulário do lastro (cedente, recebível, cotas, série).
+  const credito: string[] = []
+  if (intake.cedente)        credito.push(`Cedente / Originador: ${intake.cedente}`)
+  if (intake.tipoRecebivel)  credito.push(`Tipo de recebível (lastro): ${intake.tipoRecebivel}`)
+  // Status do recebível determina classificação CVM e perfil de risco:
+  if (intake.statusRecebivel) {
+    const statusLabel: Record<string, string> = {
+      performado:       'Performado (serviço/venda já ocorreu)',
+      a_performar:      'A performar (depende de prestação futura — risco maior)',
+      vencido_nao_pago: 'Vencido e não pago — FIDC NÃO PADRONIZADO (CVM 444/2006): exige investidor profissional; risco de fraude/lastro elevado; diligência reforçada obrigatória',
+    }
+    credito.push(`Status do recebível: ${statusLabel[intake.statusRecebivel] ?? intake.statusRecebivel}`)
+  }
+  // Estrutura cedente × sacado define onde reside o risco de crédito:
+  if (intake.estruturaCedenteSacado) {
+    const estLabel: Record<string, string> = {
+      monocedente_multisacados:  'Monocedente / Multisacados — risco distribuído nos sacados (devedores), não no cedente; avaliar pulverização e inadimplência da carteira',
+      multicedentes_monosacado:  'Multicedentes / Monosacado (FIDC Fornecedores) — risco concentrado num único sacado; análise de crédito do sacado-âncora é determinante',
+      multicedentes_multisacados: 'Multicedentes / Multisacados (Fomento Mercantil) — risco pulverizado nos dois lados; avaliar critérios de elegibilidade e cobrança',
+    }
+    credito.push(`Estrutura cedente × sacado: ${estLabel[intake.estruturaCedenteSacado] ?? intake.estruturaCedenteSacado}`)
+  }
+  // Cedente como cotista subordinado = alinhamento de interesses:
+  if (intake.cedenteCotistaSubordinado) {
+    const cotLabel: Record<string, string> = {
+      sim:         'Sim — cedente participa como cotista subordinado (boa prática: assume primeiro os riscos das suas originações)',
+      nao:         'Não — cedente NÃO participa como cotista subordinado (yellow flag de governança: verificar outros mecanismos de alinhamento)',
+      nao_definido: 'A definir',
+    }
+    credito.push(`Cedente cotista subordinado: ${cotLabel[intake.cedenteCotistaSubordinado] ?? intake.cedenteCotistaSubordinado}`)
+  }
+  // Tipo de oferta determina número máximo de investidores e requisitos regulatórios:
+  if (intake.tipoOferta) {
+    const ofertaLabel: Record<string, string> = {
+      icvm_400:    'ICVM 400 — Oferta pública (rating de agência classificadora obrigatório; prospecto obrigatório)',
+      icvm_476:    'ICVM 476 — Oferta restrita (máx 75 investidores profissionais; dispensa prospecto e rating; sem registro CVM)',
+      nao_definido: 'A definir',
+    }
+    credito.push(`Tipo de oferta: ${ofertaLabel[intake.tipoOferta] ?? intake.tipoOferta}`)
+  }
+  if (intake.estruturaCotas) credito.push(`Estrutura de cotas / tranches: ${intake.estruturaCotas}`)
+  if (intake.serieEmissao)   credito.push(`Série / emissão: ${intake.serieEmissao}`)
+  if (credito.length > 0) parts.push('Estrutura de Crédito:\n  ' + credito.join('\n  '))
+  // "Informações Adicionais" só quando trouxer conteúdo distinto da Tese do Deal.
+  // Em deals novos esse campo é cópia de resumoAtivo (ver submissão do formulário),
+  // então evita imprimir a tese duas vezes; em deals antigos pode ter texto próprio.
+  if (intake.informacoesAdicionais && intake.informacoesAdicionais.trim() !== (intake.resumoAtivo ?? '').trim())
+    parts.push(`Informações Adicionais: ${intake.informacoesAdicionais}`)
 
   let result = parts.join('\n')
+  // Tese do Deal (resumoAtivo): contexto estratégico do assessor, delimitado como
+  // dado não confiável + diretriz que orienta TODOS os agentes a considerar
+  // divergências/pendências já explicadas sem gerar apontamento indevido.
+  result += formatTeseBlock(intake.resumoAtivo)
+  // Classificação ANBIMA (CRI/CRA): dimensões de risco e elegibilidade conforme
+  // Regras ANBIMA. Orienta estruturação, mesa e KYC em deals de crédito estruturado.
+  result += formatCRICRABlock(intake)
   // Em deals early-stage, injeta a diretriz que orienta TODOS os agentes a não
   // penalizar a ausência de histórico financeiro e a avaliar potencial/estrutura.
   if (isEarlyStage(intake)) result += EARLY_STAGE_DIRETRIZ_AGENTE

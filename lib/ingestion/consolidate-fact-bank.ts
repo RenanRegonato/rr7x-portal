@@ -5,7 +5,7 @@ import { computeFinancials, metricsToConsolidatedFacts } from '@/lib/extract/fin
 import { evaluateRisk, triggersToFacts } from '@/lib/extract/risk-engine'
 import { createAdminClient } from '@/lib/supabase-server'
 import { sendIngestionCompleteEmail } from '@/lib/email'
-import { inngest } from '@/lib/inngest'
+import { evaluateTriagemGate } from '@/lib/triagem/gate'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Step = any
@@ -117,7 +117,7 @@ export async function consolidateFactBank({ analiseId, step, logger }: Consolida
   logger.info('Loaded facts', { analiseId, count: facts.length })
 
   if (facts.length === 0) {
-    return await persistFactBank(admin, analiseId, step, {
+    return await persistFactBank(admin, analiseId, step, logger, {
       facts: [],
       stats: { total_facts_in: 0, total_facts_out: 0, conflicts: 0, duplicates_merged: 0 },
       consolidation_model: 'no-facts',
@@ -199,7 +199,7 @@ export async function consolidateFactBank({ analiseId, step, logger }: Consolida
   if (riscos.length)      allFacts.push(...riscos)
 
   // 4) Persiste
-  return await persistFactBank(admin, analiseId, step, {
+  return await persistFactBank(admin, analiseId, step, logger, {
     facts: allFacts,
     stats: {
       total_facts_in:    facts.length,
@@ -215,6 +215,7 @@ async function persistFactBank(
   admin:     ReturnType<typeof createAdminClient>,
   analiseId: string,
   step:      Step,
+  logger:    Logger,
   factBank:  Record<string, unknown>,
 ) {
   await step.run('save-fact-bank', async () => {
@@ -268,12 +269,46 @@ async function persistFactBank(
     }
   })
 
-  // Dispara o pipeline de análise multi-agente server-side (Inngest). Antes isso
-  // era dirigido pelo navegador do dono; agora roda no servidor e qualquer viewer
-  // autorizado acompanha o progresso por polling.
+  // Dispara categorização de chunks em background (paralelo ao pipeline)
+  // Isso garante que quando agentes consultarem chunks, já têm categoria indexada.
+  // Best-effort: se falhar, agentes funcionam normalmente (fallback a não categorizados).
+  await step.run('kickoff-chunk-categorization', async () => {
+    try {
+      const { inngest } = await import('@/lib/inngest')
+      await inngest.send({
+        name: 'analise/chunks.categorize_requested',
+        data: { analiseId },
+      })
+      return { queued: true, analiseId }
+    } catch (err) {
+      logger?.warn('Falha ao disparar categorização de chunks', { analiseId, err })
+      return { queued: false, error: err instanceof Error ? err.message : 'unknown' }
+    }
+  })
+
+  // Dispara extração de Knowledge Graph (entidades + relacionamentos)
+  // Roda após categorização (dependência implícita: KG precisa de chunks categorizados)
+  // Best-effort: falha não bloqueia o pipeline.
+  await step.run('kickoff-kg-extraction', async () => {
+    try {
+      const { inngest } = await import('@/lib/inngest')
+      await inngest.send({
+        name: 'analise/kg.extract_requested',
+        data: { analiseId },
+      })
+      return { queued: true, analiseId }
+    } catch (err) {
+      logger?.warn('Falha ao disparar extração KG', { analiseId, err })
+      return { queued: false, error: err instanceof Error ? err.message : 'unknown' }
+    }
+  })
+
+  // Gate de documentos críticos: em vez de disparar o pipeline direto, reavalia
+  // se há documento com falha não resolvido. Se houver, SEGURA a análise
+  // (triagem pendente); senão, libera e dispara o pipeline. Ver lib/triagem/gate.
   await step.run('kickoff-analysis-pipeline', async () => {
-    await inngest.send({ name: 'analise/pipeline.run_requested', data: { analiseId } })
-    return { ok: true, analiseId }
+    const gate = await evaluateTriagemGate(analiseId)
+    return { ...gate, analiseId }
   })
 
   return { ok: true, fact_bank: factBank }
