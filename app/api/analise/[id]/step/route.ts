@@ -14,6 +14,7 @@ import { hasModulo } from '@/lib/entitlements'
 import { parseClaims, persistClaims, CLAIMS_DIRECTIVE } from '@/lib/claims'
 import { isEarlyStage, EARLY_STAGE_DIRETRIZ_AGENTE, EARLY_STAGE_RESSALVA } from '@/lib/early-stage'
 import { formatTeseBlock } from '@/lib/tese-deal'
+import { formatCRICRABlock } from '@/lib/cri-cra-diretriz'
 import { isInternalCall } from '@/lib/internal-auth'
 import { logLlmUsage } from '@/lib/llm/usage-logger'
 import { getUserContext } from '@/lib/get-role'
@@ -290,6 +291,9 @@ function formatIntake(intake: Record<string, string>): string {
   // dado não confiável + diretriz que orienta TODOS os agentes a considerar
   // divergências/pendências já explicadas sem gerar apontamento indevido.
   result += formatTeseBlock(intake.resumoAtivo)
+  // Classificação ANBIMA (CRI/CRA): dimensões de risco e elegibilidade conforme
+  // Regras ANBIMA. Orienta estruturação, mesa e KYC em deals de crédito estruturado.
+  result += formatCRICRABlock(intake)
   // Em deals early-stage, injeta a diretriz que orienta TODOS os agentes a não
   // penalizar a ausência de histórico financeiro e a avaliar potencial/estrutura.
   if (isEarlyStage(intake)) result += EARLY_STAGE_DIRETRIZ_AGENTE
