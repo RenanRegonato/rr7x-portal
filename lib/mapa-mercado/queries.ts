@@ -243,8 +243,6 @@ export const montarPerfil = getEntidadeCompleta // TODO: Implementar perfil comp
 /**
  * Tipos para export
  */
-export type EntidadeTipo = TipoEntidade
-export type ConexaoVizinha = {
   entidade: MercadoEntidade
   tipo: string
   força: number
