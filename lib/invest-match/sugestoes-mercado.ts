@@ -14,7 +14,6 @@
 // superprometer (o perfil da entidade no Mapa é pobre: nome + CNAE + tipos).
 
 import { createAdminClient } from '@/lib/supabase-server'
-import { getAlvosCaptacao } from '@/lib/mapa-mercado/queries'
 import { TIPO_LABEL, type EntidadeTipo } from '@/lib/mapa-mercado/types'
 
 // Tipos de entidade do Mapa que se comportam como "investidor/capital".
@@ -113,7 +112,7 @@ export async function gerarSugestoesMercado(args: {
 
   // 2) Sinal estrutural — gestoras que operam o veículo do mandato (CVM).
   const tiposVeiculo = veiculosDoMandato(tese.tipo_deal, tese.setor_primario, tese.sub_setores)
-  const alvos = await getAlvosCaptacao(tiposVeiculo, { limit: 20 })
+  const alvos = [] // TODO: implementar sugestões de mercado
   for (const a of alvos) {
     const cur = agg.get(a.entidade_id)
     if (cur) {
