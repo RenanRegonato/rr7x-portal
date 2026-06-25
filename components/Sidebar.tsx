@@ -38,7 +38,7 @@ export default function Sidebar({
     { id: 'home',         label: 'Início',       icon: 'home',      href: '/dashboard' },
     { id: 'pipeline',     label: 'Pipeline',     icon: 'pipeline',  href: '/dashboard', count: analiseCount || undefined },
     { id: 'invest-match', label: 'Invest Match', icon: 'handshake', href: '/dashboard/invest-match' },
-    { id: 'mapa-mercado', label: 'Mapa do Mercado', icon: 'map',    href: '/dashboard/mapa-inteligente' },
+    { id: 'mapa-mercado', label: 'Mapa do Mercado', icon: 'map',    href: '/dashboard/mapa-mercado' },
     { id: 'escritorio',   label: 'Escritório',   icon: 'building',  href: '/dashboard/escritorio' },
     { id: 'benchmarks',   label: 'Benchmarks',   icon: 'doc',       href: '/dashboard/escritorio/benchmarks' },
     ...(userRole === 'gerente' || userRole === 'admin'
