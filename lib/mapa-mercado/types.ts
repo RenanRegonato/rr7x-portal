@@ -215,3 +215,11 @@ export const CONEXAO_LABEL: Record<string, string> = {
 export function veiculoEncerrado(veiculo: MercadoVeiculo): boolean {
   return veiculo.situacao === 'cancelada' || veiculo.situacao === 'encerrada'
 }
+
+// Aliases para compatibilidade
+export type EntidadeTipo = TipoEntidade
+export interface ConexaoVizinha {
+  entidade: MercadoEntidade
+  tipo: string
+  força: number
+}

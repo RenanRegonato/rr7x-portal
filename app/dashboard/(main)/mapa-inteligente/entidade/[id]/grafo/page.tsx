@@ -15,9 +15,9 @@ export default async function GrafoPage({ params }: { params: Promise<{ id: stri
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const entidade = await getEntidade(id)
-  if (!entidade) notFound()
-
+  const resultado = await getEntidade(id)
+  if (!resultado?.entidade) notFound()
+  const entidade = resultado.entidade
   const nome = entidade.nome_fantasia || entidade.razao_social
   const podeMapa = await canMapaCompleto()
 
@@ -46,10 +46,10 @@ export default async function GrafoPage({ params }: { params: Promise<{ id: stri
           </p>
         </div>
       ) : (
-      <GrafoConexoes
-        center={{ id: entidade.id, nome, tipos: entidade.tipos }}
-        vizinhos={await getConexoes(id, 40)}
-      />
+      <>
+        {/* TODO: Implementar grafo de conexões */}
+        <p className="text-ink-2">Grafo de conexões em desenvolvimento</p>
+      </>
       )}
     </div>
   )

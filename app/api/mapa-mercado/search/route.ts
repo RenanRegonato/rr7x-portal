@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(Number(sp.get('limit')) || 30, 100)
   const offset = Math.max(Number(sp.get('offset')) || 0, 0)
 
-  const resultados = await buscarEntidades({
+  const { entidades, total } = await buscarEntidades({
     q:      sp.get('q') ?? undefined,
     tipos:  tiposRaw ? (tiposRaw.split(',').filter(Boolean) as EntidadeTipo[]) : undefined,
     uf:     sp.get('uf') ?? undefined,
@@ -25,5 +25,5 @@ export async function GET(req: NextRequest) {
     offset,
   })
 
-  return NextResponse.json({ resultados, total: resultados.length })
+  return NextResponse.json({ entidades, total })
 }

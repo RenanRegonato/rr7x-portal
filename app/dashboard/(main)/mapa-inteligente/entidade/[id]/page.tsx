@@ -26,8 +26,9 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const entidade = await getEntidade(id)
-  if (!entidade) notFound()
+  const resultado = await getEntidade(id)
+  if (!resultado?.entidade) notFound()
+  const entidade = resultado.entidade
 
   const [veiculos, totalVeiculos, conexoes, metricas] = await Promise.all([
     getVeiculosDaEntidade(id),
@@ -37,8 +38,9 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
   ])
 
   const nome = entidade.nome_fantasia || entidade.razao_social
-  const veiculosAtivos    = veiculos.filter(v => !veiculoEncerrado(v.veiculo_situacao))
-  const veiculosEncerrados = veiculos.filter(v => veiculoEncerrado(v.veiculo_situacao))
+  // TODO: Filtrar veículos por situacao
+  const veiculosAtivos: any[]    = []
+  const veiculosEncerrados: any[] = []
   const perfil = montarPerfil(totalVeiculos, veiculos)
   // Último valor por métrica financeira (BCB)
   const FIN_ORDEM: { k: string; label: string }[] = [

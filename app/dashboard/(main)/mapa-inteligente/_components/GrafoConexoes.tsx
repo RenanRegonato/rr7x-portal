@@ -62,7 +62,7 @@ export default function GrafoConexoes({ center, vizinhos }: Props) {
 
   // Tipos presentes (para a legenda).
   const tiposPresentes = Array.from(
-    new Set<string>([...center.tipos, ...vizinhos.flatMap(v => v.tipos)].filter(t => COR_TIPO[t])),
+    new Set<string>([...center.tipos, ...vizinhos.map(v => v.tipo)].filter(t => COR_TIPO[t])),
   )
 
   function irPara(id: string) {
@@ -83,13 +83,13 @@ export default function GrafoConexoes({ center, vizinhos }: Props) {
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" style={{ maxHeight: 600 }}>
         {/* Arestas (atrás dos nós) */}
         {nodes.map(n => {
-          const ativo = hover === null || hover === n.entidade_id
+          const ativo = hover === null || hover === n.entidade.id
           return (
             <line
-              key={`e-${n.entidade_id}`}
+              key={`e-${n.entidade.id}`}
               x1={CX} y1={CY} x2={n.x} y2={n.y}
               stroke={ativo ? COR_DEFAULT : '#cbd5e1'}
-              strokeWidth={larguraAresta(n.peso)}
+              strokeWidth={larguraAresta(n.força)}
               strokeOpacity={ativo ? 0.55 : 0.15}
             />
           )
@@ -97,18 +97,18 @@ export default function GrafoConexoes({ center, vizinhos }: Props) {
 
         {/* Nós vizinhos */}
         {nodes.map(n => {
-          const ativo = hover === null || hover === n.entidade_id
-          const r = 18 + Math.min(8, Math.log2(1 + n.peso) * 2)
+          const ativo = hover === null || hover === n.entidade.id
+          const r = 18 + Math.min(8, Math.log2(1 + n.força) * 2)
           const labelDir = n.x >= CX ? 1 : -1
           return (
             <g
-              key={n.entidade_id}
+              key={n.entidade.id}
               style={{ cursor: 'pointer', opacity: ativo ? 1 : 0.35, transition: 'opacity .15s' }}
-              onMouseEnter={() => setHover(n.entidade_id)}
+              onMouseEnter={() => setHover(n.entidade.id)}
               onMouseLeave={() => setHover(null)}
-              onClick={() => irPara(n.entidade_id)}
+              onClick={() => irPara(n.entidade.id)}
             >
-              <circle cx={n.x} cy={n.y} r={r} fill={corDe(n.tipos)} fillOpacity={0.9} stroke="#fff" strokeWidth={2} />
+              <circle cx={n.x} cy={n.y} r={r} fill={corDe([n.tipo as any])} fillOpacity={0.9} stroke="#fff" strokeWidth={2} />
               <text
                 x={n.x + labelDir * (r + 6)}
                 y={n.y + 4}
@@ -117,10 +117,10 @@ export default function GrafoConexoes({ center, vizinhos }: Props) {
                 fill="var(--color-ink)"
                 style={{ pointerEvents: 'none', fontWeight: 500 }}
               >
-                {n.nome.length > 26 ? n.nome.slice(0, 25) + '…' : n.nome}
+                {((n.entidade.nome_fantasia || n.entidade.razao_social) || '').substring(0, 25)}
               </text>
               {/* peso + tipo de conexão no hover */}
-              {hover === n.entidade_id && (
+              {hover === n.entidade.id && (
                 <text
                   x={n.x + labelDir * (r + 6)}
                   y={n.y + 20}
@@ -129,7 +129,7 @@ export default function GrafoConexoes({ center, vizinhos }: Props) {
                   fill="var(--color-ink-3)"
                   style={{ pointerEvents: 'none' }}
                 >
-                  {CONEXAO_LABEL[n.tipo] ?? n.tipo} · {n.peso} veículo{n.peso === 1 ? '' : 's'}
+                  {CONEXAO_LABEL[n.tipo] ?? n.tipo} · {n.força} veículo{n.força === 1 ? '' : 's'}
                 </text>
               )}
             </g>

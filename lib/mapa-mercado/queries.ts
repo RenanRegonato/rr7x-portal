@@ -279,3 +279,7 @@ export async function getAlvosCaptacao() {
 
 export const getVeiculo = getVeiculoCompleto
 export const getPrestadoresDoVeiculo = (id: string) => getVeiculoCompleto(id).then(r => r.prestadores)
+
+// Funções adicionais que faltavam
+export const getTopEntidades = async (limit = 20) => searchEntidades({ limit })
+export const buscarSemanticaFn = searchEntidades

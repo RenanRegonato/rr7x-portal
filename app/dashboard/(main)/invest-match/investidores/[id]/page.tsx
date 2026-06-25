@@ -36,8 +36,8 @@ export default async function EditInvestidorPage({ params }: PageProps) {
 
   // Contexto de mercado: tenta casar o nome do investidor com o catálogo do
   // Mapa do Mercado (busca trigram). rank alto = correspondência confiável.
-  const [topoMercado] = await buscarEntidades({ q: inv.nome, limit: 1 })
-  const entidadeMercado = topoMercado && topoMercado.rank >= 0.4 ? topoMercado : null
+  const { entidades: topoEntidades } = await buscarEntidades({ q: inv.nome, limit: 1 })
+  const entidadeMercado = topoEntidades?.[0] || null
 
   return (
     <div className="p-6 md:p-8 max-w-5xl mx-auto w-full space-y-8">
@@ -131,7 +131,7 @@ export default async function EditInvestidorPage({ params }: PageProps) {
               </div>
               <div className="text-[11px] text-ink-3 mt-0.5">
                 {entidadeMercado.tipos.map(t => TIPO_LABEL[t] ?? t).join(' · ')}
-                {entidadeMercado.uf ? ` · ${entidadeMercado.uf}` : ''} · {entidadeMercado.num_veiculos} veículos
+                {entidadeMercado.uf ? ` · ${entidadeMercado.uf}` : ''}
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">

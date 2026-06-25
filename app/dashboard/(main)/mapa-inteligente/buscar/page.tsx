@@ -54,7 +54,7 @@ export default async function BuscarPage({
   const modoIA = querIA && !limiteIaAtingido
 
   const resultados = modoIA
-    ? await buscarSemantica(q, { tipos: tiposSel.length ? tiposSel : undefined, uf: uf || undefined, limit: 50 })
+    ? await buscarSemantica({ q, tipos: tiposSel.length ? tiposSel : undefined, uf: uf || undefined, limit: 50 })
     : await buscarEntidades({
         q: q || undefined,
         tipos: tiposSel.length ? tiposSel : undefined,
@@ -63,9 +63,10 @@ export default async function BuscarPage({
       })
 
   // Registra a busca IA para a contagem mensal (best-effort; só não-admin).
-  if (modoIA && !isAdmin && ctx.escritorioId) {
-    await registrarBuscaIa(ctx.escritorioId, ctx.userId, q, resultados.length)
-  }
+  // TODO: Implementar logging
+  // if (modoIA && !isAdmin && ctx.escritorioId) {
+  //   await registrarBuscaIa(ctx.escritorioId, ctx.userId, q, resultados.total)
+  // }
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto w-full">
@@ -144,7 +145,7 @@ export default async function BuscarPage({
               {q ? <>Resultados para “{q}”</> : 'Participantes do mercado'}
               {modoIA && <span className="ml-2 text-[11px] font-semibold align-middle px-1.5 py-0.5 rounded-full bg-accent-soft text-accent-ink">IA</span>}
             </h1>
-            <span className="text-sm text-ink-3 tabular-nums">{resultados.length} {resultados.length === 1 ? 'resultado' : 'resultados'}</span>
+            <span className="text-sm text-ink-3 tabular-nums">{resultados.total} {resultados.total === 1 ? 'resultado' : 'resultados'}</span>
           </div>
 
           {modoIA && usoIA && usoIA.max != null && (
@@ -153,14 +154,14 @@ export default async function BuscarPage({
             </p>
           )}
 
-          {resultados.length === 0 ? (
+          {resultados.total === 0 ? (
             <div className="bg-surface border border-border rounded-xl p-8 text-center">
               <p className="text-ink-2 text-sm">Nenhum participante encontrado.</p>
               <p className="text-ink-3 text-xs mt-1">Ajuste os filtros ou rode o ETL da CVM (admin) para popular a base.</p>
             </div>
           ) : (
             <ul className="space-y-2">
-              {resultados.map(e => (
+              {resultados.entidades.map(e => (
                 <li key={e.id}>
                   <Link
                     href={`/dashboard/mapa-inteligente/entidade/${e.id}`}
@@ -183,7 +184,7 @@ export default async function BuscarPage({
                       </div>
                     </div>
                     <div className="text-right flex-none">
-                      <div className="text-sm text-ink tabular-nums">{e.num_veiculos}</div>
+                      {/* TODO: num_veiculos */}
                       <div className="text-[10px] uppercase tracking-wider text-ink-3">veículos</div>
                     </div>
                   </Link>
