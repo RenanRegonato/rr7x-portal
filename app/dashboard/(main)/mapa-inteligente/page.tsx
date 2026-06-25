@@ -66,7 +66,7 @@ export default async function MapaMercadoDashboard() {
               <IconArrowRight size={15}/>
             </div>
             <span className="text-3xl font-semibold text-ink tabular-nums">
-              {(resumo.porTipo[c.tipo] ?? 0).toLocaleString('pt-BR')}
+              {resumo.total_gestoras || 0}
             </span>
           </Link>
         ))}
