@@ -10,7 +10,6 @@ import InvestidorForm from '@/components/invest-match/InvestidorForm'
 import BuscarOportunidadesButton from '@/components/invest-match/BuscarOportunidadesButton'
 import DeleteButton from '@/components/invest-match/DeleteButton'
 import { IconArrowLeft, IconSparkle } from '@/components/Icons'
-import NotaMercado from '../../../mapa-inteligente/_components/NotaMercado'
 import type { StatusMatch } from '@/lib/invest-match/types'
 
 export const dynamic = 'force-dynamic'
@@ -31,11 +30,6 @@ export default async function EditInvestidorPage({ params }: PageProps) {
   if (!inv) notFound()
 
   const { rows: oportunidades } = await listMatches({ escritorioId, investidorId: id, limit: 50, offset: 0 })
-
-  // Contexto de mercado: tenta casar o nome do investidor com o catálogo do
-  // Mapa do Mercado (busca trigram). rank alto = correspondência confiável.
-  const { entidades: topoEntidades } = await buscarEntidades({ q: inv.nome, limit: 1 })
-  const entidadeMercado = topoEntidades?.[0] || null
 
   return (
     <div className="p-6 md:p-8 max-w-5xl mx-auto w-full space-y-8">
@@ -111,42 +105,6 @@ export default async function EditInvestidorPage({ params }: PageProps) {
         )}
       </section>
 
-      {/* Contexto de mercado (Invest Match → Mapa do Mercado) */}
-      <section>
-        <h2 className="text-sm font-semibold text-ink mb-3">Contexto de mercado</h2>
-        {entidadeMercado ? (
-          <div className="bg-surface border border-border rounded-xl p-4 flex items-center gap-4">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-ink truncate">
-                  {entidadeMercado.nome_fantasia || entidadeMercado.razao_social}
-                </span>
-                {entidadeMercado.score_relevancia != null && (
-                  <span className="text-[11px] font-semibold tabular-nums px-2 py-0.5 rounded-full bg-accent-soft text-accent-ink">
-                    {Math.round(entidadeMercado.score_relevancia)}
-                  </span>
-                )}
-              </div>
-              <div className="text-[11px] text-ink-3 mt-0.5">
-                {entidadeMercado.tipos.map(t => TIPO_LABEL[t] ?? t).join(' · ')}
-                {entidadeMercado.uf ? ` · ${entidadeMercado.uf}` : ''}
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Link href={`/dashboard/mapa-inteligente/entidade/${entidadeMercado.id}`} className="text-xs font-medium text-accent-ink hover:underline">Ficha</Link>
-              <Link href={`/dashboard/mapa-inteligente/entidade/${entidadeMercado.id}/grafo`} className="text-xs font-medium text-accent-ink hover:underline">Mapa de conexões →</Link>
-            </div>
-          </div>
-        ) : (
-          <Link
-            href={`/dashboard/mapa-inteligente/buscar?q=${encodeURIComponent(inv.nome)}`}
-            className="block bg-surface border border-border rounded-xl p-4 text-sm text-ink-2 hover:border-accent-strong/40 transition"
-          >
-            Buscar <strong>{inv.nome}</strong> no Mapa do Mercado →
-          </Link>
-        )}
-        {entidadeMercado && <NotaMercado className="mt-2"/>}
-      </section>
 
       {/* Edição da tese declarada */}
       <section>
