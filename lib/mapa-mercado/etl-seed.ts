@@ -91,7 +91,7 @@ const FIDCS_SEED: Partial<MercadoVeiculo>[] = [
 export async function seedMapaMercado(): Promise<UpsertResult> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_KEY || ''
+    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
   )
 
   let rows_inserted = 0
