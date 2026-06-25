@@ -232,7 +232,6 @@ export default async function TeseDetailPage({ params }: PageProps) {
                       </span>
                     </div>
                     <div className="text-[11px] text-ink-3 truncate">
-                      {s.motivo || s.tipos.map(t => TIPO_LABEL[t as EntidadeTipo] ?? t).join(' · ')}
                       {s.uf ? ` · ${s.uf}` : ''}
                     </div>
                   </div>
