@@ -243,7 +243,7 @@ export const montarPerfil = getEntidadeCompleta // TODO: Implementar perfil comp
 /**
  * Tipos para export
  */
-export type EntidadeTipo = TipoEntidade
+export type EntidadeTipo = typeof TipoEntidade
 export type ConexaoVizinha = {
   entidade: MercadoEntidade
   tipo: string
@@ -276,6 +276,3 @@ export async function getMapaPublicStats() {
 export async function getAlvosCaptacao() {
   return []
 }
-
-export const getVeiculo = getVeiculoCompleto
-export const getPrestadoresDoVeiculo = (id: string) => getVeiculoCompleto(id).then(r => r.prestadores)

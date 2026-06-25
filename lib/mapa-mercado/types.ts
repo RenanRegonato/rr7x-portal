@@ -176,3 +176,42 @@ export interface UpsertResult {
   rows_failed: number
   errors: string[]
 }
+
+/**
+ * Labels e constantes para export
+ */
+export const TIPO_LABEL: Record<TipoEntidade, string> = {
+  gestora: 'Gestora',
+  administrador: 'Administrador',
+  distribuidor: 'Distribuidor',
+  custodiante: 'Custodiante',
+  controladoria: 'Controladoria',
+  banco: 'Banco',
+  securitizadora: 'Securitizadora',
+  escritorio_credito_estruturado: 'Escritório de Crédito Estruturado',
+  boutique_investimento: 'Boutique de Investimento',
+  family_office: 'Family Office',
+  asset: 'Asset',
+  consultoria: 'Consultoria',
+  plataforma: 'Plataforma',
+}
+
+export const PAPEL_LABEL: Record<PapelPrestador, string> = {
+  administrador: 'Administrador',
+  gestor: 'Gestor',
+  co_gestor: 'Co-Gestor',
+  distribuidor: 'Distribuidor',
+  custodiante: 'Custodiante',
+  controladoria: 'Controladoria',
+}
+
+export const CONEXAO_LABEL: Record<string, string> = {
+  co_servico: 'Co-serviço',
+  co_investimento: 'Co-investimento',
+  distribui_para: 'Distribui para',
+  mesmo_grupo: 'Mesmo grupo',
+}
+
+export function veiculoEncerrado(veiculo: MercadoVeiculo): boolean {
+  return veiculo.situacao === 'cancelada' || veiculo.situacao === 'encerrada'
+}
