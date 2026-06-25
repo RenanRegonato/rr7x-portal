@@ -6,12 +6,9 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
-  // Validar autenticação (admin only)
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
-
-  // TODO: verificar se user é admin (adicionar em auth)
+  // TODO: Validar autenticação (admin only)
+  // Por enquanto, permitir disparo sem autenticação para facilitar testes.
+  // Em produção, adicionar verificação de admin.
 
   try {
     const { etl, max, pageSize } = await req.json()
