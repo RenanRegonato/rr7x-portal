@@ -112,7 +112,7 @@ export async function gerarSugestoesMercado(args: {
 
   // 2) Sinal estrutural — gestoras que operam o veículo do mandato (CVM).
   const tiposVeiculo = veiculosDoMandato(tese.tipo_deal, tese.setor_primario, tese.sub_setores)
-  const alvos = [] // TODO: implementar sugestões de mercado
+  const alvos: any[] = [] // TODO: implementar sugestões de mercado
   for (const a of alvos) {
     const cur = agg.get(a.entidade_id)
     if (cur) {
