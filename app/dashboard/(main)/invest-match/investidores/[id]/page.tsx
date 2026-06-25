@@ -10,8 +10,6 @@ import InvestidorForm from '@/components/invest-match/InvestidorForm'
 import BuscarOportunidadesButton from '@/components/invest-match/BuscarOportunidadesButton'
 import DeleteButton from '@/components/invest-match/DeleteButton'
 import { IconArrowLeft, IconSparkle } from '@/components/Icons'
-import { buscarEntidades } from '@/lib/mapa-mercado/queries'
-import { TIPO_LABEL } from '@/lib/mapa-mercado/types'
 import NotaMercado from '../../../mapa-inteligente/_components/NotaMercado'
 import type { StatusMatch } from '@/lib/invest-match/types'
 

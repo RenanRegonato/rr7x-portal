@@ -8,7 +8,6 @@ import {
   formatBRL, scoreBg,
 } from '@/lib/invest-match/labels'
 import { IconArrowLeft, IconSparkle, IconHandshake, IconArrowRight } from '@/components/Icons'
-import { TIPO_LABEL, type EntidadeTipo } from '@/lib/mapa-mercado/types'
 import MatchActions from '@/components/invest-match/MatchActions'
 import ScoreBreakdown from '@/components/invest-match/ScoreBreakdown'
 import RematchButton from '@/components/invest-match/RematchButton'
