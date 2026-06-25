@@ -238,46 +238,5 @@ export const contarVeiculosDaEntidade = async (id: string) => {
   const { veiculos } = await getEntidadeCompleta(id)
   return veiculos?.length ?? 0
 }
+
 export const montarPerfil = getEntidadeCompleta // TODO: Implementar perfil completo
-
-/**
- * Tipos para export
- */
-  entidade: MercadoEntidade
-  tipo: string
-  força: number
-}
-export const TIPO_LABEL: Record<string, string> = {
-  gestora: 'Gestora',
-  administrador: 'Administrador',
-  distribuidor: 'Distribuidor',
-  custodiante: 'Custodiante',
-  banco: 'Banco',
-  securitizadora: 'Securitizadora',
-}
-export const CONEXAO_LABEL: Record<string, string> = {
-  co_servico: 'Co-serviço',
-  co_investimento: 'Co-investimento',
-  distribui_para: 'Distribui para',
-  mesmo_grupo: 'Mesmo grupo',
-}
-
-// Funções adicionais faltando
-export async function getResumoMercado() {
-  return getMapaDashboardStats()
-}
-
-export async function getMapaPublicStats() {
-  return getMapaDashboardStats()
-}
-
-export async function getAlvosCaptacao() {
-  return []
-}
-
-export const getVeiculo = getVeiculoCompleto
-export const getPrestadoresDoVeiculo = (id: string) => getVeiculoCompleto(id).then(r => r.prestadores)
-
-// Funções adicionais que faltavam
-export const getTopEntidades = async (limit = 20) => searchEntidades({ limit })
-export const buscarSemanticaFn = searchEntidades
