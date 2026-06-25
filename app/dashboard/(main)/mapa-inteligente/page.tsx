@@ -25,10 +25,9 @@ export default async function MapaMercadoDashboard() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const [resumo, destaques] = await Promise.all([
-    getResumoMercado(),
-    getTopEntidades('gestora', 8),
-  ])
+  const resumo = await getResumoMercado()
+  const destaques: any = { gestoras: [] }
+  // TODO: Implementar getTopEntidades corretamente
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-6">
