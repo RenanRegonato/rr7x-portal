@@ -1,8 +1,9 @@
-// ============================================================
-// Mapa Inteligente do Mercado — tipos compartilhados
-// ============================================================
+/**
+ * Tipos para o Mapa Inteligente do Mercado
+ * Schema mercado.* — participantes, veículos, métricas, rankings
+ */
 
-export type EntidadeTipo =
+export type TipoEntidade =
   | 'gestora'
   | 'administrador'
   | 'distribuidor'
@@ -17,68 +18,53 @@ export type EntidadeTipo =
   | 'consultoria'
   | 'plataforma'
 
-export type VeiculoTipo =
-  | 'FIDC' | 'FII' | 'FIP' | 'FIF' | 'ETF' | 'FIAGRO' | 'OFFSHORE'
-  | 'CRI' | 'CRA' | 'debenture' | 'CCB' | 'fundo_geral'
+export type TipoVeiculo =
+  | 'FIDC'
+  | 'FII'
+  | 'FIP'
+  | 'FIF'
+  | 'ETF'
+  | 'FIAGRO'
+  | 'OFFSHORE'
+  | 'CRI'
+  | 'CRA'
+  | 'debenture'
+  | 'CCB'
+  | 'fundo_geral'
 
-export type PrestadorPapel =
-  | 'administrador' | 'gestor' | 'co_gestor' | 'distribuidor' | 'custodiante' | 'controladoria'
+export type PapelPrestador =
+  | 'administrador'
+  | 'gestor'
+  | 'co_gestor'
+  | 'distribuidor'
+  | 'custodiante'
+  | 'controladoria'
 
-export type ConexaoTipo = 'co_servico' | 'co_investimento' | 'distribui_para' | 'mesmo_grupo'
+export type MetricaType =
+  | 'pl'
+  | 'captacao'
+  | 'resgate'
+  | 'cotistas'
+  | 'carteira_pj'
+  | 'aum'
+  | 'num_veiculos'
 
-// Rótulos PT-BR para a UI (canônico → apresentação)
-export const TIPO_LABEL: Record<EntidadeTipo, string> = {
-  gestora:                         'Gestora',
-  administrador:                   'Administrador',
-  distribuidor:                    'Distribuidor',
-  custodiante:                     'Custodiante',
-  controladoria:                   'Controladoria',
-  banco:                           'Banco',
-  securitizadora:                  'Securitizadora',
-  escritorio_credito_estruturado:  'Escritório de Crédito Estruturado',
-  boutique_investimento:           'Boutique de Investimento',
-  family_office:                   'Family Office',
-  asset:                           'Asset',
-  consultoria:                     'Consultoria',
-  plataforma:                      'Plataforma',
-}
+export type FonteDado =
+  | 'cvm'
+  | 'bcb'
+  | 'b3'
+  | 'receita'
+  | 'anbima_feed'
+  | 'coponto'
+  | 'seed'
+  | 'manual'
 
-export const PAPEL_LABEL: Record<PrestadorPapel, string> = {
-  administrador: 'Administrador',
-  gestor:        'Gestor',
-  co_gestor:     'Co-gestor',
-  distribuidor:  'Distribuidor',
-  custodiante:   'Custodiante',
-  controladoria: 'Controladoria',
-}
-
-export const CONEXAO_LABEL: Record<ConexaoTipo, string> = {
-  co_servico:      'Co-serviço',
-  co_investimento: 'Co-investimento',
-  distribui_para:  'Distribui para',
-  mesmo_grupo:     'Mesmo grupo',
-}
-
-export interface EntidadeBusca {
-  id: string
-  razao_social: string
-  nome_fantasia: string | null
-  tipos: EntidadeTipo[]
-  uf: string | null
-  municipio: string | null
-  logo_url: string | null
-  score_relevancia: number | null
-  fonte: string
-  num_veiculos: number
-  rank: number
-}
-
-export interface Entidade {
+export interface MercadoEntidade {
   id: string
   cnpj: string | null
   razao_social: string
   nome_fantasia: string | null
-  tipos: EntidadeTipo[]
+  tipos: TipoEntidade[]
   situacao: string | null
   cnae: string | null
   uf: string | null
@@ -88,44 +74,105 @@ export interface Entidade {
   logo_url: string | null
   descricao: string | null
   score_relevancia: number | null
-  fonte: string
+  fonte: FonteDado
+  redistribuivel: boolean
+  raw: Record<string, unknown> | null
+  visto_em: string
+  criado_em: string
+  atualizado_em: string
 }
 
-export interface PrestadorDeEntidade {
-  veiculo_id: string
-  veiculo_nome: string
-  veiculo_tipo: VeiculoTipo
-  veiculo_categoria: string | null
-  veiculo_situacao: string | null
-  papel: PrestadorPapel
-}
-
-// CVM usa 'ativo' (minúsculo) para fundos em operação; qualquer outro valor é histórico.
-export function veiculoEncerrado(situacao: string | null): boolean {
-  if (!situacao) return false
-  return situacao.toLowerCase() !== 'ativo'
-}
-
-// Perfil derivado (a "tese de atuação") de uma entidade, a partir dos veículos
-// em que atua e dos papéis exercidos. Sem fonte externa — calculado dos dados.
-export interface PerfilEntidade {
-  total_veiculos: number
-  por_tipo: { tipo: string; n: number }[]
-  por_papel: { papel: string; n: number }[]
-  top_categorias: { categoria: string; n: number }[]
-}
-
-export interface ConexaoVizinha {
-  entidade_id: string
+export interface MercadoVeiculo {
+  id: string
+  cnpj: string | null
+  codigo_anbima: string | null
+  codigo_cvm: string | null
   nome: string
-  tipos: EntidadeTipo[]
-  tipo: ConexaoTipo
-  peso: number
+  tipo: TipoVeiculo
+  categoria_cvm: string | null
+  classe_anbima: string | null
+  situacao: string | null
+  esg: boolean | null
+  fonte: FonteDado
+  redistribuivel: boolean
+  raw: Record<string, unknown> | null
+  criado_em: string
+  atualizado_em: string
 }
 
-export interface MetricaSerie {
-  metrica: string
+export interface MercadoMetrica {
+  id: string
+  entidade_id: string | null
+  veiculo_id: string | null
+  metrica: MetricaType
   competencia: string
   valor: number | null
   unidade: string | null
+  fonte: FonteDado
+  redistribuivel: boolean
+  criado_em: string
+}
+
+export interface IngestionRun {
+  id: string
+  fonte: FonteDado
+  dataset: string
+  status: 'running' | 'completed' | 'failed'
+  rows_in: number | null
+  rows_upserted: number | null
+  rows_failed: number | null
+  competencia: string | null
+  error_message: string | null
+  started_at: string
+  finished_at: string | null
+}
+
+/**
+ * DTOs para ETL
+ */
+
+export interface CvmFundoCadastro {
+  cnpj: string
+  codigo_anbima: string
+  razao_social: string
+  nome_comercial: string
+  tipo: TipoVeiculo
+  categoria_cvm: string
+  classe_anbima: string
+  situacao: string
+  administrador_cnpj: string
+  administrador_nome: string
+  gestor_cnpj: string
+  gestor_nome: string
+}
+
+export interface CvmFidcInformeMensal {
+  competencia: string
+  fundo_cnpj: string
+  fundo_nome: string
+  pl_total: number
+  captacao_mes: number
+  resgate_mes: number
+  num_cotistas: number
+  num_cedentes: number
+  num_sacados: number
+}
+
+export interface BcbIfDataCarteira {
+  banco_cnpj: string
+  banco_nome: string
+  data_referencia: string
+  modalidade_credito: string
+  uf: string
+  saldo_pj: number
+}
+
+/**
+ * Resultado de operação de upsert
+ */
+export interface UpsertResult {
+  rows_inserted: number
+  rows_updated: number
+  rows_failed: number
+  errors: string[]
 }

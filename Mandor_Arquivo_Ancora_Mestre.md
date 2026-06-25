@@ -6,6 +6,31 @@ Documentação centralizada de todas as fases de implementação da plataforma M
 
 ## 📋 Changelog de Versões
 
+### v2.1.0 — Qualidade de Análise: Documentos Completos + Gate FIDC + Cotas Estruturadas
+
+**Data:** 2026-06-24
+**Status:** ✅ Produção (commit 3068b9d)
+
+#### Mudanças
+
+1. **Asset Prep — Documentos 100% completos**
+   - Agentes de Asset Prep agora leem todos os documentos do Storage sem truncamento
+   - `run-asset-prep.ts` carrega documentos via `readAnalyseDocs()` internamente
+   - Eliminado limite de 2000/1500 chars nos 3 agentes (eligibility, bottleneck, market-fit)
+
+2. **CVM 175/22 — Hard Gate**
+   - Novo step `cvm-gate` após validação CVM 175/22
+   - Se `elegibilidade_score < 50` ou há bloqueios críticos: injeta `bloqueio_cvm_175_22` nos outputs
+   - Mesa Consolidadora e Relatório Final leem o bloqueio e refletem no parecer
+
+3. **FIDC — Cotas Estruturadas**
+   - Campo texto livre "Estrutura de cotas" substituído por 3 campos numéricos: Sênior / Mezanino / Subordinada (%)
+   - Validação ao vivo no formulário: soma deve ser exatamente 100%
+   - Agente CVM 175/22 alerta automaticamente se soma ≠ 100%
+   - Backward compat: campo `estruturaCotas` legado mantido para deals existentes
+
+---
+
 ### v2.0.0 — Asset Preparation (Diagnóstico de Prontidão para Mercados de Capital)
 
 **Data:** 2026-06-24  
