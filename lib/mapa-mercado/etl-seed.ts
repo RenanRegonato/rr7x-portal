@@ -9,14 +9,9 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
-import type { 
-  MercadoEntidade, MercadoVeiculo, UpsertResult 
+import type {
+  MercadoEntidade, MercadoVeiculo, UpsertResult
 } from './types'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_KEY || ''
-)
 
 const GESTORAS_SEED: Partial<MercadoEntidade>[] = [
   {
@@ -94,6 +89,11 @@ const FIDCS_SEED: Partial<MercadoVeiculo>[] = [
 ]
 
 export async function seedMapaMercado(): Promise<UpsertResult> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    process.env.SUPABASE_SERVICE_KEY || ''
+  )
+
   let rows_inserted = 0
   let rows_updated = 0
   let rows_failed = 0
