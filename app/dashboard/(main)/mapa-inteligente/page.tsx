@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { getMapaPublicStats } from '@/lib/mapa-mercado/queries'
+import { getMapaPublicStats, searchEntidades } from '@/lib/mapa-mercado/queries'
 import { TIPO_LABEL } from '@/lib/mapa-mercado/types'
 import { IconSearch, IconBuilding, IconArrowRight, IconTrophy } from '@/components/Icons'
 import NotaMercado from './_components/NotaMercado'
@@ -29,6 +29,12 @@ export default async function MapaMercadoDashboard() {
   const FALLBACK = { participantes: 0, gestoras: 0, veiculos: 0, conexoes: 0 }
   const resumo = await getMapaPublicStats().catch(() => FALLBACK)
   const destaques: any[] = []
+
+  // Contagem por tipo para os cards
+  const contagensTipo = await Promise.all(
+    CARDS.map(c => searchEntidades({ tipos: [c.tipo] }).then(r => ({ tipo: c.tipo, total: r.total ?? 0 })).catch(() => ({ tipo: c.tipo, total: 0 })))
+  )
+  const totalPorTipo = Object.fromEntries(contagensTipo.map(c => [c.tipo, c.total]))
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-6">
@@ -67,7 +73,7 @@ export default async function MapaMercadoDashboard() {
               <IconArrowRight size={15}/>
             </div>
             <span className="text-3xl font-semibold text-ink tabular-nums">
-              {resumo.gestoras?.toLocaleString('pt-BR') || '—'}
+              {(totalPorTipo[c.tipo] ?? 0).toLocaleString('pt-BR')}
             </span>
           </Link>
         ))}

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { getEntidade, getVeiculosDaEntidade, contarVeiculosDaEntidade, getConexoes, getMetricas, montarPerfil } from '@/lib/mapa-mercado/queries'
+import { getEntidade } from '@/lib/mapa-mercado/queries'
 import { TIPO_LABEL, PAPEL_LABEL, CONEXAO_LABEL, veiculoEncerrado, type EntidadeTipo } from '@/lib/mapa-mercado/types'
 import { IconArrowLeft, IconArrowRight, IconHandshake } from '@/components/Icons'
 import NotaMercado from '../../_components/NotaMercado'
@@ -31,19 +31,43 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
   if (!resultado?.entidade) notFound()
   const entidade = resultado.entidade
 
-  const [veiculos, totalVeiculos, conexoes, metricas] = await Promise.all([
-    getVeiculosDaEntidade(id),
-    contarVeiculosDaEntidade(id),
-    getConexoes(id),
-    getMetricas(id),
-  ])
+  const entidadeCompleta = await getEntidade(id)
+  const veiculos = entidadeCompleta?.veiculos ?? []
+  const metricas = entidadeCompleta?.metricas ?? []
+  const totalVeiculos = veiculos.length
+  const conexoesRaw = entidadeCompleta?.veiculos ?? []
+
+  // Buscar conexoes reais via query separada
+  const { data: conexoesData } = await (await import('@supabase/supabase-js')).createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  ).from('mercado_conexoes').select(`
+    entidade_id, tipo_conexao, n_veiculos_comuns,
+    mercado_entidades!mercado_conexoes_entidade_id_fkey (
+      id, razao_social, nome_fantasia, tipos, score_relevancia
+    )
+  `).eq('entidade_ref_id', id).order('n_veiculos_comuns', { ascending: false }).limit(30)
+  const conexoes: any[] = (conexoesData ?? []).map((c: any) => ({
+    entidade_id: c.entidade_id,
+    nome: c.mercado_entidades?.nome_fantasia || c.mercado_entidades?.razao_social || '—',
+    tipos: c.mercado_entidades?.tipos ?? [],
+    tipo_conexao: c.tipo_conexao,
+    n_veiculos_comuns: c.n_veiculos_comuns,
+  }))
 
   const nome = entidade.nome_fantasia || entidade.razao_social
-  // TODO: Filtrar veículos por situacao
-  const veiculosAtivos: any[]    = []
-  const veiculosEncerrados: any[] = []
-  const perfil = montarPerfil(totalVeiculos, veiculos)
-  // Último valor por métrica financeira (BCB)
+  const veiculosAtivos = veiculos.filter((v: any) => v.situacao !== 'cancelado' && v.situacao !== 'encerrado')
+  const veiculosEncerrados = veiculos.filter((v: any) => v.situacao === 'cancelado' || v.situacao === 'encerrado')
+
+  // perfil simples derivado dos veículos
+  const porTipoMap = new Map<string, number>()
+  veiculos.forEach((v: any) => { porTipoMap.set(v.tipo ?? '?', (porTipoMap.get(v.tipo ?? '?') ?? 0) + 1) })
+  const perfil = {
+    por_tipo: [...porTipoMap.entries()].sort((a, b) => b[1] - a[1]).map(([tipo, n]) => ({ tipo, n })),
+    top_categorias: [] as any[],
+  }
+
+  // Ultimo valor por metrica financeira (BCB)
   const FIN_ORDEM: { k: string; label: string }[] = [
     { k: 'ativo_total', label: 'Ativo total' },
     { k: 'carteira_pj', label: 'Carteira PJ' },
@@ -58,7 +82,9 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
     if (!cur || m.competencia > cur.competencia) ultimoPorMetrica.set(m.metrica, { valor: m.valor, competencia: m.competencia })
   }
   const finItens = FIN_ORDEM.filter(f => ultimoPorMetrica.has(f.k))
-  const teseTexto = montarTeseTexto(nome, entidade.tipos, perfil, conexoes.slice(0, 3).map(c => c.nome))
+
+  const tipos = (entidade.tipos ?? []).map((t: any) => TIPO_LABEL[t] ?? t).join(', ')
+  const teseTexto = `${nome} atua como ${tipos || 'participante do mercado'} com ${totalVeiculos} veículo${totalVeiculos !== 1 ? 's' : ''} vinculado${totalVeiculos !== 1 ? 's' : ''} e ${conexoes.length} conexão${conexoes.length !== 1 ? 'ões' : ''} mapeada${conexoes.length !== 1 ? 's' : ''} na base CVM.`
 
   return (
     <div className="p-6 md:p-8 max-w-6xl mx-auto w-full space-y-6">
@@ -123,7 +149,7 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
         <Card label="Veículos" value={totalVeiculos.toLocaleString('pt-BR')}/>
         <Card label="Conexões" value={conexoes.length.toLocaleString('pt-BR')}/>
         <Card label="Papéis" value={entidade.tipos.length.toLocaleString('pt-BR')}/>
-        <Card label="FIDCs" value={(perfil.por_tipo.find(t => t.tipo === 'FIDC')?.n ?? 0).toLocaleString('pt-BR')}/>
+        <Card label="FIDCs" value={(perfil.por_tipo.find((t: any) => t.tipo === 'FIDC')?.n ?? 0).toLocaleString('pt-BR')}/>
       </section>
 
       {/* Indicadores financeiros (BCB IF.data) — só p/ bancos com dados */}

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { getTopEntidades } from '@/lib/mapa-mercado/queries'
+import { searchEntidades } from '@/lib/mapa-mercado/queries'
 import { TIPO_LABEL, type EntidadeTipo } from '@/lib/mapa-mercado/types'
 import { IconArrowLeft, IconArrowRight, IconTrophy } from '@/components/Icons'
 
@@ -24,7 +24,10 @@ export default async function RankingsPage() {
   if (!user) redirect('/auth/login')
 
   const rankings = await Promise.all(
-    CATEGORIAS.map(c => getTopEntidades(c.tipo, 15).then(r => ({ tipo: c.tipo, rows: r })))
+    CATEGORIAS.map(c => searchEntidades({ tipos: [c.tipo], limit: 15 }).then(r => ({
+      tipo: c.tipo,
+      rows: (r.entidades ?? []).sort((a: any, b: any) => (b.score_relevancia ?? 0) - (a.score_relevancia ?? 0))
+    })).catch(() => ({ tipo: c.tipo, rows: [] })))
   )
   const rankingMap = new Map(rankings.map(r => [r.tipo, r.rows]))
 
@@ -74,11 +77,11 @@ export default async function RankingsPage() {
                         <span className={`w-6 text-sm tabular-nums flex-none font-medium ${
                           i === 0 ? 'text-yellow-600' : i === 1 ? 'text-zinc-500' : i === 2 ? 'text-amber-700' : 'text-ink-3'
                         }`}>{i + 1}</span>
-                        <span className="flex-1 text-sm text-ink truncate">{r.nome}</span>
-                        <span className="text-[11px] text-ink-3 tabular-nums flex-none">{r.num_veiculos} veíc.</span>
-                        {r.score != null && (
+                        <span className="flex-1 text-sm text-ink truncate">{r.nome_fantasia || r.razao_social}</span>
+                        {r.num_veiculos != null && <span className="text-[11px] text-ink-3 tabular-nums flex-none">{r.num_veiculos} veíc.</span>}
+                        {r.score_relevancia != null && (
                           <span className="text-xs font-semibold tabular-nums px-1.5 py-0.5 rounded-full bg-accent-soft text-accent-ink flex-none">
-                            {Math.round(r.score)}
+                            {Math.round(r.score_relevancia)}
                           </span>
                         )}
                         <IconArrowRight size={12}/>
