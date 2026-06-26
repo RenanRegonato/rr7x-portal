@@ -7,7 +7,7 @@ export default function SiteFooter() {
     { label: "A rede cognitiva",    href: "/#inteligencias"     },
     { label: "Reforma Tributária",  href: "/reforma-tributaria" },
     { label: "Invest Match",        href: "/invest-match"       },
-    { label: "Mapa do Mercado",     href: "/dashboard/mapa-mercado" },
+    { label: "Mapa do Mercado",     href: "/mapa-inteligente" },
     { label: "Como funciona",       href: "/#como-funciona"     },
     { label: "Planos",              href: "/#planos"            },
   ];

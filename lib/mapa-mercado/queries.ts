@@ -4,13 +4,22 @@
  * Todas as queries filtram redistribuivel = true por padrão (governança de licença)
  */
 
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { MercadoEntidade, MercadoVeiculo } from './types'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_KEY || ''
-)
+let _supabase: SupabaseClient | null = null
+function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+      process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+    )
+  }
+  return _supabase
+}
+const supabase = new Proxy({} as SupabaseClient, {
+  get(_t, prop) { return getSupabase()[prop as keyof SupabaseClient] },
+})
 
 interface SearchParams {
   q?: string
@@ -240,3 +249,27 @@ export const contarVeiculosDaEntidade = async (id: string) => {
 }
 
 export const montarPerfil = getEntidadeCompleta // TODO: Implementar perfil completo
+export const getVeiculo = getVeiculoCompleto
+export const getPrestadoresDoVeiculo = (id: string) => getVeiculoCompleto(id).then(r => r.prestadores ?? [])
+export const getResumoMercado = getMapaDashboardStats
+export const getTopEntidades = (tipo?: string, limit = 10) => getRankings(tipo ?? 'gestoras', limit).then(r => (r as any).rankings ?? r ?? [])
+
+export async function getMapaPublicStats(): Promise<{
+  participantes: number
+  gestoras: number
+  veiculos: number
+  conexoes: number
+}> {
+  const [p, g, v, c] = await Promise.all([
+    supabase.from('mercado_entidades').select('*', { count: 'exact', head: true }).eq('redistribuivel', true),
+    supabase.from('mercado_entidades').select('*', { count: 'exact', head: true }).eq('redistribuivel', true).contains('tipos', ['gestora']),
+    supabase.from('mercado_veiculos').select('*', { count: 'exact', head: true }).eq('redistribuivel', true),
+    supabase.from('mercado_conexoes').select('*', { count: 'exact', head: true }),
+  ])
+  return {
+    participantes: p.count ?? 0,
+    gestoras:      g.count ?? 0,
+    veiculos:      v.count ?? 0,
+    conexoes:      c.count ?? 0,
+  }
+}

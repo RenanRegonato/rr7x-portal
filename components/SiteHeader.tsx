@@ -10,7 +10,7 @@ const LINKS = [
   { href: "/#inteligencias",     label: "A rede"             },
   { href: "/reforma-tributaria", label: "Reforma Tributária" },
   { href: "/invest-match",       label: "Invest Match"       },
-  { href: "/dashboard/mapa-mercado", label: "Mapa do Mercado" },
+  { href: "/mapa-inteligente", label: "Mapa do Mercado" },
   { href: "/#planos",            label: "Planos"             },
   { href: "/blog",               label: "Blog"               },
 ];
