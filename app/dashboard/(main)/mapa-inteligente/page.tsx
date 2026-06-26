@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { getResumoMercado, getTopEntidades } from '@/lib/mapa-mercado/queries'
+import { getMapaPublicStats } from '@/lib/mapa-mercado/queries'
 import { TIPO_LABEL } from '@/lib/mapa-mercado/types'
 import { IconSearch, IconBuilding, IconArrowRight, IconTrophy } from '@/components/Icons'
 import NotaMercado from './_components/NotaMercado'
@@ -26,9 +26,9 @@ export default async function MapaMercadoDashboard() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const resumo = await getResumoMercado()
-  const destaques: any = { gestoras: [] }
-  // TODO: Implementar getTopEntidades corretamente
+  const FALLBACK = { participantes: 0, gestoras: 0, veiculos: 0, conexoes: 0 }
+  const resumo = await getMapaPublicStats().catch(() => FALLBACK)
+  const destaques: any[] = []
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-6">
@@ -67,7 +67,7 @@ export default async function MapaMercadoDashboard() {
               <IconArrowRight size={15}/>
             </div>
             <span className="text-3xl font-semibold text-ink tabular-nums">
-              {resumo.total_gestoras || 0}
+              {resumo.gestoras?.toLocaleString('pt-BR') || '—'}
             </span>
           </Link>
         ))}
@@ -123,7 +123,7 @@ export default async function MapaMercadoDashboard() {
           <div className="grid grid-cols-2 gap-4 mb-5">
             <div>
               <div className="text-[11px] uppercase tracking-wider text-ink-3 font-semibold mb-1">Participantes</div>
-              <div className="text-2xl font-semibold text-ink tabular-nums">{resumo.total.toLocaleString('pt-BR')}</div>
+              <div className="text-2xl font-semibold text-ink tabular-nums">{resumo.participantes.toLocaleString('pt-BR')}</div>
             </div>
             <div>
               <div className="text-[11px] uppercase tracking-wider text-ink-3 font-semibold mb-1">Veículos</div>
