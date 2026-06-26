@@ -965,7 +965,7 @@ Os dois conjuntos são carregados em paralelo e injetados no contexto com instru
 - Renovação mensal automática; cancelamento encerra no fim do período pago
 
 **Enterprise**
-- Solicitação via email (`gestor@renanregonato.com.br`)
+- Solicitação via email (`contato@mandor.com.br`)
 - Plano customizado, faturamento via nota fiscal
 - Gerenciado manualmente pelo admin no painel
 - `plano_limite_analises` configurável por escritório

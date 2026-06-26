@@ -25,7 +25,7 @@ async function sendMail(payload: SendPayload) {
 // sandbox 'onboarding@resend.dev', que só entrega para o dono da conta. Assim os
 // e-mails do app chegam em clientes mesmo se RESEND_FROM_EMAIL não estiver setada.
 const FROM   = process.env.RESEND_FROM_EMAIL || 'Mandor <noreply@mandor.com.br>'
-const ADMIN  = 'gestor@renanregonato.com.br'
+const ADMIN  = 'contato@mandor.com.br'
 // Caixa comercial que recebe contatos do site e avisos de novos cadastros.
 const NOTIFY = 'contato@mandor.com.br'
 

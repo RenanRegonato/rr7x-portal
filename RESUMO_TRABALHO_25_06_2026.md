@@ -176,5 +176,5 @@ Documentação/
 ---
 
 **Responsável:** Renan Regonato  
-**Email:** gestor@renanregonato.com.br  
+**Email:** contato@mandor.com.br  
 **Próxima Sessão:** Deploy + teste ao vivo + ETL CVM  

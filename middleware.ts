@@ -6,7 +6,7 @@ import { getMaintenance } from '@/lib/app-settings'
 // clientes veem a página de manutenção. Lista de e-mails (mesmo padrão de
 // DEMO_EMAILS abaixo) para evitar query/role-check no Edge.
 const ADMIN_EMAILS = new Set([
-  'gestor@renanregonato.com.br',
+  'contato@mandor.com.br',
   'agenciarr7@gmail.com',
 ])
 
