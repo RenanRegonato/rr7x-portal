@@ -119,7 +119,7 @@ export async function getEntidadeCompleta(entidade_id: string) {
     .select('veiculo_id, papel, ativo, mercado_veiculos!inner(id, nome, tipo, situacao, categoria_cvm)')
     .eq('entidade_id', entidade_id)
     .order('ativo', { ascending: false })
-    .limit(1000)
+    .limit(2000)
 
   if (e2) throw e2
 

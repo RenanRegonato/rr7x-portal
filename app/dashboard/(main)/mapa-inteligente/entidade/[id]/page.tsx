@@ -60,12 +60,17 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
   ].sort((a, b) => (b.peso ?? 0) - (a.peso ?? 0))
 
   const nome = entidade.nome_fantasia || entidade.razao_social
-  const veiculosAtivos = veiculos.filter((v: any) => v.ativo !== false && v.veiculo_situacao !== 'cancelado' && v.veiculo_situacao !== 'encerrado')
-  const veiculosEncerrados = veiculos.filter((v: any) => v.ativo === false || v.veiculo_situacao === 'cancelado' || v.veiculo_situacao === 'encerrado')
+  // situacao no banco: 'CANCELADA' (maiúsculo) = encerrado; 'ativo'/'ativa' = ativo
+  function isAtivo(v: any) {
+    const s = (v.veiculo_situacao ?? '').toLowerCase()
+    return s === 'ativo' || s === 'ativa' || s === '' || s === 'em funcionamento normal'
+  }
+  const veiculosAtivos = veiculos.filter(isAtivo)
+  const veiculosEncerrados = veiculos.filter((v: any) => !isAtivo(v))
 
-  // perfil simples derivado dos veículos
+  // perfil simples derivado APENAS dos ativos
   const porTipoMap = new Map<string, number>()
-  veiculos.forEach((v: any) => { porTipoMap.set(v.veiculo_tipo, (porTipoMap.get(v.veiculo_tipo) ?? 0) + 1) })
+  veiculosAtivos.forEach((v: any) => { porTipoMap.set(v.veiculo_tipo, (porTipoMap.get(v.veiculo_tipo) ?? 0) + 1) })
   const perfil = {
     por_tipo: [...porTipoMap.entries()].sort((a, b) => b[1] - a[1]).map(([tipo, n]) => ({ tipo, n })),
     top_categorias: [] as any[],
@@ -218,8 +223,13 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Veículos */}
         <section className="bg-surface border border-border rounded-xl p-5 space-y-5">
-          <h2 className="text-sm font-semibold text-ink">
+          <h2 className="text-sm font-semibold text-ink flex items-center gap-2">
             Veículos ({totalVeiculos.toLocaleString('pt-BR')})
+            {veiculosAtivos.length > 0 && (
+              <span className="text-[11px] font-medium text-ok bg-ok/10 border border-ok/20 rounded-full px-2 py-0.5">
+                {veiculosAtivos.length} ativos
+              </span>
+            )}
           </h2>
           {veiculos.length === 0 ? (
             <p className="text-ink-3 text-sm">Nenhum veículo vinculado.</p>
