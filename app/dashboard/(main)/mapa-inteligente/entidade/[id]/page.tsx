@@ -54,16 +54,19 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
     sbAdmin.from('mercado_conexoes').select('destino_id, tipo, peso, mercado_entidades!mercado_conexoes_destino_id_fkey(id,razao_social,nome_fantasia,tipos,score_relevancia)').eq('origem_id', id).order('peso', { ascending: false }).limit(20),
     sbAdmin.from('mercado_conexoes').select('origem_id, tipo, peso, mercado_entidades!mercado_conexoes_origem_id_fkey(id,razao_social,nome_fantasia,tipos,score_relevancia)').eq('destino_id', id).order('peso', { ascending: false }).limit(20),
   ])
+  const vistoConexoes = new Set<string>()
   const conexoes: any[] = [
     ...(origemData ?? []).map((c: any) => ({ entidade_id: c.destino_id, nome: c.mercado_entidades?.nome_fantasia || c.mercado_entidades?.razao_social || '—', tipos: c.mercado_entidades?.tipos ?? [], tipo: c.tipo, peso: c.peso })),
     ...(destinoData ?? []).map((c: any) => ({ entidade_id: c.origem_id, nome: c.mercado_entidades?.nome_fantasia || c.mercado_entidades?.razao_social || '—', tipos: c.mercado_entidades?.tipos ?? [], tipo: c.tipo, peso: c.peso })),
-  ].sort((a, b) => (b.peso ?? 0) - (a.peso ?? 0))
+  ]
+    .filter(c => { if (!c.entidade_id || vistoConexoes.has(c.entidade_id)) return false; vistoConexoes.add(c.entidade_id); return true })
+    .sort((a, b) => (b.peso ?? 0) - (a.peso ?? 0))
 
   const nome = entidade.nome_fantasia || entidade.razao_social
-  // situacao no banco: 'CANCELADA' (maiúsculo) = encerrado; 'ativo'/'ativa' = ativo
+  // Valores reais no banco: 'ativo','ativa','EM FUNCIONAMENTO NORMAL' = ativo | 'CANCELADA','LIQUIDAÇÃO' = encerrado
   function isAtivo(v: any) {
-    const s = (v.veiculo_situacao ?? '').toLowerCase()
-    return s === 'ativo' || s === 'ativa' || s === '' || s === 'em funcionamento normal'
+    const s = (v.veiculo_situacao ?? '').toLowerCase().trim()
+    return s === 'ativo' || s === 'ativa' || s === 'em funcionamento normal'
   }
   const veiculosAtivos = veiculos.filter(isAtivo)
   const veiculosEncerrados = veiculos.filter((v: any) => !isAtivo(v))

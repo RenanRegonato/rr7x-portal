@@ -114,14 +114,27 @@ export async function getEntidadeCompleta(entidade_id: string) {
 
   if (e1) throw e1
 
-  const { data: veiculos, error: e2 } = await supabase
-    .from('mercado_veiculo_prestadores')
-    .select('veiculo_id, papel, ativo, mercado_veiculos!inner(id, nome, tipo, situacao, categoria_cvm)')
-    .eq('entidade_id', entidade_id)
-    .order('ativo', { ascending: false })
-    .limit(2000)
+  // Buscar ativos e cancelados separadamente — ativos têm prioridade na exibição
+  const SITUACOES_ATIVAS = 'situacao.eq.ativo,situacao.eq.ativa,situacao.eq.EM FUNCIONAMENTO NORMAL'
+  const SITUACOES_CANCELADAS = 'situacao.eq.CANCELADA,situacao.eq.LIQUIDAÇÃO'
 
-  if (e2) throw e2
+  const [{ data: veiculosAtivos, error: e2a }, { data: veiculosCancelados }] = await Promise.all([
+    supabase
+      .from('mercado_veiculo_prestadores')
+      .select('veiculo_id, papel, ativo, mercado_veiculos!inner(id, nome, tipo, situacao, categoria_cvm)')
+      .eq('entidade_id', entidade_id)
+      .or(SITUACOES_ATIVAS, { foreignTable: 'mercado_veiculos' })
+      .limit(500),
+    supabase
+      .from('mercado_veiculo_prestadores')
+      .select('veiculo_id, papel, ativo, mercado_veiculos!inner(id, nome, tipo, situacao, categoria_cvm)')
+      .eq('entidade_id', entidade_id)
+      .or(SITUACOES_CANCELADAS, { foreignTable: 'mercado_veiculos' })
+      .limit(100),
+  ])
+
+  if (e2a) throw e2a
+  const veiculos = [...(veiculosAtivos ?? []), ...(veiculosCancelados ?? [])]
 
   const { data: metricas, error: e3 } = await supabase
     .from('mercado_metricas')
