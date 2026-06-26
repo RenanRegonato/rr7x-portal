@@ -23,12 +23,17 @@ export default async function VeiculoPage({ params }: { params: Promise<{ id: st
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const [veiculo, prestadores] = await Promise.all([
-    getVeiculo(id),
-    getPrestadoresDoVeiculo(id),
-  ])
-
-  if (!veiculo) notFound()
+  const resultado = await getVeiculo(id).catch(() => null)
+  if (!resultado?.veiculo) notFound()
+  const veiculo = resultado.veiculo
+  const prestadores = (resultado.prestadores ?? []).map((p: any) => ({
+    papel: p.papel,
+    entidade_id: p.mercado_entidades?.id ?? '',
+    nome: p.mercado_entidades?.nome_fantasia || p.mercado_entidades?.razao_social || '—',
+    cnpj: p.mercado_entidades?.cnpj ?? null,
+    tipos: p.mercado_entidades?.tipos ?? [],
+    score: p.mercado_entidades?.score_relevancia ?? null,
+  }))
 
   const prestadoresOrdenados = prestadores.sort((a, b) => {
     const ia = PAPEL_ORDEM.indexOf(a.papel)
