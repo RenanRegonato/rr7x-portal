@@ -41,6 +41,7 @@ export default function Sidebar({
     { id: 'mapa-mercado', label: 'Mapa do Mercado', icon: 'map',    href: '/dashboard/mapa-inteligente' },
     { id: 'escritorio',   label: 'Escritório',   icon: 'building',  href: '/dashboard/escritorio' },
     { id: 'benchmarks',   label: 'Benchmarks',   icon: 'doc',       href: '/dashboard/escritorio/benchmarks' },
+    { id: 'dossie',       label: 'Dossie Documental',      icon: 'fileText', href: '/dashboard/dossie' },
     ...(userRole === 'gerente' || userRole === 'admin'
       ? [{ id: 'consumo', label: 'Consumo', icon: 'fileText', href: '/dashboard/consumo' } as NavItem]
       : []),
