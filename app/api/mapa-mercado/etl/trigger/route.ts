@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { getUserContext } from '@/lib/get-role'
 import { inngest } from '@/lib/inngest'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
-  // TODO: Validar autenticação (admin only)
-  // Por enquanto, permitir disparo sem autenticação para facilitar testes.
-  // Em produção, adicionar verificação de admin.
+  const ctx = await getUserContext()
+  if (!ctx) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+  if (ctx.role !== 'admin') return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
 
   try {
     const { etl, max, pageSize } = await req.json()

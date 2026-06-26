@@ -47,3 +47,9 @@ next-env.d.ts
 
 # backups locais / off-site (Arquivo Âncora .docx + zip pesado) — vivem só no Drive
 /Backup
+
+# documentos de contexto e orientação para IA (não entram no repo)
+/AI
+
+# dados brutos de ETL (arquivos pesados — cad_fi.csv 17.9MB etc.)
+/prospeccao-mercado
