@@ -32,36 +32,40 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
   const entidade = resultado.entidade
 
   const entidadeCompleta = await getEntidade(id)
-  const veiculos = entidadeCompleta?.veiculos ?? []
+  const veiculosRaw = entidadeCompleta?.veiculos ?? []
   const metricas = entidadeCompleta?.metricas ?? []
-  const totalVeiculos = veiculos.length
-  const conexoesRaw = entidadeCompleta?.veiculos ?? []
 
-  // Buscar conexoes reais via query separada
-  const { data: conexoesData } = await (await import('@supabase/supabase-js')).createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  ).from('mercado_conexoes').select(`
-    entidade_id, tipo_conexao, n_veiculos_comuns,
-    mercado_entidades!mercado_conexoes_entidade_id_fkey (
-      id, razao_social, nome_fantasia, tipos, score_relevancia
-    )
-  `).eq('entidade_ref_id', id).order('n_veiculos_comuns', { ascending: false }).limit(30)
-  const conexoes: any[] = (conexoesData ?? []).map((c: any) => ({
-    entidade_id: c.entidade_id,
-    nome: c.mercado_entidades?.nome_fantasia || c.mercado_entidades?.razao_social || '—',
-    tipos: c.mercado_entidades?.tipos ?? [],
-    tipo_conexao: c.tipo_conexao,
-    n_veiculos_comuns: c.n_veiculos_comuns,
+  // Normalizar veículos com dados do JOIN
+  const veiculos = veiculosRaw.map((v: any) => ({
+    veiculo_id: v.veiculo_id,
+    papel: v.papel,
+    ativo: v.ativo,
+    veiculo_nome: v.mercado_veiculos?.nome ?? '',
+    veiculo_tipo: v.mercado_veiculos?.tipo ?? '?',
+    veiculo_situacao: v.mercado_veiculos?.situacao ?? '',
+    veiculo_categoria: v.mercado_veiculos?.categoria_cvm ?? '',
   }))
+  const totalVeiculos = veiculos.length
+
+  // Buscar conexoes via origem_id ou destino_id
+  const { createClient: mkClient } = await import('@supabase/supabase-js')
+  const sbAdmin = mkClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+  const [{ data: origemData }, { data: destinoData }] = await Promise.all([
+    sbAdmin.from('mercado_conexoes').select('destino_id, tipo, peso, mercado_entidades!mercado_conexoes_destino_id_fkey(id,razao_social,nome_fantasia,tipos,score_relevancia)').eq('origem_id', id).order('peso', { ascending: false }).limit(20),
+    sbAdmin.from('mercado_conexoes').select('origem_id, tipo, peso, mercado_entidades!mercado_conexoes_origem_id_fkey(id,razao_social,nome_fantasia,tipos,score_relevancia)').eq('destino_id', id).order('peso', { ascending: false }).limit(20),
+  ])
+  const conexoes: any[] = [
+    ...(origemData ?? []).map((c: any) => ({ entidade_id: c.destino_id, nome: c.mercado_entidades?.nome_fantasia || c.mercado_entidades?.razao_social || '—', tipos: c.mercado_entidades?.tipos ?? [], tipo: c.tipo, peso: c.peso })),
+    ...(destinoData ?? []).map((c: any) => ({ entidade_id: c.origem_id, nome: c.mercado_entidades?.nome_fantasia || c.mercado_entidades?.razao_social || '—', tipos: c.mercado_entidades?.tipos ?? [], tipo: c.tipo, peso: c.peso })),
+  ].sort((a, b) => (b.peso ?? 0) - (a.peso ?? 0))
 
   const nome = entidade.nome_fantasia || entidade.razao_social
-  const veiculosAtivos = veiculos.filter((v: any) => v.situacao !== 'cancelado' && v.situacao !== 'encerrado')
-  const veiculosEncerrados = veiculos.filter((v: any) => v.situacao === 'cancelado' || v.situacao === 'encerrado')
+  const veiculosAtivos = veiculos.filter((v: any) => v.ativo !== false && v.veiculo_situacao !== 'cancelado' && v.veiculo_situacao !== 'encerrado')
+  const veiculosEncerrados = veiculos.filter((v: any) => v.ativo === false || v.veiculo_situacao === 'cancelado' || v.veiculo_situacao === 'encerrado')
 
   // perfil simples derivado dos veículos
   const porTipoMap = new Map<string, number>()
-  veiculos.forEach((v: any) => { porTipoMap.set(v.tipo ?? '?', (porTipoMap.get(v.tipo ?? '?') ?? 0) + 1) })
+  veiculos.forEach((v: any) => { porTipoMap.set(v.veiculo_tipo, (porTipoMap.get(v.veiculo_tipo) ?? 0) + 1) })
   const perfil = {
     por_tipo: [...porTipoMap.entries()].sort((a, b) => b[1] - a[1]).map(([tipo, n]) => ({ tipo, n })),
     top_categorias: [] as any[],
