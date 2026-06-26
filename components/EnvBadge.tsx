@@ -1,6 +1,6 @@
 import { IS_HOMOLOG } from '@/lib/env'
 
-// Badge de ambiente ao lado do logo. Em produção mantém "Beta"; em homologação
+// Badge de ambiente ao lado do logo. Em produção exibe a versão do sistema; em homologação
 // troca por "HOMOLOG" em cor de alerta, para a equipe nunca confundir os ambientes.
 export default function EnvBadge() {
   if (IS_HOMOLOG) {
@@ -12,7 +12,7 @@ export default function EnvBadge() {
   }
   return (
     <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-2 text-ink-2 border border-border">
-      Beta
+      v2.0.0
     </span>
   )
 }
