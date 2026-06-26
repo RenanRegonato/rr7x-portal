@@ -63,17 +63,20 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
     .sort((a, b) => (b.peso ?? 0) - (a.peso ?? 0))
 
   const nome = entidade.nome_fantasia || entidade.razao_social
-  // Valores reais no banco: 'ativo','ativa','EM FUNCIONAMENTO NORMAL' = ativo | 'CANCELADA','LIQUIDAÇÃO' = encerrado
-  function isAtivo(v: any) {
-    const s = (v.veiculo_situacao ?? '').toLowerCase().trim()
-    return s === 'ativo' || s === 'ativa' || s === 'em funcionamento normal'
-  }
-  const veiculosAtivos = veiculos.filter(isAtivo)
-  const veiculosEncerrados = veiculos.filter((v: any) => !isAtivo(v))
 
-  // perfil simples derivado APENAS dos ativos
+  function classVeiculo(v: any): 'ativo' | 'preop' | 'encerrado' {
+    const s = (v.veiculo_situacao ?? '').toLowerCase().trim()
+    if (s === 'ativo' || s === 'ativa' || s === 'em funcionamento normal') return 'ativo'
+    if (s.includes('pré-operacional') || s.includes('pre-operacional') || s === 'fase pré-operacional') return 'preop'
+    return 'encerrado'
+  }
+  const veiculosAtivos   = veiculos.filter((v: any) => classVeiculo(v) === 'ativo')
+  const veiculosPreOp    = veiculos.filter((v: any) => classVeiculo(v) === 'preop')
+  const veiculosEncerrados = veiculos.filter((v: any) => classVeiculo(v) === 'encerrado')
+
+  // perfil derivado de ativos + pré-operacionais
   const porTipoMap = new Map<string, number>()
-  veiculosAtivos.forEach((v: any) => { porTipoMap.set(v.veiculo_tipo, (porTipoMap.get(v.veiculo_tipo) ?? 0) + 1) })
+  ;[...veiculosAtivos, ...veiculosPreOp].forEach((v: any) => { porTipoMap.set(v.veiculo_tipo, (porTipoMap.get(v.veiculo_tipo) ?? 0) + 1) })
   const perfil = {
     por_tipo: [...porTipoMap.entries()].sort((a, b) => b[1] - a[1]).map(([tipo, n]) => ({ tipo, n })),
     top_categorias: [] as any[],
@@ -226,11 +229,16 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Veículos */}
         <section className="bg-surface border border-border rounded-xl p-5 space-y-5">
-          <h2 className="text-sm font-semibold text-ink flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-ink flex items-center gap-2 flex-wrap">
             Veículos ({totalVeiculos.toLocaleString('pt-BR')})
             {veiculosAtivos.length > 0 && (
               <span className="text-[11px] font-medium text-ok bg-ok/10 border border-ok/20 rounded-full px-2 py-0.5">
                 {veiculosAtivos.length} ativos
+              </span>
+            )}
+            {veiculosPreOp.length > 0 && (
+              <span className="text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                {veiculosPreOp.length} pré-op
               </span>
             )}
           </h2>
@@ -240,8 +248,8 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
             <>
               {veiculosAtivos.length > 0 && (
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-3 mb-2">
-                    Ativos ({veiculosAtivos.length})
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-ok mb-2">
+                    Em funcionamento ({veiculosAtivos.length})
                   </div>
                   <ul className="divide-y divide-border">
                     {veiculosAtivos.slice(0, 100).map(v => (
@@ -251,6 +259,31 @@ export default async function EntidadePage({ params }: { params: Promise<{ id: s
                           className="py-2 flex items-center gap-3 hover:bg-surface-hover rounded-lg px-1 transition"
                         >
                           <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-2 text-ink-2 border border-border flex-none">{v.veiculo_tipo}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm text-ink truncate">{v.veiculo_nome}</div>
+                            {v.veiculo_categoria && <div className="text-[11px] text-ink-3 truncate">{v.veiculo_categoria}</div>}
+                          </div>
+                          <span className="text-xs text-ink-3 flex-none">{PAPEL_LABEL[v.papel] ?? v.papel}</span>
+                          <IconArrowRight size={12}/>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {veiculosPreOp.length > 0 && (
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-amber-700 mb-2">
+                    Fase pré-operacional ({veiculosPreOp.length})
+                  </div>
+                  <ul className="divide-y divide-border">
+                    {veiculosPreOp.slice(0, 50).map(v => (
+                      <li key={`${v.veiculo_id}-${v.papel}`}>
+                        <Link
+                          href={`/dashboard/mapa-inteligente/veiculo/${v.veiculo_id}`}
+                          className="py-2 flex items-center gap-3 hover:bg-surface-hover rounded-lg px-1 transition"
+                        >
+                          <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 flex-none">{v.veiculo_tipo}</span>
                           <div className="flex-1 min-w-0">
                             <div className="text-sm text-ink truncate">{v.veiculo_nome}</div>
                             {v.veiculo_categoria && <div className="text-[11px] text-ink-3 truncate">{v.veiculo_categoria}</div>}

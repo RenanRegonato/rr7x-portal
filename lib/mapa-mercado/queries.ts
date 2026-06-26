@@ -114,27 +114,29 @@ export async function getEntidadeCompleta(entidade_id: string) {
 
   if (e1) throw e1
 
-  // Buscar ativos e cancelados separadamente — ativos têm prioridade na exibição
-  const SITUACOES_ATIVAS = 'situacao.eq.ativo,situacao.eq.ativa,situacao.eq.EM FUNCIONAMENTO NORMAL'
-  const SITUACOES_CANCELADAS = 'situacao.eq.CANCELADA,situacao.eq.LIQUIDAÇÃO'
-
-  const [{ data: veiculosAtivos, error: e2a }, { data: veiculosCancelados }] = await Promise.all([
-    supabase
-      .from('mercado_veiculo_prestadores')
-      .select('veiculo_id, papel, ativo, mercado_veiculos!inner(id, nome, tipo, situacao, categoria_cvm)')
-      .eq('entidade_id', entidade_id)
-      .or(SITUACOES_ATIVAS, { foreignTable: 'mercado_veiculos' })
-      .limit(500),
-    supabase
-      .from('mercado_veiculo_prestadores')
-      .select('veiculo_id, papel, ativo, mercado_veiculos!inner(id, nome, tipo, situacao, categoria_cvm)')
-      .eq('entidade_id', entidade_id)
-      .or(SITUACOES_CANCELADAS, { foreignTable: 'mercado_veiculos' })
-      .limit(100),
-  ])
+  // Buscar todos os veículos e ordenar por situação no JS (ativos primeiro)
+  const { data: todosVeiculos, error: e2a } = await supabase
+    .from('mercado_veiculo_prestadores')
+    .select('veiculo_id, papel, ativo, mercado_veiculos(id, nome, tipo, situacao, categoria_cvm)')
+    .eq('entidade_id', entidade_id)
+    .limit(600)
 
   if (e2a) throw e2a
-  const veiculos = [...(veiculosAtivos ?? []), ...(veiculosCancelados ?? [])]
+
+  function prioridadeSituacao(situacao: string | null): number {
+    const s = (situacao ?? '').toUpperCase()
+    if (s === 'EM FUNCIONAMENTO NORMAL' || s === 'ATIVO' || s === 'ATIVA') return 0
+    if (s === 'FASE PRÉ-OPERACIONAL' || s === 'PRE-OPERACIONAL' || s === 'PRÉ-OPERACIONAL') return 1
+    if (s.includes('LIQUIDAÇ')) return 3
+    if (s === 'CANCELADA' || s === 'CANCELADO') return 4
+    return 2
+  }
+
+  const veiculos = (todosVeiculos ?? []).sort((a: any, b: any) => {
+    const sa = a.mercado_veiculos?.situacao ?? null
+    const sb = b.mercado_veiculos?.situacao ?? null
+    return prioridadeSituacao(sa) - prioridadeSituacao(sb)
+  })
 
   const { data: metricas, error: e3 } = await supabase
     .from('mercado_metricas')
