@@ -183,7 +183,7 @@ export function getDocsCriticos(tipoAtivo: string, pilarOperacao?: string): Docu
     return [...getDocsCriticosImobiliarios(), ...getDocsCriticosAgricolas()]
   }
   if (pilarOperacao === 'fidc' || CREDIT_TIPOS_FIDC.has(tipoAtivo)) {
-    return [] // FIDC não tem lista de docs críticos padronizados — depende do lastro
+    return getDocsCriticosFIDC()
   }
 
   // Fallback por tipoAtivo (compatibilidade com deals antigos)
@@ -196,6 +196,64 @@ export function getDocsCriticos(tipoAtivo: string, pilarOperacao?: string): Docu
 }
 
 const CREDIT_TIPOS_FIDC = new Set(['FIDC / Crédito Estruturado', 'FIDC de Infraestrutura (incentivado)', 'Portfólio de Crédito'])
+
+/**
+ * Lista documentos críticos esperados para FIDC.
+ * Cobre cedente + estrutura. Documentos específicos de lastro são adicionados
+ * conforme o tipo de recebível informado no intake.
+ */
+export function getDocsCriticosFIDC(): DocumentoCritico[] {
+  return [
+    {
+      nome: 'DRE do Cedente (últimos 3 anos)',
+      descricao: 'Resultado econômico do originador dos recebíveis',
+      severidade: 'critico',
+      exemplo: 'DRE anual dos últimos 3 exercícios do cedente (empresa originadora)',
+      dica: 'Avalia saúde financeira do cedente e capacidade de originação sustentável da carteira.',
+    },
+    {
+      nome: 'Balanço Patrimonial do Cedente (últimos 3 anos)',
+      descricao: 'Posição patrimonial do originador dos recebíveis',
+      severidade: 'critico',
+      exemplo: 'Balanço auditado ou contábil dos últimos 3 anos do cedente',
+      dica: 'Patrimônio líquido do cedente determina a capacidade de recompra em caso de inadimplência.',
+    },
+    {
+      nome: 'Histórico de Inadimplência da Carteira',
+      descricao: 'Taxa de inadimplência, atrasos e perdas dos últimos 12-24 meses',
+      severidade: 'critico',
+      exemplo: 'Relatório de inadimplência mensal, aging da carteira, default rate histórico',
+      dica: 'Mínimo: últimos 12 meses. Ideal: 24 meses para capturar ciclos sazonais.',
+    },
+    {
+      nome: 'Mapa de Concentração por Sacado / Devedor',
+      descricao: 'Distribuição percentual da carteira pelos principais devedores',
+      severidade: 'critico',
+      exemplo: 'Planilha com % de cada devedor, análise de concentração, top 10 sacados',
+      dica: 'Sacado > 15% da carteira exige estrutura de proteção adicional (FIDC NP).',
+    },
+    {
+      nome: 'Contrato de Cessão de Recebíveis (minuta)',
+      descricao: 'Instrumento que formaliza a transferência dos recebíveis do cedente para o FIDC',
+      severidade: 'alto',
+      exemplo: 'Minuta do contrato de cessão, instrumento de cessão fiduciária',
+    },
+    {
+      nome: 'Regulamento do FIDC (minuta)',
+      descricao: 'Documento que rege o funcionamento do fundo, política de investimento e critérios de elegibilidade',
+      severidade: 'alto',
+      exemplo: 'Minuta do regulamento, regulamento aprovado pela CVM',
+      dica: 'Necessário para avaliação de compliance CVM 175/22.',
+    },
+    {
+      nome: 'Estrutura de Cotas (Sênior / Mezanino / Subordinada)',
+      descricao: 'Percentual e características de cada classe de cota do fundo',
+      severidade: 'alto',
+      exemplo: 'Tabela com % das cotas (ex: Sênior 70% / Sub 30%), memorando de estruturação',
+      dica: 'FIDC Padronizado pulverizado: subordinação mín. 25%. Concentrado: 40% (CVM 175/22).',
+    },
+  ]
+}
 
 /**
  * Identifica qual documento crítico foi enviado.
