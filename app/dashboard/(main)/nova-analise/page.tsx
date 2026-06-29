@@ -270,6 +270,17 @@ function NovaAnaliseInner() {
       .catch(() => setRtUnlocked(false))
   }, [])
 
+  // M&A e Preparação de Ativo: Reforma Tributária é relevante por padrão.
+  // Ao selecionar esses pilares, desbloqueamos o módulo e pré-selecionamos
+  // 'diagnosticar' — o usuário ainda pode mudar para 'na' ou 'possui'.
+  const pilarRT = form.pilarOperacao as Pilar | ''
+  useEffect(() => {
+    if (pilarRT === 'ma' || pilarRT === 'asset_prep') {
+      setRtUnlocked(true)
+      setReformaTributaria(prev => prev === 'na' ? 'diagnosticar' : prev)
+    }
+  }, [pilarRT])
+
   function restoreDraft() {
     try {
       const raw = localStorage.getItem(DRAFT_KEY)
